@@ -12,55 +12,7 @@ namespace Wire
     {
         private readonly Dictionary<Type, ValueSerializer> _serializers = new Dictionary<Type, ValueSerializer>();
 
-        public ValueSerializer GetSerializerByType(Type type)
-        {
-            if (type == typeof (int))
-                return Int32Serializer.Instance;
-
-            if (type == typeof (long))
-                return Int64Serializer.Instance;
-
-            if (type == typeof (short))
-                return Int16Serializer.Instance;
-
-            if (type == typeof (byte))
-                return ByteSerializer.Instance;
-
-            if (type == typeof (bool))
-                return BoolSerializer.Instance;
-
-            if (type == typeof (DateTime))
-                return DateTimeSerializer.Instance;
-
-            if (type == typeof (string))
-                return StringSerializer.Instance;
-
-            if (type == typeof (Guid))
-                return GuidSerializer.Instance;
-
-            if (type == typeof (byte[]))
-                return ByteArraySerializer.Instance;
-
-            if (type.IsArray)
-            {
-                var elementType = type.GetElementType();
-                if (elementType == typeof (int) ||
-                    elementType == typeof (long) ||
-                    elementType == typeof (short) ||
-                    elementType == typeof (DateTime) ||
-                    elementType == typeof (bool) ||
-                    elementType == typeof (string) ||
-                    elementType == typeof (Guid))
-                {
-                    return ConsistentArraySerializer.Instance;
-                }
-                throw new NotSupportedException(""); //array of other types
-            }
-
-            var serializer = GetSerialzerForPoco(type);
-
-            return serializer;
-        }
+        
 
         private ValueSerializer GetSerialzerForPoco(Type type)
         {
@@ -155,6 +107,56 @@ namespace Wire
             };
             var s = GetSerializerByManifest(stream, session);
             return (T) s.ReadValue(stream, session);
+        }
+
+        public ValueSerializer GetSerializerByType(Type type)
+        {
+            if (type == typeof(int))
+                return Int32Serializer.Instance;
+
+            if (type == typeof(long))
+                return Int64Serializer.Instance;
+
+            if (type == typeof(short))
+                return Int16Serializer.Instance;
+
+            if (type == typeof(byte))
+                return ByteSerializer.Instance;
+
+            if (type == typeof(bool))
+                return BoolSerializer.Instance;
+
+            if (type == typeof(DateTime))
+                return DateTimeSerializer.Instance;
+
+            if (type == typeof(string))
+                return StringSerializer.Instance;
+
+            if (type == typeof(Guid))
+                return GuidSerializer.Instance;
+
+            if (type == typeof(byte[]))
+                return ByteArraySerializer.Instance;
+
+            if (type.IsArray)
+            {
+                var elementType = type.GetElementType();
+                if (elementType == typeof(int) ||
+                    elementType == typeof(long) ||
+                    elementType == typeof(short) ||
+                    elementType == typeof(DateTime) ||
+                    elementType == typeof(bool) ||
+                    elementType == typeof(string) ||
+                    elementType == typeof(Guid))
+                {
+                    return ConsistentArraySerializer.Instance;
+                }
+                throw new NotSupportedException(""); //array of other types
+            }
+
+            var serializer = GetSerialzerForPoco(type);
+
+            return serializer;
         }
 
         public ValueSerializer GetSerializerByManifest(Stream stream, SerializerSession session)

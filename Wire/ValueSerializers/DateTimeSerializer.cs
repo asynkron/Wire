@@ -21,8 +21,9 @@ namespace Wire.ValueSerializers
 
         public override object ReadValue(Stream stream, SerializerSession session)
         {
-            var buffer = session.GetBuffer(8);
-            stream.Read(buffer, 0, 8);
+            var size = sizeof(long);
+            var buffer = session.GetBuffer(size);
+            stream.Read(buffer, 0, size);
             var ticks = BitConverter.ToInt64(buffer, 0);
             return new DateTime(ticks);
         }

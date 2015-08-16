@@ -45,6 +45,8 @@
     <Compile Include="ValueSerializers\ByteSerializer.cs" />
     <Compile Include="ValueSerializers\ConsistentArraySerializer.cs" />
     <Compile Include="ValueSerializers\DateTimeSerializer.cs" />
+    <Compile Include="ValueSerializers\DoubleSerializer.cs" />
+    <Compile Include="ValueSerializers\FloatSerializer.cs" />
     <Compile Include="ValueSerializers\GuidSerializer.cs" />
     <Compile Include="ValueSerializers\Int16Serializer.cs" />
     <Compile Include="ValueSerializers\Int32Serializer.cs" />
