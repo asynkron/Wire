@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using Wire.ValueSerializers;
 
 namespace Wire
 {
@@ -13,50 +14,47 @@ namespace Wire
 
         public ValueSerializer GetSerializerByType(Type type)
         {
-            if (type == typeof(int))
+            if (type == typeof (int))
                 return Int32Serializer.Instance;
 
-            if (type == typeof(long))
+            if (type == typeof (long))
                 return Int64Serializer.Instance;
 
-            if (type == typeof(short))
+            if (type == typeof (short))
                 return Int16Serializer.Instance;
 
-            if (type == typeof(byte))
+            if (type == typeof (byte))
                 return ByteSerializer.Instance;
 
-            if (type == typeof(bool))
+            if (type == typeof (bool))
                 return BoolSerializer.Instance;
 
-            if (type == typeof(DateTime))
+            if (type == typeof (DateTime))
                 return DateTimeSerializer.Instance;
 
-            if (type == typeof(string))
+            if (type == typeof (string))
                 return StringSerializer.Instance;
 
-            if (type == typeof(Guid))
+            if (type == typeof (Guid))
                 return GuidSerializer.Instance;
 
-            if (type == typeof(byte[]))
+            if (type == typeof (byte[]))
                 return ByteArraySerializer.Instance;
 
-            if (type.IsArray)             
+            if (type.IsArray)
             {
                 var elementType = type.GetElementType();
-                if (elementType == typeof(int) ||
-                elementType == typeof(long) ||
-                elementType == typeof(short) ||
-                elementType == typeof(DateTime) ||
-                elementType == typeof(bool) ||
-                elementType == typeof(string) ||
-                elementType == typeof(Guid))
+                if (elementType == typeof (int) ||
+                    elementType == typeof (long) ||
+                    elementType == typeof (short) ||
+                    elementType == typeof (DateTime) ||
+                    elementType == typeof (bool) ||
+                    elementType == typeof (string) ||
+                    elementType == typeof (Guid))
                 {
                     return ConsistentArraySerializer.Instance;
                 }
-                else
-                {
-                    throw new NotSupportedException(""); //array of other types
-                }
+                throw new NotSupportedException(""); //array of other types
             }
 
             var serializer = GetSerialzerForPoco(type);
@@ -87,7 +85,7 @@ namespace Wire
                 var f = field;
                 var s = GetSerializerByType(field.FieldType);
 
-                Func<object, object> getFieldValue = GenerateFieldReader(type, f);
+                var getFieldValue = GenerateFieldReader(type, f);
 
                 Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
                 {
@@ -98,7 +96,6 @@ namespace Wire
 
                 Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
                 {
-
                     var value = s.ReadValue(stream, session);
                     f.SetValue(o, value);
                 };
@@ -107,7 +104,7 @@ namespace Wire
 
             serializer.Writer = (stream, o, session) =>
             {
-                for (int index = 0; index < fieldWriters.Count; index++)
+                for (var index = 0; index < fieldWriters.Count; index++)
                 {
                     var fieldWriter = fieldWriters[index];
                     fieldWriter(stream, o, session);
@@ -116,7 +113,7 @@ namespace Wire
             serializer.Reader = (stream, session) =>
             {
                 var instance = Activator.CreateInstance(type);
-                for (int index = 0; index < fieldReaders.Count; index++)
+                for (var index = 0; index < fieldReaders.Count; index++)
                 {
                     var fieldReader = fieldReaders[index];
                     fieldReader(stream, instance, session);
@@ -128,20 +125,20 @@ namespace Wire
 
         private static Func<object, object> GenerateFieldReader(Type type, FieldInfo f)
         {
-            ParameterExpression param = Expression.Parameter(typeof(object));
+            var param = Expression.Parameter(typeof (object));
             Expression castParam = Expression.Convert(param, type);
             Expression x = Expression.Field(castParam, f);
-            Expression castRes = Expression.Convert(x, typeof(object));
-            Func<object, object> getFieldValue = Expression.Lambda<Func<object, object>>(castRes, param).Compile();
+            Expression castRes = Expression.Convert(x, typeof (object));
+            var getFieldValue = Expression.Lambda<Func<object, object>>(castRes, param).Compile();
             return getFieldValue;
         }
 
         public void Serialize(object obj, Stream stream)
         {
-            var session = new SerializerSession()
+            var session = new SerializerSession
             {
                 Buffer = new byte[100],
-                Serializer = this,
+                Serializer = this
             };
             var type = obj.GetType();
             var s = GetSerializerByType(obj.GetType());
@@ -151,13 +148,13 @@ namespace Wire
 
         public T Deserialize<T>(Stream stream)
         {
-            var session = new SerializerSession()
+            var session = new SerializerSession
             {
                 Buffer = new byte[100],
-                Serializer = this,
+                Serializer = this
             };
             var s = GetSerializerByManifest(stream, session);
-            return (T)s.ReadValue(stream, session);
+            return (T) s.ReadValue(stream, session);
         }
 
         public ValueSerializer GetSerializerByManifest(Stream stream, SerializerSession session)
@@ -186,49 +183,51 @@ namespace Wire
                 case 11:
                     return GuidSerializer.Instance;
                 case 255:
-                    Type type = GetNamedTypeFromManifest(stream, session);
+                    var type = GetNamedTypeFromManifest(stream, session);
                     return GetSerialzerForPoco(type);
                 default:
                     throw new NotSupportedException("Unknown manifest value");
             }
         }
 
+        //TODO: this is only used from consistent array serializer
+        //we need to know the type of the elements so we can create the array instance
         public Type GetArrayElementTypeFromManifest(Stream stream, SerializerSession session)
         {
             var first = stream.ReadByte();
             switch (first)
             {
                 case 2:
-                    return typeof(long);
+                    return typeof (long);
                 case 3:
-                    return typeof(short);
+                    return typeof (short);
                 case 4:
-                    return typeof(byte);
+                    return typeof (byte);
                 case 5:
-                    return typeof(DateTime);
+                    return typeof (DateTime);
                 case 6:
-                    return typeof(bool);
+                    return typeof (bool);
                 case 7:
-                    return typeof(string);
+                    return typeof (string);
                 case 8:
-                    return typeof(int);
+                    return typeof (int);
                 case 9:
-                    return typeof(byte[]);
+                    return typeof (byte[]);
                 case 10:
                     throw new NotSupportedException(); //
                 case 11:
-                    return typeof(Guid);
+                    return typeof (Guid);
                 case 255:
-                    Type type = GetNamedTypeFromManifest(stream, session);
+                    var type = GetNamedTypeFromManifest(stream, session);
                     return type;
                 default:
                     throw new NotSupportedException("Unknown manifest value");
             }
         }
 
-        public  Type GetNamedTypeFromManifest(Stream stream, SerializerSession session)
+        public Type GetNamedTypeFromManifest(Stream stream, SerializerSession session)
         {
-            var bytes = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
+            var bytes = (byte[]) ByteArraySerializer.Instance.ReadValue(stream, session);
             var typename = Encoding.UTF8.GetString(bytes);
             var type = Type.GetType(typename);
             return type;

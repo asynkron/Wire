@@ -40,10 +40,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ValueSerializers\BoolSerializer.cs" />
+    <Compile Include="ValueSerializers\ByteArraySerializer.cs" />
+    <Compile Include="ValueSerializers\ByteSerializer.cs" />
+    <Compile Include="ValueSerializers\ConsistentArraySerializer.cs" />
+    <Compile Include="ValueSerializers\DateTimeSerializer.cs" />
+    <Compile Include="ValueSerializers\GuidSerializer.cs" />
+    <Compile Include="ValueSerializers\Int16Serializer.cs" />
+    <Compile Include="ValueSerializers\Int32Serializer.cs" />
+    <Compile Include="ValueSerializers\Int64Serializer.cs" />
+    <Compile Include="ValueSerializers\ObjectSerializer.cs" />
     <Compile Include="Serializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializerSession.cs" />
-    <Compile Include="ValueSerializer.cs" />
+    <Compile Include="StringSerializer.cs" />
+    <Compile Include="ValueSerializers\ValueSerializer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
