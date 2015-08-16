@@ -37,6 +37,18 @@ namespace Wire
             if (type == typeof(byte[]))
                 return ByteArraySerializer.Instance;
 
+            if (type.IsArray &&
+                (type == typeof(int[]) ||
+                type == typeof(long[]) ||
+                type == typeof(short[]) ||
+                type == typeof(DateTime[]) ||
+                type == typeof(bool[]) ||
+                type == typeof(string[])
+                ))
+            {
+                return ConsistentArraySerializer.Instance;
+            }
+
             var serializer = GetSerialzerForPoco(type);
 
             return serializer;
@@ -118,7 +130,8 @@ namespace Wire
         {
             var session = new SerializerSession()
             {
-                Buffer = new byte[100]
+                Buffer = new byte[100],
+                Serializer = this,
             };
             var type = obj.GetType();
             var s = GetSerializerByType(obj.GetType());
@@ -130,13 +143,14 @@ namespace Wire
         {
             var session = new SerializerSession()
             {
-                Buffer = new byte[100]
+                Buffer = new byte[100],
+                Serializer = this,
             };
             var s = GetSerializerByManifest(stream, session);
             return (T)s.ReadValue(stream, session);
         }
 
-        private ValueSerializer GetSerializerByManifest(Stream stream, SerializerSession session)
+        public ValueSerializer GetSerializerByManifest(Stream stream, SerializerSession session)
         {
             var first = stream.ReadByte();
             switch (first)
@@ -157,6 +171,8 @@ namespace Wire
                     return Int32Serializer.Instance;
                 case 9:
                     return ByteArraySerializer.Instance;
+                case 10:
+                    return ConsistentArraySerializer.Instance;
                 case 255:
                     Type type = GetTypeFromManifest(stream, session);
                     return GetSerialzerForPoco(type);
@@ -165,7 +181,38 @@ namespace Wire
             }
         }
 
-        private static Type GetTypeFromManifest(Stream stream, SerializerSession session)
+        public Type GetArrayElementTypeFromManifest(Stream stream, SerializerSession session)
+        {
+            var first = stream.ReadByte();
+            switch (first)
+            {
+                case 2:
+                    return typeof(long);
+                case 3:
+                    return typeof(short);
+                case 4:
+                    return typeof(byte);
+                case 5:
+                    return typeof(DateTime);
+                case 6:
+                    return typeof(bool);
+                case 7:
+                    return typeof(string);
+                case 8:
+                    return typeof(int);
+                case 9:
+                    return typeof(byte[]);
+                case 10:
+                    throw new NotSupportedException(); //
+                case 255:
+                    Type type = GetTypeFromManifest(stream, session);
+                    return type;
+                default:
+                    throw new NotSupportedException("Unknown manifest value");
+            }
+        }
+
+        public  Type GetTypeFromManifest(Stream stream, SerializerSession session)
         {
             var bytes = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
             var typename = Encoding.UTF8.GetString(bytes);

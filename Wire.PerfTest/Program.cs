@@ -8,9 +8,25 @@ namespace Wire.PerfTest
     {
         static void Main(string[] args)
         {
+            SerializeStringArray();
             SerializePoco();
             SerializeLoco();
             Console.ReadLine();
+        }
+
+        private static void SerializeStringArray()
+        {
+            Serializer serializer = new Serializer();
+                var stream = new MemoryStream();
+            var strings = new[] { "abc", "def", null ,"ghi", "jkl", "lmmo" };
+            serializer.Serialize(strings, stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize<string[]>(stream);
+                //stream.Position = 0;
+                //var res = serializer.Deserialize<Poco>(stream);
+                //Console.WriteLine(res.Age);
+                //Console.WriteLine(res.Name);
+            
         }
 
         private static void SerializePoco()
