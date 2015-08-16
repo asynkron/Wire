@@ -7,13 +7,11 @@ namespace Wire.ValueSerializers
 {
     public class ObjectSerializer : ValueSerializer
     {
-        private static readonly ConcurrentDictionary<Type, byte[]> AssemblyQualifiedNames =
-            new ConcurrentDictionary<Type, byte[]>();
-
         public Type Type { get; }
 
         public Action<Stream, object, SerializerSession> Writer { get; }
         public Func<Stream, SerializerSession, object> Reader { get; }
+        public byte[] AssemblyQualifiedName { get; }
 
         public ObjectSerializer(Type type, Action<Stream, object, SerializerSession> writer,
             Func<Stream, SerializerSession, object> reader)
@@ -21,18 +19,13 @@ namespace Wire.ValueSerializers
             Type = type;
             Writer = writer;
             Reader = reader;
+            AssemblyQualifiedName = Encoding.UTF8.GetBytes(type.AssemblyQualifiedName);
         }
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.WriteByte(255); //write manifest identifier, 
-            var bytes = AssemblyQualifiedNames.GetOrAdd(type, t =>
-            {
-                var name = t.AssemblyQualifiedName;
-                var b = Encoding.UTF8.GetBytes(name);
-                return b;
-            });
-            ByteArraySerializer.Instance.WriteValue(stream, bytes, session); //write the encoded name of the type
+            stream.WriteByte(255); //write manifest identifier,            
+            ByteArraySerializer.Instance.WriteValue(stream, AssemblyQualifiedName, session); //write the encoded name of the type
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
