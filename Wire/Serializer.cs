@@ -65,11 +65,7 @@ namespace Wire
                 var f = field;
                 var s = GetSerializerByType(field.FieldType);
 
-                ParameterExpression param = Expression.Parameter(typeof(object));
-                Expression castParam = Expression.Convert(param, type);
-                Expression x = Expression.Field(castParam, f);
-                Expression castRes = Expression.Convert(x, typeof(object));
-                Func<object, object> getFieldValue = Expression.Lambda<Func<object, object>>(castRes, param).Compile();
+                Func<object, object> getFieldValue = GenerateFieldReader(type, f);
 
                 Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
                 {
@@ -106,6 +102,16 @@ namespace Wire
                 return instance;
             };
             return serializer;
+        }
+
+        private static Func<object, object> GenerateFieldReader(Type type, FieldInfo f)
+        {
+            ParameterExpression param = Expression.Parameter(typeof(object));
+            Expression castParam = Expression.Convert(param, type);
+            Expression x = Expression.Field(castParam, f);
+            Expression castRes = Expression.Convert(x, typeof(object));
+            Func<object, object> getFieldValue = Expression.Lambda<Func<object, object>>(castRes, param).Compile();
+            return getFieldValue;
         }
 
         public void Serialize(object obj, Stream stream)
@@ -152,13 +158,19 @@ namespace Wire
                 case 9:
                     return ByteArraySerializer.Instance;
                 case 255:
-                    var bytes = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
-                    var typename = Encoding.UTF8.GetString(bytes);
-                    var type = Type.GetType(typename);
+                    Type type = GetTypeFromManifest(stream, session);
                     return GetSerialzerForPoco(type);
                 default:
                     throw new NotSupportedException("Unknown manifest value");
             }
+        }
+
+        private static Type GetTypeFromManifest(Stream stream, SerializerSession session)
+        {
+            var bytes = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
+            var typename = Encoding.UTF8.GetString(bytes);
+            var type = Type.GetType(typename);
+            return type;
         }
     }
 }
