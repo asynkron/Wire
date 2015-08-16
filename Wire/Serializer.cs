@@ -76,8 +76,7 @@ namespace Wire
         private ValueSerializer BuildSerializer(Type type)
         {
             var fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            var serializer = new ObjectSerializer();
-
+            
             var fieldWriters = new List<Action<Stream, object, SerializerSession>>();
             var fieldReaders = new List<Action<Stream, object, SerializerSession>>();
             foreach (var field in fields)
@@ -102,7 +101,7 @@ namespace Wire
                 fieldReaders.Add(fieldReader);
             }
 
-            serializer.Writer = (stream, o, session) =>
+            Action<Stream,object,SerializerSession> writer = (stream, o, session) =>
             {
                 for (var index = 0; index < fieldWriters.Count; index++)
                 {
@@ -110,7 +109,7 @@ namespace Wire
                     fieldWriter(stream, o, session);
                 }
             };
-            serializer.Reader = (stream, session) =>
+            Func < Stream, SerializerSession, object> reader = (stream, session) =>
             {
                 var instance = Activator.CreateInstance(type);
                 for (var index = 0; index < fieldReaders.Count; index++)
@@ -120,6 +119,7 @@ namespace Wire
                 }
                 return instance;
             };
+            var serializer = new ObjectSerializer(type,writer,reader);
             return serializer;
         }
 

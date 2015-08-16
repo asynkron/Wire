@@ -10,8 +10,18 @@ namespace Wire.ValueSerializers
         private static readonly ConcurrentDictionary<Type, byte[]> AssemblyQualifiedNames =
             new ConcurrentDictionary<Type, byte[]>();
 
-        public Action<Stream, object, SerializerSession> Writer { get; set; }
-        public Func<Stream, SerializerSession, object> Reader { get; set; }
+        public Type Type { get; }
+
+        public Action<Stream, object, SerializerSession> Writer { get; }
+        public Func<Stream, SerializerSession, object> Reader { get; }
+
+        public ObjectSerializer(Type type, Action<Stream, object, SerializerSession> writer,
+            Func<Stream, SerializerSession, object> reader)
+        {
+            Type = type;
+            Writer = writer;
+            Reader = reader;
+        }
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
@@ -37,7 +47,7 @@ namespace Wire.ValueSerializers
 
         public override Type GetElementType()
         {
-            throw new NotSupportedException(); //this should be implemented, there is one instance per type
+            return Type;
         }
     }
 }
