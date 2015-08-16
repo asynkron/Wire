@@ -44,6 +44,7 @@ namespace Wire
             
             var fieldWriters = new List<Action<Stream, object, SerializerSession>>();
             var fieldReaders = new List<Action<Stream, object, SerializerSession>>();
+            var fieldNames = new List<byte[]>();
             foreach (var field in fields)
             {
                 var f = field;
@@ -51,8 +52,11 @@ namespace Wire
 
                 var getFieldValue = GenerateFieldReader(type, f);
 
+                byte[] fieldName = Encoding.UTF8.GetBytes(f.Name);
+                fieldNames.Add(fieldName);
                 Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
                 {
+                //    
                     var value = getFieldValue(o);
                     s.WriteValue(stream, value, session);
                 };
@@ -60,6 +64,7 @@ namespace Wire
 
                 Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
                 {
+                //    ByteArraySerializer.Instance.ReadValue(stream, session);
                     var value = s.ReadValue(stream, session);
                     f.SetValue(o, value);
                 };
@@ -70,6 +75,7 @@ namespace Wire
             {
                 for (var index = 0; index < fieldWriters.Count; index++)
                 {
+                    ByteArraySerializer.Instance.WriteValue(stream, fieldNames[index], session);
                     var fieldWriter = fieldWriters[index];
                     fieldWriter(stream, o, session);
                 }
@@ -79,6 +85,8 @@ namespace Wire
                 var instance = Activator.CreateInstance(type);
                 for (var index = 0; index < fieldReaders.Count; index++)
                 {
+                    var fieldName = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
+                    //TODO: check if correct field
                     var fieldReader = fieldReaders[index];
                     fieldReader(stream, instance, session);
                 }
