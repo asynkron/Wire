@@ -6,7 +6,7 @@ namespace Wire.ValueSerializers
     public class ConsistentArraySerializer : ValueSerializer
     {
         public static readonly ConsistentArraySerializer Instance = new ConsistentArraySerializer();
-        private readonly byte[] _manifest = {10};
+        private readonly byte[] _manifest = {254};
 
         public override object ReadValue(Stream stream, SerializerSession session)
         {

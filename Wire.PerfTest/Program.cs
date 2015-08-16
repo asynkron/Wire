@@ -30,6 +30,11 @@ namespace Wire.PerfTest
             serializer.Serialize(strings.ToList(), stream);
             stream.Position = 0;
             var l = serializer.Deserialize<List<string>>(stream);
+
+            foreach (var i in l)
+            {
+                Console.WriteLine(i);
+            }
                 //stream.Position = 0;
                 //var res = serializer.Deserialize<Poco>(stream);
                 //Console.WriteLine(res.Age);

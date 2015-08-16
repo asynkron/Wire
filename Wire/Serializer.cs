@@ -217,8 +217,7 @@ namespace Wire
                     return Int32Serializer.Instance;
                 case 9:
                     return ByteArraySerializer.Instance;
-                case 10:
-                    return ConsistentArraySerializer.Instance;
+                    //insert
                 case 11:
                     return GuidSerializer.Instance;
                 case 12:
@@ -229,6 +228,8 @@ namespace Wire
                     return DecimalSerializer.Instance;
                 case 15:
                     return CharSerializer.Instance;
+                case 254:
+                    return ConsistentArraySerializer.Instance;
                 case 255:
                     var type = GetNamedTypeFromManifest(stream, session);
                     return GetSerialzerForPoco(type);
