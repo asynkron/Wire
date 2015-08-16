@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace Wire.PerfTest
 {
@@ -12,6 +14,7 @@ namespace Wire.PerfTest
             SerializePoco();
             SerializeLoco();
             Console.ReadLine();
+
         }
 
         private static void SerializeStringArray()
@@ -22,6 +25,11 @@ namespace Wire.PerfTest
             serializer.Serialize(strings, stream);
             stream.Position = 0;
             var res = serializer.Deserialize<string[]>(stream);
+
+            stream = new MemoryStream();
+            serializer.Serialize(strings.ToList(), stream);
+            stream.Position = 0;
+            var l = serializer.Deserialize<List<string>>(stream);
                 //stream.Position = 0;
                 //var res = serializer.Deserialize<Poco>(stream);
                 //Console.WriteLine(res.Age);
