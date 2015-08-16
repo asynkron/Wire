@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Wire
 {
+
     public abstract class ValueSerializer
     {
         public abstract void WriteManifest(Stream stream, Type type, SerializerSession session);
@@ -265,6 +266,32 @@ namespace Wire
         }
     }
 
+
+    public class GuidSerializer : ValueSerializer
+    {
+        public static readonly GuidSerializer Instance = new GuidSerializer();
+
+        private readonly byte[] _manifest = { 11 };
+        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        {
+            stream.Write(_manifest, 0, _manifest.Length);
+        }
+
+        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        {
+            var bytes = ((Guid)value).ToByteArray();
+            stream.Write(bytes, 0, bytes.Length);
+        }
+
+
+        public override object ReadValue(Stream stream, SerializerSession session)
+        {
+            byte[] buffer = session.GetBuffer(16);
+            stream.Read(buffer, 0, 16);
+            return new Guid(buffer); //TODO: cap array?
+        }
+    }
+
     public class ObjectSerializer : ValueSerializer
     {
         public Action<Stream, object, SerializerSession> Writer { get; set; }
@@ -273,14 +300,14 @@ namespace Wire
         private static readonly ConcurrentDictionary<Type, byte[]> AssemblyQualifiedNames = new ConcurrentDictionary<Type, byte[]>();
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.WriteByte(255);
+            stream.WriteByte(255); //write manifest identifier, 
             var bytes = AssemblyQualifiedNames.GetOrAdd(type, t =>
             {
                 var name = t.AssemblyQualifiedName;
                 var b = Encoding.UTF8.GetBytes(name);
                 return b;
             });
-            ByteArraySerializer.Instance.WriteValue(stream, bytes, session);
+            ByteArraySerializer.Instance.WriteValue(stream, bytes, session); //write the encoded name of the type
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)

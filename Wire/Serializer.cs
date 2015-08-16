@@ -34,19 +34,29 @@ namespace Wire
             if (type == typeof(string))
                 return StringSerializer.Instance;
 
+            if (type == typeof(Guid))
+                return GuidSerializer.Instance;
+
             if (type == typeof(byte[]))
                 return ByteArraySerializer.Instance;
 
-            if (type.IsArray &&
-                (type == typeof(int[]) ||
-                type == typeof(long[]) ||
-                type == typeof(short[]) ||
-                type == typeof(DateTime[]) ||
-                type == typeof(bool[]) ||
-                type == typeof(string[])
-                ))
+            if (type.IsArray)             
             {
-                return ConsistentArraySerializer.Instance;
+                var elementType = type.GetElementType();
+                if (elementType == typeof(int) ||
+                elementType == typeof(long) ||
+                elementType == typeof(short) ||
+                elementType == typeof(DateTime) ||
+                elementType == typeof(bool) ||
+                elementType == typeof(string) ||
+                elementType == typeof(Guid))
+                {
+                    return ConsistentArraySerializer.Instance;
+                }
+                else
+                {
+                    throw new NotSupportedException(""); //array of other types
+                }
             }
 
             var serializer = GetSerialzerForPoco(type);
@@ -173,8 +183,10 @@ namespace Wire
                     return ByteArraySerializer.Instance;
                 case 10:
                     return ConsistentArraySerializer.Instance;
+                case 11:
+                    return GuidSerializer.Instance;
                 case 255:
-                    Type type = GetTypeFromManifest(stream, session);
+                    Type type = GetNamedTypeFromManifest(stream, session);
                     return GetSerialzerForPoco(type);
                 default:
                     throw new NotSupportedException("Unknown manifest value");
@@ -204,15 +216,17 @@ namespace Wire
                     return typeof(byte[]);
                 case 10:
                     throw new NotSupportedException(); //
+                case 11:
+                    return typeof(Guid);
                 case 255:
-                    Type type = GetTypeFromManifest(stream, session);
+                    Type type = GetNamedTypeFromManifest(stream, session);
                     return type;
                 default:
                     throw new NotSupportedException("Unknown manifest value");
             }
         }
 
-        public  Type GetTypeFromManifest(Stream stream, SerializerSession session)
+        public  Type GetNamedTypeFromManifest(Stream stream, SerializerSession session)
         {
             var bytes = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
             var typename = Encoding.UTF8.GetString(bytes);
