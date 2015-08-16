@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using Wire.ValueSerializers;
 
-namespace Wire
+namespace Wire.ValueSerializers
 {
     public class StringSerializer : ValueSerializer
     {
-        public static readonly ValueSerializer Instance = new StringSerializer();
+        public static readonly StringSerializer Instance = new StringSerializer();
         private readonly byte[] _manifest = {7};
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)

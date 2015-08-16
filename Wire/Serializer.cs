@@ -12,7 +12,20 @@ namespace Wire
     {
         private readonly Dictionary<Type, ValueSerializer> _serializers = new Dictionary<Type, ValueSerializer>();
 
-        
+        //private static readonly Dictionary<Type, ValueSerializer> PrimitiveSerializers = new Dictionary
+        //    <Type, ValueSerializer>
+        //{
+        //    [typeof (int)] = Int32Serializer.Instance,
+        //    [typeof(long)] = Int64Serializer.Instance,
+        //    [typeof(short)] = Int16Serializer.Instance,
+        //    [typeof(byte)] = ByteSerializer.Instance,
+        //    [typeof(DateTime)] = DateTimeSerializer.Instance,
+        //    [typeof(string)] = StringSerializer.Instance,
+        //    [typeof(double)] = DoubleSerializer.Instance,
+        //    [typeof(float)] = FloatSerializer.Instance,
+        //    [typeof(Guid)] = GuidSerializer.Instance,
+        //};
+
 
         private ValueSerializer GetSerialzerForPoco(Type type)
         {
@@ -111,6 +124,13 @@ namespace Wire
 
         public ValueSerializer GetSerializerByType(Type type)
         {
+            //TODO: code generate this
+            //ValueSerializer tmp;
+            //if (_primitiveSerializers.TryGetValue(type, out tmp))
+            //{
+            //    return tmp;
+            //}
+
             if (type == typeof(int))
                 return Int32Serializer.Instance;
 
@@ -135,6 +155,18 @@ namespace Wire
             if (type == typeof(Guid))
                 return GuidSerializer.Instance;
 
+            if (type == typeof(float))
+                return FloatSerializer.Instance;
+
+            if (type == typeof(double))
+                return DoubleSerializer.Instance;
+
+            if (type == typeof(decimal))
+                return DecimalSerializer.Instance;
+
+            if (type == typeof(char))
+                return CharSerializer.Instance;
+
             if (type == typeof(byte[]))
                 return ByteArraySerializer.Instance;
 
@@ -147,7 +179,12 @@ namespace Wire
                     elementType == typeof(DateTime) ||
                     elementType == typeof(bool) ||
                     elementType == typeof(string) ||
-                    elementType == typeof(Guid))
+                    elementType == typeof(Guid) ||
+                    elementType == typeof(float) ||
+                    elementType == typeof(double) ||
+                    elementType == typeof(decimal) ||
+                    elementType == typeof(char)
+                    )
                 {
                     return ConsistentArraySerializer.Instance;
                 }
@@ -184,6 +221,14 @@ namespace Wire
                     return ConsistentArraySerializer.Instance;
                 case 11:
                     return GuidSerializer.Instance;
+                case 12:
+                    return FloatSerializer.Instance;
+                case 13:
+                    return DoubleSerializer.Instance;
+                case 14:
+                    return DecimalSerializer.Instance;
+                case 15:
+                    return CharSerializer.Instance;
                 case 255:
                     var type = GetNamedTypeFromManifest(stream, session);
                     return GetSerialzerForPoco(type);
@@ -202,3 +247,4 @@ namespace Wire
         }
     }
 }
+ 
