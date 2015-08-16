@@ -26,5 +26,10 @@ namespace Wire.ValueSerializers
                 return false;
             return true;
         }
+
+        public override Type GetElementType()
+        {
+            return typeof (bool);
+        }
     }
 }

@@ -34,5 +34,10 @@ namespace Wire.ValueSerializers
         {
             return Reader(stream, session);
         }
+
+        public override Type GetElementType()
+        {
+            throw new NotSupportedException(); //this should be implemented, there is one instance per type
+        }
     }
 }

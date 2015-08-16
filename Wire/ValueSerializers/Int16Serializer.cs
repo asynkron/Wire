@@ -25,5 +25,10 @@ namespace Wire.ValueSerializers
             stream.Read(buffer, 0, 2);
             return BitConverter.ToInt16(buffer, 0);
         }
+
+        public override Type GetElementType()
+        {
+            return typeof (short);
+        }
     }
 }

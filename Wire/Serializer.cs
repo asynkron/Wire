@@ -190,40 +190,6 @@ namespace Wire
             }
         }
 
-        //TODO: this is only used from consistent array serializer
-        //we need to know the type of the elements so we can create the array instance
-        public Type GetArrayElementTypeFromManifest(Stream stream, SerializerSession session)
-        {
-            var first = stream.ReadByte();
-            switch (first)
-            {
-                case 2:
-                    return typeof (long);
-                case 3:
-                    return typeof (short);
-                case 4:
-                    return typeof (byte);
-                case 5:
-                    return typeof (DateTime);
-                case 6:
-                    return typeof (bool);
-                case 7:
-                    return typeof (string);
-                case 8:
-                    return typeof (int);
-                case 9:
-                    return typeof (byte[]);
-                case 10:
-                    throw new NotSupportedException(); //
-                case 11:
-                    return typeof (Guid);
-                case 255:
-                    var type = GetNamedTypeFromManifest(stream, session);
-                    return type;
-                default:
-                    throw new NotSupportedException("Unknown manifest value");
-            }
-        }
 
         public Type GetNamedTypeFromManifest(Stream stream, SerializerSession session)
         {

@@ -26,5 +26,10 @@ namespace Wire.ValueSerializers
             var ticks = BitConverter.ToInt64(buffer, 0);
             return new DateTime(ticks);
         }
+
+        public override Type GetElementType()
+        {
+            return typeof (DateTime);
+        }
     }
 }

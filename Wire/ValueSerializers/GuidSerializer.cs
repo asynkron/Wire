@@ -25,5 +25,10 @@ namespace Wire.ValueSerializers
             stream.Read(buffer, 0, 16);
             return new Guid(buffer); //TODO: cap array?
         }
+
+        public override Type GetElementType()
+        {
+            return typeof (Guid);
+        }
     }
 }

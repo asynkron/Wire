@@ -41,5 +41,10 @@ namespace Wire
             var res = Encoding.UTF8.GetString(buffer, 0, length);
             return res;
         }
+
+        public override Type GetElementType()
+        {
+            return typeof (string);
+        }
     }
 }
