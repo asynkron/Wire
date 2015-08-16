@@ -3,7 +3,6 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-
     public abstract class ValueSerializer
     {
         public abstract void WriteManifest(Stream stream, Type type, SerializerSession session);

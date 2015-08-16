@@ -7,10 +7,12 @@ namespace Wire.ValueSerializers
 {
     public class ObjectSerializer : ValueSerializer
     {
+        private static readonly ConcurrentDictionary<Type, byte[]> AssemblyQualifiedNames =
+            new ConcurrentDictionary<Type, byte[]>();
+
         public Action<Stream, object, SerializerSession> Writer { get; set; }
         public Func<Stream, SerializerSession, object> Reader { get; set; }
 
-        private static readonly ConcurrentDictionary<Type, byte[]> AssemblyQualifiedNames = new ConcurrentDictionary<Type, byte[]>();
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
             stream.WriteByte(255); //write manifest identifier, 
