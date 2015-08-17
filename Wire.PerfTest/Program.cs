@@ -47,7 +47,7 @@ namespace Wire.PerfTest
         {
             Serializer serializer = new Serializer();
             Stopwatch sw = Stopwatch.StartNew();
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 2000000; i++)
             {
                 var stream = new MemoryStream();
                 var poco = new Poco()
@@ -71,7 +71,7 @@ namespace Wire.PerfTest
             Serializer serializer = new Serializer();
             
             Stopwatch sw = Stopwatch.StartNew();
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 2000000; i++)
             {
                 var stream = new MemoryStream();
                 var poco = new Poco
@@ -105,7 +105,7 @@ namespace Wire.PerfTest
                 };
                 var loco = new Loco
                 {
-                    Poco = new Poco2()
+                    Poco = new Poco2
                     {
                         Age = 1232,
                         Name = "Wire",

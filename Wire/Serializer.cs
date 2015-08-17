@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -8,9 +9,30 @@ using Wire.ValueSerializers;
 
 namespace Wire
 {
+    public class SerializerOptions
+    {
+        public SerializerOptions(bool includePropertyNames = false)
+        {
+            IncludePropertyNames = includePropertyNames;
+        }
+        public bool IncludePropertyNames { get; }
+    }
+
+
     public class Serializer
     {
         private readonly Dictionary<Type, ValueSerializer> _serializers = new Dictionary<Type, ValueSerializer>();
+        public SerializerOptions Options { get; }
+
+        public Serializer()
+        {
+            Options = new SerializerOptions();
+        }
+
+        public Serializer(SerializerOptions options)
+        {
+            Options = options;
+        }
 
         private static readonly Dictionary<Type, ValueSerializer> PrimitiveSerializers = new Dictionary
             <Type, ValueSerializer>
@@ -73,7 +95,10 @@ namespace Wire
             {
                 for (var index = 0; index < fieldWriters.Count; index++)
                 {
-                    ByteArraySerializer.Instance.WriteValue(stream, fieldNames[index], session);
+                    if (session.Serializer.Options.IncludePropertyNames)
+                    {
+                        ByteArraySerializer.Instance.WriteValue(stream, fieldNames[index], session);
+                    }
                     var fieldWriter = fieldWriters[index];
                     fieldWriter(stream, o, session);
                 }
@@ -83,8 +108,12 @@ namespace Wire
                 var instance = Activator.CreateInstance(type);
                 for (var index = 0; index < fieldReaders.Count; index++)
                 {
-                    var fieldName = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
-                    //TODO: check if correct field
+                    if (session.Serializer.Options.IncludePropertyNames)
+                    {
+                        var fieldName = (byte[]) ByteArraySerializer.Instance.ReadValue(stream, session);
+                        //TODO: check if correct field
+                    }
+
                     var fieldReader = fieldReaders[index];
                     fieldReader(stream, instance, session);
                 }
@@ -104,7 +133,7 @@ namespace Wire
                 fieldInfos.AddRange(tfields);
                 current = current.BaseType;
             }
-            var fields = fieldInfos.ToArray();
+            var fields = fieldInfos.OrderBy(f => f.Name) .ToArray();
             return fields;
         }
 
@@ -138,6 +167,8 @@ namespace Wire
             var getFieldValue = GenerateFieldReader(type, field);
             if (IsPrimitiveType(field.FieldType))
             {
+                //primitive types does not need to write any manifest, if the field type is known
+                //nor can they be null (StringSerializer has it's own null handling)
                 Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
                 {
                     var value = getFieldValue(o);
