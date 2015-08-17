@@ -40,55 +40,18 @@ namespace Wire
 
         private ValueSerializer BuildSerializer(Type type)
         {
-            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            
+            var fields = GetFieldsForType(type);
+
             var fieldWriters = new List<Action<Stream, object, SerializerSession>>();
             var fieldReaders = new List<Action<Stream, object, SerializerSession>>();
             var fieldNames = new List<byte[]>();
             foreach (var field in fields)
             {
-                var f = field;
-                var s = GetSerializerByType(field.FieldType);
-
-                var getFieldValue = GenerateFieldReader(type, f);
-
-                byte[] fieldName = Encoding.UTF8.GetBytes(f.Name);
+                
+                byte[] fieldName = Encoding.UTF8.GetBytes(field.Name);
                 fieldNames.Add(fieldName);
-                Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
-                {
-                //    
-                    var value = getFieldValue(o);
-                    if (value == null) //value is null
-                    {
-                        NullSerializer.Instance.WriteManifest(stream,null,session);
-                    }
-                    else
-                    {
-                        var vType = value.GetType();
-                        if (vType == f.FieldType) //value is of the exact same type as the field type
-                        {
-                            //happy path, faster than polymorphic
-                            s.WriteManifest(stream, vType, session);
-                            s.WriteValue(stream, value, session);
-                        }
-                        else //value is a subtype of the field type
-                        {
-                            //lookup serializer for subtype
-                            var s2 = session.Serializer.GetSerializerByType(vType);
-                            s2.WriteManifest(stream,vType,session);
-                        }                        
-                    }                    
-                };
-                fieldWriters.Add(fieldWriter);
-
-                Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
-                {
-                    //    ByteArraySerializer.Instance.ReadValue(stream, session);
-                    var s2 = session.Serializer.GetSerializerByManifest(stream, session);
-                    var value = s2.ReadValue(stream, session);                    
-                    f.SetValue(o, value);
-                };
-                fieldReaders.Add(fieldReader);
+                fieldWriters.Add(GenerateFieldSerializer(type, field));
+                fieldReaders.Add(GenerateFieldDeserializer(field));
             }
 
             Action<Stream,object,SerializerSession> writer = (stream, o, session) =>
@@ -114,6 +77,59 @@ namespace Wire
             };
             var serializer = new ObjectSerializer(type,writer,reader);
             return serializer;
+        }
+
+        private static FieldInfo[] GetFieldsForType(Type type)
+        {
+            List<FieldInfo> fieldInfos = new List<FieldInfo>();
+            var current = type;
+            while (current != null)
+            {
+                var tfields = current.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                fieldInfos.AddRange(tfields);
+                current = current.BaseType;
+            }
+            var fields = fieldInfos.ToArray();
+            return fields;
+        }
+
+        private static Action<Stream, object, SerializerSession> GenerateFieldDeserializer(FieldInfo f)
+        {
+            Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
+            {
+                var s2 = session.Serializer.GetSerializerByManifest(stream, session);
+                var value = s2.ReadValue(stream, session);
+                f.SetValue(o, value);
+            };
+            return fieldReader;
+        }
+
+        private Action<Stream, object, SerializerSession> GenerateFieldSerializer(Type type, FieldInfo field)
+        {
+            var s = GetSerializerByType(field.FieldType);
+            var getFieldValue = GenerateFieldReader(type, field);
+            Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
+            {
+                var value = getFieldValue(o);
+                if (value == null) //value is null
+                {
+                    NullSerializer.Instance.WriteManifest(stream, null, session);
+                }
+                else
+                {
+                    var vType = value.GetType();
+                    var s2 = s;
+                    if (vType != field.FieldType) 
+                    {
+                        //value is of subtype, lookup the serializer for that type
+                        s2 = session.Serializer.GetSerializerByType(vType);
+                    }
+                    //lookup serializer for subtype
+                    s2.WriteManifest(stream, vType, session);
+                    s2.WriteValue(stream, value, session);
+                }
+            };
+            return fieldWriter;
         }
 
         private static Func<object, object> GenerateFieldReader(Type type, FieldInfo f)

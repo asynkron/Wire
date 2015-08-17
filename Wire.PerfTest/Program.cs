@@ -94,9 +94,9 @@ namespace Wire.PerfTest
         {
             Serializer serializer = new Serializer();
 
-            Stopwatch sw = Stopwatch.StartNew();
-            for (int i = 0; i < 100000; i++)
-            {
+            //Stopwatch sw = Stopwatch.StartNew();
+            //for (int i = 0; i < 100000; i++)
+            //{
                 var stream = new MemoryStream();
                 var poco = new Poco
                 {
@@ -114,9 +114,12 @@ namespace Wire.PerfTest
                     YesNo = true,
                 };
                 serializer.Serialize(loco, stream);
-            }
-            sw.Stop();
-            Console.WriteLine(sw.Elapsed);
+            //}
+            //sw.Stop();
+            //Console.WriteLine(sw.Elapsed);
+            stream.Flush();
+            stream.Position = 0;
+            var res = serializer.Deserialize<Loco>(stream);
         }
     }
 
