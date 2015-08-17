@@ -12,19 +12,34 @@ namespace Wire
     {
         private readonly Dictionary<Type, ValueSerializer> _serializers = new Dictionary<Type, ValueSerializer>();
 
-        //private static readonly Dictionary<Type, ValueSerializer> PrimitiveSerializers = new Dictionary
-        //    <Type, ValueSerializer>
-        //{
-        //    [typeof (int)] = Int32Serializer.Instance,
-        //    [typeof(long)] = Int64Serializer.Instance,
-        //    [typeof(short)] = Int16Serializer.Instance,
-        //    [typeof(byte)] = ByteSerializer.Instance,
-        //    [typeof(DateTime)] = DateTimeSerializer.Instance,
-        //    [typeof(string)] = StringSerializer.Instance,
-        //    [typeof(double)] = DoubleSerializer.Instance,
-        //    [typeof(float)] = FloatSerializer.Instance,
-        //    [typeof(Guid)] = GuidSerializer.Instance,
-        //};
+        private static readonly Dictionary<Type, ValueSerializer> PrimitiveSerializers = new Dictionary
+            <Type, ValueSerializer>
+        {
+            [typeof(int)] = Int32Serializer.Instance,
+            [typeof(long)] = Int64Serializer.Instance,
+            [typeof(short)] = Int16Serializer.Instance,
+            [typeof(byte)] = ByteSerializer.Instance,
+            [typeof(DateTime)] = DateTimeSerializer.Instance,
+            [typeof(string)] = StringSerializer.Instance,
+            [typeof(double)] = DoubleSerializer.Instance,
+            [typeof(float)] = FloatSerializer.Instance,
+            [typeof(Guid)] = GuidSerializer.Instance,
+        };
+
+        public static bool IsPrimitiveType(Type type)
+        {
+            return type == typeof (int) ||
+                   type == typeof (long) ||
+                   type == typeof (short) ||
+                   type == typeof (DateTime) ||
+                   type == typeof (bool) ||
+                   type == typeof (string) ||
+                   type == typeof (Guid) ||
+                   type == typeof (float) ||
+                   type == typeof (double) ||
+                   type == typeof (decimal) ||
+                   type == typeof (char);
+        }
 
 
         private ValueSerializer GetSerialzerForPoco(Type type)
@@ -93,44 +108,69 @@ namespace Wire
             return fields;
         }
 
-        private static Action<Stream, object, SerializerSession> GenerateFieldDeserializer(FieldInfo f)
+        private  Action<Stream, object, SerializerSession> GenerateFieldDeserializer(FieldInfo field)
         {
-            Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
+            var s = GetSerializerByType(field.FieldType);
+            if (IsPrimitiveType(field.FieldType))
             {
-                var s2 = session.Serializer.GetSerializerByManifest(stream, session);
-                var value = s2.ReadValue(stream, session);
-                f.SetValue(o, value);
-            };
-            return fieldReader;
+                Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
+                {
+                    var value = s.ReadValue(stream, session);
+                    field.SetValue(o, value);
+                };
+                return fieldReader;
+            }
+            else
+            {
+                Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
+                {
+                    var s2 = session.Serializer.GetSerializerByManifest(stream, session);
+                    var value = s2.ReadValue(stream, session);
+                    field.SetValue(o, value);
+                };
+                return fieldReader;
+            }
         }
 
         private Action<Stream, object, SerializerSession> GenerateFieldSerializer(Type type, FieldInfo field)
         {
             var s = GetSerializerByType(field.FieldType);
             var getFieldValue = GenerateFieldReader(type, field);
-            //TODO: add special support for primitives
-            Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
+            if (IsPrimitiveType(field.FieldType))
             {
-                var value = getFieldValue(o);
-                if (value == null) //value is null
+                Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
                 {
-                    NullSerializer.Instance.WriteManifest(stream, null, session);
-                }
-                else
+                    var value = getFieldValue(o);
+                    s.WriteValue(stream, value, session);
+                };
+                return fieldWriter;
+            }
+            else
+            {
+                Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
                 {
-                    var vType = value.GetType();
-                    var s2 = s;
-                    if (vType != field.FieldType) 
+                    var value = getFieldValue(o);
+                    if (value == null) //value is null
                     {
-                        //value is of subtype, lookup the serializer for that type
-                        s2 = session.Serializer.GetSerializerByType(vType);
+                        NullSerializer.Instance.WriteManifest(stream, null, session);
                     }
-                    //lookup serializer for subtype
-                    s2.WriteManifest(stream, vType, session);
-                    s2.WriteValue(stream, value, session);
-                }
-            };
-            return fieldWriter;
+                    else
+                    {
+                        var vType = value.GetType();
+                        var s2 = s;
+                        if (vType != field.FieldType)
+                        {
+                            //value is of subtype, lookup the serializer for that type
+                            s2 = session.Serializer.GetSerializerByType(vType);
+                        }
+                        //lookup serializer for subtype
+                        s2.WriteManifest(stream, vType, session);
+                        s2.WriteValue(stream, value, session);
+                    }
+                };
+                return fieldWriter;
+            }
+            
         }
 
         private static Func<object, object> GenerateFieldReader(Type type, FieldInfo f)
@@ -222,18 +262,7 @@ namespace Wire
             if (type.IsArray)
             {
                 var elementType = type.GetElementType();
-                if (elementType == typeof(int) ||
-                    elementType == typeof(long) ||
-                    elementType == typeof(short) ||
-                    elementType == typeof(DateTime) ||
-                    elementType == typeof(bool) ||
-                    elementType == typeof(string) ||
-                    elementType == typeof(Guid) ||
-                    elementType == typeof(float) ||
-                    elementType == typeof(double) ||
-                    elementType == typeof(decimal) ||
-                    elementType == typeof(char)
-                    )
+                if (IsPrimitiveType(elementType))
                 {
                     return ConsistentArraySerializer.Instance;
                 }
