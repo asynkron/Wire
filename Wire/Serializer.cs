@@ -108,6 +108,7 @@ namespace Wire
         {
             var s = GetSerializerByType(field.FieldType);
             var getFieldValue = GenerateFieldReader(type, field);
+            //TODO: add special support for primitives
             Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
             {
                 var value = getFieldValue(o);
