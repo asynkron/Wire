@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Akka.Actor;
 
 namespace Wire.PerfTest
 {
@@ -10,10 +11,11 @@ namespace Wire.PerfTest
     {
         static void Main(string[] args)
         {
-            SerializeStringArray();
+       //     SerializeStringArray();
             SerializePoco();
-            SerializeLocoWithNullRef();
-            SerializeLocoWithPolymorphicRef();
+            SerializePocoAkka();
+         //   SerializeLocoWithNullRef();
+         //   SerializeLocoWithPolymorphicRef();
             Console.ReadLine();
 
         }
@@ -45,18 +47,41 @@ namespace Wire.PerfTest
 
         private static void SerializePoco()
         {
-            Serializer serializer = new Serializer();
+            Serializer serializer = new Serializer(new SerializerOptions(true));
             Stopwatch sw = Stopwatch.StartNew();
-            for (int i = 0; i < 2000000; i++)
+            for (int i = 0; i < 100000; i++)
             {
                 var stream = new MemoryStream();
+      //          stream.Capacity = 500;
                 var poco = new Poco()
                 {
                     Age = 123,
                     Name = "Hej"
                 };
                 serializer.Serialize(poco, stream);
+                var bytes = stream.ToArray();
+                //stream.Position = 0;
+                //var res = serializer.Deserialize<Poco>(stream);
+                //Console.WriteLine(res.Age);
+                //Console.WriteLine(res.Name);
+            }
+            sw.Stop();
+            Console.WriteLine(sw.Elapsed);
+        }
 
+        private static void SerializePocoAkka()
+        {
+            var sys = ActorSystem.Create("foo");
+            var s = sys.Serialization.FindSerializerForType(typeof (Poco));
+            Stopwatch sw = Stopwatch.StartNew();
+            for (int i = 0; i < 100000; i++)
+            {
+                var poco = new Poco()
+                {
+                    Age = 123,
+                    Name = "Hej"
+                };
+                var bytes = s.ToBinary(poco);
                 //stream.Position = 0;
                 //var res = serializer.Deserialize<Poco>(stream);
                 //Console.WriteLine(res.Age);
@@ -71,7 +96,7 @@ namespace Wire.PerfTest
             Serializer serializer = new Serializer();
             
             Stopwatch sw = Stopwatch.StartNew();
-            for (int i = 0; i < 2000000; i++)
+            for (int i = 0; i < 1000000; i++)
             {
                 var stream = new MemoryStream();
                 var poco = new Poco

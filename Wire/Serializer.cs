@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using Wire.ValueSerializers;
@@ -110,8 +111,23 @@ namespace Wire
                 {
                     if (session.Serializer.Options.IncludePropertyNames)
                     {
+retry:
                         var fieldName = (byte[]) ByteArraySerializer.Instance.ReadValue(stream, session);
-                        //TODO: check if correct field
+                        if (!UnsafeCompare(fieldName, fieldNames[index]))
+                        {
+                            var foundName = Encoding.UTF8.GetString(fieldName);
+                            var expectedName = Encoding.UTF8.GetString(fieldNames[index]);
+                            if (string.CompareOrdinal(foundName, expectedName) < 0) //TODO: is it the reversed
+                            {
+                                throw new Exception($"Expected to find field with name '{expectedName}' but found '{foundName}' when deserializing object of type '{type.Name}'");
+                            }
+                            //get the manifest for the unknown field
+                            var s2 = GetSerializerByManifest(stream, session);
+                            //read the field value and ignore it
+                            s2.ReadValue(stream, session);
+                            //stay on the same index, read the next field from the stream
+                            goto retry;
+                        }
                     }
 
                     var fieldReader = fieldReaders[index];
@@ -121,6 +137,23 @@ namespace Wire
             };
             var serializer = new ObjectSerializer(type,writer,reader);
             return serializer;
+        }
+
+        static unsafe bool UnsafeCompare(byte[] a1, byte[] a2)
+        {
+            if (a1 == null || a2 == null || a1.Length != a2.Length)
+                return false;
+            fixed (byte* p1 = a1, p2 = a2)
+            {
+                byte* x1 = p1, x2 = p2;
+                int l = a1.Length;
+                for (int i = 0; i < l / 8; i++, x1 += 8, x2 += 8)
+                    if (*((long*)x1) != *((long*)x2)) return false;
+                if ((l & 4) != 0) { if (*((int*)x1) != *((int*)x2)) return false; x1 += 4; x2 += 4; }
+                if ((l & 2) != 0) { if (*((short*)x1) != *((short*)x2)) return false; x1 += 2; x2 += 2; }
+                if ((l & 1) != 0) if (*((byte*)x1) != *((byte*)x2)) return false;
+                return true;
+            }
         }
 
         private static FieldInfo[] GetFieldsForType(Type type)
@@ -140,8 +173,12 @@ namespace Wire
         private  Action<Stream, object, SerializerSession> GenerateFieldDeserializer(FieldInfo field)
         {
             var s = GetSerializerByType(field.FieldType);
-            if (IsPrimitiveType(field.FieldType))
+            if (IsPrimitiveType(field.FieldType) && !Options.IncludePropertyNames)
             {
+                //Only optimize if property names are not included.
+                //if they are included, we need to be able to skip past unknown property data
+                //e.g. if sender have added a new property that the receiveing end does not yet know about
+                //which we cannot do w/o a manifest
                 Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
                 {
                     var value = s.ReadValue(stream, session);
