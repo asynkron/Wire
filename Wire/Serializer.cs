@@ -58,14 +58,34 @@ namespace Wire
                 {
                 //    
                     var value = getFieldValue(o);
-                    s.WriteValue(stream, value, session);
+                    if (value == null) //value is null
+                    {
+                        NullSerializer.Instance.WriteManifest(stream,null,session);
+                    }
+                    else
+                    {
+                        var vType = value.GetType();
+                        if (vType == f.FieldType) //value is of the exact same type as the field type
+                        {
+                            //happy path, faster than polymorphic
+                            s.WriteManifest(stream, vType, session);
+                            s.WriteValue(stream, value, session);
+                        }
+                        else //value is a subtype of the field type
+                        {
+                            //lookup serializer for subtype
+                            var s2 = session.Serializer.GetSerializerByType(vType);
+                            s2.WriteManifest(stream,vType,session);
+                        }                        
+                    }                    
                 };
                 fieldWriters.Add(fieldWriter);
 
                 Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
                 {
-                //    ByteArraySerializer.Instance.ReadValue(stream, session);
-                    var value = s.ReadValue(stream, session);
+                    //    ByteArraySerializer.Instance.ReadValue(stream, session);
+                    var s2 = session.Serializer.GetSerializerByManifest(stream, session);
+                    var value = s2.ReadValue(stream, session);                    
                     f.SetValue(o, value);
                 };
                 fieldReaders.Add(fieldReader);
@@ -108,11 +128,15 @@ namespace Wire
 
         public void Serialize(object obj, Stream stream)
         {
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj));
+
             var session = new SerializerSession
             {
                 Buffer = new byte[100],
                 Serializer = this
             };
+            
             var type = obj.GetType();
             var s = GetSerializerByType(obj.GetType());
             s.WriteManifest(stream, type, session);
@@ -209,6 +233,9 @@ namespace Wire
             var first = stream.ReadByte();
             switch (first)
             {
+                case 0:
+                    return NullSerializer.Instance;
+//TODO: hmm why havent I added 1?
                 case 2:
                     return Int64Serializer.Instance;
                 case 3:

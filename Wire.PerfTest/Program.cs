@@ -12,7 +12,8 @@ namespace Wire.PerfTest
         {
             SerializeStringArray();
             SerializePoco();
-            SerializeLoco();
+            SerializeLocoWithNullRef();
+            SerializeLocoWithPolymorphicRef();
             Console.ReadLine();
 
         }
@@ -65,7 +66,7 @@ namespace Wire.PerfTest
             Console.WriteLine(sw.Elapsed);
         }
 
-        private static void SerializeLoco()
+        private static void SerializeLocoWithNullRef()
         {
             Serializer serializer = new Serializer();
             
@@ -80,7 +81,36 @@ namespace Wire.PerfTest
                 };
                 var loco = new Loco
                 {
-                    Poco = poco,
+                    Poco = null,// poco,
+                    YesNo = true,
+                };
+                serializer.Serialize(loco, stream);
+            }
+            sw.Stop();
+            Console.WriteLine(sw.Elapsed);
+        }
+
+        private static void SerializeLocoWithPolymorphicRef()
+        {
+            Serializer serializer = new Serializer();
+
+            Stopwatch sw = Stopwatch.StartNew();
+            for (int i = 0; i < 100000; i++)
+            {
+                var stream = new MemoryStream();
+                var poco = new Poco
+                {
+                    Age = 123,
+                    Name = "Hej"
+                };
+                var loco = new Loco
+                {
+                    Poco = new Poco2()
+                    {
+                        Age = 1232,
+                        Name = "Wire",
+                        Yes = true,
+                    },
                     YesNo = true,
                 };
                 serializer.Serialize(loco, stream);
@@ -104,5 +134,10 @@ namespace Wire.PerfTest
     {
         public string Name { get; set; }
         public int Age { get; set; }
+    }
+
+    public class Poco2 : Poco
+    {
+        public bool Yes { get; set; }
     }
 }
