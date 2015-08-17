@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace Wire
 
     public class Serializer
     {
-        private readonly Dictionary<Type, ValueSerializer> _serializers = new Dictionary<Type, ValueSerializer>();
+        private readonly ConcurrentDictionary<Type, ValueSerializer> _serializers = new ConcurrentDictionary<Type, ValueSerializer>();
         public SerializerOptions Options { get; }
 
         public Serializer()
@@ -71,7 +72,7 @@ namespace Wire
             if (!_serializers.TryGetValue(type, out serializer))
             {
                 serializer = BuildSerializer(type);
-                _serializers.Add(type, serializer);
+                _serializers.TryAdd(type, serializer); //just ignore if this fails, another thread have already added an identical serialzer
             }
             return serializer;
         }
