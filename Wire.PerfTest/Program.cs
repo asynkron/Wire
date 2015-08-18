@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Akka.Actor;
+using Newtonsoft.Json;
 using ProtoBuf;
 
 namespace Wire.PerfTest
@@ -11,13 +12,39 @@ namespace Wire.PerfTest
     {
         private static void Main(string[] args)
         {
-            SerializePoco();
+            Console.WriteLine("Running cold");
             SerializePocoVersionInteolerant();
             SerializePocoProtoBufNet();
-
-            SerializePocoAkka();
+            SerializePoco();
+            SerializePocoJsonNet();
             SerializePocoBinaryFormatter();
+            SerializePocoAkka();
+            Console.WriteLine();
+            Console.WriteLine("Running hot");
+            SerializePocoVersionInteolerant();
+            SerializePocoProtoBufNet();
+            SerializePoco();
+            SerializePocoJsonNet();
+            SerializePocoBinaryFormatter();
+            SerializePocoAkka();
             Console.ReadLine();
+        }
+
+        private static void SerializePocoJsonNet()
+        {
+            var sw = Stopwatch.StartNew();
+            for (var i = 0; i < 1000000; i++)
+            {
+                var stream = new MemoryStream();
+                var poco = new Poco
+                {
+                    Age = 123,
+                    Name = "Hej"
+                };
+                var res = JsonConvert.SerializeObject(poco);
+            }
+            sw.Stop();
+            Console.WriteLine($"Json.NET:\t\t\t{sw.ElapsedMilliseconds}");
         }
 
         private static void SerializePocoProtoBufNet()
@@ -32,14 +59,9 @@ namespace Wire.PerfTest
                     Name = "Hej"
                 };
                 ProtoBuf.Serializer.Serialize(stream, poco);
-                var bytes = stream.ToArray();
-                //stream.Position = 0;
-                //var res = serializer.Deserialize<Poco>(stream);
-                //Console.WriteLine(res.Age);
-                //Console.WriteLine(res.Name);
             }
             sw.Stop();
-            Console.WriteLine($"Protobuf.NET:\t\t\t{sw.Elapsed}");
+            Console.WriteLine($"Protobuf.NET:\t\t\t{sw.ElapsedMilliseconds}");
         }
 
         private static void SerializePocoBinaryFormatter()
@@ -57,7 +79,7 @@ namespace Wire.PerfTest
                 bf.Serialize(stream, poco);
             }
             sw.Stop();
-            Console.WriteLine($"BinaryFormatter\t\t\t{sw.Elapsed}");
+            Console.WriteLine($"BinaryFormatter\t\t\t{sw.ElapsedMilliseconds}");
         }
 
         private static void SerializePocoVersionInteolerant()
@@ -75,7 +97,7 @@ namespace Wire.PerfTest
                 serializer.Serialize(poco, stream);
             }
             sw.Stop();
-            Console.WriteLine($"Wire - no version tolerance:\t{sw.Elapsed}");
+            Console.WriteLine($"Wire - no version tolerance:\t{sw.ElapsedMilliseconds}");
         }
 
         private static void SerializePoco()
@@ -93,7 +115,7 @@ namespace Wire.PerfTest
                 serializer.Serialize(poco, stream);
             }
             sw.Stop();
-            Console.WriteLine($"Wire - version tolerant:\t{sw.Elapsed}");
+            Console.WriteLine($"Wire - version tolerant:\t{sw.ElapsedMilliseconds}");
         }
 
         private static void SerializePocoAkka()
@@ -111,7 +133,7 @@ namespace Wire.PerfTest
                 s.ToBinary(poco);
             }
             sw.Stop();
-            Console.WriteLine($"Akka.NET Json.NET settings:\t{sw.Elapsed}");
+            Console.WriteLine($"Akka.NET Json.NET settings:\t{sw.ElapsedMilliseconds}");
         }
     }
 
