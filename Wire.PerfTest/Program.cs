@@ -13,6 +13,8 @@ namespace Wire.PerfTest
     {
         private static void Main(string[] args)
         {
+            Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
+            Console.WriteLine();
             Console.WriteLine("Running cold");
             SerializePocoVersionInteolerant();
             SerializePocoProtoBufNet();
