@@ -2,13 +2,19 @@
 {
     public class SerializerSession
     {
-        public Serializer Serializer { get; set; }
-        public byte[] Buffer { get; set; }
+        public readonly Serializer Serializer;
+        private readonly byte[] _buffer;
+
+        public SerializerSession(Serializer serializer)
+        {
+            Serializer = serializer;
+            _buffer = new byte[100];
+        }
 
         public byte[] GetBuffer(int length)
         {
-            if (length <= Buffer.Length)
-                return Buffer;
+            if (length <= _buffer.Length)
+                return _buffer;
             return new byte[length];
         }
     }

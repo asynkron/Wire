@@ -16,7 +16,8 @@ namespace Wire
         {
             VersionTolerance = versionTolerance;
         }
-        public bool VersionTolerance { get; }
+
+        public readonly bool VersionTolerance;
     }
 
 
@@ -24,6 +25,20 @@ namespace Wire
     {
         private readonly ConcurrentDictionary<Type, ValueSerializer> _serializers = new ConcurrentDictionary<Type, ValueSerializer>();
         internal readonly SerializerOptions Options;
+        private static readonly Type Int32Type = typeof(int);
+        private static readonly Type Int64Type = typeof(long);
+        private static readonly Type Int16Type = typeof(short);
+        private static readonly Type ByteType = typeof(byte);
+        private static readonly Type BoolType = typeof(bool);
+        private static readonly Type DateTimeType = typeof(DateTime);
+        private static readonly Type StringType = typeof(string);
+        private static readonly Type GuidType = typeof(Guid);
+        private static readonly Type FloatType = typeof(float);
+        private static readonly Type DoubleType = typeof(double);
+        private static readonly Type DecimalType = typeof(decimal);
+        private static readonly Type CharType = typeof(char);
+        private static readonly Type ByteArrayType = typeof(byte[]);
+        private static readonly Assembly CoreaAssembly = typeof (int).Assembly;
 
         public Serializer()
         {
@@ -51,17 +66,17 @@ namespace Wire
 
         public static bool IsPrimitiveType(Type type)
         {
-            return type == typeof (int) ||
-                   type == typeof (long) ||
-                   type == typeof (short) ||
-                   type == typeof (DateTime) ||
-                   type == typeof (bool) ||
-                   type == typeof (string) ||
-                   type == typeof (Guid) ||
-                   type == typeof (float) ||
-                   type == typeof (double) ||
-                   type == typeof (decimal) ||
-                   type == typeof (char);
+            return type == Int32Type ||
+                   type == Int64Type ||
+                   type == Int16Type ||
+                   type == DateTimeType ||
+                   type == BoolType ||
+                   type == StringType ||
+                   type == GuidType ||
+                   type == FloatType ||
+                   type == DoubleType ||
+                   type == DecimalType ||
+                   type == CharType;
         }
 
 
@@ -278,11 +293,7 @@ namespace Wire
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
 
-            var session = new SerializerSession
-            {
-                Buffer = new byte[100],
-                Serializer = this
-            };
+            var session = new SerializerSession(this);
             
             var type = obj.GetType();
             var s = GetSerializerByType(obj.GetType());
@@ -292,11 +303,7 @@ namespace Wire
 
         public T Deserialize<T>(Stream stream)
         {
-            var session = new SerializerSession
-            {
-                Buffer = new byte[100],
-                Serializer = this
-            };
+            var session = new SerializerSession(this);
             var s = GetSerializerByManifest(stream, session);
             return (T) s.ReadValue(stream, session);
         }
@@ -310,44 +317,48 @@ namespace Wire
             //    return tmp;
             //}
 
-            if (type == typeof(int))
-                return Int32Serializer.Instance;
+            if (ReferenceEquals(type.Assembly, CoreaAssembly))
+            {
 
-            if (type == typeof(long))
-                return Int64Serializer.Instance;
+                if (type == StringType)
+                    return StringSerializer.Instance;
 
-            if (type == typeof(short))
-                return Int16Serializer.Instance;
+                if (type == Int32Type)
+                    return Int32Serializer.Instance;
 
-            if (type == typeof(byte))
-                return ByteSerializer.Instance;
+                if (type == Int64Type)
+                    return Int64Serializer.Instance;
 
-            if (type == typeof(bool))
-                return BoolSerializer.Instance;
+                if (type == Int16Type)
+                    return Int16Serializer.Instance;
 
-            if (type == typeof(DateTime))
-                return DateTimeSerializer.Instance;
+                if (type == ByteType)
+                    return ByteSerializer.Instance;
 
-            if (type == typeof(string))
-                return StringSerializer.Instance;
+                if (type == BoolType)
+                    return BoolSerializer.Instance;
 
-            if (type == typeof(Guid))
-                return GuidSerializer.Instance;
+                if (type == DateTimeType)
+                    return DateTimeSerializer.Instance;
 
-            if (type == typeof(float))
-                return FloatSerializer.Instance;
+                if (type == GuidType)
+                    return GuidSerializer.Instance;
 
-            if (type == typeof(double))
-                return DoubleSerializer.Instance;
+                if (type == FloatType)
+                    return FloatSerializer.Instance;
 
-            if (type == typeof(decimal))
-                return DecimalSerializer.Instance;
+                if (type == DoubleType)
+                    return DoubleSerializer.Instance;
 
-            if (type == typeof(char))
-                return CharSerializer.Instance;
+                if (type == DecimalType)
+                    return DecimalSerializer.Instance;
 
-            if (type == typeof(byte[]))
-                return ByteArraySerializer.Instance;
+                if (type == CharType)
+                    return CharSerializer.Instance;
+
+                if (type == ByteArrayType)
+                    return ByteArraySerializer.Instance;
+            }
 
             if (type.IsArray)
             {

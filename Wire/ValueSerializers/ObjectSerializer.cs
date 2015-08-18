@@ -20,12 +20,20 @@ namespace Wire.ValueSerializers
             Type = type;
             _writer = writer;
             _reader = reader;
-            _manifest = new byte[] {255}.Union(Encoding.UTF8.GetBytes(type.AssemblyQualifiedName)).ToArray(); //serializer id 255 + assembly qualified name
+            var bytes = Encoding.UTF8.GetBytes(type.AssemblyQualifiedName);
+
+            //precalculate the entire manifest for this serializer
+            //this helps us to minimize calls to Stream.Write/WriteByte 
+            _manifest = 
+                new byte[] {255}
+            .Concat(BitConverter.GetBytes(bytes.Length))
+            .Concat(bytes)
+            .ToArray(); //serializer id 255 + assembly qualified name
         }
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            ByteArraySerializer.Instance.WriteValue(stream, _manifest, session); //write the encoded name of the type
+            stream.Write(_manifest,0,_manifest.Length);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
