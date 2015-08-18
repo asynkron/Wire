@@ -11,7 +11,7 @@ namespace Wire.PerfTest
     {
         static void Main(string[] args)
         {
-       //     SerializeStringArray();
+            SerializeStringArray();
             SerializePoco();
             SerializePocoAkka();
          //   SerializeLocoWithNullRef();
@@ -25,6 +25,7 @@ namespace Wire.PerfTest
             Serializer serializer = new Serializer();
                 var stream = new MemoryStream();
             var strings = new[] { "abc", "def", null ,"ghi", "jkl", "lmmo" };
+
             serializer.Serialize(strings, stream);
             stream.Position = 0;
             var res = serializer.Deserialize<string[]>(stream);
@@ -50,7 +51,7 @@ namespace Wire.PerfTest
 
             Serializer serializer = new Serializer(new SerializerOptions(true));
             Stopwatch sw = Stopwatch.StartNew();
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 1000000; i++)
             {
                 var stream = new MemoryStream();
                 var poco = new Poco()
