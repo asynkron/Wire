@@ -5,7 +5,7 @@ namespace Wire.ValueSerializers
 {
     public class Int64Serializer : ValueSerializer
     {
-        public static readonly ValueSerializer Instance = new Int64Serializer();
+        public static readonly Int64Serializer Instance = new Int64Serializer();
         private readonly byte[] _manifest = {2};
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)

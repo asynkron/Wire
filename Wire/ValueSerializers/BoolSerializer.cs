@@ -5,7 +5,7 @@ namespace Wire.ValueSerializers
 {
     public class BoolSerializer : ValueSerializer
     {
-        public static readonly ValueSerializer Instance = new BoolSerializer();
+        public static readonly BoolSerializer Instance = new BoolSerializer();
         private readonly byte[] _manifest = {6};
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)

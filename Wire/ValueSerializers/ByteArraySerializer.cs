@@ -5,7 +5,7 @@ namespace Wire.ValueSerializers
 {
     public class ByteArraySerializer : ValueSerializer
     {
-        public static readonly ValueSerializer Instance = new ByteArraySerializer();
+        public static readonly ByteArraySerializer Instance = new ByteArraySerializer();
         private readonly byte[] _manifest = {9};
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
@@ -16,7 +16,8 @@ namespace Wire.ValueSerializers
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var bytes = (byte[]) value;
-            Int32Serializer.Instance.WriteValue(stream, bytes.Length, session);
+            var length = BitConverter.GetBytes(bytes.Length);//write array length
+            stream.Write(length, 0, length.Length);
             stream.Write(bytes, 0, bytes.Length);
         }
 

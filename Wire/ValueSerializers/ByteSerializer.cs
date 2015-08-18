@@ -5,7 +5,7 @@ namespace Wire.ValueSerializers
 {
     public class ByteSerializer : ValueSerializer
     {
-        public static readonly ValueSerializer Instance = new ByteSerializer();
+        public static readonly ByteSerializer Instance = new ByteSerializer();
         private readonly byte[] _manifest = {4};
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)

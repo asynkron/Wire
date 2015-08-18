@@ -111,7 +111,9 @@ namespace Wire
             {
                 if (session.Serializer.Options.VersionTolerance)
                 {
-                    Int32Serializer.Instance.WriteValue(stream, fields.Length, session);
+                    var length = BitConverter.GetBytes(fields.Length);//write array length
+                    stream.Write(length, 0, length.Length);
+                //    Int32Serializer.Instance.WriteValue(stream, fields.Length, session);
                 }
                 for (var index = 0; index < fieldWriters.Count; index++)
                 {
