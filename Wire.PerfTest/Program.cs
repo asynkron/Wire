@@ -31,13 +31,14 @@ namespace Wire.PerfTest
             Console.ReadLine();
         }
 
+        private static Poco poco = new Poco
+        {
+            Age = 123,
+            Name = "Hello"
+        };
+
         private static void SerializePocoJsonNet()
         {
-            var poco = new Poco
-            {
-                Age = 123,
-                Name = "Hej"
-            };
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
@@ -50,11 +51,6 @@ namespace Wire.PerfTest
 
         private static void SerializePocoProtoBufNet()
         {
-            var poco = new Poco
-            {
-                Age = 123,
-                Name = "Hej"
-            };
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
@@ -67,11 +63,6 @@ namespace Wire.PerfTest
 
         private static void SerializePocoBinaryFormatter()
         {
-            var poco = new Poco
-            {
-                Age = 123,
-                Name = "Hej"
-            };
             var bf = new BinaryFormatter();
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
@@ -85,11 +76,6 @@ namespace Wire.PerfTest
 
         private static void SerializePocoVersionInteolerant()
         {
-            var poco = new Poco
-            {
-                Age = 123,
-                Name = "Hej"
-            };
             var serializer = new Serializer(new SerializerOptions(false));
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
@@ -103,11 +89,6 @@ namespace Wire.PerfTest
 
         private static void SerializePoco()
         {
-            var poco = new Poco
-            {
-                Age = 123,
-                Name = "Hej"
-            };
             var serializer = new Serializer(new SerializerOptions(true));
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
@@ -122,11 +103,6 @@ namespace Wire.PerfTest
 
         private static void SerializePocoAkka()
         {
-            var poco = new Poco
-            {
-                Age = 123,
-                Name = "Hej"
-            };
             var sys = ActorSystem.Create("foo");
             var s = sys.Serialization.FindSerializerForType(typeof (Poco));
             var sw = Stopwatch.StartNew();
@@ -140,9 +116,6 @@ namespace Wire.PerfTest
         }
     }
 
-
-    //0 = no manifest
-    //1 = typename
 
     public class Loco
     {
