@@ -49,10 +49,9 @@ namespace Wire.PerfTest
         {
             Serializer serializer = new Serializer(new SerializerOptions(true));
             Stopwatch sw = Stopwatch.StartNew();
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 1000000; i++)
             {
                 var stream = new MemoryStream();
-      //          stream.Capacity = 500;
                 var poco = new Poco()
                 {
                     Age = 123,
