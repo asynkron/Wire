@@ -47,9 +47,10 @@ namespace Wire.PerfTest
 
         private static void SerializePoco()
         {
+
             Serializer serializer = new Serializer(new SerializerOptions(true));
             Stopwatch sw = Stopwatch.StartNew();
-            for (int i = 0; i < 1000000; i++)
+            for (int i = 0; i < 100000; i++)
             {
                 var stream = new MemoryStream();
                 var poco = new Poco()

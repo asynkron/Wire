@@ -20,6 +20,12 @@ namespace Wire.ValueSerializers
             stream.Write(bytes, 0, bytes.Length);
         }
 
+        public void WriteValue(Stream stream, byte[] bytes, SerializerSession session)
+        {
+            Int32Serializer.Instance.WriteValue(stream, bytes.Length, session);
+            stream.Write(bytes, 0, bytes.Length);
+        }
+
         public override object ReadValue(Stream stream, SerializerSession session)
         {
             var length = (int) Int32Serializer.Instance.ReadValue(stream, session);

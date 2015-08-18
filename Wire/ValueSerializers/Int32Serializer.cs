@@ -19,6 +19,12 @@ namespace Wire.ValueSerializers
             stream.Write(bytes, 0, bytes.Length);
         }
 
+        public void WriteValue(Stream stream, int value, SerializerSession session)
+        {
+            var bytes = BitConverter.GetBytes(value);
+            stream.Write(bytes, 0, bytes.Length);
+        }
+
         public override object ReadValue(Stream stream, SerializerSession session)
         {
             var size = sizeof(int);
