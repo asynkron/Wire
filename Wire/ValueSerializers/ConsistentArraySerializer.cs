@@ -40,7 +40,9 @@ namespace Wire.ValueSerializers
             var elementType = value.GetType().GetElementType();
             var elementSerializer = session.Serializer.GetSerializerByType(elementType);
             elementSerializer.WriteManifest(stream, elementType, session); //write array element type
-            Int32Serializer.Instance.WriteValue(stream, array.Length, session); //write array length
+//            Int32Serializer.Instance.WriteValue(stream, array.Length, session); 
+            var length = BitConverter.GetBytes(array.Length);//write array length
+            stream.Write(length, 0, length.Length);
             for (var i = 0; i < array.Length; i++) //write the elements
             {
                 var elementValue = array.GetValue(i);

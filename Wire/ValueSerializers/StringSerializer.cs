@@ -23,7 +23,9 @@ namespace Wire.ValueSerializers
             else
             {
                 var bytes = Encoding.UTF8.GetBytes((string) value);
-                Int32Serializer.Instance.WriteValue(stream, bytes.Length, session);
+                var length = BitConverter.GetBytes(bytes.Length);//write array length
+                stream.Write(length, 0, length.Length);
+           //     Int32Serializer.Instance.WriteValue(stream, bytes.Length, session);
                 stream.Write(bytes, 0, bytes.Length);
             }
         }
