@@ -120,6 +120,7 @@ namespace Wire
                 var index = 0;
                 while (fieldsToRead > 0)
                 {
+                    fieldsToRead--;
                     if (session.Serializer.Options.VersionTolerance)
                     {
                         var fieldName = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
@@ -134,7 +135,7 @@ namespace Wire
                             //get the manifest for the unknown field
                             var s2 = GetSerializerByManifest(stream, session);
                             //read the field value and ignore it
-                            s2.ReadValue(stream, session);
+                            s2.ReadValue(stream, session); //TODO: make it possible to ignore data being read, if types have been removed on receiveing end
                             //stay on the same index, read the next field from the stream
                             continue;
                         }
