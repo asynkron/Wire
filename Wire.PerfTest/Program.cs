@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using Akka.Actor;
 using Newtonsoft.Json;
 using ProtoBuf;
@@ -32,16 +33,16 @@ namespace Wire.PerfTest
 
         private static void SerializePocoJsonNet()
         {
+            var poco = new Poco
+            {
+                Age = 123,
+                Name = "Hej"
+            };
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
-                var stream = new MemoryStream();
-                var poco = new Poco
-                {
-                    Age = 123,
-                    Name = "Hej"
-                };
-                var res = JsonConvert.SerializeObject(poco);
+
+                JsonConvert.SerializeObject(poco);
             }
             sw.Stop();
             Console.WriteLine($"Json.NET:\t\t\t{sw.ElapsedMilliseconds}");
@@ -49,15 +50,15 @@ namespace Wire.PerfTest
 
         private static void SerializePocoProtoBufNet()
         {
+            var poco = new Poco
+            {
+                Age = 123,
+                Name = "Hej"
+            };
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
                 var stream = new MemoryStream();
-                var poco = new Poco
-                {
-                    Age = 123,
-                    Name = "Hej"
-                };
                 ProtoBuf.Serializer.Serialize(stream, poco);
             }
             sw.Stop();
@@ -66,16 +67,16 @@ namespace Wire.PerfTest
 
         private static void SerializePocoBinaryFormatter()
         {
+            var poco = new Poco
+            {
+                Age = 123,
+                Name = "Hej"
+            };
             var bf = new BinaryFormatter();
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
                 var stream = new MemoryStream();
-                var poco = new Poco
-                {
-                    Age = 123,
-                    Name = "Hej"
-                };
                 bf.Serialize(stream, poco);
             }
             sw.Stop();
@@ -84,16 +85,16 @@ namespace Wire.PerfTest
 
         private static void SerializePocoVersionInteolerant()
         {
+            var poco = new Poco
+            {
+                Age = 123,
+                Name = "Hej"
+            };
             var serializer = new Serializer(new SerializerOptions(false));
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
                 var stream = new MemoryStream();
-                var poco = new Poco
-                {
-                    Age = 123,
-                    Name = "Hej"
-                };
                 serializer.Serialize(poco, stream);
             }
             sw.Stop();
@@ -102,16 +103,17 @@ namespace Wire.PerfTest
 
         private static void SerializePoco()
         {
+            var poco = new Poco
+            {
+                Age = 123,
+                Name = "Hej"
+            };
             var serializer = new Serializer(new SerializerOptions(true));
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
                 var stream = new MemoryStream();
-                var poco = new Poco
-                {
-                    Age = 123,
-                    Name = "Hej"
-                };
+
                 serializer.Serialize(poco, stream);
             }
             sw.Stop();
@@ -120,16 +122,17 @@ namespace Wire.PerfTest
 
         private static void SerializePocoAkka()
         {
+            var poco = new Poco
+            {
+                Age = 123,
+                Name = "Hej"
+            };
             var sys = ActorSystem.Create("foo");
             var s = sys.Serialization.FindSerializerForType(typeof (Poco));
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
-                var poco = new Poco
-                {
-                    Age = 123,
-                    Name = "Hej"
-                };
+
                 s.ToBinary(poco);
             }
             sw.Stop();
