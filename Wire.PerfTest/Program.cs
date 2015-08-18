@@ -1,65 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using Akka.Actor;
+using ProtoBuf;
 
 namespace Wire.PerfTest
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            SerializeStringArray();
             SerializePoco();
+            SerializePocoVersionInteolerant();
+            SerializePocoProtoBufNet();
+
             SerializePocoAkka();
-         //   SerializeLocoWithNullRef();
-         //   SerializeLocoWithPolymorphicRef();
+            SerializePocoBinaryFormatter();
             Console.ReadLine();
-
         }
 
-        private static void SerializeStringArray()
+        private static void SerializePocoProtoBufNet()
         {
-            Serializer serializer = new Serializer();
-                var stream = new MemoryStream();
-            var strings = new[] { "abc", "def", null ,"ghi", "jkl", "lmmo" };
-
-            serializer.Serialize(strings, stream);
-            stream.Position = 0;
-            var res = serializer.Deserialize<string[]>(stream);
-
-            stream = new MemoryStream();
-            serializer.Serialize(strings.ToList(), stream);
-            stream.Position = 0;
-            var l = serializer.Deserialize<List<string>>(stream);
-
-            foreach (var i in l)
-            {
-                Console.WriteLine(i);
-            }
-                //stream.Position = 0;
-                //var res = serializer.Deserialize<Poco>(stream);
-                //Console.WriteLine(res.Age);
-                //Console.WriteLine(res.Name);
-            
-        }
-
-        private static void SerializePoco()
-        {
-
-            Serializer serializer = new Serializer(new SerializerOptions(true));
-            Stopwatch sw = Stopwatch.StartNew();
-            for (int i = 0; i < 1000000; i++)
+            var sw = Stopwatch.StartNew();
+            for (var i = 0; i < 1000000; i++)
             {
                 var stream = new MemoryStream();
-                var poco = new Poco()
+                var poco = new Poco
                 {
                     Age = 123,
                     Name = "Hej"
                 };
-                serializer.Serialize(poco, stream);
+                ProtoBuf.Serializer.Serialize(stream, poco);
                 var bytes = stream.ToArray();
                 //stream.Position = 0;
                 //var res = serializer.Deserialize<Poco>(stream);
@@ -67,85 +39,79 @@ namespace Wire.PerfTest
                 //Console.WriteLine(res.Name);
             }
             sw.Stop();
-            Console.WriteLine(sw.Elapsed);
+            Console.WriteLine($"Protobuf.NET:\t\t\t{sw.Elapsed}");
+        }
+
+        private static void SerializePocoBinaryFormatter()
+        {
+            var bf = new BinaryFormatter();
+            var sw = Stopwatch.StartNew();
+            for (var i = 0; i < 1000000; i++)
+            {
+                var stream = new MemoryStream();
+                var poco = new Poco
+                {
+                    Age = 123,
+                    Name = "Hej"
+                };
+                bf.Serialize(stream, poco);
+            }
+            sw.Stop();
+            Console.WriteLine($"BinaryFormatter\t\t\t{sw.Elapsed}");
+        }
+
+        private static void SerializePocoVersionInteolerant()
+        {
+            var serializer = new Serializer(new SerializerOptions(false));
+            var sw = Stopwatch.StartNew();
+            for (var i = 0; i < 1000000; i++)
+            {
+                var stream = new MemoryStream();
+                var poco = new Poco
+                {
+                    Age = 123,
+                    Name = "Hej"
+                };
+                serializer.Serialize(poco, stream);
+            }
+            sw.Stop();
+            Console.WriteLine($"Wire - no version tolerance:\t{sw.Elapsed}");
+        }
+
+        private static void SerializePoco()
+        {
+            var serializer = new Serializer(new SerializerOptions(true));
+            var sw = Stopwatch.StartNew();
+            for (var i = 0; i < 1000000; i++)
+            {
+                var stream = new MemoryStream();
+                var poco = new Poco
+                {
+                    Age = 123,
+                    Name = "Hej"
+                };
+                serializer.Serialize(poco, stream);
+            }
+            sw.Stop();
+            Console.WriteLine($"Wire - version tolerant:\t{sw.Elapsed}");
         }
 
         private static void SerializePocoAkka()
         {
             var sys = ActorSystem.Create("foo");
             var s = sys.Serialization.FindSerializerForType(typeof (Poco));
-            Stopwatch sw = Stopwatch.StartNew();
-            for (int i = 0; i < 100000; i++)
+            var sw = Stopwatch.StartNew();
+            for (var i = 0; i < 1000000; i++)
             {
-                var poco = new Poco()
-                {
-                    Age = 123,
-                    Name = "Hej"
-                };
-                var bytes = s.ToBinary(poco);
-                //stream.Position = 0;
-                //var res = serializer.Deserialize<Poco>(stream);
-                //Console.WriteLine(res.Age);
-                //Console.WriteLine(res.Name);
-            }
-            sw.Stop();
-            Console.WriteLine(sw.Elapsed);
-        }
-
-        private static void SerializeLocoWithNullRef()
-        {
-            Serializer serializer = new Serializer();
-            
-            Stopwatch sw = Stopwatch.StartNew();
-            for (int i = 0; i < 1000000; i++)
-            {
-                var stream = new MemoryStream();
                 var poco = new Poco
                 {
                     Age = 123,
                     Name = "Hej"
                 };
-                var loco = new Loco
-                {
-                    Poco = null,// poco,
-                    YesNo = true,
-                };
-                serializer.Serialize(loco, stream);
+                s.ToBinary(poco);
             }
             sw.Stop();
-            Console.WriteLine(sw.Elapsed);
-        }
-
-        private static void SerializeLocoWithPolymorphicRef()
-        {
-            Serializer serializer = new Serializer();
-
-            //Stopwatch sw = Stopwatch.StartNew();
-            //for (int i = 0; i < 100000; i++)
-            //{
-                var stream = new MemoryStream();
-                var poco = new Poco
-                {
-                    Age = 123,
-                    Name = "Hej"
-                };
-                var loco = new Loco
-                {
-                    Poco = new Poco2
-                    {
-                        Age = 1232,
-                        Name = "Wire",
-                        Yes = true,
-                    },
-                    YesNo = true,
-                };
-                serializer.Serialize(loco, stream);
-            //}
-            //sw.Stop();
-            //Console.WriteLine(sw.Elapsed);
-            stream.Flush();
-            stream.Position = 0;
-            var res = serializer.Deserialize<Loco>(stream);
+            Console.WriteLine($"Akka.NET Json.NET settings:\t{sw.Elapsed}");
         }
     }
 
@@ -159,9 +125,14 @@ namespace Wire.PerfTest
         public Poco Poco { get; set; }
     }
 
+    [ProtoContract]
+    [Serializable]
     public class Poco
     {
+        [ProtoMember(1)]
         public string Name { get; set; }
+
+        [ProtoMember(2)]
         public int Age { get; set; }
     }
 
