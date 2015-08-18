@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using Wire.ValueSerializers;
@@ -13,11 +12,11 @@ namespace Wire
 {
     public class SerializerOptions
     {
-        public SerializerOptions(bool includePropertyNames = false)
+        public SerializerOptions(bool versionTolerance = false)
         {
-            IncludePropertyNames = includePropertyNames;
+            VersionTolerance = versionTolerance;
         }
-        public bool IncludePropertyNames { get; }
+        public bool VersionTolerance { get; }
     }
 
 
@@ -93,26 +92,40 @@ namespace Wire
                 fieldReaders.Add(GenerateFieldDeserializer(field));
             }
 
-            Action<Stream,object,SerializerSession> writer = (stream, o, session) =>
+            Action<Stream, object, SerializerSession> writer = (stream, o, session) =>
             {
                 for (var index = 0; index < fieldWriters.Count; index++)
                 {
-                    if (session.Serializer.Options.IncludePropertyNames)
+                    if (session.Serializer.Options.VersionTolerance)
                     {
+                        stream.WriteByte(1); //start of KVP
                         ByteArraySerializer.Instance.WriteValue(stream, fieldNames[index], session);
                     }
                     var fieldWriter = fieldWriters[index];
                     fieldWriter(stream, o, session);
                 }
+
+                if (session.Serializer.Options.VersionTolerance)
+                {
+                    stream.WriteByte(0); //end of object
+                }
             };
             Func < Stream, SerializerSession, object> reader = (stream, session) =>
             {
                 var instance = Activator.CreateInstance(type);
+                bool endOfObject = false;
                 for (var index = 0; index < fieldReaders.Count; index++)
                 {
-                    if (session.Serializer.Options.IncludePropertyNames)
+                    if (session.Serializer.Options.VersionTolerance)
                     {
 retry:
+                        var hasMore = stream.ReadByte();
+                        if (hasMore == 0) //end of object
+                        {
+                            endOfObject = true;
+                            break;
+                        }
+
                         var fieldName = (byte[]) ByteArraySerializer.Instance.ReadValue(stream, session);
                         if (!UnsafeCompare(fieldName, fieldNames[index]))
                         {
@@ -133,6 +146,10 @@ retry:
 
                     var fieldReader = fieldReaders[index];
                     fieldReader(stream, instance, session);
+                }
+                if (!endOfObject)
+                {
+                    //read trailing data
                 }
                 return instance;
             };
@@ -174,7 +191,7 @@ retry:
         private  Action<Stream, object, SerializerSession> GenerateFieldDeserializer(FieldInfo field)
         {
             var s = GetSerializerByType(field.FieldType);
-            if (IsPrimitiveType(field.FieldType) && !Options.IncludePropertyNames)
+            if (IsPrimitiveType(field.FieldType) && !Options.VersionTolerance)
             {
                 //Only optimize if property names are not included.
                 //if they are included, we need to be able to skip past unknown property data
