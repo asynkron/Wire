@@ -94,39 +94,35 @@ namespace Wire
 
             Action<Stream, object, SerializerSession> writer = (stream, o, session) =>
             {
+                if (session.Serializer.Options.VersionTolerance)
+                {
+                    Int32Serializer.Instance.WriteValue(stream, fields.Length, session);
+                }
                 for (var index = 0; index < fieldWriters.Count; index++)
                 {
                     if (session.Serializer.Options.VersionTolerance)
                     {
-                        stream.WriteByte(1); //start of KVP
                         ByteArraySerializer.Instance.WriteValue(stream, fieldNames[index], session);
                     }
                     var fieldWriter = fieldWriters[index];
                     fieldWriter(stream, o, session);
                 }
-
-                if (session.Serializer.Options.VersionTolerance)
-                {
-                    stream.WriteByte(0); //end of object
-                }
             };
             Func < Stream, SerializerSession, object> reader = (stream, session) =>
             {
                 var instance = Activator.CreateInstance(type);
-                bool endOfObject = false;
-                for (var index = 0; index < fieldReaders.Count; index++)
+                var fieldsToRead = fields.Length;
+                if (session.Serializer.Options.VersionTolerance)
+                {
+                    fieldsToRead = (int)Int32Serializer.Instance.ReadValue(stream, session);
+                }
+
+                var index = 0;
+                while (fieldsToRead > 0)
                 {
                     if (session.Serializer.Options.VersionTolerance)
                     {
-retry:
-                        var hasMore = stream.ReadByte();
-                        if (hasMore == 0) //end of object
-                        {
-                            endOfObject = true;
-                            break;
-                        }
-
-                        var fieldName = (byte[]) ByteArraySerializer.Instance.ReadValue(stream, session);
+                        var fieldName = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
                         if (!UnsafeCompare(fieldName, fieldNames[index]))
                         {
                             var foundName = Encoding.UTF8.GetString(fieldName);
@@ -140,16 +136,13 @@ retry:
                             //read the field value and ignore it
                             s2.ReadValue(stream, session);
                             //stay on the same index, read the next field from the stream
-                            goto retry;
+                            continue;
                         }
                     }
 
                     var fieldReader = fieldReaders[index];
                     fieldReader(stream, instance, session);
-                }
-                if (!endOfObject)
-                {
-                    //read trailing data
+                    index++;
                 }
                 return instance;
             };
