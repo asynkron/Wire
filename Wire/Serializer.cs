@@ -109,22 +109,28 @@ namespace Wire
                 fieldReaders.Add(GenerateFieldDeserializer(field));
             }
 
+            var fieldCount = BitConverter.GetBytes(fields.Length);
             Action<Stream, object, SerializerSession> writer = (stream, o, session) =>
             {
                 if (session.Serializer.Options.VersionTolerance)
                 {
-                    var length = BitConverter.GetBytes(fields.Length);//write array length
-                    stream.Write(length, 0, length.Length);
-                //    Int32Serializer.Instance.WriteValue(stream, fields.Length, session);
-                }
-                for (var index = 0; index < fieldWriters.Count; index++)
-                {
-                    if (session.Serializer.Options.VersionTolerance)
+                    //write field count - cached
+                    stream.Write(fieldCount,0,fieldCount.Length); 
+                    for (var index = 0; index < fieldWriters.Count; index++)
                     {
                         ByteArraySerializer.WriteValue(stream, fieldNames[index], session);
+                        var fieldWriter = fieldWriters[index];
+                        fieldWriter(stream, o, session);
                     }
-                    var fieldWriter = fieldWriters[index];
-                    fieldWriter(stream, o, session);
+                }
+                else
+                {
+                    // ReSharper disable once ForCanBeConvertedToForeach
+                    for (var index = 0; index < fieldWriters.Count; index++)
+                    {
+                        var fieldWriter = fieldWriters[index];
+                        fieldWriter(stream, o, session);
+                    }
                 }
             };
             Func < Stream, SerializerSession, object> reader = (stream, session) =>
