@@ -47,6 +47,12 @@ namespace Wire
                 writeallFields(stream, o, session);
             };
 
+            //avoid one level of invocation
+            if (serializer.Options.VersionTolerance == false)
+            {
+                writer = writeallFields;
+            }
+
             //TODO: handle version tolerance
             //var streamParam = Expression.Parameter(typeof(Stream));
             //var objectParam = Expression.Parameter(typeof(object));
@@ -76,6 +82,10 @@ namespace Wire
                     for (var i = 0; i < storedFieldCount; i++)
                     {
                         var fieldName = (byte[]) ByteArraySerializer.Instance.ReadValue(stream, session);
+                        if (!UnsafeCompare(fieldName, fieldNames[i]))
+                        {
+                            //TODO
+                        }
                     }
 
                     //   writeallFields(stream, instance, session);
