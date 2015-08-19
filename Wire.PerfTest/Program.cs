@@ -17,18 +17,18 @@ namespace Wire.PerfTest
             Console.WriteLine();
             Console.WriteLine("Running cold");
             SerializePocoVersionInteolerant();
-  //          SerializePocoProtoBufNet();
+            SerializePocoProtoBufNet();
             SerializePoco();
-            //SerializePocoJsonNet();
+            SerializePocoJsonNet();
             //SerializePocoBinaryFormatter();
             //SerializePocoAkka();
             //Console.WriteLine();
             //Console.WriteLine("Running hot");
             start:
             SerializePocoVersionInteolerant();
-            //SerializePocoProtoBufNet();
+            SerializePocoProtoBufNet();
             SerializePoco();
-            //SerializePocoJsonNet();
+            SerializePocoJsonNet();
             //SerializePocoBinaryFormatter();
             //SerializePocoAkka();
             TestSerializerSingleValues();
@@ -61,6 +61,7 @@ namespace Wire.PerfTest
                 sw.Stop();
                 Console.WriteLine((double)sw.ElapsedTicks / 1000000);
             };
+            testSerialize((byte)255);
             testSerialize((short)1234);
             testSerialize(12345679);
             testSerialize(123456789L);
@@ -72,7 +73,7 @@ namespace Wire.PerfTest
             testSerialize(new byte[] { 0 });
             testSerialize("1");
             testSerialize(new Poco { Name = "a" });
-            testSerialize(new Poco { Name = (string)null });
+            testSerialize(new Poco { Name = null });
         }
 
         private static void SerializePocoJsonNet()
@@ -170,6 +171,9 @@ namespace Wire.PerfTest
 
         [ProtoMember(2)]
         public int Age { get; set; }
+
+        [ProtoMember(3)]
+        public int? NullableInt { get; set; } = 2;
     }
 
     public class Poco2 : Poco

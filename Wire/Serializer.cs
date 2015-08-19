@@ -267,6 +267,14 @@ namespace Wire
             }
             else
             {
+                var fieldType = field.FieldType;
+                if (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof (Nullable<>))
+                {
+                    var nullableType = field.FieldType.GetGenericArguments()[0];
+                    s = GetSerializerByType(nullableType);
+                    fieldType = nullableType;
+                }
+
                 Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
                 {
                     var value = getFieldValue(o);
@@ -278,7 +286,7 @@ namespace Wire
                     {
                         var vType = value.GetType();
                         var s2 = s;
-                        if (vType != field.FieldType)
+                        if (vType != fieldType)
                         {
                             //value is of subtype, lookup the serializer for that type
                             s2 = session.Serializer.GetSerializerByType(vType);
@@ -290,7 +298,6 @@ namespace Wire
                 };
                 return fieldWriter;
             }
-            
         }
 
         private static Func<object, object> GenerateFieldReader(Type type, FieldInfo f)
