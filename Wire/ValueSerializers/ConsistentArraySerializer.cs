@@ -11,9 +11,9 @@ namespace Wire.ValueSerializers
         public override object ReadValue(Stream stream, SerializerSession session)
         {
             var elementSerializer = session.Serializer.GetSerializerByManifest(stream, session);
-                //read the element type
+            //read the element type
             var elementType = elementSerializer.GetElementType();
-                //get the element type serializer
+            //get the element type serializer
             var length = (int) Int32Serializer.Instance.ReadValue(stream, session); //read the array length
             var array = Array.CreateInstance(elementType, length); //create the array
             for (var i = 0; i < length; i++)

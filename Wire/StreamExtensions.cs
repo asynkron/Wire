@@ -5,7 +5,6 @@ namespace Wire
 {
     public static class StreamExtensions
     {
-
         public static void WriteInt32(this Stream self, int value)
         {
             var bytes = BitConverter.GetBytes(value);

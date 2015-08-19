@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,11 +7,9 @@ namespace Wire.ValueSerializers
 {
     public class ObjectSerializer : ValueSerializer
     {
-        public Type Type { get; }
-
-        private readonly Action<Stream, object, SerializerSession> _writer;
-        private readonly Func<Stream, SerializerSession, object> _reader;
         private readonly byte[] _manifest;
+        private readonly Func<Stream, SerializerSession, object> _reader;
+        private readonly Action<Stream, object, SerializerSession> _writer;
 
         public ObjectSerializer(Type type, Action<Stream, object, SerializerSession> writer,
             Func<Stream, SerializerSession, object> reader)
@@ -24,16 +21,18 @@ namespace Wire.ValueSerializers
 
             //precalculate the entire manifest for this serializer
             //this helps us to minimize calls to Stream.Write/WriteByte 
-            _manifest = 
+            _manifest =
                 new byte[] {255}
-            .Concat(BitConverter.GetBytes(bytes.Length))
-            .Concat(bytes)
-            .ToArray(); //serializer id 255 + assembly qualified name
+                    .Concat(BitConverter.GetBytes(bytes.Length))
+                    .Concat(bytes)
+                    .ToArray(); //serializer id 255 + assembly qualified name
         }
+
+        public Type Type { get; }
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.Write(_manifest,0,_manifest.Length);
+            stream.Write(_manifest, 0, _manifest.Length);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)

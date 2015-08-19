@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Runtime.CompilerServices;
 
 namespace Wire.ValueSerializers
 {
@@ -29,7 +28,7 @@ namespace Wire.ValueSerializers
 
         public override object ReadValue(Stream stream, SerializerSession session)
         {
-            var size = sizeof(int);
+            var size = sizeof (int);
             var buffer = session.GetBuffer(size);
             stream.Read(buffer, 0, size);
             return BitConverter.ToInt32(buffer, 0);

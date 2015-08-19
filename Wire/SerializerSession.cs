@@ -2,8 +2,8 @@
 {
     public class SerializerSession
     {
-        public readonly Serializer Serializer;
         private readonly byte[] _buffer;
+        public readonly Serializer Serializer;
 
         public SerializerSession(Serializer serializer)
         {

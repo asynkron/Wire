@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Wire.ValueSerializers
@@ -23,7 +22,7 @@ namespace Wire.ValueSerializers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static  void WriteValue(Stream stream, byte[] bytes, SerializerSession session)
+        public static void WriteValue(Stream stream, byte[] bytes, SerializerSession session)
         {
             stream.WriteInt32(bytes.Length);
             stream.Write(bytes, 0, bytes.Length);

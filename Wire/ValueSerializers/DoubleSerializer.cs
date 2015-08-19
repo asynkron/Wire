@@ -6,7 +6,7 @@ namespace Wire.ValueSerializers
     public class DoubleSerializer : ValueSerializer
     {
         public static readonly DoubleSerializer Instance = new DoubleSerializer();
-        private readonly byte[] _manifest = { 13 };
+        private readonly byte[] _manifest = {13};
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
@@ -15,7 +15,7 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
-            var bytes = BitConverter.GetBytes((double)value);
+            var bytes = BitConverter.GetBytes((double) value);
             stream.Write(bytes, 0, bytes.Length);
         }
 
@@ -29,7 +29,7 @@ namespace Wire.ValueSerializers
 
         public override Type GetElementType()
         {
-            return typeof(double);
+            return typeof (double);
         }
     }
 }

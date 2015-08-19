@@ -6,7 +6,7 @@ namespace Wire.ValueSerializers
     public class FloatSerializer : ValueSerializer
     {
         public static readonly FloatSerializer Instance = new FloatSerializer();
-        private readonly byte[] _manifest = { 12 };
+        private readonly byte[] _manifest = {12};
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
@@ -15,7 +15,7 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
-            var bytes = BitConverter.GetBytes((float)value);
+            var bytes = BitConverter.GetBytes((float) value);
             stream.Write(bytes, 0, bytes.Length);
         }
 
@@ -29,7 +29,7 @@ namespace Wire.ValueSerializers
 
         public override Type GetElementType()
         {
-            return typeof(float);
+            return typeof (float);
         }
     }
 }
