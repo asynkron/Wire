@@ -18,14 +18,14 @@ namespace Wire.ValueSerializers
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var bytes = (byte[]) value;
-            Int32Serializer.WriteValue(stream, bytes.Length, session);
+            stream.WriteInt32(bytes.Length);
             stream.Write(bytes, 0, bytes.Length);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static  void WriteValue(Stream stream, byte[] bytes, SerializerSession session)
         {
-            Int32Serializer.WriteValue(stream, bytes.Length, session);
+            stream.WriteInt32(bytes.Length);
             stream.Write(bytes, 0, bytes.Length);
         }
 

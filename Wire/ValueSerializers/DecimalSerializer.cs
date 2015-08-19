@@ -16,10 +16,11 @@ namespace Wire.ValueSerializers
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var data = decimal.GetBits((decimal) value);
-            Int32Serializer.WriteValue(stream, data[0], session);
-            Int32Serializer.WriteValue(stream, data[1], session);
-            Int32Serializer.WriteValue(stream, data[2], session);
-            Int32Serializer.WriteValue(stream, data[3], session);
+            stream.WriteInt32(data[0]);
+            stream.WriteInt32(data[1]);
+            stream.WriteInt32(data[2]);
+            stream.WriteInt32(data[3]);
+
         }
 
         public override object ReadValue(Stream stream, SerializerSession session)

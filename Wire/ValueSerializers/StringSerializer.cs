@@ -18,12 +18,12 @@ namespace Wire.ValueSerializers
         {
             if (value == null)
             {
-                Int32Serializer.WriteValue(stream, -1, session);
+                stream.WriteInt32(-1);
             }
             else
             {
                 var bytes = Encoding.UTF8.GetBytes((string) value);
-                Int32Serializer.WriteValue(stream, bytes.Length, session);
+                stream.WriteInt32(bytes.Length);
                 stream.Write(bytes, 0, bytes.Length);
             }
         }

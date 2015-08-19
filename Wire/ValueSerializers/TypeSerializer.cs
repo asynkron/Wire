@@ -18,7 +18,7 @@ namespace Wire.ValueSerializers
         {
             if (value == null)
             {
-                Int32Serializer.WriteValue(stream, -1, session);
+                stream.WriteInt32(-1);
             }
             else
             {

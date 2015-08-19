@@ -101,8 +101,7 @@ namespace Wire
             var fieldReaders = new List<Action<Stream, object, SerializerSession>>();
             var fieldNames = new List<byte[]>();
             foreach (var field in fields)
-            {
-                
+            {               
                 byte[] fieldName = Encoding.UTF8.GetBytes(field.Name);
                 fieldNames.Add(fieldName);
                 fieldWriters.Add(GenerateFieldSerializer(type, field));
@@ -111,7 +110,7 @@ namespace Wire
 
             var fieldCount = BitConverter.GetBytes(fields.Length);
             //concat all fieldNames including their length encoding and field count as header
-            var allBytes =
+            var versionTolerantHeader =
                 fieldNames.Aggregate(fieldCount.AsEnumerable(),
                     (current, fieldName) => current.Concat(BitConverter.GetBytes(fieldName.Length)).Concat(fieldName))
                     .ToArray();
@@ -123,7 +122,7 @@ namespace Wire
                 if (session.Serializer.Options.VersionTolerance)
                 {
                     //write field count - cached
-                    stream.Write(allBytes, 0, allBytes.Length);
+                    stream.Write(versionTolerantHeader, 0, versionTolerantHeader.Length);
                     writeallFields(stream, o, session);
                 }
                 else

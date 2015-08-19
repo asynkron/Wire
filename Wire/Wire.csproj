@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StreamExtensions.cs" />
     <Compile Include="ValueSerializers\BoolSerializer.cs" />
     <Compile Include="ValueSerializers\ByteArraySerializer.cs" />
     <Compile Include="ValueSerializers\ByteSerializer.cs" />
