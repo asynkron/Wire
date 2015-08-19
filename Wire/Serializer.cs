@@ -245,10 +245,15 @@ namespace Wire
             }
         }
 
+        //this returns a delegate for serializing a specific "field" of an instance of type "type"
         private Action<Stream, object, SerializerSession> GenerateFieldSerializer(Type type, FieldInfo field)
         {
+            //get the serializer for the type of the field
             var s = GetSerializerByType(field.FieldType);
+            //runtime generate a delegate that reads the content of the given field
             var getFieldValue = GenerateFieldReader(type, field);
+
+            //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
             if (IsPrimitiveType(field.FieldType))
             {
                 //primitive types does not need to write any manifest, if the field type is known
