@@ -16,12 +16,21 @@ namespace Wire.ValueSerializers
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var data = decimal.GetBits((decimal) value);
-            ConsistentArraySerializer.Instance.WriteValue(stream,data,session);
+            Int32Serializer.Instance.WriteValue(stream, (object)data[0], session);
+            Int32Serializer.Instance.WriteValue(stream, (object)data[1], session);
+            Int32Serializer.Instance.WriteValue(stream, (object)data[2], session);
+            Int32Serializer.Instance.WriteValue(stream, (object)data[3], session);
         }
 
         public override object ReadValue(Stream stream, SerializerSession session)
         {
-            var parts = (int[])ConsistentArraySerializer.Instance.ReadValue(stream, session);
+            var parts = new[]
+                {
+                    (int)Int32Serializer.Instance.ReadValue(stream, session),
+                    (int)Int32Serializer.Instance.ReadValue(stream, session),
+                    (int)Int32Serializer.Instance.ReadValue(stream, session),
+                    (int)Int32Serializer.Instance.ReadValue(stream, session),
+                };
             bool sign = (parts[3] & 0x80000000) != 0;
 
             byte scale = (byte)((parts[3] >> 16) & 0x7F);
