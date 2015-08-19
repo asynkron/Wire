@@ -13,6 +13,8 @@ namespace Wire.PerfTest
     {
         private static void Main(string[] args)
         {
+            SerializeDeserialize();
+            SerializeDeserialize2();
             Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
             Console.WriteLine();
             Console.WriteLine("Running cold");
@@ -22,8 +24,8 @@ namespace Wire.PerfTest
             SerializePocoJsonNet();
             //SerializePocoBinaryFormatter();
             //SerializePocoAkka();
-            //Console.WriteLine();
-            //Console.WriteLine("Running hot");
+            Console.WriteLine();
+            Console.WriteLine("Running hot");
             start:
             SerializePocoVersionInteolerant();
             SerializePocoProtoBufNet();
@@ -42,6 +44,24 @@ namespace Wire.PerfTest
             Age = 123,
             Name = "Hello"
         };
+
+        private static void SerializeDeserialize()
+        {
+            var stream = new MemoryStream();
+            var serializer = new Serializer(new SerializerOptions(false));
+            serializer.Serialize(poco,stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize<Poco>(stream);
+        }
+
+        private static void SerializeDeserialize2()
+        {
+            var stream = new MemoryStream();
+            var serializer = new Serializer(new SerializerOptions(true));
+            serializer.Serialize(poco, stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize<Poco>(stream);
+        }
 
         private static void TestSerializerSingleValues()
         {
@@ -172,8 +192,24 @@ namespace Wire.PerfTest
         [ProtoMember(2)]
         public int Age { get; set; }
 
-        [ProtoMember(3)]
-        public int? NullableInt { get; set; } = 2;
+
+        //[ProtoMember(3)]
+        //public int Age2 { get; set; }
+
+
+        //[ProtoMember(4)]
+        //public int Age3 { get; set; }
+
+
+        //[ProtoMember(5)]
+        //public int Age4 { get; set; }
+
+
+        //[ProtoMember(6)]
+        //public int Age5 { get; set; }
+
+        //[ProtoMember(3)]
+        //public int? NullableInt { get; set; } = 2;
     }
 
     public class Poco2 : Poco

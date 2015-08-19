@@ -110,15 +110,26 @@ namespace Wire
             }
 
             var fieldCount = BitConverter.GetBytes(fields.Length);
+            var all = fieldCount.AsEnumerable();
+            foreach (var fieldName in fieldNames)
+            {
+                all = all
+                    .Concat(BitConverter.GetBytes(fieldName.Length))
+                    .Concat(fieldName);
+            }
+
+            var allBytes = all.ToArray();
+
+
             Action<Stream, object, SerializerSession> writer = (stream, o, session) =>
             {
                 if (session.Serializer.Options.VersionTolerance)
                 {
                     //write field count - cached
-                    stream.Write(fieldCount,0,fieldCount.Length); 
+                    stream.Write(allBytes, 0, allBytes.Length);
+                    // ReSharper disable once ForCanBeConvertedToForeach
                     for (var index = 0; index < fieldWriters.Count; index++)
                     {
-                        ByteArraySerializer.WriteValue(stream, fieldNames[index], session);
                         var fieldWriter = fieldWriters[index];
                         fieldWriter(stream, o, session);
                     }
@@ -132,44 +143,70 @@ namespace Wire
                         fieldWriter(stream, o, session);
                     }
                 }
+               
             };
             Func < Stream, SerializerSession, object> reader = (stream, session) =>
             {
                 var instance = Activator.CreateInstance(type);
+
                 var fieldsToRead = fields.Length;
                 if (session.Serializer.Options.VersionTolerance)
                 {
-                    fieldsToRead = (int)Int32Serializer.Instance.ReadValue(stream, session);
-                }
-
-                var index = 0;
-                while (fieldsToRead > 0)
-                {
-                    fieldsToRead--;
-                    if (session.Serializer.Options.VersionTolerance)
+                    var storedFieldCount = (int)Int32Serializer.Instance.ReadValue(stream, session);
+                    if (storedFieldCount != fieldsToRead)
                     {
-                        var fieldName = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
-                        if (!UnsafeCompare(fieldName, fieldNames[index]))
-                        {
-                            var foundName = Encoding.UTF8.GetString(fieldName);
-                            var expectedName = Encoding.UTF8.GetString(fieldNames[index]);
-                            if (string.CompareOrdinal(foundName, expectedName) < 0) //TODO: is it the reversed
-                            {
-                                throw new Exception($"Expected to find field with name '{expectedName}' but found '{foundName}' when deserializing object of type '{type.Name}'");
-                            }
-                            //get the manifest for the unknown field
-                            var s2 = GetSerializerByManifest(stream, session);
-                            //read the field value and ignore it
-                            s2.ReadValue(stream, session); //TODO: make it possible to ignore data being read, if types have been removed on receiveing end
-                            //stay on the same index, read the next field from the stream
-                            continue;
-                        }
+                        //TODO: 
+
                     }
 
-                    var fieldReader = fieldReaders[index];
-                    fieldReader(stream, instance, session);
-                    index++;
+                    for (int i = 0; i < storedFieldCount; i++)
+                    {
+                        var fieldName = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
+                    }
+
+                    for (int i = 0; i < storedFieldCount; i++)
+                    {
+                        var fieldReader = fieldReaders[i];
+                        fieldReader(stream, instance, session);
+                    }
                 }
+                else
+                {
+                    for (int i = 0; i < fieldsToRead; i++)
+                    {
+                        var fieldReader = fieldReaders[i];
+                        fieldReader(stream, instance, session);
+                    }
+                }
+
+                //var index = 0;
+                //while (fieldsToRead > 0)
+                //{
+                //    fieldsToRead--;
+                //    if (session.Serializer.Options.VersionTolerance)
+                //    {
+                //        var fieldName = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
+                //        if (!UnsafeCompare(fieldName, fieldNames[index]))
+                //        {
+                //            var foundName = Encoding.UTF8.GetString(fieldName);
+                //            var expectedName = Encoding.UTF8.GetString(fieldNames[index]);
+                //            if (string.CompareOrdinal(foundName, expectedName) < 0) //TODO: is it the reversed
+                //            {
+                //                throw new Exception($"Expected to find field with name '{expectedName}' but found '{foundName}' when deserializing object of type '{type.Name}'");
+                //            }
+                //            //get the manifest for the unknown field
+                //            var s2 = GetSerializerByManifest(stream, session);
+                //            //read the field value and ignore it
+                //            s2.ReadValue(stream, session); //TODO: make it possible to ignore data being read, if types have been removed on receiveing end
+                //            //stay on the same index, read the next field from the stream
+                //            continue;
+                //        }
+                //    }
+
+                //    var fieldReader = fieldReaders[index];
+                //    fieldReader(stream, instance, session);
+                //    index++;
+                //}
                 return instance;
             };
             var serializer = new ObjectSerializer(type,writer,reader);
@@ -254,7 +291,7 @@ namespace Wire
             var getFieldValue = GenerateFieldReader(type, field);
 
             //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
-            if (IsPrimitiveType(field.FieldType))
+            if (IsPrimitiveType(field.FieldType) && !Options.VersionTolerance)
             {
                 //primitive types does not need to write any manifest, if the field type is known
                 //nor can they be null (StringSerializer has it's own null handling)
