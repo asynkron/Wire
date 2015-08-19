@@ -35,6 +35,14 @@ namespace Wire.ValueSerializers
             return BitConverter.ToInt32(buffer, 0);
         }
 
+        //public static int ReadValue(Stream stream, SerializerSession session)
+        //{
+        //    var size = sizeof(int);
+        //    var buffer = session.GetBuffer(size);
+        //    stream.Read(buffer, 0, size);
+        //    return BitConverter.ToInt32(buffer, 0);
+        //}
+
         public override Type GetElementType()
         {
             return typeof (int);

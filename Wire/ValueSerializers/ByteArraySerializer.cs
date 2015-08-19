@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Wire.ValueSerializers
@@ -17,8 +18,7 @@ namespace Wire.ValueSerializers
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var bytes = (byte[]) value;
-            var length = BitConverter.GetBytes(bytes.Length);//write array length
-            stream.Write(length, 0, length.Length);
+            Int32Serializer.WriteValue(stream, bytes.Length, session);
             stream.Write(bytes, 0, bytes.Length);
         }
 
