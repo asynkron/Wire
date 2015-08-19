@@ -93,6 +93,8 @@ namespace Wire
             return serializer;
         }
 
+        
+
         private ValueSerializer BuildSerializer(Type type)
         {
             var fields = GetFieldsForType(type);
@@ -100,6 +102,7 @@ namespace Wire
             var fieldWriters = new List<Action<Stream, object, SerializerSession>>();
             var fieldReaders = new List<Action<Stream, object, SerializerSession>>();
             var fieldNames = new List<byte[]>();
+
             foreach (var field in fields)
             {               
                 byte[] fieldName = Encoding.UTF8.GetBytes(field.Name);
@@ -119,16 +122,14 @@ namespace Wire
 
             Action<Stream, object, SerializerSession> writer = (stream, o, session) =>
             {
-                if (session.Serializer.Options.VersionTolerance)
+                if (Options.VersionTolerance)
                 {
                     //write field count - cached
                     stream.Write(versionTolerantHeader, 0, versionTolerantHeader.Length);
-                    writeallFields(stream, o, session);
                 }
-                else
-                {
-                    writeallFields(stream, o, session);
-                }               
+
+                writeallFields(stream, o, session);
+                               
             };
 
             //TODO: handle version tolerance
@@ -149,7 +150,7 @@ namespace Wire
                 var instance = Activator.CreateInstance(type);
 
                 var fieldsToRead = fields.Length;
-                if (session.Serializer.Options.VersionTolerance)
+                if (Options.VersionTolerance)
                 {
                     var storedFieldCount = (int)Int32Serializer.Instance.ReadValue(stream, session);
                     if (storedFieldCount != fieldsToRead)
