@@ -24,13 +24,17 @@ namespace Wire.PerfTest
             //SerializePocoAkka();
             //Console.WriteLine();
             //Console.WriteLine("Running hot");
+            start:
             SerializePocoVersionInteolerant();
             //SerializePocoProtoBufNet();
             SerializePoco();
             //SerializePocoJsonNet();
             //SerializePocoBinaryFormatter();
             //SerializePocoAkka();
+            TestSerializerSingleValues();
+            Console.WriteLine("Press ENTER to repeat.");
             Console.ReadLine();
+            goto start;
         }
 
         private static Poco poco = new Poco
@@ -38,6 +42,38 @@ namespace Wire.PerfTest
             Age = 123,
             Name = "Hello"
         };
+
+        private static void TestSerializerSingleValues()
+        {
+            Console.WriteLine("");
+            Console.WriteLine("Testing individual ValueSerializers.");
+            var serializer = new Serializer(new SerializerOptions(false));
+            var stream = new MemoryStream(4096);
+            Action<object> testSerialize = o =>
+            {
+                Console.Write("{0}: ", o.GetType().Name);
+                Stopwatch sw = Stopwatch.StartNew();
+                for (int i = 0; i < 1000000; i++)
+                {
+                    serializer.Serialize(o, stream);
+                    stream.Position = 0;
+                }
+                sw.Stop();
+                Console.WriteLine((double)sw.ElapsedTicks / 1000000);
+            };
+            testSerialize((short)1234);
+            testSerialize(12345679);
+            testSerialize(123456789L);
+            testSerialize(123.45f);
+            testSerialize(123.45);
+            testSerialize(123.45m);
+            testSerialize(DateTime.UtcNow);
+            testSerialize(new[] { 'a' });
+            testSerialize(new byte[] { 0 });
+            testSerialize("1");
+            testSerialize(new Poco { Name = "a" });
+            testSerialize(new Poco { Name = (string)null });
+        }
 
         private static void SerializePocoJsonNet()
         {
