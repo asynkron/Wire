@@ -8,7 +8,7 @@
         public SerializerSession(Serializer serializer)
         {
             Serializer = serializer;
-            _buffer = new byte[100];
+            _buffer = new byte[8];
         }
 
         public byte[] GetBuffer(int length)

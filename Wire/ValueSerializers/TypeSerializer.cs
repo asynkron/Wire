@@ -4,10 +4,10 @@ using System.Text;
 
 namespace Wire.ValueSerializers
 {
-    public class StringSerializer : ValueSerializer
+    public class TypeSerializer : ValueSerializer
     {
-        public static readonly StringSerializer Instance = new StringSerializer();
-        private readonly byte[] _manifest = {7};
+        public static readonly TypeSerializer Instance = new TypeSerializer();
+        private readonly byte[] _manifest = { 16 };
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
@@ -22,15 +22,17 @@ namespace Wire.ValueSerializers
             }
             else
             {
-                var bytes = Encoding.UTF8.GetBytes((string) value);
-                Int32Serializer.WriteValue(stream, bytes.Length, session);
+                var bytes = Encoding.UTF8.GetBytes((string)value);
+                var length = BitConverter.GetBytes(bytes.Length);//write array length
+                stream.Write(length, 0, length.Length);
+                //     Int32Serializer.Instance.WriteValue(stream, bytes.Length, session);
                 stream.Write(bytes, 0, bytes.Length);
             }
         }
 
         public override object ReadValue(Stream stream, SerializerSession session)
         {
-            var length = (int) Int32Serializer.Instance.ReadValue(stream, session);
+            var length = (int)Int32Serializer.Instance.ReadValue(stream, session);
             if (length == -1)
                 return null;
 
@@ -43,7 +45,7 @@ namespace Wire.ValueSerializers
 
         public override Type GetElementType()
         {
-            return typeof (string);
+            return typeof(string);
         }
     }
 }

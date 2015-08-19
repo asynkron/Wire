@@ -17,19 +17,19 @@ namespace Wire.PerfTest
             Console.WriteLine();
             Console.WriteLine("Running cold");
             SerializePocoVersionInteolerant();
-            SerializePocoProtoBufNet();
+  //          SerializePocoProtoBufNet();
             SerializePoco();
-            SerializePocoJsonNet();
-            SerializePocoBinaryFormatter();
-            SerializePocoAkka();
-            Console.WriteLine();
-            Console.WriteLine("Running hot");
+            //SerializePocoJsonNet();
+            //SerializePocoBinaryFormatter();
+            //SerializePocoAkka();
+            //Console.WriteLine();
+            //Console.WriteLine("Running hot");
             SerializePocoVersionInteolerant();
-            SerializePocoProtoBufNet();
+            //SerializePocoProtoBufNet();
             SerializePoco();
-            SerializePocoJsonNet();
-            SerializePocoBinaryFormatter();
-            SerializePocoAkka();
+            //SerializePocoJsonNet();
+            //SerializePocoBinaryFormatter();
+            //SerializePocoAkka();
             Console.ReadLine();
         }
 

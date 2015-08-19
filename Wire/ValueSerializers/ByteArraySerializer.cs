@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Wire.ValueSerializers
 {
@@ -21,11 +22,10 @@ namespace Wire.ValueSerializers
             stream.Write(bytes, 0, bytes.Length);
         }
 
-        public void WriteValue(Stream stream, byte[] bytes, SerializerSession session)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static  void WriteValue(Stream stream, byte[] bytes, SerializerSession session)
         {
-            var length = BitConverter.GetBytes(bytes.Length);//write array length
-            stream.Write(length, 0, length.Length);
-          //  Int32Serializer.Instance.WriteValue(stream, bytes.Length, session);
+            Int32Serializer.WriteValue(stream, bytes.Length, session);
             stream.Write(bytes, 0, bytes.Length);
         }
 

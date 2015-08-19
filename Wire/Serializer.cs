@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Wire.ValueSerializers;
 
@@ -80,6 +81,7 @@ namespace Wire
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ValueSerializer GetSerialzerForPoco(Type type)
         {
             ValueSerializer serializer;
@@ -119,7 +121,7 @@ namespace Wire
                 {
                     if (session.Serializer.Options.VersionTolerance)
                     {
-                        ByteArraySerializer.Instance.WriteValue(stream, fieldNames[index], session);
+                        ByteArraySerializer.WriteValue(stream, fieldNames[index], session);
                     }
                     var fieldWriter = fieldWriters[index];
                     fieldWriter(stream, o, session);
