@@ -21,7 +21,7 @@ namespace Wire.PerfTest
             SerializePocoVersionInteolerant();
             SerializePocoProtoBufNet();
             SerializePoco();
-            SerializePocoJsonNet();
+       //     SerializePocoJsonNet();
             //SerializePocoBinaryFormatter();
             //SerializePocoAkka();
             Console.WriteLine();
@@ -30,7 +30,7 @@ namespace Wire.PerfTest
             SerializePocoVersionInteolerant();
             SerializePocoProtoBufNet();
             SerializePoco();
-            SerializePocoJsonNet();
+    //        SerializePocoJsonNet();
             //SerializePocoBinaryFormatter();
             //SerializePocoAkka();
             TestSerializerSingleValues();

@@ -110,16 +110,13 @@ namespace Wire
             }
 
             var fieldCount = BitConverter.GetBytes(fields.Length);
-            var all = fieldCount.AsEnumerable();
-            foreach (var fieldName in fieldNames)
-            {
-                all = all
-                    .Concat(BitConverter.GetBytes(fieldName.Length))
-                    .Concat(fieldName);
-            }
-
-            var allBytes = all.ToArray();
-
+            //concat all fieldNames including their length encoding and field count as header
+            var allBytes =
+                fieldNames.Aggregate(fieldCount.AsEnumerable(),
+                    (current, fieldName) => current.Concat(BitConverter.GetBytes(fieldName.Length)).Concat(fieldName))
+                    .ToArray();
+            
+            var writeallFields = GenerateWriteAllFieldsDelegate(fieldWriters);
 
             Action<Stream, object, SerializerSession> writer = (stream, o, session) =>
             {
@@ -127,24 +124,27 @@ namespace Wire
                 {
                     //write field count - cached
                     stream.Write(allBytes, 0, allBytes.Length);
-                    // ReSharper disable once ForCanBeConvertedToForeach
-                    for (var index = 0; index < fieldWriters.Count; index++)
-                    {
-                        var fieldWriter = fieldWriters[index];
-                        fieldWriter(stream, o, session);
-                    }
+                    writeallFields(stream, o, session);
                 }
                 else
                 {
-                    // ReSharper disable once ForCanBeConvertedToForeach
-                    for (var index = 0; index < fieldWriters.Count; index++)
-                    {
-                        var fieldWriter = fieldWriters[index];
-                        fieldWriter(stream, o, session);
-                    }
-                }
-               
+                    writeallFields(stream, o, session);
+                }               
             };
+
+            //TODO: handle version tolerance
+            //var streamParam = Expression.Parameter(typeof(Stream));
+            //var objectParam = Expression.Parameter(typeof(object));
+            //var sessionParam = Expression.Parameter(typeof (SerializerSession));
+            //var xs = fieldReaders
+            //    .Select(Expression.Constant)
+            //    .Select(fieldReaderExpression => Expression.Invoke(fieldReaderExpression, streamParam, objectParam, sessionParam))
+            //    .ToList();
+            //var body = Expression.Block(xs);
+
+            //Action<Stream, object, SerializerSession> writeallFields =
+            //    Expression.Lambda<Action<Stream, object, SerializerSession>>(body, streamParam, objectParam, sessionParam).Compile();
+
             Func < Stream, SerializerSession, object> reader = (stream, session) =>
             {
                 var instance = Activator.CreateInstance(type);
@@ -164,6 +164,7 @@ namespace Wire
                         var fieldName = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
                     }
 
+                    //   writeallFields(stream, instance, session);
                     for (int i = 0; i < storedFieldCount; i++)
                     {
                         var fieldReader = fieldReaders[i];
@@ -172,6 +173,7 @@ namespace Wire
                 }
                 else
                 {
+                  //  writeallFields(stream, instance, session);
                     for (int i = 0; i < fieldsToRead; i++)
                     {
                         var fieldReader = fieldReaders[i];
@@ -179,38 +181,27 @@ namespace Wire
                     }
                 }
 
-                //var index = 0;
-                //while (fieldsToRead > 0)
-                //{
-                //    fieldsToRead--;
-                //    if (session.Serializer.Options.VersionTolerance)
-                //    {
-                //        var fieldName = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
-                //        if (!UnsafeCompare(fieldName, fieldNames[index]))
-                //        {
-                //            var foundName = Encoding.UTF8.GetString(fieldName);
-                //            var expectedName = Encoding.UTF8.GetString(fieldNames[index]);
-                //            if (string.CompareOrdinal(foundName, expectedName) < 0) //TODO: is it the reversed
-                //            {
-                //                throw new Exception($"Expected to find field with name '{expectedName}' but found '{foundName}' when deserializing object of type '{type.Name}'");
-                //            }
-                //            //get the manifest for the unknown field
-                //            var s2 = GetSerializerByManifest(stream, session);
-                //            //read the field value and ignore it
-                //            s2.ReadValue(stream, session); //TODO: make it possible to ignore data being read, if types have been removed on receiveing end
-                //            //stay on the same index, read the next field from the stream
-                //            continue;
-                //        }
-                //    }
-
-                //    var fieldReader = fieldReaders[index];
-                //    fieldReader(stream, instance, session);
-                //    index++;
-                //}
                 return instance;
             };
             var serializer = new ObjectSerializer(type,writer,reader);
             return serializer;
+        }
+
+        private static Action<Stream, object, SerializerSession> GenerateWriteAllFieldsDelegate(List<Action<Stream, object, SerializerSession>> fieldWriters)
+        {
+            var streamParam = Expression.Parameter(typeof (Stream));
+            var objectParam = Expression.Parameter(typeof (object));
+            var sessionParam = Expression.Parameter(typeof (SerializerSession));
+            var xs = fieldWriters
+                .Select(Expression.Constant)
+                .Select(
+                    fieldWriterExpression => Expression.Invoke(fieldWriterExpression, streamParam, objectParam, sessionParam))
+                .ToList();
+            var body = Expression.Block(xs);
+            Action<Stream, object, SerializerSession> writeallFields =
+                Expression.Lambda<Action<Stream, object, SerializerSession>>(body, streamParam, objectParam, sessionParam)
+                    .Compile();
+            return writeallFields;
         }
 
         static unsafe bool UnsafeCompare(byte[] a1, byte[] a2)
