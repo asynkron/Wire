@@ -12,7 +12,7 @@ namespace Wire.Tests
     public class CustomObjectTests : TestBase
     {
         [TestMethod]
-        public void CanSerializeNullProperty()
+        public void CanSerializeNull()
         {
             var expected = new Something()
             {
