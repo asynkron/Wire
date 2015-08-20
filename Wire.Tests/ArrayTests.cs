@@ -9,26 +9,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Wire.Tests
 {
-
     [TestClass]
-    public class ArrayTests
+    public class ArrayTests : TestBase
     {
-        private Serializer serializer;
-        private MemoryStream stream;
-
-
-        [TestInitialize]
-        public void Setup()
-        {
-            serializer = new Serializer();
-            stream = new MemoryStream();
-        }
-
-        private void Reset()
-        {
-            stream.Position = 0;
-        }
-
+      
         [TestMethod]
         public void CanSerializeArray()
         {
@@ -45,9 +29,9 @@ namespace Wire.Tests
                 new Something(),
                 new Something(), null
             };
-            serializer.Serialize(expected, stream);
+            Serialize(expected);
             Reset();
-            var actual = serializer.Deserialize<Something[]>(stream);
+            var actual = Deserialize<Something[]>();
             CollectionAssert.AreEqual(expected, actual);
         }
 
@@ -55,9 +39,9 @@ namespace Wire.Tests
         public void CanSerializePrimitiveArray()
         {
             var expected = new[] {DateTime.MaxValue, DateTime.MinValue, DateTime.Now, DateTime.Today,};
-            serializer.Serialize(expected, stream);
+            Serialize(expected);
             Reset();
-            var actual = serializer.Deserialize<DateTime[]>(stream);
+            var actual = Deserialize<DateTime[]>();
             CollectionAssert.AreEqual(expected,actual);
         }
     }

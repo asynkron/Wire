@@ -5,24 +5,9 @@ using System.IO;
 namespace Wire.Tests
 {
     [TestClass]
-    public class PrimitivesTest
+    public class PrimitivesTest : TestBase
     {
-        private Serializer serializer;
-        private MemoryStream stream;
-
-        [TestInitialize]
-        public void Setup()
-        {
-            serializer = new Serializer();
-            stream = new MemoryStream();
-        }
-
-        private void Reset()
-        {
-            stream.Position = 0;
-        }
-
-
+       
         [TestMethod]
         public void CanSerializeBool()
         {
@@ -79,9 +64,9 @@ namespace Wire.Tests
 
         private void SerializeAndAssert(object expected)
         {
-            serializer.Serialize(expected, stream);
+            Serialize(expected);
             Reset();
-            var res = serializer.Deserialize<object>(stream);
+            var res = Deserialize<object>();
             Assert.AreEqual(expected, res);
         }
     }
