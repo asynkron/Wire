@@ -77,6 +77,13 @@ namespace Wire
             ValueSerializer serializer;
             if (!_serializers.TryGetValue(type, out serializer))
             {
+                if (type.IsArray)
+                {
+                    serializer = new ArraySerializer(type);
+                    _serializers.TryAdd(type, serializer);
+                    return serializer;
+                }
+
                 Surrogate surrogate = Options.Surrogates.FirstOrDefault(s => s.From.IsAssignableFrom(type));
                 if (surrogate != null)
                 {
@@ -180,7 +187,6 @@ namespace Wire
                 {
                     return ConsistentArraySerializer.Instance;
                 }
-                return ArraySerializer.Instance;
             }
 
             var serializer = GetSerialzerForPoco(type);
@@ -223,13 +229,13 @@ namespace Wire
                     return DecimalSerializer.Instance;
                 case 15:
                     return CharSerializer.Instance;
-                case 253:
-                    return ArraySerializer.Instance;
                 case 254:
                     return ConsistentArraySerializer.Instance;
                 case 255:
+                {
                     var type = GetNamedTypeFromManifest(stream, session);
                     return GetSerialzerForPoco(type);
+                }
                 default:
                     throw new NotSupportedException("Unknown manifest value");
             }

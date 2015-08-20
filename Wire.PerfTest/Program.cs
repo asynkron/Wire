@@ -16,7 +16,7 @@ namespace Wire.PerfTest
         {
             SerializeDeserializeArray();
             SerializeDeserializeDictionary();
-            SerializeDeserialize();
+            SerializeDeserializeSurrogate();
             SerializeDeserialize2();
             Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
             Console.WriteLine();
@@ -72,7 +72,7 @@ namespace Wire.PerfTest
             //var res = serializer.Deserialize<Dictionary<string, Poco>>(stream);
         }
 
-        private static void SerializeDeserialize()
+        private static void SerializeDeserializeSurrogate()
         {
             var surrogate = Surrogate.Create<Poco,PocoSurrogate>(
                 p => new PocoSurrogate {Data = $"{p.Age}|{p.Name}"},
