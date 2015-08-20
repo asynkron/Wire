@@ -52,30 +52,48 @@ namespace Wire.ValueSerializers
             stream.Write(_manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public override void WriteValue(Stream stream, object arr, SerializerSession session)
         {
-            var array = value as Array;
+            var array = arr as Array;
             var elementSerializer = session.Serializer.GetSerializerByType(_elementType);
             stream.WriteInt32(array.Length);
+            bool preserveObjectReferences = session.Serializer.Options.PreserveObjectReferences;
+
             for (var i = 0; i < array.Length; i++) //write the elements
             {
-                var elementValue = array.GetValue(i);
-                if (elementValue == null)
+                var value = array.GetValue(i);
+                if (value == null)
                 {
                     NullSerializer.Instance.WriteManifest(stream,null,session);
                 }
                 else
                 {
-                    var vType = elementValue.GetType();
-                    var s2 = elementSerializer;
-                    if (vType != _elementType)
+                    int existingId;
+                    if (preserveObjectReferences && session.Objects.TryGetValue(value, out existingId))
                     {
-                        //value is of subtype, lookup the serializer for that type
-                        s2 = session.Serializer.GetSerializerByType(vType);
+                        //write the serializer manifest
+                        ObjectReferenceSerializer.Instance.WriteManifest(stream, null, session);
+                        //write the object reference id
+                        ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
                     }
-                    //lookup serializer for subtype
-                    s2.WriteManifest(stream, vType, session);
-                    s2.WriteValue(stream, elementValue, session);
+                    else
+                    {
+                        if (preserveObjectReferences)
+                        {
+                            session.Objects.Add(value, session.nextObjectId++);
+                        }
+
+                        var vType = value.GetType();
+                        var s2 = elementSerializer;
+                        if (vType != _elementType)
+                        {
+                            //value is of subtype, lookup the serializer for that type
+                            s2 = session.Serializer.GetSerializerByType(vType);
+                        }
+                        //lookup serializer for subtype
+                        s2.WriteManifest(stream, vType, session);
+                        s2.WriteValue(stream, value, session);
+                    }                    
                 }
             }
         }

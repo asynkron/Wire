@@ -11,7 +11,7 @@ namespace Wire
 {
     public class CodeGenerator
     {
-        public static ObjectSerializer BuildSerializer(Serializer serializer, Type type)
+        public static void BuildSerializer(Serializer serializer, Type type, ObjectSerializer result)
         {
             var fields = GetFieldsForType(type);
 
@@ -20,7 +20,7 @@ namespace Wire
             var fieldNames = new List<byte[]>();
 
             foreach (var field in fields)
-            {
+            { 
                 var fieldName = Encoding.UTF8.GetBytes(field.Name);
                 fieldNames.Add(fieldName);
                 fieldWriters.Add(GenerateFieldSerializer(serializer, type, field));
@@ -62,11 +62,17 @@ namespace Wire
                 writer = writeallFields;
             }
 
-          //  var readAllFieldsVersionIntolerant =  GenerateReadAllFieldsVersionIntolerant(fieldReaders);
+            //  var readAllFieldsVersionIntolerant =  GenerateReadAllFieldsVersionIntolerant(fieldReaders);
 
+            bool preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             Func<Stream, SerializerSession, object> reader = (stream, session) =>
             {
                 var instance = Activator.CreateInstance(type);
+                if (preserveObjectReferences)
+                {
+                    session.ObjectById.Add(session.nextObjectId, instance);
+                    session.nextObjectId++;
+                }
 
                 var fieldsToRead = fields.Length;
                 if (serializer.Options.VersionTolerance)
@@ -106,10 +112,8 @@ namespace Wire
                 return instance;
             };
 
-
-
-
-            return new ObjectSerializer(type, writer, reader); 
+            result._writer = writer;
+            result._reader = reader;
         }
 
 //        private static Action<Stream, object, SerializerSession> GenerateReadAllFieldsVersionIntolerant(List<Action<Stream, object, SerializerSession>> fieldReaders)
@@ -254,6 +258,7 @@ namespace Wire
                     s = serializer.GetSerializerByType(nullableType);
                     fieldType = nullableType;
                 }
+                bool preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
                 Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
                 {
@@ -264,16 +269,32 @@ namespace Wire
                     }
                     else
                     {
-                        var vType = value.GetType();
-                        var s2 = s;
-                        if (vType != fieldType)
+                        int existingId;
+                        if (preserveObjectReferences && session.Objects.TryGetValue(value,out existingId))
                         {
-                            //value is of subtype, lookup the serializer for that type
-                            s2 = session.Serializer.GetSerializerByType(vType);
+                            //write the serializer manifest
+                            ObjectReferenceSerializer.Instance.WriteManifest(stream,null,session);
+                            //write the object reference id
+                            ObjectReferenceSerializer.Instance.WriteValue(stream, existingId,session);
                         }
-                        //lookup serializer for subtype
-                        s2.WriteManifest(stream, vType, session);
-                        s2.WriteValue(stream, value, session);
+                        else
+                        {
+                            if (preserveObjectReferences)
+                            {
+                                session.Objects.Add(value, session.nextObjectId++);
+                            }
+
+                            var vType = value.GetType();
+                            var s2 = s;
+                            if (vType != fieldType)
+                            {
+                                //value is of subtype, lookup the serializer for that type
+                                s2 = session.Serializer.GetSerializerByType(vType);
+                            }
+                            //lookup serializer for subtype
+                            s2.WriteManifest(stream, vType, session);
+                            s2.WriteValue(stream, value, session);
+                        }                        
                     }
                 };
                 return fieldWriter;

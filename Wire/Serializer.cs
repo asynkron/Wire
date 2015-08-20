@@ -88,7 +88,7 @@ namespace Wire
                 if (surrogate != null)
                 {
 
-                    serializer = CodeGenerator.BuildSerializer(this, surrogate.To);
+                    serializer = new ObjectSerializer(surrogate.To);                       
                     var toSurrogateSerializer = new ToSurrogateSerializer(surrogate.ToSurrogate, serializer);
                     _serializers.TryAdd(type, toSurrogateSerializer);
 
@@ -96,11 +96,13 @@ namespace Wire
                     var fromSurrogateSerializer = new FromSurrogateSerializer(surrogate.FromSurrogate, serializer);
                     _serializers.TryAdd(surrogate.To, fromSurrogateSerializer);
 
+                    CodeGenerator.BuildSerializer(this, surrogate.To, (ObjectSerializer)serializer);
                     return toSurrogateSerializer;
                 }
 
-                serializer = CodeGenerator.BuildSerializer(this, type);
+                serializer = new ObjectSerializer(type);
                 _serializers.TryAdd(type, serializer);
+                CodeGenerator.BuildSerializer(this, type, (ObjectSerializer)serializer);
                 //just ignore if this fails, another thread have already added an identical serialzer
             }
             return serializer;
@@ -115,6 +117,11 @@ namespace Wire
                 throw new ArgumentNullException(nameof(obj));
 
             var session = new SerializerSession(this);
+
+            if (Options.PreserveObjectReferences)
+            {
+                session.Objects.Add(obj, session.nextObjectId++);
+            }
 
             var type = obj.GetType();
             var s = GetSerializerByType(obj.GetType());
@@ -229,6 +236,8 @@ namespace Wire
                     return DecimalSerializer.Instance;
                 case 15:
                     return CharSerializer.Instance;
+                case 253:
+                    return ObjectReferenceSerializer.Instance;
                 case 254:
                     return ConsistentArraySerializer.Instance;
                 case 255:

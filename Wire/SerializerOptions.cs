@@ -2,20 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Wire
 {
     public class SerializerOptions
     {
-       
+        public readonly bool PreserveObjectReferences;
         public readonly Surrogate[] Surrogates;
         public readonly bool VersionTolerance;
         private static readonly Surrogate[] EmptySurrogates = new Surrogate[0];
 
-        public SerializerOptions(bool versionTolerance = false,IEnumerable<Surrogate> surrogates = null)
+        public SerializerOptions(bool versionTolerance = false,IEnumerable<Surrogate> surrogates = null,bool preserveObjectReferences = false)
         {
             VersionTolerance = versionTolerance;
             Surrogates = surrogates?.ToArray() ?? EmptySurrogates;
+            PreserveObjectReferences = preserveObjectReferences;        
         }
     }
 

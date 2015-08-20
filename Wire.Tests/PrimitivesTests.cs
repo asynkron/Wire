@@ -47,7 +47,7 @@ namespace Wire.Tests
         [TestMethod]
         public void CanSerializeInt64()
         {
-            SerializeAndAssert(123l);
+            SerializeAndAssert(123L);
         }
 
         [TestMethod]

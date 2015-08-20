@@ -8,15 +8,12 @@ namespace Wire.ValueSerializers
     public class ObjectSerializer : ValueSerializer
     {
         private readonly byte[] _manifest;
-        private readonly Func<Stream, SerializerSession, object> _reader;
-        private readonly Action<Stream, object, SerializerSession> _writer;
+        public Func<Stream, SerializerSession, object> _reader;
+        public Action<Stream, object, SerializerSession> _writer;
 
-        public ObjectSerializer(Type type, Action<Stream, object, SerializerSession> writer,
-            Func<Stream, SerializerSession, object> reader)
+        public ObjectSerializer(Type type)
         {
             Type = type;
-            _writer = writer;
-            _reader = reader;
             var bytes = Encoding.UTF8.GetBytes(type.AssemblyQualifiedName);
 
             //precalculate the entire manifest for this serializer

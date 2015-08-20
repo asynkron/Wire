@@ -22,6 +22,7 @@ namespace Wire.PerfTest
             Console.WriteLine();
             Console.WriteLine("Running cold");
             SerializePocoVersionInteolerant();
+            SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoProtoBufNet();
             SerializePoco();
             SerializePocoJsonNet();
@@ -31,6 +32,7 @@ namespace Wire.PerfTest
             Console.WriteLine("Running hot");
             start:
             SerializePocoVersionInteolerant();
+            SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoProtoBufNet();
             SerializePoco();
             SerializePocoJsonNet();
@@ -179,6 +181,19 @@ namespace Wire.PerfTest
             }
             sw.Stop();
             Console.WriteLine($"Wire - no version tolerance:\t{sw.ElapsedMilliseconds}");
+        }
+
+        private static void SerializePocoVersionInteolerantPreserveObjects()
+        {
+            var serializer = new Serializer(new SerializerOptions(false,preserveObjectReferences:true));
+            var sw = Stopwatch.StartNew();
+            for (var i = 0; i < 1000000; i++)
+            {
+                var stream = new MemoryStream();
+                serializer.Serialize(poco, stream);
+            }
+            sw.Stop();
+            Console.WriteLine($"Wire - preserve object refs:\t{sw.ElapsedMilliseconds}");
         }
 
         private static void SerializePoco()
