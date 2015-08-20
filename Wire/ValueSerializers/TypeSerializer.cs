@@ -42,7 +42,7 @@ namespace Wire.ValueSerializers
 
         public override Type GetElementType()
         {
-            return typeof (string);
+            return typeof (Type);
         }
     }
 }
