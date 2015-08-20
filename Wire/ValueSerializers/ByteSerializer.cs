@@ -21,7 +21,7 @@ namespace Wire.ValueSerializers
 
         public override object ReadValue(Stream stream, SerializerSession session)
         {
-            return stream.ReadByte();
+            return (byte)stream.ReadByte();
         }
 
         public override Type GetElementType()
