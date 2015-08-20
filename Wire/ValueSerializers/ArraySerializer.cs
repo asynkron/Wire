@@ -10,10 +10,11 @@ namespace Wire.ValueSerializers
     {
         private readonly byte[] _manifest;
         private readonly Type _elementType;
+        private readonly Type _type;
 
         public ArraySerializer(Type type)
         {
-
+            _type = type;
             _elementType = type.GetElementType();
 
             var bytes = Encoding.UTF8.GetBytes(type.AssemblyQualifiedName);
@@ -43,7 +44,7 @@ namespace Wire.ValueSerializers
 
         public override Type GetElementType()
         {
-            throw new NotSupportedException();
+            return _type; //not a typo, should not be _elementType;
         }
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
