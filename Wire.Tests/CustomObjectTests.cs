@@ -11,7 +11,36 @@ namespace Wire.Tests
     [TestClass]
     public class CustomObjectTests : TestBase
     {
-        
+        [TestMethod]
+        public void CanSerializeNullProperty()
+        {
+            var expected = new Something()
+            {
+                Else = null
+            };
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<Something>();
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void CanSerializePolymorphicObject()
+        {
+            var expected = new Something()
+            {
+                Else = new OtherElse()
+                {
+                    Name = "Foo",
+                    More = "Bar"
+                }
+            };
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<Something>();
+            Assert.AreEqual(expected, actual);
+        }
+
         [TestMethod]
         public void CanSerializeObject()
         {

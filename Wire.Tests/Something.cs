@@ -89,4 +89,42 @@ namespace Wire.Tests
 
         public string Name { get; set; }
     }
+
+    public class OtherElse : Else, IEquatable<OtherElse>
+    {
+        public bool Equals(OtherElse other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return base.Equals(other) && string.Equals(More, other.More);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((OtherElse) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (base.GetHashCode()*397) ^ (More != null ? More.GetHashCode() : 0);
+            }
+        }
+
+        public static bool operator ==(OtherElse left, OtherElse right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(OtherElse left, OtherElse right)
+        {
+            return !Equals(left, right);
+        }
+
+        public string More { get; set; }
+    }
 }
