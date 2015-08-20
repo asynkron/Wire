@@ -7,6 +7,7 @@ namespace Wire
 {
     public class SerializerOptions
     {
+       
         public readonly Surrogate[] Surrogates;
         public readonly bool VersionTolerance;
         private static readonly Surrogate[] EmptySurrogates = new Surrogate[0];

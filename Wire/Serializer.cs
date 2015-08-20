@@ -180,7 +180,7 @@ namespace Wire
                 {
                     return ConsistentArraySerializer.Instance;
                 }
-                throw new NotSupportedException(""); //array of other types
+                return ArraySerializer.Instance;
             }
 
             var serializer = GetSerialzerForPoco(type);
@@ -223,6 +223,8 @@ namespace Wire
                     return DecimalSerializer.Instance;
                 case 15:
                     return CharSerializer.Instance;
+                case 253:
+                    return ArraySerializer.Instance;
                 case 254:
                     return ConsistentArraySerializer.Instance;
                 case 255:

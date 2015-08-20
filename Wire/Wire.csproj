@@ -53,6 +53,7 @@
     <Compile Include="CodeGenerator.cs" />
     <Compile Include="SerializerOptions.cs" />
     <Compile Include="StreamExtensions.cs" />
+    <Compile Include="ValueSerializers\ArraySerializer.cs" />
     <Compile Include="ValueSerializers\BoolSerializer.cs" />
     <Compile Include="ValueSerializers\ByteArraySerializer.cs" />
     <Compile Include="ValueSerializers\ByteSerializer.cs" />

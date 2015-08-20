@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -13,6 +14,8 @@ namespace Wire.PerfTest
     {
         private static void Main(string[] args)
         {
+            SerializeDeserializeArray();
+            SerializeDeserializeDictionary();
             SerializeDeserialize();
             SerializeDeserialize2();
             Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
@@ -39,11 +42,35 @@ namespace Wire.PerfTest
             goto start;
         }
 
-        private static Poco poco = new Poco
+        private static readonly Poco poco = new Poco
         {
             Age = 123,
             Name = "Hello"
         };
+
+        private static void SerializeDeserializeArray()
+        {
+
+            var stream = new MemoryStream();
+            var serializer = new Serializer(new SerializerOptions(false));
+            var array = new[] {new Poco(), new Poco2(), null, poco};
+            serializer.Serialize(array, stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize<Poco[]>(stream);
+        }
+
+        private static void SerializeDeserializeDictionary()
+        {
+            //TODO: fix this
+            //var stream = new MemoryStream();
+            //var serializer = new Serializer(new SerializerOptions(false));
+            //serializer.Serialize(new Dictionary<string,Poco>()
+            //{
+            //    ["hello"] = poco
+            //}, stream);
+            //stream.Position = 0;
+            //var res = serializer.Deserialize<Dictionary<string, Poco>>(stream);
+        }
 
         private static void SerializeDeserialize()
         {
@@ -202,7 +229,9 @@ namespace Wire.PerfTest
 
 
         //[ProtoMember(3)]
-        //public int Age2 { get; set; }
+        //public string Age2 { get; set; } =
+        //    "fklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjl"
+        //    ;
 
 
         //[ProtoMember(4)]

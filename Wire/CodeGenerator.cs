@@ -34,7 +34,16 @@ namespace Wire
                     (current, fieldName) => current.Concat(BitConverter.GetBytes(fieldName.Length)).Concat(fieldName))
                     .ToArray();
 
-            var writeallFields = GenerateWriteAllFieldsDelegate( fieldWriters);
+            Action<Stream, object, SerializerSession> writeallFields = null;
+
+            if (fieldWriters.Any())
+            {
+                writeallFields = GenerateWriteAllFieldsDelegate(fieldWriters);
+            }
+            else
+            {
+                writeallFields = (_1, _2, _3) => { };
+            }
 
             Action<Stream, object, SerializerSession> writer = (stream, o, session) =>
             {
@@ -125,7 +134,7 @@ namespace Wire
 
         private static Action<Stream, object, SerializerSession> GenerateWriteAllFieldsDelegate(
             List<Action<Stream, object, SerializerSession>> fieldWriters)
-        {
+        {            
             var streamParam = Expression.Parameter(typeof (Stream));
             var objectParam = Expression.Parameter(typeof (object));
             var sessionParam = Expression.Parameter(typeof (SerializerSession));
@@ -176,7 +185,12 @@ namespace Wire
             var current = type;
             while (current != null)
             {
-                var tfields = current.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                var tfields =
+                    current
+                        .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                        .Where(f => !f.IsDefined(typeof (NonSerializedAttribute)))
+                        .Where(f => f.Name != "_syncRoot"); //HACK: ignore these 
+
                 fieldInfos.AddRange(tfields);
                 current = current.BaseType;
             }
