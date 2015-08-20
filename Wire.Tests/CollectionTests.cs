@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Wire.Tests
@@ -13,25 +9,41 @@ namespace Wire.Tests
     public class CollectionTests : TestBase
     {
         //TODO: HashSet causes stack overflow on serialization right now
-        [TestMethod,Ignore]
+        [TestMethod, Ignore]
         public void CanSerializeSet()
         {
-            var data = new[]
+            var expected = new HashSet<Something>
             {
-                new Something()
+                new Something
                 {
                     BoolProp = true,
-                    Else = new Else()
+                    Else = new Else
                     {
                         Name = "Yoho"
                     },
                     Int32Prop = 999,
                     StringProp = "Yesbox!"
                 },
-                new Something(), new Something(), null
+                new Something(),
+                new Something(),
+                null
             };
 
-            var expected = new HashSet<Something>(data);
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<HashSet<Something>>();
+            CollectionAssert.AreEqual(expected.ToList(), actual.ToList());
+        }
+
+        //TODO: Dictionary causes stack overflow on serialization right now
+        [TestMethod, Ignore]
+        public void CanSerializeDictionary()
+        {
+            var expected = new Dictionary<string, string>
+            {
+                ["abc"] = "def",
+                ["ghi"] = "jkl,"
+            };
 
             Serialize(expected);
             Reset();
@@ -44,13 +56,15 @@ namespace Wire.Tests
         {
             var expected = new[]
             {
-                new Something()
+                new Something
                 {
-                    BoolProp = true, Else = new Else()
+                    BoolProp = true,
+                    Else = new Else
                     {
                         Name = "Yoho"
                     },
-                    Int32Prop = 999, StringProp = "Yesbox!"
+                    Int32Prop = 999,
+                    StringProp = "Yesbox!"
                 },
                 new Something(), new Something(), null
             }.ToList();
@@ -61,20 +75,21 @@ namespace Wire.Tests
             CollectionAssert.AreEqual(expected, actual);
         }
 
-
         [TestMethod]
         public void CanSerializeArray()
         {
-            var expected = new[] { new Something()
+            var expected = new[]
             {
-                BoolProp = true,
-                Else = new Else()
+                new Something
                 {
-                    Name = "Yoho"
+                    BoolProp = true,
+                    Else = new Else
+                    {
+                        Name = "Yoho"
+                    },
+                    Int32Prop = 999,
+                    StringProp = "Yesbox!"
                 },
-                Int32Prop = 999,
-                StringProp = "Yesbox!"
-            },
                 new Something(),
                 new Something(), null
             };
@@ -87,11 +102,11 @@ namespace Wire.Tests
         [TestMethod]
         public void CanSerializePrimitiveArray()
         {
-            var expected = new[] {DateTime.MaxValue, DateTime.MinValue, DateTime.Now, DateTime.Today,};
+            var expected = new[] {DateTime.MaxValue, DateTime.MinValue, DateTime.Now, DateTime.Today};
             Serialize(expected);
             Reset();
             var actual = Deserialize<DateTime[]>();
-            CollectionAssert.AreEqual(expected,actual);
+            CollectionAssert.AreEqual(expected, actual);
         }
     }
 }
