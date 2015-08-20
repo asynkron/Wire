@@ -47,6 +47,8 @@ namespace Wire.PerfTest
 
         private static void SerializeDeserialize()
         {
+            var surrogate = Surrogate.Create<Poco,string>(p => $"{p.Age}|{p.Name}",s => new Poco());
+            
             var stream = new MemoryStream();
             var serializer = new Serializer(new SerializerOptions(false));
             serializer.Serialize(poco,stream);

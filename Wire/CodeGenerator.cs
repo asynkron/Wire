@@ -41,7 +41,7 @@ namespace Wire
                 if (serializer.Options.VersionTolerance)
                 {
                     //write field count - cached
-                    stream.Write(versionTolerantHeader, 0, versionTolerantHeader.Length);
+                    stream.Write(versionTolerantHeader);
                 }
 
                 writeallFields(stream, o, session);
@@ -53,18 +53,7 @@ namespace Wire
                 writer = writeallFields;
             }
 
-            //TODO: handle version tolerance
-            //var streamParam = Expression.Parameter(typeof(Stream));
-            //var objectParam = Expression.Parameter(typeof(object));
-            //var sessionParam = Expression.Parameter(typeof (SerializerSession));
-            //var xs = fieldReaders
-            //    .Select(Expression.Constant)
-            //    .Select(fieldReaderExpression => Expression.Invoke(fieldReaderExpression, streamParam, objectParam, sessionParam))
-            //    .ToList();
-            //var body = Expression.Block(xs);
-
-            //Action<Stream, object, SerializerSession> writeallFields =
-            //    Expression.Lambda<Action<Stream, object, SerializerSession>>(body, streamParam, objectParam, sessionParam).Compile();
+          //  var readAllFieldsVersionIntolerant =  GenerateReadAllFieldsVersionIntolerant(fieldReaders);
 
             Func<Stream, SerializerSession, object> reader = (stream, session) =>
             {
@@ -107,8 +96,32 @@ namespace Wire
 
                 return instance;
             };
+
+
+
+
             return new ObjectSerializer(type, writer, reader); 
         }
+
+//        private static Action<Stream, object, SerializerSession> GenerateReadAllFieldsVersionIntolerant(List<Action<Stream, object, SerializerSession>> fieldReaders)
+//        {
+////TODO: handle version tolerance
+//            var streamParam = Expression.Parameter(typeof (Stream));
+//            var objectParam = Expression.Parameter(typeof (object));
+//            var sessionParam = Expression.Parameter(typeof (SerializerSession));
+//            var xs = fieldReaders
+//                .Select(Expression.Constant)
+//                .Select(
+//                    fieldReaderExpression => Expression.Invoke(fieldReaderExpression, streamParam, objectParam, sessionParam))
+//                .ToList();
+//            var body = Expression.Block(xs);
+
+//            Action<Stream, object, SerializerSession> readAllFields =
+//                Expression.Lambda<Action<Stream, object, SerializerSession>>(body, streamParam, objectParam, sessionParam)
+//                    .Compile();
+
+//            return readAllFields;
+//        }
 
         private static Action<Stream, object, SerializerSession> GenerateWriteAllFieldsDelegate(
             List<Action<Stream, object, SerializerSession>> fieldWriters)
@@ -174,7 +187,7 @@ namespace Wire
         private static Action<Stream, object, SerializerSession> GenerateFieldDeserializer(Serializer serializer, FieldInfo field)
         {
             var s = serializer.GetSerializerByType(field.FieldType);
-            if (Serializer.IsPrimitiveType(field.FieldType) && !serializer.Options.VersionTolerance)
+            if (!serializer.Options.VersionTolerance && Serializer.IsPrimitiveType(field.FieldType))
             {
                 //Only optimize if property names are not included.
                 //if they are included, we need to be able to skip past unknown property data
@@ -207,7 +220,7 @@ namespace Wire
             var getFieldValue = GenerateFieldReader(type, field);
 
             //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
-            if (Serializer.IsPrimitiveType(field.FieldType) && !serializer.Options.VersionTolerance)
+            if (!serializer.Options.VersionTolerance && Serializer.IsPrimitiveType(field.FieldType))
             {
                 //primitive types does not need to write any manifest, if the field type is known
                 //nor can they be null (StringSerializer has it's own null handling)
