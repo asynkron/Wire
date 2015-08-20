@@ -11,7 +11,7 @@ namespace Wire
 {
     public class CodeGenerator
     {
-        public static ValueSerializer BuildSerializer(Serializer serializer, Type type)
+        public static ObjectSerializer BuildSerializer(Serializer serializer, Type type)
         {
             var fields = GetFieldsForType(type);
 

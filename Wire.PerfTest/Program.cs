@@ -47,10 +47,12 @@ namespace Wire.PerfTest
 
         private static void SerializeDeserialize()
         {
-            var surrogate = Surrogate.Create<Poco,string>(p => $"{p.Age}|{p.Name}",s => new Poco());
+            var surrogate = Surrogate.Create<Poco,PocoSurrogate>(
+                p => new PocoSurrogate {Data = $"{p.Age}|{p.Name}"},
+                s => s.Restore());
             
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(false));
+            var serializer = new Serializer(new SerializerOptions(false,new [] {surrogate}));
             serializer.Serialize(poco,stream);
             stream.Position = 0;
             var res = serializer.Deserialize<Poco>(stream);
@@ -221,5 +223,20 @@ namespace Wire.PerfTest
     public class Poco2 : Poco
     {
         public bool Yes { get; set; }
+    }
+
+    public class PocoSurrogate
+    {
+        public string Data { get; set; }
+
+        public Poco Restore()
+        {
+            var parts = Data.Split('|');
+            return new Poco()
+            {
+                Age = int.Parse(parts[0]),
+                Name = parts[1]
+            };
+        }
     }
 }

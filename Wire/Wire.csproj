@@ -72,6 +72,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializerSession.cs" />
     <Compile Include="ValueSerializers\StringSerializer.cs" />
+    <Compile Include="ValueSerializers\ToSurrogateSerializer.cs" />
     <Compile Include="ValueSerializers\TypeSerializer.cs" />
     <Compile Include="ValueSerializers\ValueSerializer.cs" />
   </ItemGroup>

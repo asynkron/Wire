@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -26,19 +27,19 @@ namespace Wire
         private static readonly Type ByteArrayType = typeof (byte[]);
         private static readonly Assembly CoreaAssembly = typeof (int).Assembly;
 
-        private static readonly Dictionary<Type, ValueSerializer> PrimitiveSerializers = new Dictionary
-            <Type, ValueSerializer>
-        {
-            [typeof (int)] = Int32Serializer.Instance,
-            [typeof (long)] = Int64Serializer.Instance,
-            [typeof (short)] = Int16Serializer.Instance,
-            [typeof (byte)] = ByteSerializer.Instance,
-            [typeof (DateTime)] = DateTimeSerializer.Instance,
-            [typeof (string)] = StringSerializer.Instance,
-            [typeof (double)] = DoubleSerializer.Instance,
-            [typeof (float)] = FloatSerializer.Instance,
-            [typeof (Guid)] = GuidSerializer.Instance
-        };
+        //private static readonly Dictionary<Type, ValueSerializer> PrimitiveSerializers = new Dictionary
+        //    <Type, ValueSerializer>
+        //{
+        //    [typeof (int)] = Int32Serializer.Instance,
+        //    [typeof (long)] = Int64Serializer.Instance,
+        //    [typeof (short)] = Int16Serializer.Instance,
+        //    [typeof (byte)] = ByteSerializer.Instance,
+        //    [typeof (DateTime)] = DateTimeSerializer.Instance,
+        //    [typeof (string)] = StringSerializer.Instance,
+        //    [typeof (double)] = DoubleSerializer.Instance,
+        //    [typeof (float)] = FloatSerializer.Instance,
+        //    [typeof (Guid)] = GuidSerializer.Instance
+        //};
 
         private readonly ConcurrentDictionary<Type, ValueSerializer> _serializers =
             new ConcurrentDictionary<Type, ValueSerializer>();
@@ -76,11 +77,27 @@ namespace Wire
             ValueSerializer serializer;
             if (!_serializers.TryGetValue(type, out serializer))
             {
+                Surrogate surrogate = Options.Surrogates.FirstOrDefault(s => s.From.IsAssignableFrom(type));
+                if (surrogate != null)
+                {
+
+                    serializer = CodeGenerator.BuildSerializer(this, surrogate.To);
+                    var toSurrogateSerializer = new ToSurrogateSerializer(surrogate.ToSurrogate, serializer);
+                    _serializers.TryAdd(type, toSurrogateSerializer);
+
+
+                    var fromSurrogateSerializer = new FromSurrogateSerializer(surrogate.FromSurrogate, serializer);
+                    _serializers.TryAdd(surrogate.To, fromSurrogateSerializer);
+
+                    return toSurrogateSerializer;
+                }
+
                 serializer = CodeGenerator.BuildSerializer(this, type);
                 _serializers.TryAdd(type, serializer);
-                    //just ignore if this fails, another thread have already added an identical serialzer
+                //just ignore if this fails, another thread have already added an identical serialzer
             }
             return serializer;
+            
         }
 
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
