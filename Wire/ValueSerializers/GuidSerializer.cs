@@ -16,7 +16,7 @@ namespace Wire.ValueSerializers
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var bytes = ((Guid) value).ToByteArray();
-            stream.Write(bytes, 0, bytes.Length);
+            stream.Write(bytes);
         }
 
         public override object ReadValue(Stream stream, SerializerSession session)

@@ -32,7 +32,7 @@ namespace Wire.ValueSerializers
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.Write(_manifest, 0, _manifest.Length);
+            stream.Write(_manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)

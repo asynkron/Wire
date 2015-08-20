@@ -98,11 +98,15 @@ namespace Wire.PerfTest
 
         private static void SerializePocoJsonNet()
         {
+
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
 
-                JsonConvert.SerializeObject(poco);
+                JsonConvert.SerializeObject(poco,new JsonSerializerSettings()
+                {
+                    TypeNameHandling = TypeNameHandling.All
+                });
             }
             sw.Stop();
             Console.WriteLine($"Json.NET:\t\t\t{sw.ElapsedMilliseconds}");

@@ -6,17 +6,17 @@ namespace Wire.ValueSerializers
     public class DoubleSerializer : ValueSerializer
     {
         public static readonly DoubleSerializer Instance = new DoubleSerializer();
-        private readonly byte[] _manifest = {13};
+        private readonly byte _manifest = 13;
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.Write(_manifest, 0, _manifest.Length);
+            stream.WriteByte(_manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var bytes = BitConverter.GetBytes((double) value);
-            stream.Write(bytes, 0, bytes.Length);
+            stream.Write(bytes);
         }
 
         public override object ReadValue(Stream stream, SerializerSession session)

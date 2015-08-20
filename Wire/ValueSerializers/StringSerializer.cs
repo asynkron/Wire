@@ -7,11 +7,11 @@ namespace Wire.ValueSerializers
     public class StringSerializer : ValueSerializer
     {
         public static readonly StringSerializer Instance = new StringSerializer();
-        private readonly byte[] _manifest = {7};
+        private readonly byte _manifest = 7;
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.Write(_manifest, 0, _manifest.Length);
+            stream.WriteByte(_manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
@@ -23,8 +23,7 @@ namespace Wire.ValueSerializers
             else
             {
                 var bytes = Encoding.UTF8.GetBytes((string) value);
-                stream.WriteInt32(bytes.Length);
-                stream.Write(bytes, 0, bytes.Length);
+                stream.WriteLengthEncodedByteArray(bytes);
             }
         }
 

@@ -6,11 +6,11 @@ namespace Wire.ValueSerializers
     public class DecimalSerializer : ValueSerializer
     {
         public static readonly DecimalSerializer Instance = new DecimalSerializer();
-        private readonly byte[] _manifest = {14};
+        private readonly byte _manifest = 14;
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.Write(_manifest, 0, _manifest.Length);
+            stream.WriteByte(_manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)

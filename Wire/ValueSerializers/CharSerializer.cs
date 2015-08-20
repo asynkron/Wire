@@ -6,17 +6,17 @@ namespace Wire.ValueSerializers
     public class CharSerializer : ValueSerializer
     {
         public static readonly CharSerializer Instance = new CharSerializer();
-        private readonly byte[] _manifest = {15};
+        private readonly byte _manifest = 15;
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.Write(_manifest, 0, _manifest.Length);
+            stream.WriteByte(_manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var bytes = BitConverter.GetBytes((char) value);
-            stream.Write(bytes, 0, bytes.Length);
+            stream.Write(bytes);
         }
 
         public override object ReadValue(Stream stream, SerializerSession session)

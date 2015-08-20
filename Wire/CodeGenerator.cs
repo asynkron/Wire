@@ -27,14 +27,14 @@ namespace Wire
                 fieldReaders.Add(GenerateFieldDeserializer(serializer, field));
             }
 
-            var fieldCount = BitConverter.GetBytes(fields.Length);
+
             //concat all fieldNames including their length encoding and field count as header
             var versionTolerantHeader =
-                fieldNames.Aggregate(fieldCount.AsEnumerable(),
+                fieldNames.Aggregate(Enumerable.Repeat((byte)fieldNames.Count,1),
                     (current, fieldName) => current.Concat(BitConverter.GetBytes(fieldName.Length)).Concat(fieldName))
                     .ToArray();
 
-            var writeallFields = GenerateWriteAllFieldsDelegate(fieldWriters);
+            var writeallFields = GenerateWriteAllFieldsDelegate( fieldWriters);
 
             Action<Stream, object, SerializerSession> writer = (stream, o, session) =>
             {
@@ -73,7 +73,7 @@ namespace Wire
                 var fieldsToRead = fields.Length;
                 if (serializer.Options.VersionTolerance)
                 {
-                    var storedFieldCount = (int) Int32Serializer.Instance.ReadValue(stream, session);
+                    var storedFieldCount = stream.ReadByte();
                     if (storedFieldCount != fieldsToRead)
                     {
                         //TODO: 
@@ -81,7 +81,7 @@ namespace Wire
 
                     for (var i = 0; i < storedFieldCount; i++)
                     {
-                        var fieldName = (byte[]) ByteArraySerializer.Instance.ReadValue(stream, session);
+                        var fieldName = stream.ReadLengthEncodedByteArray(session);
                         if (!UnsafeCompare(fieldName, fieldNames[i]))
                         {
                             //TODO

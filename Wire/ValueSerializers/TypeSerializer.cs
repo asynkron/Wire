@@ -7,11 +7,11 @@ namespace Wire.ValueSerializers
     public class TypeSerializer : ValueSerializer
     {
         public static readonly TypeSerializer Instance = new TypeSerializer();
-        private readonly byte[] _manifest = {16};
+        private readonly byte _manifest = 16;
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.Write(_manifest, 0, _manifest.Length);
+            stream.WriteByte(_manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
@@ -23,10 +23,7 @@ namespace Wire.ValueSerializers
             else
             {
                 var bytes = Encoding.UTF8.GetBytes((string) value);
-                var length = BitConverter.GetBytes(bytes.Length); //write array length
-                stream.Write(length, 0, length.Length);
-                //     Int32Serializer.Instance.WriteValue(stream, bytes.Length, session);
-                stream.Write(bytes, 0, bytes.Length);
+                stream.WriteLengthEncodedByteArray(bytes);
             }
         }
 
