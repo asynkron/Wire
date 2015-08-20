@@ -22,6 +22,13 @@ namespace Wire.Tests
             stream.Position = 0;
         }
 
+
+        [TestMethod]
+        public void CanSerializeBool()
+        {
+            SerializeAndAssert(true);
+        }
+
         [TestMethod]
         public void CanSerializeGuid()
         {
