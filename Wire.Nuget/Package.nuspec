@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Wire</id>
+    <version>0.0.1</version>
+    <title>Wire</title>
+    <authors>ralsing</authors>
+    <owners></owners>
+    <description>
+      Wire is a fast binary serializer, the internal format is similar to BSON.
+      The main features are high performance, sitting somewhere between protobuf.net and Json.NET.
+      Surrogate support, translate special objects into DTO's and back again. 
+      Polymorphic values, Wire will store type information for all values to ensure that they are correctly deserialized into their original form.
+    </description>
+    <releaseNotes>
+    </releaseNotes>
+    <summary>
+      Wire is a fast binary serializer, the internal format is similar to BSON.
+      The main features are high performance, sitting somewhere between protobuf.net and Json.NET.
+      Surrogate support, translate special objects into DTO's and back again.
+      Polymorphic values, Wire will store type information for all values to ensure that they are correctly deserialized into their original form.
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://nuget.org/packages/Wire.Nuget</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
+    <copyright>Copyright 2015</copyright>
+    <dependencies>
+        <group targetFramework="net45">
+          <!--<dependency id="log4net" version="1.2.10" />-->
+        </group>
+    </dependencies>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="lib\Wire.dll" target="lib" />
+    <file src="tools\" target="tools" />
+    <file src="content\" target="content" />
+  </files>
+</package>
