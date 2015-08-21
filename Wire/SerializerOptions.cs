@@ -15,7 +15,11 @@ namespace Wire
         private static readonly ValueSerializerFactory[] EmptyValueSerializerFactories = new ValueSerializerFactory[0];
 
         private static readonly ValueSerializerFactory[] DefaultValueSerializerFactories =
-            {new ArraySerializerFactory(), new SurrogateSerializerFactory()};
+        {
+            new SurrogateSerializerFactory(),
+            new ArraySerializerFactory(),
+            new EnumerableSerializerFactory(), 
+        };
 
         public SerializerOptions(bool versionTolerance = false,IEnumerable<Surrogate> surrogates = null,bool preserveObjectReferences = false, IEnumerable<ValueSerializerFactory> serializerFactories = null)
         {

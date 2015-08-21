@@ -9,7 +9,7 @@ namespace Wire.Tests
     public class CollectionTests : TestBase
     {
         //TODO: HashSet causes stack overflow on serialization right now
-        [TestMethod, Ignore]
+        [TestMethod]
         public void CanSerializeSet()
         {
             var expected = new HashSet<Something>
@@ -36,7 +36,7 @@ namespace Wire.Tests
         }
 
         //TODO: Dictionary causes stack overflow on serialization right now
-        [TestMethod, Ignore]
+        [TestMethod]
         public void CanSerializeDictionary()
         {
             var expected = new Dictionary<string, string>
@@ -47,7 +47,7 @@ namespace Wire.Tests
 
             Serialize(expected);
             Reset();
-            var actual = Deserialize<HashSet<Something>>();
+            var actual = Deserialize<Dictionary<string, string>>();
             CollectionAssert.AreEqual(expected.ToList(), actual.ToList());
         }
 
