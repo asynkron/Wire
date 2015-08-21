@@ -13,6 +13,8 @@ namespace Wire.Converters
     {
         public override bool CanSerialize(Serializer Serializer, Type type)
         {
+            return false;
+
             if (typeof (IEnumerable).IsAssignableFrom(type) && type.GetMethod("AddRange") != null)
                 return true;
 

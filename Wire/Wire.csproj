@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="CodeGenerator.cs" />
     <Compile Include="Converters\ArraySerializerFactory.cs" />
+    <Compile Include="Converters\EnumerableSerializerFactory.cs" />
     <Compile Include="Converters\SurrogateSerializerFactory.cs" />
     <Compile Include="Converters\ValueSerializerFactory.cs" />
     <Compile Include="SerializerOptions.cs" />
