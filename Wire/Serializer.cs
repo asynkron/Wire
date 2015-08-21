@@ -77,12 +77,13 @@ namespace Wire
             ValueSerializer serializer;
             if (!_serializers.TryGetValue(type, out serializer))
             {
-                serializer = GetArraySerializer(type);
-                if (serializer != null)
-                    return serializer;
-
-                serializer = SerialzerForPoco(type);
-                if (serializer != null) return serializer;
+                foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
+                {
+                    if (valueSerializerFactory.CanSerialize(this, type))
+                    {
+                        return valueSerializerFactory.BuildSerializer(this, type, _serializers);
+                    }
+                }
 
                 serializer = new ObjectSerializer(type);
                 _serializers.TryAdd(type, serializer);
@@ -91,36 +92,6 @@ namespace Wire
             }
             return serializer;
             
-        }
-
-        private ValueSerializer SerialzerForPoco(Type type)
-        {
-            Surrogate surrogate = Options.Surrogates.FirstOrDefault(s => s.From.IsAssignableFrom(type));
-            if (surrogate != null)
-            {
-                ValueSerializer serializer = new ObjectSerializer(surrogate.To);
-                var toSurrogateSerializer = new ToSurrogateSerializer(surrogate.ToSurrogate, serializer);
-                _serializers.TryAdd(type, toSurrogateSerializer);
-
-
-                var fromSurrogateSerializer = new FromSurrogateSerializer(surrogate.FromSurrogate, serializer);
-                _serializers.TryAdd(surrogate.To, fromSurrogateSerializer);
-
-                CodeGenerator.BuildSerializer(this, surrogate.To, (ObjectSerializer) serializer);
-                return toSurrogateSerializer;
-            }
-            return null;
-        }
-
-        private ValueSerializer GetArraySerializer(Type type)
-        {
-            if (type.IsArray)
-            {
-                ValueSerializer serializer = new ArraySerializer(type);
-                _serializers.TryAdd(type, serializer);
-                return serializer;
-            }
-            return null;
         }
 
         //this returns a delegate for serializing a specific "field" of an instance of type "type"

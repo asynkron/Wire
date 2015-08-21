@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
+using Wire.Converters;
 
 namespace Wire
 {
@@ -10,13 +9,24 @@ namespace Wire
     {
         public readonly bool PreserveObjectReferences;
         public readonly Surrogate[] Surrogates;
+        public readonly ValueSerializerFactory[] ValueSerializerFactories;
         public readonly bool VersionTolerance;
         private static readonly Surrogate[] EmptySurrogates = new Surrogate[0];
+        private static readonly ValueSerializerFactory[] EmptyValueSerializerFactories = new ValueSerializerFactory[0];
 
-        public SerializerOptions(bool versionTolerance = false,IEnumerable<Surrogate> surrogates = null,bool preserveObjectReferences = false)
+        private static readonly ValueSerializerFactory[] DefaultValueSerializerFactories =
+            {new ArraySerializerFactory(), new SurrogateSerializerFactory()};
+
+        public SerializerOptions(bool versionTolerance = false,IEnumerable<Surrogate> surrogates = null,bool preserveObjectReferences = false, IEnumerable<ValueSerializerFactory> serializerFactories = null)
         {
             VersionTolerance = versionTolerance;
             Surrogates = surrogates?.ToArray() ?? EmptySurrogates;
+
+            //use the default factories + any user defined
+            ValueSerializerFactories =
+                DefaultValueSerializerFactories.Concat(serializerFactories?.ToArray() ?? EmptyValueSerializerFactories)
+                    .ToArray();
+
             PreserveObjectReferences = preserveObjectReferences;        
         }
     }
