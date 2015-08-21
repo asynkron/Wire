@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Wire.ValueSerializers;
 
 namespace Wire
 {
@@ -36,6 +37,50 @@ namespace Wire
         public static void Write(this Stream self, byte[] bytes)
         {
             self.Write(bytes,0,bytes.Length);
+        }
+
+        public static void WriteObject(this Stream stream, object value, Type valueType, ValueSerializer valueSerializer, bool preserveObjectReferences, SerializerSession session)
+        {
+            if (value == null) //value is null
+            {
+                NullSerializer.Instance.WriteManifest(stream, null, session);
+            }
+            else
+            {
+                int existingId;
+                if (preserveObjectReferences && session.Objects.TryGetValue(value, out existingId))
+                {
+                    //write the serializer manifest
+                    ObjectReferenceSerializer.Instance.WriteManifest(stream, null, session);
+                    //write the object reference id
+                    ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
+                }
+                else
+                {
+                    if (preserveObjectReferences)
+                    {
+                        session.Objects.Add(value, session.NextObjectId++);
+                    }
+
+                    var vType = value.GetType();
+                    var s2 = valueSerializer;
+                    if (vType != valueType)
+                    {
+                        //value is of subtype, lookup the serializer for that type
+                        s2 = session.Serializer.GetSerializerByType(vType);
+                    }
+                    //lookup serializer for subtype
+                    s2.WriteManifest(stream, vType, session);
+                    s2.WriteValue(stream, value, session);
+                }
+            }
+        }
+
+        public static object ReadObject(this Stream stream, SerializerSession session)
+        {
+            var s = session.Serializer.GetSerializerByManifest(stream, session);
+            var value = s.ReadValue(stream, session); //read the element value
+            return value;
         }
     }
 }

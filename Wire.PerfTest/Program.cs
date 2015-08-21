@@ -28,8 +28,8 @@ namespace Wire.PerfTest
             SerializePoco();
             SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoJsonNet();
-            SerializePocoBinaryFormatter();
-            SerializePocoAkka();
+            //SerializePocoBinaryFormatter();
+            //SerializePocoAkka();
             Console.WriteLine();
             Console.WriteLine("Running hot");
             start:
@@ -38,8 +38,8 @@ namespace Wire.PerfTest
             SerializePoco();
             SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoJsonNet();
-            SerializePocoBinaryFormatter();
-            SerializePocoAkka();
+            //SerializePocoBinaryFormatter();
+            //SerializePocoAkka();
             TestSerializerSingleValues();
             Console.WriteLine("Press ENTER to repeat.");
             Console.ReadLine();

@@ -222,8 +222,7 @@ namespace Wire
             {
                 Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
                 {
-                    var s2 = session.Serializer.GetSerializerByManifest(stream, session);
-                    var value = s2.ReadValue(stream, session);
+                    var value = stream.ReadObject(session);
                     field.SetValue(o, value);
                 };
                 return fieldReader;
@@ -233,7 +232,7 @@ namespace Wire
         private static Action<Stream, object, SerializerSession> GenerateFieldSerializer(Serializer serializer, Type type, FieldInfo field)
         {
             //get the serializer for the type of the field
-            var s = serializer.GetSerializerByType(field.FieldType);
+            var valueSerializer = serializer.GetSerializerByType(field.FieldType);
             //runtime generate a delegate that reads the content of the given field
             var getFieldValue = GenerateFieldReader(type, field);
 
@@ -245,57 +244,25 @@ namespace Wire
                 Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
                 {
                     var value = getFieldValue(o);
-                    s.WriteValue(stream, value, session);
+                    valueSerializer.WriteValue(stream, value, session);
                 };
                 return fieldWriter;
             }
             else
             {
-                var fieldType = field.FieldType;
+                var valueType = field.FieldType;
                 if (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof (Nullable<>))
                 {
                     var nullableType = field.FieldType.GetGenericArguments()[0];
-                    s = serializer.GetSerializerByType(nullableType);
-                    fieldType = nullableType;
+                    valueSerializer = serializer.GetSerializerByType(nullableType);
+                    valueType = nullableType;
                 }
                 bool preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
                 Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
                 {
                     var value = getFieldValue(o);
-                    if (value == null) //value is null
-                    {
-                        NullSerializer.Instance.WriteManifest(stream, null, session);
-                    }
-                    else
-                    {
-                        int existingId;
-                        if (preserveObjectReferences && session.Objects.TryGetValue(value,out existingId))
-                        {
-                            //write the serializer manifest
-                            ObjectReferenceSerializer.Instance.WriteManifest(stream,null,session);
-                            //write the object reference id
-                            ObjectReferenceSerializer.Instance.WriteValue(stream, existingId,session);
-                        }
-                        else
-                        {
-                            if (preserveObjectReferences)
-                            {
-                                session.Objects.Add(value, session.NextObjectId++);
-                            }
-
-                            var vType = value.GetType();
-                            var s2 = s;
-                            if (vType != fieldType)
-                            {
-                                //value is of subtype, lookup the serializer for that type
-                                s2 = session.Serializer.GetSerializerByType(vType);
-                            }
-                            //lookup serializer for subtype
-                            s2.WriteManifest(stream, vType, session);
-                            s2.WriteValue(stream, value, session);
-                        }                        
-                    }
+                    stream.WriteObject(value, valueType, valueSerializer, preserveObjectReferences, session);
                 };
                 return fieldWriter;
             }

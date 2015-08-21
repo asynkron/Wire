@@ -35,8 +35,7 @@ namespace Wire.ValueSerializers
 
             for (var i = 0; i < length; i++)
             {
-                var s = session.Serializer.GetSerializerByManifest(stream, session);
-                var value = s.ReadValue(stream, session); //read the element value
+                var value = stream.ReadObject(session);
                 array.SetValue(value, i); //set the element value
             }
             return array;
@@ -62,39 +61,7 @@ namespace Wire.ValueSerializers
             for (var i = 0; i < array.Length; i++) //write the elements
             {
                 var value = array.GetValue(i);
-                if (value == null)
-                {
-                    NullSerializer.Instance.WriteManifest(stream,null,session);
-                }
-                else
-                {
-                    int existingId;
-                    if (preserveObjectReferences && session.Objects.TryGetValue(value, out existingId))
-                    {
-                        //write the serializer manifest
-                        ObjectReferenceSerializer.Instance.WriteManifest(stream, null, session);
-                        //write the object reference id
-                        ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
-                    }
-                    else
-                    {
-                        if (preserveObjectReferences)
-                        {
-                            session.Objects.Add(value, session.NextObjectId++);
-                        }
-
-                        var vType = value.GetType();
-                        var s2 = elementSerializer;
-                        if (vType != _elementType)
-                        {
-                            //value is of subtype, lookup the serializer for that type
-                            s2 = session.Serializer.GetSerializerByType(vType);
-                        }
-                        //lookup serializer for subtype
-                        s2.WriteManifest(stream, vType, session);
-                        s2.WriteValue(stream, value, session);
-                    }                    
-                }
+                stream.WriteObject(value, _elementType, elementSerializer, preserveObjectReferences, session);
             }
         }
     }
