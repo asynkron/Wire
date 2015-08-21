@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Wire.ValueSerializers;
 
 namespace Wire.Converters
@@ -13,9 +11,16 @@ namespace Wire.Converters
     {
         public override bool CanSerialize(Serializer Serializer, Type type)
         {
-           // return false;
+            //TODO: check for constructor with IEnumerable<T> param
 
-            if (typeof (ICollection).IsAssignableFrom(type) && type.GetMethod("AddRange") != null)
+            if (type.GetMethod("AddRange") == null)
+                return false;
+
+            bool isGenericEnumerable = GetEnumerableType(type) != null;
+            if (isGenericEnumerable)
+                return true;
+
+            if (typeof (ICollection).IsAssignableFrom(type))
                 return true;
 
             return false;
@@ -23,15 +28,10 @@ namespace Wire.Converters
 
         static Type GetEnumerableType(Type type)
         {
-            foreach (Type intType in type.GetInterfaces())
-            {
-                if (intType.IsGenericType
-                    && intType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                {
-                    return intType.GetGenericArguments()[0];
-                }
-            }
-            return typeof(object);
+            return type.GetInterfaces()
+                .Where(intType => intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
+                .Select(intType => intType.GetGenericArguments()[0])
+                .FirstOrDefault();
         }
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type, ConcurrentDictionary<Type, ValueSerializer> typeMapping)
@@ -41,16 +41,13 @@ namespace Wire.Converters
             typeMapping.TryAdd(type, x);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
-            Type elementType = GetEnumerableType(type);
+            Type elementType = GetEnumerableType(type) ?? typeof (object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
             x._writer = (stream, o, session) =>
             {
-
                 var enumerable = o as ICollection;
-
                 stream.WriteInt32(enumerable.Count);
-                
                 foreach (var value in enumerable)
                 {
                     stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
@@ -66,7 +63,7 @@ namespace Wire.Converters
                     var value = stream.ReadObject(session);
                     items.SetValue(value,i);
                 }
-
+                //HACK: this needs to be fixed, codegenerated or whatever
                 var instance = Activator.CreateInstance(type);
                 var addRange = type.GetMethod("AddRange");
                 addRange.Invoke(instance, new object[] {items});
