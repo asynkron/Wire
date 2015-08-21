@@ -8,7 +8,7 @@ namespace Wire
         public readonly Dictionary<int, object> ObjectById;
         private readonly byte[] _buffer;
         public readonly Serializer Serializer;
-        public int nextObjectId;    
+        public int NextObjectId;    
 
         public SerializerSession(Serializer serializer)
         {

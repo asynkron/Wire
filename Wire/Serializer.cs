@@ -72,33 +72,17 @@ namespace Wire
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private ValueSerializer GetSerialzerForPoco(Type type)
+        private ValueSerializer GetCustomSerialzer(Type type)
         {
             ValueSerializer serializer;
             if (!_serializers.TryGetValue(type, out serializer))
             {
-                if (type.IsArray)
-                {
-                    serializer = new ArraySerializer(type);
-                    _serializers.TryAdd(type, serializer);
+                serializer = GetArraySerializer(type);
+                if (serializer != null)
                     return serializer;
-                }
 
-                Surrogate surrogate = Options.Surrogates.FirstOrDefault(s => s.From.IsAssignableFrom(type));
-                if (surrogate != null)
-                {
-
-                    serializer = new ObjectSerializer(surrogate.To);                       
-                    var toSurrogateSerializer = new ToSurrogateSerializer(surrogate.ToSurrogate, serializer);
-                    _serializers.TryAdd(type, toSurrogateSerializer);
-
-
-                    var fromSurrogateSerializer = new FromSurrogateSerializer(surrogate.FromSurrogate, serializer);
-                    _serializers.TryAdd(surrogate.To, fromSurrogateSerializer);
-
-                    CodeGenerator.BuildSerializer(this, surrogate.To, (ObjectSerializer)serializer);
-                    return toSurrogateSerializer;
-                }
+                serializer = SerialzerForPoco(type);
+                if (serializer != null) return serializer;
 
                 serializer = new ObjectSerializer(type);
                 _serializers.TryAdd(type, serializer);
@@ -107,6 +91,36 @@ namespace Wire
             }
             return serializer;
             
+        }
+
+        private ValueSerializer SerialzerForPoco(Type type)
+        {
+            Surrogate surrogate = Options.Surrogates.FirstOrDefault(s => s.From.IsAssignableFrom(type));
+            if (surrogate != null)
+            {
+                ValueSerializer serializer = new ObjectSerializer(surrogate.To);
+                var toSurrogateSerializer = new ToSurrogateSerializer(surrogate.ToSurrogate, serializer);
+                _serializers.TryAdd(type, toSurrogateSerializer);
+
+
+                var fromSurrogateSerializer = new FromSurrogateSerializer(surrogate.FromSurrogate, serializer);
+                _serializers.TryAdd(surrogate.To, fromSurrogateSerializer);
+
+                CodeGenerator.BuildSerializer(this, surrogate.To, (ObjectSerializer) serializer);
+                return toSurrogateSerializer;
+            }
+            return null;
+        }
+
+        private ValueSerializer GetArraySerializer(Type type)
+        {
+            if (type.IsArray)
+            {
+                ValueSerializer serializer = new ArraySerializer(type);
+                _serializers.TryAdd(type, serializer);
+                return serializer;
+            }
+            return null;
         }
 
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
@@ -120,7 +134,7 @@ namespace Wire
 
             if (Options.PreserveObjectReferences)
             {
-                session.Objects.Add(obj, session.nextObjectId++);
+                session.Objects.Add(obj, session.NextObjectId++);
             }
 
             var type = obj.GetType();
@@ -196,7 +210,7 @@ namespace Wire
                 }
             }
 
-            var serializer = GetSerialzerForPoco(type);
+            var serializer = GetCustomSerialzer(type);
 
             return serializer;
         }
@@ -243,7 +257,7 @@ namespace Wire
                 case 255:
                 {
                     var type = GetNamedTypeFromManifest(stream, session);
-                    return GetSerialzerForPoco(type);
+                    return GetCustomSerialzer(type);
                 }
                 default:
                     throw new NotSupportedException("Unknown manifest value");

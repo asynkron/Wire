@@ -70,8 +70,8 @@ namespace Wire
                 var instance = Activator.CreateInstance(type);
                 if (preserveObjectReferences)
                 {
-                    session.ObjectById.Add(session.nextObjectId, instance);
-                    session.nextObjectId++;
+                    session.ObjectById.Add(session.NextObjectId, instance);
+                    session.NextObjectId++;
                 }
 
                 var fieldsToRead = fields.Length;
@@ -281,7 +281,7 @@ namespace Wire
                         {
                             if (preserveObjectReferences)
                             {
-                                session.Objects.Add(value, session.nextObjectId++);
+                                session.Objects.Add(value, session.NextObjectId++);
                             }
 
                             var vType = value.GetType();

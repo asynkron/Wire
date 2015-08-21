@@ -80,7 +80,7 @@ namespace Wire.ValueSerializers
                     {
                         if (preserveObjectReferences)
                         {
-                            session.Objects.Add(value, session.nextObjectId++);
+                            session.Objects.Add(value, session.NextObjectId++);
                         }
 
                         var vType = value.GetType();

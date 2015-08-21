@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -21,23 +22,24 @@ namespace Wire.PerfTest
             Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
             Console.WriteLine();
             Console.WriteLine("Running cold");
-            SerializePocoVersionInteolerant();
-            SerializePocoVersionInteolerantPreserveObjects();
+            SerializePocoVersionInteolerant();            
             SerializePocoProtoBufNet();
+            
             SerializePoco();
+            SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoJsonNet();
-            //SerializePocoBinaryFormatter();
-            //SerializePocoAkka();
+            SerializePocoBinaryFormatter();
+            SerializePocoAkka();
             Console.WriteLine();
             Console.WriteLine("Running hot");
             start:
-            SerializePocoVersionInteolerant();
-            SerializePocoVersionInteolerantPreserveObjects();
-            SerializePocoProtoBufNet();
+            SerializePocoVersionInteolerant();            
+            SerializePocoProtoBufNet();            
             SerializePoco();
+            SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoJsonNet();
-            //SerializePocoBinaryFormatter();
-            //SerializePocoAkka();
+            SerializePocoBinaryFormatter();
+            SerializePocoAkka();
             TestSerializerSingleValues();
             Console.WriteLine("Press ENTER to repeat.");
             Console.ReadLine();
@@ -131,6 +133,17 @@ namespace Wire.PerfTest
 
         private static void SerializePocoJsonNet()
         {
+            //var hash = new Lista();
+            //hash.List = new List<string>();
+            //hash.List.Add("hej");
+            //hash.Name = "foo";
+
+            
+            
+            
+            //var j = JsonConvert.SerializeObject(hash);
+
+            //var des = JsonConvert.DeserializeObject<Lista>(j);
 
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
@@ -138,7 +151,9 @@ namespace Wire.PerfTest
 
                 JsonConvert.SerializeObject(poco,new JsonSerializerSettings()
                 {
-                    TypeNameHandling = TypeNameHandling.All
+                    TypeNameHandling = TypeNameHandling.All,
+                    ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
+                    PreserveReferencesHandling = PreserveReferencesHandling.All,
                 });
             }
             sw.Stop();
@@ -281,6 +296,26 @@ namespace Wire.PerfTest
                 Age = int.Parse(parts[0]),
                 Name = parts[1]
             };
+        }
+    }
+
+    public class Lista : IEnumerable<string>
+    {
+        public List<string> List { get; set; }
+        public string Name { get; set; }
+        public IEnumerator<string> GetEnumerator()
+        {
+            return List.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return List.GetEnumerator();
+        }
+
+        public void AddRange(IEnumerable<string> data)
+        {
+            List.AddRange(data);
         }
     }
 }

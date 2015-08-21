@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Wire.Tests
@@ -36,7 +31,6 @@ namespace Wire.Tests
             var b = new B();
             a.B = b;
             b.A = a;
-
 
             serializer.Serialize(a, stream);
             stream.Position = 0;
