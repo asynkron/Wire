@@ -60,6 +60,7 @@
     <Compile Include="ValueSerializers\DecimalSerializer.cs" />
     <Compile Include="ValueSerializers\DoubleSerializer.cs" />
     <Compile Include="ValueSerializers\FloatSerializer.cs" />
+    <Compile Include="ValueSerializers\FromSurrogateSerializer.cs" />
     <Compile Include="ValueSerializers\GuidSerializer.cs" />
     <Compile Include="ValueSerializers\Int16Serializer.cs" />
     <Compile Include="ValueSerializers\Int32Serializer.cs" />

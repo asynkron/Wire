@@ -10,7 +10,7 @@ namespace Wire.Tests
         public void CanSerializeCyclicReferences()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(preserveObjectReferences:true));
+            var serializer = new Serializer(new SerializerOptions(preserveObjectReferences: true));
             var bar = new Bar();
             bar.Self = bar;
             bar.XYZ = 234;
@@ -18,8 +18,8 @@ namespace Wire.Tests
             serializer.Serialize(bar, stream);
             stream.Position = 0;
             var actual = serializer.Deserialize<Bar>(stream);
-            Assert.AreSame(actual,actual.Self);
-            Assert.AreEqual(bar.XYZ,actual.XYZ);
+            Assert.AreSame(actual, actual.Self);
+            Assert.AreEqual(bar.XYZ, actual.XYZ);
         }
 
         [TestMethod]

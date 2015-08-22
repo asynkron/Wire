@@ -16,7 +16,7 @@ namespace Wire.Converters
             if (type.GetMethod("AddRange") == null)
                 return false;
 
-            bool isGenericEnumerable = GetEnumerableType(type) != null;
+            var isGenericEnumerable = GetEnumerableType(type) != null;
             if (isGenericEnumerable)
                 return true;
 
@@ -26,7 +26,12 @@ namespace Wire.Converters
             return false;
         }
 
-        static Type GetEnumerableType(Type type)
+        public override bool CanDeserialize(Serializer Serializer, Type type)
+        {
+            return CanSerialize(Serializer, type);
+        }
+
+        private static Type GetEnumerableType(Type type)
         {
             return type.GetInterfaces()
                 .Where(intType => intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
@@ -34,14 +39,14 @@ namespace Wire.Converters
                 .FirstOrDefault();
         }
 
-        public override ValueSerializer BuildSerializer(Serializer serializer, Type type, ConcurrentDictionary<Type, ValueSerializer> typeMapping)
+        public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
+            ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            
             var x = new ObjectSerializer(type);
             typeMapping.TryAdd(type, x);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
-            Type elementType = GetEnumerableType(type) ?? typeof (object);
+            var elementType = GetEnumerableType(type) ?? typeof (object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
             x._writer = (stream, o, session) =>
@@ -58,10 +63,10 @@ namespace Wire.Converters
             {
                 var count = stream.ReadInt32(session);
                 var items = Array.CreateInstance(elementType, count);
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     var value = stream.ReadObject(session);
-                    items.SetValue(value,i);
+                    items.SetValue(value, i);
                 }
                 //HACK: this needs to be fixed, codegenerated or whatever
                 var instance = Activator.CreateInstance(type);

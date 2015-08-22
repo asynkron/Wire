@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Wire.Tests
 {
@@ -14,7 +8,7 @@ namespace Wire.Tests
         [TestMethod]
         public void CanSerializeNull()
         {
-            var expected = new Something()
+            var expected = new Something
             {
                 Else = null
             };
@@ -27,9 +21,9 @@ namespace Wire.Tests
         [TestMethod]
         public void CanSerializePolymorphicObject()
         {
-            var expected = new Something()
+            var expected = new Something
             {
-                Else = new OtherElse()
+                Else = new OtherElse
                 {
                     Name = "Foo",
                     More = "Bar"
@@ -44,28 +38,25 @@ namespace Wire.Tests
         [TestMethod]
         public void CanSerializeObject()
         {
-            var expected = new Something()
-            {
-
-            };
+            var expected = new Something();
             Serialize(expected);
             Reset();
             var actual = Deserialize<Something>();
-            Assert.AreEqual(expected,actual);
+            Assert.AreEqual(expected, actual);
         }
 
         [TestMethod]
         public void CanSerializeObjects()
         {
-            var expected1 = new Something()
+            var expected1 = new Something
             {
                 StringProp = "First"
             };
-            var expected2 = new Something()
+            var expected2 = new Something
             {
                 StringProp = "Second"
             };
-            var expected3 = new Something()
+            var expected3 = new Something
             {
                 StringProp = "Last"
             };
@@ -77,6 +68,5 @@ namespace Wire.Tests
             Assert.AreEqual(expected2, Deserialize<Something>());
             Assert.AreEqual(expected3, Deserialize<Something>());
         }
-
     }
 }

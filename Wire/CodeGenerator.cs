@@ -20,7 +20,7 @@ namespace Wire
             var fieldNames = new List<byte[]>();
 
             foreach (var field in fields)
-            { 
+            {
                 var fieldName = Encoding.UTF8.GetBytes(field.Name);
                 fieldNames.Add(fieldName);
                 fieldWriters.Add(GenerateFieldSerializer(serializer, type, field));
@@ -30,7 +30,7 @@ namespace Wire
 
             //concat all fieldNames including their length encoding and field count as header
             var versionTolerantHeader =
-                fieldNames.Aggregate(Enumerable.Repeat((byte)fieldNames.Count,1),
+                fieldNames.Aggregate(Enumerable.Repeat((byte) fieldNames.Count, 1),
                     (current, fieldName) => current.Concat(BitConverter.GetBytes(fieldName.Length)).Concat(fieldName))
                     .ToArray();
 
@@ -64,7 +64,7 @@ namespace Wire
 
             //  var readAllFieldsVersionIntolerant =  GenerateReadAllFieldsVersionIntolerant(fieldReaders);
 
-            bool preserveObjectReferences = serializer.Options.PreserveObjectReferences;
+            var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             Func<Stream, SerializerSession, object> reader = (stream, session) =>
             {
                 var instance = Activator.CreateInstance(type);
@@ -138,7 +138,7 @@ namespace Wire
 
         private static Action<Stream, object, SerializerSession> GenerateWriteAllFieldsDelegate(
             List<Action<Stream, object, SerializerSession>> fieldWriters)
-        {            
+        {
             var streamParam = Expression.Parameter(typeof (Stream));
             var objectParam = Expression.Parameter(typeof (object));
             var sessionParam = Expression.Parameter(typeof (SerializerSession));
@@ -202,7 +202,8 @@ namespace Wire
             return fields;
         }
 
-        private static Action<Stream, object, SerializerSession> GenerateFieldDeserializer(Serializer serializer, FieldInfo field)
+        private static Action<Stream, object, SerializerSession> GenerateFieldDeserializer(Serializer serializer,
+            FieldInfo field)
         {
             var s = serializer.GetSerializerByType(field.FieldType);
             if (!serializer.Options.VersionTolerance && Serializer.IsPrimitiveType(field.FieldType))
@@ -229,7 +230,8 @@ namespace Wire
             }
         }
 
-        private static Action<Stream, object, SerializerSession> GenerateFieldSerializer(Serializer serializer, Type type, FieldInfo field)
+        private static Action<Stream, object, SerializerSession> GenerateFieldSerializer(Serializer serializer,
+            Type type, FieldInfo field)
         {
             //get the serializer for the type of the field
             var valueSerializer = serializer.GetSerializerByType(field.FieldType);
@@ -257,7 +259,7 @@ namespace Wire
                     valueSerializer = serializer.GetSerializerByType(nullableType);
                     valueType = nullableType;
                 }
-                bool preserveObjectReferences = serializer.Options.PreserveObjectReferences;
+                var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
                 Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
                 {

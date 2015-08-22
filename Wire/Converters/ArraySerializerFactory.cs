@@ -11,7 +11,13 @@ namespace Wire.Converters
             return type.IsArray;
         }
 
-        public override ValueSerializer BuildSerializer(Serializer serializer, Type type, ConcurrentDictionary<Type, ValueSerializer> typeMapping)
+        public override bool CanDeserialize(Serializer Serializer, Type type)
+        {
+            return CanSerialize(Serializer, type);
+        }
+
+        public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
+            ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
             ValueSerializer arraySerializer = new ArraySerializer(type);
             typeMapping.TryAdd(type, arraySerializer);

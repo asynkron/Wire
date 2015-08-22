@@ -1,13 +1,11 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
 
 namespace Wire.Tests
 {
     [TestClass]
     public class PrimitivesTest : TestBase
     {
-       
         [TestMethod]
         public void CanSerializeBool()
         {
@@ -35,13 +33,13 @@ namespace Wire.Tests
         [TestMethod]
         public void CanSerializeByte()
         {
-            SerializeAndAssert((byte)123);
+            SerializeAndAssert((byte) 123);
         }
 
         [TestMethod]
         public void CanSerializeInt16()
         {
-            SerializeAndAssert((short)123);
+            SerializeAndAssert((short) 123);
         }
 
         [TestMethod]

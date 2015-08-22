@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using Wire.ValueSerializers;
 using System.Linq;
+using Wire.ValueSerializers;
 
 namespace Wire.Converters
 {
@@ -9,19 +9,25 @@ namespace Wire.Converters
     {
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            Surrogate surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.To.IsAssignableFrom(type));
+            return false;
+        }
+
+        public override bool CanDeserialize(Serializer serializer, Type type)
+        {
+            var surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.To.IsAssignableFrom(type));
             return surrogate != null;
         }
 
-        public override ValueSerializer BuildSerializer(Serializer serializer, Type type, ConcurrentDictionary<Type, ValueSerializer> typeMapping)
+        public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
+            ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            Surrogate surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.To.IsAssignableFrom(type));
+            var surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.To.IsAssignableFrom(type));
             ValueSerializer objectSerializer = new ObjectSerializer(surrogate.To);
             var fromSurrogateSerializer = new FromSurrogateSerializer(surrogate.FromSurrogate, objectSerializer);
             typeMapping.TryAdd(type, fromSurrogateSerializer);
 
-           
-            CodeGenerator.BuildSerializer(serializer, surrogate.To, (ObjectSerializer)objectSerializer);
+
+            CodeGenerator.BuildSerializer(serializer, surrogate.To, (ObjectSerializer) objectSerializer);
             return fromSurrogateSerializer;
         }
     }

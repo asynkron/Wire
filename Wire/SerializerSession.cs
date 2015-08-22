@@ -4,11 +4,11 @@ namespace Wire
 {
     public class SerializerSession
     {
-        public readonly Dictionary<object, int> Objects;
-        public readonly Dictionary<int, object> ObjectById;
         private readonly byte[] _buffer;
+        public readonly Dictionary<int, object> ObjectById;
+        public readonly Dictionary<object, int> Objects;
         public readonly Serializer Serializer;
-        public int NextObjectId;    
+        public int NextObjectId;
 
         public SerializerSession(Serializer serializer)
         {

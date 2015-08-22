@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using Akka.Actor;
 using Newtonsoft.Json;
 using ProtoBuf;
@@ -13,6 +12,12 @@ namespace Wire.PerfTest
 {
     internal class Program
     {
+        private static readonly Poco poco = new Poco
+        {
+            Age = 123,
+            Name = "Hello"
+        };
+
         private static void Main(string[] args)
         {
             SerializeDeserializeArray();
@@ -22,9 +27,9 @@ namespace Wire.PerfTest
             Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
             Console.WriteLine();
             Console.WriteLine("Running cold");
-            SerializePocoVersionInteolerant();            
+            SerializePocoVersionInteolerant();
             SerializePocoProtoBufNet();
-            
+
             SerializePoco();
             SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoJsonNet();
@@ -33,8 +38,8 @@ namespace Wire.PerfTest
             Console.WriteLine();
             Console.WriteLine("Running hot");
             start:
-            SerializePocoVersionInteolerant();            
-            SerializePocoProtoBufNet();            
+            SerializePocoVersionInteolerant();
+            SerializePocoProtoBufNet();
             SerializePoco();
             SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoJsonNet();
@@ -46,15 +51,8 @@ namespace Wire.PerfTest
             goto start;
         }
 
-        private static readonly Poco poco = new Poco
-        {
-            Age = 123,
-            Name = "Hello"
-        };
-
         private static void SerializeDeserializeArray()
         {
-
             var stream = new MemoryStream();
             var serializer = new Serializer(new SerializerOptions(false));
             var array = new[] {new Poco(), new Poco2(), null, poco};
@@ -78,13 +76,13 @@ namespace Wire.PerfTest
 
         private static void SerializeDeserializeSurrogate()
         {
-            var surrogate = Surrogate.Create<Poco,PocoSurrogate>(
+            var surrogate = Surrogate.Create<Poco, PocoSurrogate>(
                 p => new PocoSurrogate {Data = $"{p.Age}|{p.Name}"},
                 s => s.Restore());
-            
+
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(false,new [] {surrogate}));
-            serializer.Serialize(poco,stream);
+            var serializer = new Serializer(new SerializerOptions(false, new[] {surrogate}));
+            serializer.Serialize(poco, stream);
             stream.Position = 0;
             var res = serializer.Deserialize<Poco>(stream);
         }
@@ -107,28 +105,28 @@ namespace Wire.PerfTest
             Action<object> testSerialize = o =>
             {
                 Console.Write("{0}: ", o.GetType().Name);
-                Stopwatch sw = Stopwatch.StartNew();
-                for (int i = 0; i < 1000000; i++)
+                var sw = Stopwatch.StartNew();
+                for (var i = 0; i < 1000000; i++)
                 {
                     serializer.Serialize(o, stream);
                     stream.Position = 0;
                 }
                 sw.Stop();
-                Console.WriteLine((double)sw.ElapsedTicks / 1000000);
+                Console.WriteLine((double) sw.ElapsedTicks/1000000);
             };
-            testSerialize((byte)255);
-            testSerialize((short)1234);
+            testSerialize((byte) 255);
+            testSerialize((short) 1234);
             testSerialize(12345679);
             testSerialize(123456789L);
             testSerialize(123.45f);
             testSerialize(123.45);
             testSerialize(123.45m);
             testSerialize(DateTime.UtcNow);
-            testSerialize(new[] { 'a' });
-            testSerialize(new byte[] { 0 });
+            testSerialize(new[] {'a'});
+            testSerialize(new byte[] {0});
             testSerialize("1");
-            testSerialize(new Poco { Name = "a" });
-            testSerialize(new Poco { Name = null });
+            testSerialize(new Poco {Name = "a"});
+            testSerialize(new Poco {Name = null});
         }
 
         private static void SerializePocoJsonNet()
@@ -138,9 +136,7 @@ namespace Wire.PerfTest
             //hash.List.Add("hej");
             //hash.Name = "foo";
 
-            
-            
-            
+
             //var j = JsonConvert.SerializeObject(hash);
 
             //var des = JsonConvert.DeserializeObject<Lista>(j);
@@ -148,12 +144,11 @@ namespace Wire.PerfTest
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
-
-                JsonConvert.SerializeObject(poco,new JsonSerializerSettings()
+                JsonConvert.SerializeObject(poco, new JsonSerializerSettings
                 {
                     TypeNameHandling = TypeNameHandling.All,
                     ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-                    PreserveReferencesHandling = PreserveReferencesHandling.All,
+                    PreserveReferencesHandling = PreserveReferencesHandling.All
                 });
             }
             sw.Stop();
@@ -200,7 +195,7 @@ namespace Wire.PerfTest
 
         private static void SerializePocoVersionInteolerantPreserveObjects()
         {
-            var serializer = new Serializer(new SerializerOptions(false,preserveObjectReferences:true));
+            var serializer = new Serializer(new SerializerOptions(false, preserveObjectReferences: true));
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
@@ -232,7 +227,6 @@ namespace Wire.PerfTest
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
-
                 s.ToBinary(poco);
             }
             sw.Stop();
@@ -256,27 +250,6 @@ namespace Wire.PerfTest
 
         [ProtoMember(2)]
         public int Age { get; set; }
-
-
-        //[ProtoMember(3)]
-        //public string Age2 { get; set; } =
-        //    "fklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjlklsdjkfl sjlfkjsdflsdj flksjl"
-        //    ;
-
-
-        //[ProtoMember(4)]
-        //public int Age3 { get; set; }
-
-
-        //[ProtoMember(5)]
-        //public int Age4 { get; set; }
-
-
-        //[ProtoMember(6)]
-        //public int Age5 { get; set; }
-
-        //[ProtoMember(3)]
-        //public int? NullableInt { get; set; } = 2;
     }
 
     public class Poco2 : Poco
@@ -291,7 +264,7 @@ namespace Wire.PerfTest
         public Poco Restore()
         {
             var parts = Data.Split('|');
-            return new Poco()
+            return new Poco
             {
                 Age = int.Parse(parts[0]),
                 Name = parts[1]
@@ -303,6 +276,7 @@ namespace Wire.PerfTest
     {
         public List<string> List { get; set; }
         public string Name { get; set; }
+
         public IEnumerator<string> GetEnumerator()
         {
             return List.GetEnumerator();

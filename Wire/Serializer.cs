@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -26,6 +24,9 @@ namespace Wire
         private static readonly Type CharType = typeof (char);
         private static readonly Type ByteArrayType = typeof (byte[]);
         private static readonly Assembly CoreaAssembly = typeof (int).Assembly;
+
+        private readonly ConcurrentDictionary<Type, ValueSerializer> _deserializers =
+            new ConcurrentDictionary<Type, ValueSerializer>();
 
         //private static readonly Dictionary<Type, ValueSerializer> PrimitiveSerializers = new Dictionary
         //    <Type, ValueSerializer>
@@ -87,11 +88,32 @@ namespace Wire
 
                 serializer = new ObjectSerializer(type);
                 _serializers.TryAdd(type, serializer);
-                CodeGenerator.BuildSerializer(this, type, (ObjectSerializer)serializer);
+                CodeGenerator.BuildSerializer(this, type, (ObjectSerializer) serializer);
                 //just ignore if this fails, another thread have already added an identical serialzer
             }
             return serializer;
-            
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ValueSerializer GetCustomDeserialzer(Type type)
+        {
+            ValueSerializer serializer;
+            if (!_deserializers.TryGetValue(type, out serializer))
+            {
+                foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
+                {
+                    if (valueSerializerFactory.CanSerialize(this, type))
+                    {
+                        return valueSerializerFactory.BuildSerializer(this, type, _deserializers);
+                    }
+                }
+
+                serializer = new ObjectSerializer(type);
+                _deserializers.TryAdd(type, serializer);
+                CodeGenerator.BuildSerializer(this, type, (ObjectSerializer) serializer);
+                //just ignore if this fails, another thread have already added an identical serialzer
+            }
+            return serializer;
         }
 
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
@@ -117,7 +139,7 @@ namespace Wire
         public T Deserialize<T>(Stream stream)
         {
             var session = new SerializerSession(this);
-            var s = GetSerializerByManifest(stream, session);
+            var s = GetDeserializerByManifest(stream, session);
             return (T) s.ReadValue(stream, session);
         }
 
@@ -186,7 +208,72 @@ namespace Wire
             return serializer;
         }
 
-        public ValueSerializer GetSerializerByManifest(Stream stream, SerializerSession session)
+        public ValueSerializer GetDeserializerByType(Type type)
+        {
+            //TODO: code generate this
+            //ValueSerializer tmp;
+            //if (_primitiveSerializers.TryGetValue(type, out tmp))
+            //{
+            //    return tmp;
+            //}
+
+            if (ReferenceEquals(type.Assembly, CoreaAssembly))
+            {
+                if (type == StringType)
+                    return StringSerializer.Instance;
+
+                if (type == Int32Type)
+                    return Int32Serializer.Instance;
+
+                if (type == Int64Type)
+                    return Int64Serializer.Instance;
+
+                if (type == Int16Type)
+                    return Int16Serializer.Instance;
+
+                if (type == ByteType)
+                    return ByteSerializer.Instance;
+
+                if (type == BoolType)
+                    return BoolSerializer.Instance;
+
+                if (type == DateTimeType)
+                    return DateTimeSerializer.Instance;
+
+                if (type == GuidType)
+                    return GuidSerializer.Instance;
+
+                if (type == FloatType)
+                    return FloatSerializer.Instance;
+
+                if (type == DoubleType)
+                    return DoubleSerializer.Instance;
+
+                if (type == DecimalType)
+                    return DecimalSerializer.Instance;
+
+                if (type == CharType)
+                    return CharSerializer.Instance;
+
+                if (type == ByteArrayType)
+                    return ByteArraySerializer.Instance;
+            }
+
+            if (type.IsArray)
+            {
+                var elementType = type.GetElementType();
+                if (IsPrimitiveType(elementType))
+                {
+                    return ConsistentArraySerializer.Instance;
+                }
+            }
+
+            var serializer = GetCustomDeserialzer(type);
+
+            return serializer;
+        }
+
+        public ValueSerializer GetDeserializerByManifest(Stream stream, SerializerSession session)
         {
             var first = stream.ReadByte();
             switch (first)
@@ -228,7 +315,7 @@ namespace Wire
                 case 255:
                 {
                     var type = GetNamedTypeFromManifest(stream, session);
-                    return GetCustomSerialzer(type);
+                    return GetCustomDeserialzer(type);
                 }
                 default:
                     throw new NotSupportedException("Unknown manifest value");

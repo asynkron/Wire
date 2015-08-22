@@ -1,15 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Wire.ValueSerializers
 {
-    public class ArraySerializer : ValueSerializer 
+    public class ArraySerializer : ValueSerializer
     {
-        private readonly byte[] _manifest;
         private readonly Type _elementType;
+        private readonly byte[] _manifest;
         private readonly Type _type;
 
         public ArraySerializer(Type type)
@@ -22,7 +21,7 @@ namespace Wire.ValueSerializers
             //precalculate the entire manifest for this serializer
             //this helps us to minimize calls to Stream.Write/WriteByte 
             _manifest =
-                new byte[] { 255 } //same as object serializer
+                new byte[] {255} //same as object serializer
                     .Concat(BitConverter.GetBytes(bytes.Length))
                     .Concat(bytes)
                     .ToArray(); //serializer id 255 + assembly qualified name
@@ -56,7 +55,7 @@ namespace Wire.ValueSerializers
             var array = arr as Array;
             var elementSerializer = session.Serializer.GetSerializerByType(_elementType);
             stream.WriteInt32(array.Length);
-            bool preserveObjectReferences = session.Serializer.Options.PreserveObjectReferences;
+            var preserveObjectReferences = session.Serializer.Options.PreserveObjectReferences;
 
             for (var i = 0; i < array.Length; i++) //write the elements
             {

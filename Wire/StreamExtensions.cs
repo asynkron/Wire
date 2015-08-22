@@ -16,11 +16,11 @@ namespace Wire
         {
             var buffer = session.GetBuffer(4);
             self.Read(buffer, 0, 4);
-            int res = BitConverter.ToInt32(buffer, 0);
+            var res = BitConverter.ToInt32(buffer, 0);
             return res;
         }
 
-        public static byte[] ReadLengthEncodedByteArray(this Stream self,SerializerSession session)
+        public static byte[] ReadLengthEncodedByteArray(this Stream self, SerializerSession session)
         {
             var length = self.ReadInt32(session);
             var buffer = session.GetBuffer(length);
@@ -31,15 +31,16 @@ namespace Wire
         public static void WriteLengthEncodedByteArray(this Stream self, byte[] bytes)
         {
             self.WriteInt32(bytes.Length);
-            self.Write(bytes,0,bytes.Length);
+            self.Write(bytes, 0, bytes.Length);
         }
 
         public static void Write(this Stream self, byte[] bytes)
         {
-            self.Write(bytes,0,bytes.Length);
+            self.Write(bytes, 0, bytes.Length);
         }
 
-        public static void WriteObject(this Stream stream, object value, Type valueType, ValueSerializer valueSerializer, bool preserveObjectReferences, SerializerSession session)
+        public static void WriteObject(this Stream stream, object value, Type valueType, ValueSerializer valueSerializer,
+            bool preserveObjectReferences, SerializerSession session)
         {
             if (value == null) //value is null
             {
@@ -78,7 +79,7 @@ namespace Wire
 
         public static object ReadObject(this Stream stream, SerializerSession session)
         {
-            var s = session.Serializer.GetSerializerByManifest(stream, session);
+            var s = session.Serializer.GetDeserializerByManifest(stream, session);
             var value = s.ReadValue(stream, session); //read the element value
             return value;
         }

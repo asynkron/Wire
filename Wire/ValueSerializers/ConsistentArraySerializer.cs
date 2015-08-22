@@ -10,7 +10,7 @@ namespace Wire.ValueSerializers
 
         public override object ReadValue(Stream stream, SerializerSession session)
         {
-            var elementSerializer = session.Serializer.GetSerializerByManifest(stream, session);
+            var elementSerializer = session.Serializer.GetDeserializerByManifest(stream, session);
             //read the element type
             var elementType = elementSerializer.GetElementType();
             //get the element type serializer

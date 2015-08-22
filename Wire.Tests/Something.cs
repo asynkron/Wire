@@ -128,28 +128,5 @@ namespace Wire.Tests
         public string More { get; set; }
     }
 
-    public class Foo
-    {
-        public string Bar { get; set; }
-    }
 
-    public class FooSurrogate
-    {
-        public string Bar { get; set; }
-        public static FooSurrogate FromFoo(Foo foo)
-        {
-            return new FooSurrogate()
-            {
-                Bar = foo.Bar
-            };
-        }
-
-        public Foo Restore()
-        {
-            return new Foo()
-            {
-                Bar = Bar,
-            };
-        }
-    }
 }
