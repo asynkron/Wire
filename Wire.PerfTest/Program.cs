@@ -22,29 +22,44 @@ namespace Wire.PerfTest
         {
             Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
             Console.WriteLine();
-            Console.WriteLine("Running cold");
-            SerializePocoVersionInteolerant();
-            SerializePocoProtoBufNet();
+            DeserializeOnly();
+           // SerializePocoVersionInteolerant();
+            //Console.WriteLine("Running cold");
+            //SerializePocoVersionInteolerant();
+            //SerializePocoProtoBufNet();
 
-            SerializePoco();
-            SerializePocoVersionInteolerantPreserveObjects();
-            SerializePocoJsonNet();
-            SerializePocoBinaryFormatter();
-            SerializePocoAkka();
-            Console.WriteLine();
-            Console.WriteLine("Running hot");
-            start:
-            SerializePocoVersionInteolerant();
-            SerializePocoProtoBufNet();
-            SerializePoco();
-            SerializePocoVersionInteolerantPreserveObjects();
-            SerializePocoJsonNet();
-            SerializePocoBinaryFormatter();
-            SerializePocoAkka();
-            TestSerializerSingleValues();
-            Console.WriteLine("Press ENTER to repeat.");
+            //SerializePoco();
+            //SerializePocoVersionInteolerantPreserveObjects();
+            //SerializePocoJsonNet();
+            //SerializePocoBinaryFormatter();
+            //SerializePocoAkka();
+            //Console.WriteLine();
+            //Console.WriteLine("Running hot");
+            //start:
+            //SerializePocoVersionInteolerant();
+            //SerializePocoProtoBufNet();
+            //SerializePoco();
+            //SerializePocoVersionInteolerantPreserveObjects();
+            //SerializePocoJsonNet();
+            //SerializePocoBinaryFormatter();
+            //SerializePocoAkka();
+            //TestSerializerSingleValues();
+            //Console.WriteLine("Press ENTER to repeat.");
             Console.ReadLine();
-            goto start;
+          //  goto start;
+        }
+
+
+        private static void DeserializeOnly()
+        {
+            var serializer = new Serializer(new SerializerOptions(false));         
+            var s = new MemoryStream();
+            serializer.Serialize(poco, s);
+            RunTest("Wire - no version data", () =>
+            {
+                s.Position = 0;
+                serializer.Deserialize<Poco>(s);
+            });
         }
 
         private static void TestSerializerSingleValues()
@@ -91,18 +106,24 @@ namespace Wire.PerfTest
             RunTest("Json.NET", () =>
             {
                 JsonConvert.SerializeObject(poco, settings);
-            });           
+            });     
+            var data = JsonConvert.SerializeObject(poco, settings);
+            ;
+            RunTest("Json.NET", () =>
+            {
+                var o = JsonConvert.DeserializeObject(data, settings);
+            });
         }
 
-        private static void RunTest(string testName, Action body)
+        private static void RunTest(string testName, Action serialize)
         {
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
-                body();
+                serialize();
             }
             sw.Stop();
-            Console.WriteLine($"{testName.PadRight(30,' ')} {sw.ElapsedMilliseconds}");
+            Console.WriteLine($"{testName.PadRight(30,' ')} {sw.ElapsedMilliseconds}");          
         }
 
         private static void SerializePocoProtoBufNet()
@@ -111,7 +132,14 @@ namespace Wire.PerfTest
             {
                 var stream = new MemoryStream();
                 ProtoBuf.Serializer.Serialize(stream, poco);
-            });          
+            });  
+            var s = new MemoryStream();
+            ProtoBuf.Serializer.Serialize(s, poco);
+            RunTest("Protobuf.NET", () =>
+            {
+                s.Position = 0;
+                ProtoBuf.Serializer.Deserialize<Poco>(s);
+            });
         }
 
         private static void SerializePocoBinaryFormatter()
@@ -122,6 +150,13 @@ namespace Wire.PerfTest
                 var stream = new MemoryStream();
                 bf.Serialize(stream, poco);
             });
+            var s = new MemoryStream();
+            bf.Serialize(s, poco);
+            RunTest("Binary formatter", () =>
+            {
+                s.Position = 0;
+                var o = bf.Deserialize(s);
+            });
         }
 
         private static void SerializePocoVersionInteolerant()
@@ -131,7 +166,14 @@ namespace Wire.PerfTest
             {
                 var stream = new MemoryStream();
                 serializer.Serialize(poco, stream);
-            });          
+            });    
+            var s = new MemoryStream();
+            serializer.Serialize(poco, s);
+            RunTest("Wire - no version data", () =>
+            {
+                s.Position = 0;
+                serializer.Deserialize<Poco>(s);
+            });
         }
 
         private static void SerializePocoVersionInteolerantPreserveObjects()
@@ -141,7 +183,14 @@ namespace Wire.PerfTest
             {
                 var stream = new MemoryStream();
                 serializer.Serialize(poco, stream);
-            });           
+            });
+            var s = new MemoryStream();
+            serializer.Serialize(poco, s);
+            RunTest("Wire - preserve object refs", () =>
+            {
+                s.Position = 0;
+                serializer.Deserialize<Poco>(s);
+            });
         }
 
         private static void SerializePoco()
@@ -152,7 +201,14 @@ namespace Wire.PerfTest
                 var stream = new MemoryStream();
 
                 serializer.Serialize(poco, stream);
-            });          
+            });
+            var s = new MemoryStream();
+            serializer.Serialize(poco, s);
+            RunTest("Wire - version tolerant", () =>
+            {
+                s.Position = 0;
+                serializer.Deserialize<Poco>(s);
+            });
         }
 
         private static void SerializePocoAkka()
@@ -162,7 +218,12 @@ namespace Wire.PerfTest
             RunTest("Akka.NET Json.NET settings", () =>
             {
                 s.ToBinary(poco);
-            });            
+            });
+            var data = s.ToBinary(poco);
+            RunTest("Akka.NET Json.NET settings", () =>
+            {
+                s.FromBinary(data, typeof (Poco));
+            });
         }
     }
 

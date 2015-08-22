@@ -332,12 +332,13 @@ namespace Wire
             }
         }
 
+        private static ConcurrentDictionary<string,Type> typeNameLookup = new ConcurrentDictionary<string, Type>(); 
+
         public Type GetNamedTypeFromManifest(Stream stream, SerializerSession session)
         {
             var bytes = (byte[]) ByteArraySerializer.Instance.ReadValue(stream, session);
             var typename = Encoding.UTF8.GetString(bytes);
-            var type = Type.GetType(typename);
-            return type;
+            return typeNameLookup.GetOrAdd(typename, Type.GetType);
         }
     }
 }
