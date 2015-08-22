@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 using Wire.ValueSerializers;
 
@@ -67,7 +68,8 @@ namespace Wire
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             Func<Stream, SerializerSession, object> reader = (stream, session) =>
             {
-                var instance = Activator.CreateInstance(type);
+                //create instance without calling constructor
+                var instance = FormatterServices.GetUninitializedObject(type);
                 if (preserveObjectReferences)
                 {
                     session.ObjectById.Add(session.NextObjectId, instance);
@@ -210,13 +212,25 @@ namespace Wire
         {
             var s = serializer.GetSerializerByType(field.FieldType);
 
-            ParameterExpression targetExp = Expression.Parameter(typeof(object), "target");
-            ParameterExpression valueExp = Expression.Parameter(typeof(object), "value");
-            Expression castTartgetExp = Expression.Convert(targetExp, type);
-            Expression castValueExp = Expression.Convert(valueExp, field.FieldType);
-            MemberExpression fieldExp = Expression.Field(castTartgetExp, field);
-            BinaryExpression assignExp = Expression.Assign(fieldExp, castValueExp);
-            var setter = Expression.Lambda<Action<object, object>> (assignExp, targetExp, valueExp).Compile();
+            Action<object, object> setter;
+            if (field.IsInitOnly)
+            {
+                setter = field.SetValue;
+            }
+            else
+            {
+                ParameterExpression targetExp = Expression.Parameter(typeof(object), "target");
+                ParameterExpression valueExp = Expression.Parameter(typeof(object), "value");
+
+                Expression castTartgetExp = field.DeclaringType.IsValueType
+                    ? Expression.Unbox(targetExp, type)
+                    : Expression.Convert(targetExp, type);
+                Expression castValueExp = Expression.Convert(valueExp, field.FieldType);
+                MemberExpression fieldExp = Expression.Field(castTartgetExp, field);
+                BinaryExpression assignExp = Expression.Assign(fieldExp, castValueExp);
+                setter = Expression.Lambda<Action<object, object>>(assignExp, targetExp, valueExp).Compile();
+            }
+           
 
             if (!serializer.Options.VersionTolerance && Serializer.IsPrimitiveType(field.FieldType))
             {
@@ -227,13 +241,13 @@ namespace Wire
                 Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
                 {
                     var value = s.ReadValue(stream, session);
-                    //setter(o, value);
+                    setter(o, value);
                     //var x = field.GetValue(o);
                     //if (value != null && !value.Equals(x))
                     //{
 
                     //}
-                    field.SetValue(o, value);
+               //     field.SetValue(o, value);
                 };
                 return fieldReader;
             }
@@ -242,8 +256,8 @@ namespace Wire
                 Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
                 {
                     var value = stream.ReadObject(session);
-                    field.SetValue(o, value);
-                    //setter(o, value);
+                 //   field.SetValue(o, value);
+                    setter(o, value);
                     //var x = field.GetValue(o);
                     //if (value != null && !value.Equals(x))
                     //{

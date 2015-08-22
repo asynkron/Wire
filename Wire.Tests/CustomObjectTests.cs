@@ -88,5 +88,15 @@ namespace Wire.Tests
             Assert.AreEqual(expected2, Deserialize<Something>());
             Assert.AreEqual(expected3, Deserialize<Something>());
         }
+
+        [TestMethod]
+        public void CanSerializeTuple()
+        {
+            var expected = Tuple.Create("hello");
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<Tuple<string>>();
+            Assert.AreEqual(expected,actual);
+        }
     }
 }

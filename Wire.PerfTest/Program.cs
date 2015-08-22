@@ -16,8 +16,8 @@ namespace Wire.PerfTest
         {
             Age = 123,
             Name = "Hello",
-            Foo = "kfksdjfksjdfkjsdkfjskfjksd",
-            Yoo = DateTime.Now
+            //Foo = "kfksdjfksjdfkjsdkfjskfjksd",
+            //Yoo = DateTime.Now
         };
 
         private static void Main(string[] args)
@@ -251,11 +251,11 @@ namespace Wire.PerfTest
         [ProtoMember(2)]
         public int Age { get; set; }
 
-        [ProtoMember(3)]
-        public string Foo { get; set; }
+        //[ProtoMember(3)]
+        //public string Foo { get; set; }
 
-        [ProtoMember(4)]
-        public DateTime Yoo { get; set; }
+        //[ProtoMember(4)]
+        //public DateTime Yoo { get; set; }
     }
 
     public class Poco2 : Poco
