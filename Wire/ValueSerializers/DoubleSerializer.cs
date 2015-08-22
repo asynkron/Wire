@@ -24,7 +24,7 @@ namespace Wire.ValueSerializers
             var size = sizeof (double);
             var buffer = session.GetBuffer(size);
             stream.Read(buffer, 0, size);
-            return BitConverter.ToSingle(buffer, 0);
+            return BitConverter.ToDouble(buffer, 0);
         }
 
         public override Type GetElementType()
