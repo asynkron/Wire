@@ -156,7 +156,7 @@ namespace Wire
             return writeallFields;
         }
 
-        private static unsafe bool UnsafeCompare(byte[] a1, byte[] a2)
+        public static unsafe bool UnsafeCompare(byte[] a1, byte[] a2)
         {
             if (a1 == null || a2 == null || a1.Length != a2.Length)
                 return false;

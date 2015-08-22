@@ -22,29 +22,29 @@ namespace Wire.PerfTest
         {
             Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
             Console.WriteLine();
-            DeserializeOnly();
-           // SerializePocoVersionInteolerant();
-            //Console.WriteLine("Running cold");
-            //SerializePocoVersionInteolerant();
-            //SerializePocoProtoBufNet();
+            //DeserializeOnly();
+            SerializePocoVersionInteolerant();
+            Console.WriteLine("Running cold");
+            SerializePocoVersionInteolerant();
+            SerializePocoProtoBufNet();
 
-            //SerializePoco();
-            //SerializePocoVersionInteolerantPreserveObjects();
-            //SerializePocoJsonNet();
-            //SerializePocoBinaryFormatter();
-            //SerializePocoAkka();
-            //Console.WriteLine();
-            //Console.WriteLine("Running hot");
-            //start:
-            //SerializePocoVersionInteolerant();
-            //SerializePocoProtoBufNet();
-            //SerializePoco();
-            //SerializePocoVersionInteolerantPreserveObjects();
-            //SerializePocoJsonNet();
-            //SerializePocoBinaryFormatter();
-            //SerializePocoAkka();
-            //TestSerializerSingleValues();
-            //Console.WriteLine("Press ENTER to repeat.");
+            SerializePoco();
+            SerializePocoVersionInteolerantPreserveObjects();
+            SerializePocoJsonNet();
+            SerializePocoBinaryFormatter();
+            SerializePocoAkka();
+            Console.WriteLine();
+            Console.WriteLine("Running hot");
+            start:
+            SerializePocoVersionInteolerant();
+            SerializePocoProtoBufNet();
+            SerializePoco();
+            SerializePocoVersionInteolerantPreserveObjects();
+            SerializePocoJsonNet();
+            SerializePocoBinaryFormatter();
+            SerializePocoAkka();
+            TestSerializerSingleValues();
+            Console.WriteLine("Press ENTER to repeat.");
             Console.ReadLine();
           //  goto start;
         }
@@ -58,7 +58,7 @@ namespace Wire.PerfTest
             RunTest("Wire - no version data", () =>
             {
                 s.Position = 0;
-                serializer.Deserialize<Poco>(s);
+                var p = serializer.Deserialize<Poco>(s);
             });
         }
 

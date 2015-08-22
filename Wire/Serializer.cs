@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -332,13 +334,35 @@ namespace Wire
             }
         }
 
-        private static ConcurrentDictionary<string,Type> typeNameLookup = new ConcurrentDictionary<string, Type>(); 
+        private static readonly ConcurrentDictionary<byte[],Type> TypeNameLookup = new ConcurrentDictionary<byte[], Type>(new ByteArrayEqualityComparer()); 
 
         public Type GetNamedTypeFromManifest(Stream stream, SerializerSession session)
         {
             var bytes = (byte[]) ByteArraySerializer.Instance.ReadValue(stream, session);
-            var typename = Encoding.UTF8.GetString(bytes);
-            return typeNameLookup.GetOrAdd(typename, Type.GetType);
+            
+            return TypeNameLookup.GetOrAdd(bytes, b =>
+            {
+                var typename = Encoding.UTF8.GetString(b);
+                return Type.GetType(typename);
+            });
+        }
+    }
+
+    public class ByteArrayEqualityComparer : EqualityComparer<byte[]>
+    {
+        public override bool Equals(byte[] x, byte[] y)
+        {
+            return CodeGenerator.UnsafeCompare(x, y);
+        }
+
+        public override int GetHashCode(byte[] obj)
+        {
+            int hash = 0;
+            for (int i = 0; i < obj.Length; i += 5)
+            {
+                hash += obj[i];
+            }
+            return hash;
         }
     }
 }
