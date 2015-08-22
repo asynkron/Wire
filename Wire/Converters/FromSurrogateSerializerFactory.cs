@@ -22,12 +22,12 @@ namespace Wire.Converters
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
             var surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.To.IsAssignableFrom(type));
-            ValueSerializer objectSerializer = new ObjectSerializer(surrogate.To);
+            ValueSerializer objectSerializer = new ObjectSerializer(type);
             var fromSurrogateSerializer = new FromSurrogateSerializer(surrogate.FromSurrogate, objectSerializer);
             typeMapping.TryAdd(type, fromSurrogateSerializer);
 
 
-            CodeGenerator.BuildSerializer(serializer, surrogate.To, (ObjectSerializer) objectSerializer);
+            CodeGenerator.BuildSerializer(serializer, type, (ObjectSerializer) objectSerializer);
             return fromSurrogateSerializer;
         }
     }

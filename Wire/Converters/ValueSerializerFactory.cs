@@ -6,8 +6,8 @@ namespace Wire.Converters
 {
     public abstract class ValueSerializerFactory
     {
-        public abstract bool CanSerialize(Serializer Serializer, Type type);
-        public abstract bool CanDeserialize(Serializer Serializer, Type type);
+        public abstract bool CanSerialize(Serializer serializer, Type type);
+        public abstract bool CanDeserialize(Serializer serializer, Type type);
 
         public abstract ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping);

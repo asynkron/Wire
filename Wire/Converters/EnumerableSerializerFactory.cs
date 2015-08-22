@@ -9,7 +9,7 @@ namespace Wire.Converters
 {
     public class EnumerableSerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer Serializer, Type type)
+        public override bool CanSerialize(Serializer serializer, Type type)
         {
             //TODO: check for constructor with IEnumerable<T> param
 
@@ -26,9 +26,9 @@ namespace Wire.Converters
             return false;
         }
 
-        public override bool CanDeserialize(Serializer Serializer, Type type)
+        public override bool CanDeserialize(Serializer serializer, Type type)
         {
-            return CanSerialize(Serializer, type);
+            return CanSerialize(serializer, type);
         }
 
         private static Type GetEnumerableType(Type type)

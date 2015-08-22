@@ -6,14 +6,14 @@ namespace Wire.Converters
 {
     public class ArraySerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer Serializer, Type type)
+        public override bool CanSerialize(Serializer serializer, Type type)
         {
             return type.IsArray;
         }
 
-        public override bool CanDeserialize(Serializer Serializer, Type type)
+        public override bool CanDeserialize(Serializer serializer, Type type)
         {
-            return CanSerialize(Serializer, type);
+            return CanSerialize(serializer, type);
         }
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,

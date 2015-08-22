@@ -13,7 +13,7 @@ namespace Wire.Converters
             return surrogate != null;
         }
 
-        public override bool CanDeserialize(Serializer Serializer, Type type)
+        public override bool CanDeserialize(Serializer serializer, Type type)
         {
             return false;
         }

@@ -18,14 +18,13 @@ namespace Wire.ValueSerializers
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            _surrogateSerializer.WriteManifest(stream, type, session);
+        //    _surrogateSerializer.WriteManifest(stream, type, session);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var surrogateValue = _translator(value);
-            stream.WriteObject(surrogateValue, _type, _surrogateSerializer,
-                session.Serializer.Options.PreserveObjectReferences, session);
+            stream.WriteObject(surrogateValue, _type, _surrogateSerializer, session.Serializer.Options.PreserveObjectReferences, session);
         }
 
         public override object ReadValue(Stream stream, SerializerSession session)

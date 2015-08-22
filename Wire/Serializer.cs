@@ -102,7 +102,7 @@ namespace Wire
             {
                 foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
                 {
-                    if (valueSerializerFactory.CanSerialize(this, type))
+                    if (valueSerializerFactory.CanDeserialize(this, type))
                     {
                         return valueSerializerFactory.BuildSerializer(this, type, _deserializers);
                     }
