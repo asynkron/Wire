@@ -135,7 +135,7 @@ namespace Wire
             }
 
             var type = obj.GetType();
-            var s = GetSerializerByType(obj.GetType());
+            var s = GetSerializerByType(type);
             s.WriteManifest(stream, type, session);
             s.WriteValue(stream, obj, session);
         }
