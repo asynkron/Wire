@@ -22,7 +22,9 @@ namespace Wire.ValueSerializers
             }
             else
             {
-                var bytes = Encoding.UTF8.GetBytes((string) value);
+                var type = (Type) value;
+                var name = type.AssemblyQualifiedName;
+                var bytes = Encoding.UTF8.GetBytes(name);
                 stream.WriteLengthEncodedByteArray(bytes);
             }
         }
@@ -34,10 +36,10 @@ namespace Wire.ValueSerializers
                 return null;
 
             var buffer = session.GetBuffer(length);
-
             stream.Read(buffer, 0, length);
-            var res = Encoding.UTF8.GetString(buffer, 0, length);
-            return res;
+            var name = Encoding.UTF8.GetString(buffer, 0, length);
+            var type = Type.GetType(name);
+            return type;
         }
 
         public override Type GetElementType()

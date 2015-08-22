@@ -1,10 +1,21 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Wire.Tests
 {
     [TestClass]
     public class CustomObjectTests : TestBase
     {
+        [TestMethod]
+        public void CanSerializeTypeObject()
+        {
+            var expected = typeof (ArgumentException);
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<Type>();
+            Assert.AreEqual(expected, actual);
+        }
+
         [TestMethod]
         public void CanSerializeNull()
         {

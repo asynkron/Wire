@@ -23,6 +23,8 @@ namespace Wire
         private static readonly Type DecimalType = typeof (decimal);
         private static readonly Type CharType = typeof (char);
         private static readonly Type ByteArrayType = typeof (byte[]);
+        private static readonly Type TypeType = typeof (Type);
+        private static readonly Type RuntimeType = Type.GetType("System.RuntimeType");
         private static readonly Assembly CoreaAssembly = typeof (int).Assembly;
 
         private readonly ConcurrentDictionary<Type, ValueSerializer> _deserializers =
@@ -192,6 +194,9 @@ namespace Wire
 
                 if (type == ByteArrayType)
                     return ByteArraySerializer.Instance;
+
+                if (type == TypeType || type == RuntimeType)
+                    return TypeSerializer.Instance;
             }
 
             if (type.IsArray)
@@ -257,6 +262,9 @@ namespace Wire
 
                 if (type == ByteArrayType)
                     return ByteArraySerializer.Instance;
+
+                if (type == TypeType || type == RuntimeType)
+                    return TypeSerializer.Instance;
             }
 
             if (type.IsArray)
@@ -308,6 +316,8 @@ namespace Wire
                     return DecimalSerializer.Instance;
                 case 15:
                     return CharSerializer.Instance;
+                case 16:
+                    return TypeSerializer.Instance;
                 case 253:
                     return ObjectReferenceSerializer.Instance;
                 case 254:
