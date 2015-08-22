@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.FSharp.Core;
+﻿using Microsoft.FSharp.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Wire.FSharpTestTypes;
 
@@ -18,7 +13,7 @@ namespace Wire.Tests
             var expected = DU1.NewA(1);
             Serialize(expected);
             Reset();
-            var actual = Deserialize<DU1>();
+            var actual = Deserialize<object>();
             Assert.AreEqual(expected,actual);
         }
 
@@ -28,7 +23,7 @@ namespace Wire.Tests
             var expected = DU2.NewC(DU1.NewA(1));
             Serialize(expected);
             Reset();
-            var actual = Deserialize<DU2>();
+            var actual = Deserialize<object>();
             Assert.AreEqual(expected, actual);
         }
 
@@ -38,7 +33,7 @@ namespace Wire.Tests
             var expected = DU2.NewE(FSharpOption<DU1>.Some(DU1.NewA(1)));
             Serialize(expected);
             Reset();
-            var actual = Deserialize<DU2>();
+            var actual = Deserialize<object>();
             Assert.AreEqual(expected, actual);
         }
 
@@ -48,7 +43,7 @@ namespace Wire.Tests
             var expected = FSharpOption<string>.Some("hello");
             Serialize(expected);
             Reset();
-            var actual = Deserialize<FSharpOption<string>>();
+            var actual = Deserialize<object>();
             Assert.AreEqual(expected, actual);
         }
     }
