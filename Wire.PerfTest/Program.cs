@@ -20,10 +20,6 @@ namespace Wire.PerfTest
 
         private static void Main(string[] args)
         {
-            SerializeDeserializeArray();
-            SerializeDeserializeDictionary();
-            SerializeDeserializeSurrogate();
-            SerializeDeserialize2();
             Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
             Console.WriteLine();
             Console.WriteLine("Running cold");
@@ -33,8 +29,8 @@ namespace Wire.PerfTest
             SerializePoco();
             SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoJsonNet();
-            //SerializePocoBinaryFormatter();
-            //SerializePocoAkka();
+            SerializePocoBinaryFormatter();
+            SerializePocoAkka();
             Console.WriteLine();
             Console.WriteLine("Running hot");
             start:
@@ -43,57 +39,12 @@ namespace Wire.PerfTest
             SerializePoco();
             SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoJsonNet();
-            //SerializePocoBinaryFormatter();
-            //SerializePocoAkka();
+            SerializePocoBinaryFormatter();
+            SerializePocoAkka();
             TestSerializerSingleValues();
             Console.WriteLine("Press ENTER to repeat.");
             Console.ReadLine();
             goto start;
-        }
-
-        private static void SerializeDeserializeArray()
-        {
-            var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(false));
-            var array = new[] {new Poco(), new Poco2(), null, poco};
-            serializer.Serialize(array, stream);
-            stream.Position = 0;
-            var res = serializer.Deserialize<Poco[]>(stream);
-        }
-
-        private static void SerializeDeserializeDictionary()
-        {
-            //TODO: fix this
-            //var stream = new MemoryStream();
-            //var serializer = new Serializer(new SerializerOptions(false));
-            //serializer.Serialize(new Dictionary<string,Poco>()
-            //{
-            //    ["hello"] = poco
-            //}, stream);
-            //stream.Position = 0;
-            //var res = serializer.Deserialize<Dictionary<string, Poco>>(stream);
-        }
-
-        private static void SerializeDeserializeSurrogate()
-        {
-            var surrogate = Surrogate.Create<Poco, PocoSurrogate>(
-                p => new PocoSurrogate {Data = $"{p.Age}|{p.Name}"},
-                s => s.Restore());
-
-            var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(false, new[] {surrogate}));
-            serializer.Serialize(poco, stream);
-            stream.Position = 0;
-            var res = serializer.Deserialize<Poco>(stream);
-        }
-
-        private static void SerializeDeserialize2()
-        {
-            var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(true));
-            serializer.Serialize(poco, stream);
-            stream.Position = 0;
-            var res = serializer.Deserialize<Poco>(stream);
         }
 
         private static void TestSerializerSingleValues()
@@ -131,106 +82,87 @@ namespace Wire.PerfTest
 
         private static void SerializePocoJsonNet()
         {
-            //var hash = new Lista();
-            //hash.List = new List<string>();
-            //hash.List.Add("hej");
-            //hash.Name = "foo";
-
-
-            //var j = JsonConvert.SerializeObject(hash);
-
-            //var des = JsonConvert.DeserializeObject<Lista>(j);
-
-            var sw = Stopwatch.StartNew();
-            for (var i = 0; i < 1000000; i++)
+            var settings = new JsonSerializerSettings
             {
-                JsonConvert.SerializeObject(poco, new JsonSerializerSettings
-                {
-                    TypeNameHandling = TypeNameHandling.All,
-                    ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-                    PreserveReferencesHandling = PreserveReferencesHandling.All
-                });
-            }
-            sw.Stop();
-            Console.WriteLine($"Json.NET:\t\t\t{sw.ElapsedMilliseconds}");
+                TypeNameHandling = TypeNameHandling.All,
+                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
+                PreserveReferencesHandling = PreserveReferencesHandling.All
+            };
+            RunTest("Json.NET", () =>
+            {
+                JsonConvert.SerializeObject(poco, settings);
+            });           
         }
 
-        private static void SerializePocoProtoBufNet()
+        private static void RunTest(string testName, Action body)
         {
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
-                var stream = new MemoryStream();
-                ProtoBuf.Serializer.Serialize(stream, poco);
+                body();
             }
             sw.Stop();
-            Console.WriteLine($"Protobuf.NET:\t\t\t{sw.ElapsedMilliseconds}");
+            Console.WriteLine($"{testName.PadRight(30,' ')} {sw.ElapsedMilliseconds}");
+        }
+
+        private static void SerializePocoProtoBufNet()
+        {
+            RunTest("Protobuf.NET", () =>
+            {
+                var stream = new MemoryStream();
+                ProtoBuf.Serializer.Serialize(stream, poco);
+            });          
         }
 
         private static void SerializePocoBinaryFormatter()
         {
             var bf = new BinaryFormatter();
-            var sw = Stopwatch.StartNew();
-            for (var i = 0; i < 1000000; i++)
+            RunTest("Binary formatter", () =>
             {
                 var stream = new MemoryStream();
                 bf.Serialize(stream, poco);
-            }
-            sw.Stop();
-            Console.WriteLine($"BinaryFormatter\t\t\t{sw.ElapsedMilliseconds}");
+            });
         }
 
         private static void SerializePocoVersionInteolerant()
         {
             var serializer = new Serializer(new SerializerOptions(false));
-            var sw = Stopwatch.StartNew();
-            for (var i = 0; i < 1000000; i++)
+            RunTest("Wire - no version data", () =>
             {
                 var stream = new MemoryStream();
                 serializer.Serialize(poco, stream);
-            }
-            sw.Stop();
-            Console.WriteLine($"Wire - no version tolerance:\t{sw.ElapsedMilliseconds}");
+            });          
         }
 
         private static void SerializePocoVersionInteolerantPreserveObjects()
         {
             var serializer = new Serializer(new SerializerOptions(false, preserveObjectReferences: true));
-            var sw = Stopwatch.StartNew();
-            for (var i = 0; i < 1000000; i++)
+            RunTest("Wire - preserve object refs", () =>
             {
                 var stream = new MemoryStream();
                 serializer.Serialize(poco, stream);
-            }
-            sw.Stop();
-            Console.WriteLine($"Wire - preserve object refs:\t{sw.ElapsedMilliseconds}");
+            });           
         }
 
         private static void SerializePoco()
         {
             var serializer = new Serializer(new SerializerOptions(true));
-            var sw = Stopwatch.StartNew();
-            for (var i = 0; i < 1000000; i++)
+            RunTest("Wire - version tolerant", () =>
             {
                 var stream = new MemoryStream();
 
                 serializer.Serialize(poco, stream);
-            }
-            sw.Stop();
-            Console.WriteLine($"Wire - version tolerant:\t{sw.ElapsedMilliseconds}");
+            });          
         }
 
         private static void SerializePocoAkka()
         {
             var sys = ActorSystem.Create("foo");
             var s = sys.Serialization.FindSerializerForType(typeof (Poco));
-            var sw = Stopwatch.StartNew();
-            for (var i = 0; i < 1000000; i++)
+            RunTest("Akka.NET Json.NET settings", () =>
             {
                 s.ToBinary(poco);
-            }
-            sw.Stop();
-            Console.WriteLine($"Akka.NET Json.NET settings:\t{sw.ElapsedMilliseconds}");
+            });            
         }
     }
 
