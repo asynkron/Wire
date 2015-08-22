@@ -24,7 +24,7 @@ namespace Wire
                 var fieldName = Encoding.UTF8.GetBytes(field.Name);
                 fieldNames.Add(fieldName);
                 fieldWriters.Add(GenerateFieldSerializer(serializer, type, field));
-                fieldReaders.Add(GenerateFieldDeserializer(serializer, field));
+                fieldReaders.Add(GenerateFieldDeserializer(serializer,type, field));
             }
 
 
@@ -203,10 +203,21 @@ namespace Wire
             return fields;
         }
 
+       
+
         private static Action<Stream, object, SerializerSession> GenerateFieldDeserializer(Serializer serializer,
-            FieldInfo field)
+            Type type, FieldInfo field)
         {
             var s = serializer.GetSerializerByType(field.FieldType);
+
+            ParameterExpression targetExp = Expression.Parameter(typeof(object), "target");
+            ParameterExpression valueExp = Expression.Parameter(typeof(object), "value");
+            Expression castTartgetExp = Expression.Convert(targetExp, type);
+            Expression castValueExp = Expression.Convert(valueExp, field.FieldType);
+            MemberExpression fieldExp = Expression.Field(castTartgetExp, field);
+            BinaryExpression assignExp = Expression.Assign(fieldExp, castValueExp);
+            var setter = Expression.Lambda<Action<object, object>> (assignExp, targetExp, valueExp).Compile();
+
             if (!serializer.Options.VersionTolerance && Serializer.IsPrimitiveType(field.FieldType))
             {
                 //Only optimize if property names are not included.
@@ -216,6 +227,12 @@ namespace Wire
                 Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
                 {
                     var value = s.ReadValue(stream, session);
+                    //setter(o, value);
+                    //var x = field.GetValue(o);
+                    //if (value != null && !value.Equals(x))
+                    //{
+
+                    //}
                     field.SetValue(o, value);
                 };
                 return fieldReader;
@@ -226,6 +243,12 @@ namespace Wire
                 {
                     var value = stream.ReadObject(session);
                     field.SetValue(o, value);
+                    //setter(o, value);
+                    //var x = field.GetValue(o);
+                    //if (value != null && !value.Equals(x))
+                    //{
+
+                    //}
                 };
                 return fieldReader;
             }

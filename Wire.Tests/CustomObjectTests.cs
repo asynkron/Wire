@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Wire.Tests
@@ -49,7 +50,15 @@ namespace Wire.Tests
         [TestMethod]
         public void CanSerializeObject()
         {
-            var expected = new Something();
+            var expected = new Something
+            {
+                BoolProp = true,
+                Int32Prop = 123,
+                NullableInt32PropHasValue = 888,
+                StringProp = "hello"
+            };
+
+
             Serialize(expected);
             Reset();
             var actual = Deserialize<Something>();

@@ -71,7 +71,20 @@ namespace Wire.Converters
                 //HACK: this needs to be fixed, codegenerated or whatever
                 var instance = Activator.CreateInstance(type);
                 var addRange = type.GetMethod("AddRange");
-                addRange.Invoke(instance, new object[] {items});
+                if (addRange != null)
+                {
+                    addRange.Invoke(instance, new object[] {items});
+                    return instance;
+                }
+                var add = type.GetMethod("Add");
+                if (add != null)
+                {
+                    for (int i = 0; i < items.Length; i++)
+                    {
+                        add.Invoke(instance, new [] { items.GetValue(i)});
+                    }
+                }
+
                 return instance;
             };
             return x;
