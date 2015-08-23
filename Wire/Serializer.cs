@@ -129,11 +129,6 @@ namespace Wire
 
             var session = new SerializerSession(this);
 
-            if (Options.PreserveObjectReferences)
-            {
-                session.Objects.Add(obj, session.NextObjectId++);
-            }
-
             var type = obj.GetType();
             var s = GetSerializerByType(type);
             s.WriteManifest(stream, type, session);

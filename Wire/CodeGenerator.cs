@@ -46,12 +46,18 @@ namespace Wire
                 writeallFields = (_1, _2, _3) => { };
             }
 
+            var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             Action<Stream, object, SerializerSession> writer = (stream, o, session) =>
             {
                 if (serializer.Options.VersionTolerance)
                 {
                     //write field count - cached
                     stream.Write(versionTolerantHeader);
+                }
+
+                if (preserveObjectReferences)
+                {
+                    session.Objects.Add(o, session.NextObjectId++);
                 }
 
                 writeallFields(stream, o, session);
@@ -65,7 +71,7 @@ namespace Wire
 
             //  var readAllFieldsVersionIntolerant =  GenerateReadAllFieldsVersionIntolerant(fieldReaders);
 
-            var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
+            
             Func<Stream, SerializerSession, object> reader = (stream, session) =>
             {
                 //create instance without calling constructor

@@ -58,11 +58,6 @@ namespace Wire
                 }
                 else
                 {
-                    if (preserveObjectReferences)
-                    {
-                        session.Objects.Add(value, session.NextObjectId++);
-                    }
-
                     var vType = value.GetType();
                     var s2 = valueSerializer;
                     if (vType != valueType)
