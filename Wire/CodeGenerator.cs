@@ -47,18 +47,16 @@ namespace Wire
             }
 
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
+            var versiontolerance = serializer.Options.VersionTolerance;
             Action<Stream, object, SerializerSession> writer = (stream, o, session) =>
             {
-                if (serializer.Options.VersionTolerance)
+                if (versiontolerance)
                 {
                     //write field count - cached
                     stream.Write(versionTolerantHeader);
                 }
 
-                if (preserveObjectReferences)
-                {
-                    session.Objects.Add(o, session.NextObjectId++);
-                }
+
 
                 writeallFields(stream, o, session);
             };
@@ -307,6 +305,7 @@ namespace Wire
                 Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
                 {
                     var value = getFieldValue(o);
+
                     stream.WriteObject(value, valueType, valueSerializer, preserveObjectReferences, session);
                 };
                 return fieldWriter;
