@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using Akka.Actor;
 using Newtonsoft.Json;
 using ProtoBuf;
 
@@ -22,12 +21,8 @@ namespace Wire.PerfTest
 
         private static void Main(string[] args)
         {
-            SerializePocoVersionInteolerant();
-          //  return;
             Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
             Console.WriteLine();
-            //DeserializeOnly();
-            //SerializePocoVersionInteolerant();
             Console.WriteLine("Running cold");
             SerializePocoVersionInteolerant();
             SerializePocoProtoBufNet();
@@ -36,68 +31,16 @@ namespace Wire.PerfTest
             SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoJsonNet();
             SerializePocoBinaryFormatter();
-            SerializePocoAkka();
             Console.WriteLine();
             Console.WriteLine("Running hot");
-            start:
             SerializePocoVersionInteolerant();
             SerializePocoProtoBufNet();
             SerializePoco();
             SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoJsonNet();
             SerializePocoBinaryFormatter();
-            SerializePocoAkka();
-        //    TestSerializerSingleValues();
-        //    Console.WriteLine("Press ENTER to repeat.");
             Console.ReadLine();
-          //  goto start;
         }
-
-
-        //private static void DeserializeOnly()
-        //{
-        //    var serializer = new Serializer(new SerializerOptions(false));         
-        //    var s = new MemoryStream();
-        //    serializer.Serialize(poco, s);
-        //    RunTest("Wire - no version data", () =>
-        //    {
-        //        s.Position = 0;
-        //        var p = serializer.Deserialize<Poco>(s);
-        //    });
-        //}
-
-        //private static void TestSerializerSingleValues()
-        //{
-        //    Console.WriteLine("");
-        //    Console.WriteLine("Testing individual ValueSerializers.");
-        //    var serializer = new Serializer(new SerializerOptions(false));
-        //    var stream = new MemoryStream(4096);
-        //    Action<object> testSerialize = o =>
-        //    {
-        //        Console.Write("{0}: ", o.GetType().Name);
-        //        var sw = Stopwatch.StartNew();
-        //        for (var i = 0; i < 1000000; i++)
-        //        {
-        //            serializer.Serialize(o, stream);
-        //            stream.Position = 0;
-        //        }
-        //        sw.Stop();
-        //        Console.WriteLine((double) sw.ElapsedTicks/1000000);
-        //    };
-        //    testSerialize((byte) 255);
-        //    testSerialize((short) 1234);
-        //    testSerialize(12345679);
-        //    testSerialize(123456789L);
-        //    testSerialize(123.45f);
-        //    testSerialize(123.45);
-        //    testSerialize(123.45m);
-        //    testSerialize(DateTime.UtcNow);
-        //    testSerialize(new[] {'a'});
-        //    testSerialize(new byte[] {0});
-        //    testSerialize("1");
-        //    testSerialize(new Poco {Name = "a"});
-        //    testSerialize(new Poco {Name = null});
-        //}
 
         private static void SerializePocoJsonNet()
         {
@@ -129,14 +72,15 @@ namespace Wire.PerfTest
                 serialize();
             }
             sw.Stop();
-            Console.WriteLine($"   {"Serialize".PadRight(30,' ')} {sw.ElapsedMilliseconds}");
-            sw = Stopwatch.StartNew();
+            Console.WriteLine($"   {"Serialize".PadRight(30,' ')} {sw.ElapsedMilliseconds} ms");
+            var sw2 = Stopwatch.StartNew();
             for (var i = 0; i < 1000000; i++)
             {
                 deserialize();
             }
-            sw.Stop();
-            Console.WriteLine($"   {"Deseralize".PadRight(30, ' ')} {sw.ElapsedMilliseconds}");
+            sw2.Stop();
+            Console.WriteLine($"   {"Deseralize".PadRight(30, ' ')} {sw2.ElapsedMilliseconds} ms");
+            Console.WriteLine($"   {"Total".PadRight(30, ' ')} {sw.ElapsedMilliseconds + sw2.ElapsedMilliseconds} ms");
         }
 
         private static void SerializePocoProtoBufNet()
@@ -216,20 +160,6 @@ namespace Wire.PerfTest
             {
                 s.Position = 0;
                 serializer.Deserialize<Poco>(s);
-            });
-        }
-
-        private static void SerializePocoAkka()
-        {
-            var sys = ActorSystem.Create("foo");
-            var s = sys.Serialization.FindSerializerForType(typeof (Poco));
-            var data = s.ToBinary(poco);
-            RunTest("Akka.NET Json.NET settings", () =>
-            {
-                s.ToBinary(poco);
-            }, () =>
-            {
-                s.FromBinary(data, typeof (Poco));
             });
         }
     }
