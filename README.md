@@ -26,6 +26,7 @@ var envelope = new Envelope { Payload = (float)1.2 };
 
 If you for example are using a Json based serializer, it is very likely that the value `1.2` will be deserialized as a `double` as Json has no way to describe the type of the decimal value.
 While if you use some sort of binary serializer like Google Protobuf, all messages needs to be designed with a strict contract up front.
+Wire solves this by encoding a manifest for each value - a single byte prefix for primitive values, and fully qualified assembly names for complex types.
 
 ## Surrogates
 
