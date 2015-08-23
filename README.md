@@ -4,7 +4,7 @@ A high performance polymorphic serializer for the .NET framework.
 
 ## Polymorphic serializations
 
-Wire was designed to safely transfer messages in distributed message systems.
+Wire was designed to safely transfer messages in distributed systems, for example service bus or actor model based systems.
 In message based systems, it is common to receive different types of messages and apply pattern matching over those messages.
 If the messages does not carry over all the relevant type information to the receiveing side, the message might no longer match exactly what your system expect.
 
