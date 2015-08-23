@@ -72,8 +72,7 @@ namespace Wire
                 var instance = FormatterServices.GetUninitializedObject(type);
                 if (preserveObjectReferences)
                 {
-                    session.ObjectById.Add(session.NextObjectId, instance);
-                    session.NextObjectId++;
+                    session.ObjectById.Add(session.NextObjectId++, instance);
                 }
 
                 var fieldsToRead = fields.Length;
