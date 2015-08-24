@@ -56,6 +56,22 @@ namespace Wire
                 writeallFields = (_1, _2, _3) => { };
             }
 
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                var tmp = writeallFields;
+                writeallFields = (stream, o, session) =>
+                {
+                    try
+                    {
+                        tmp(stream, o, session);
+                    }
+                    catch (Exception x)
+                    {
+                        throw new Exception($"Unable to write all fields of {type.Name}",x);
+                    }
+                };
+            }
+
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             var versiontolerance = serializer.Options.VersionTolerance;
             Action<Stream, object, SerializerSession> writer = (stream, o, session) =>
@@ -121,9 +137,7 @@ namespace Wire
 
                 return instance;
             };
-
-            generatedSerializer._writer = writer;
-            generatedSerializer._reader = reader;
+            generatedSerializer.Initialize(reader, writer);
         }
 
         private static Action<Stream, object, SerializerSession> GenerateWriteAllFieldsDelegate(
@@ -274,7 +288,7 @@ namespace Wire
             //get the serializer for the type of the field
             var valueSerializer = serializer.GetSerializerByType(field.FieldType);
             //runtime generate a delegate that reads the content of the given field
-            var getFieldValue = GenerateFieldReader(type, field);
+            var getFieldValue = GenerateFieldReader(field);
 
             //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
             if (!serializer.Options.VersionTolerance && Serializer.IsPrimitiveType(field.FieldType))
@@ -309,20 +323,31 @@ namespace Wire
             }
         }
 
-        private static Func<object, object> GenerateFieldReader(Type type, FieldInfo field)
+        private static Func<object, object> GenerateFieldReader(FieldInfo field)
         {
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
             if (field == null)
                 throw new ArgumentNullException(nameof(field));
 
             var param = Parameter(typeof (object));
-            Expression castParam = Convert(param, type);
-            Expression x = Field(castParam, field);
-            Expression castRes = Convert(x, typeof (object));
+            Expression castParam = field.DeclaringType.IsValueType?Unbox(param,field.DeclaringType):Convert(param, field.DeclaringType);
+            Expression readField = Field(castParam, field);
+            Expression castRes = Convert(readField, typeof (object));
             var getFieldValue = Lambda<Func<object, object>>(castRes, param).Compile();
+
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                return target =>
+                {
+                    try
+                    {
+                        return getFieldValue(target);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"Failed to read value of field {field.Name}",ex);
+                    }
+                };
+            }
             return getFieldValue;
         }
     }

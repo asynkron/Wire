@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Wire.ValueSerializers
 {
@@ -11,6 +12,7 @@ namespace Wire.ValueSerializers
         public Func<Stream, SerializerSession, object> _reader;
         public Action<Stream, object, SerializerSession> _writer;
         public const byte Manifest = 255;
+        private volatile bool _isInitialized = false;
         public ObjectSerializer(Type type)
         {
             Type = type;
@@ -23,6 +25,19 @@ namespace Wire.ValueSerializers
                     .Concat(BitConverter.GetBytes(bytes.Length))
                     .Concat(bytes)
                     .ToArray(); //serializer id 255 + assembly qualified name
+
+            //initialize reader and writer with dummy handlers that wait until the serializer is fully initialized
+            _writer = (stream, o, session) =>
+            {
+                SpinWait.SpinUntil(() => _isInitialized);
+                WriteValue(stream, o, session);
+            };
+
+            _reader = (stream, session) =>
+            {
+                SpinWait.SpinUntil(() => _isInitialized);
+                return ReadValue(stream, session);
+            };
         }
 
         public Type Type { get; }
@@ -46,6 +61,13 @@ namespace Wire.ValueSerializers
         public override Type GetElementType()
         {
             return Type;
+        }
+
+        public void Initialize(Func<Stream, SerializerSession, object> reader, Action<Stream, object, SerializerSession> writer)
+        {
+            _reader = reader;
+            _writer = writer;
+            _isInitialized = true;
         }
     }
 }
