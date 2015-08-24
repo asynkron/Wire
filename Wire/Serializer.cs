@@ -35,12 +35,11 @@ namespace Wire
 
         internal readonly SerializerOptions Options;
 
-        public Serializer()
+        public Serializer() : this ( new SerializerOptions())
         {
-            Options = new SerializerOptions();
         }
 
-        public Serializer(SerializerOptions options)
+        public Serializer(SerializerOptions options) 
         {
             Options = options;
         }
@@ -58,6 +57,7 @@ namespace Wire
                    type == DoubleType ||
                    type == DecimalType ||
                    type == CharType;
+            //add TypeSerializer with null support
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

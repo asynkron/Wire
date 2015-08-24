@@ -6,15 +6,24 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Xml.XPath;
 using Wire.ValueSerializers;
+using static System.Linq.Expressions.Expression;
 
 namespace Wire
 {
     public class CodeGenerator
     {
-        public static void BuildSerializer(Serializer serializer, Type type, ObjectSerializer result)
+        public static void BuildSerializer(Serializer serializer, Type type, ObjectSerializer generatedSerializer)
         {
+            if (serializer == null)
+                throw new ArgumentNullException(nameof(serializer));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            if (generatedSerializer == null)
+                throw new ArgumentNullException(nameof(generatedSerializer));
+
             var fields = GetFieldsForType(type);
 
             var fieldWriters = new List<Action<Stream, object, SerializerSession>>();
@@ -113,25 +122,28 @@ namespace Wire
                 return instance;
             };
 
-            result._writer = writer;
-            result._reader = reader;
+            generatedSerializer._writer = writer;
+            generatedSerializer._reader = reader;
         }
 
         private static Action<Stream, object, SerializerSession> GenerateWriteAllFieldsDelegate(
             List<Action<Stream, object, SerializerSession>> fieldWriters)
         {
-            var streamParam = Expression.Parameter(typeof (Stream));
-            var objectParam = Expression.Parameter(typeof (object));
-            var sessionParam = Expression.Parameter(typeof (SerializerSession));
+            if (fieldWriters == null)
+                throw new ArgumentNullException(nameof(fieldWriters));
+
+            var streamParam = Parameter(typeof (Stream));
+            var objectParam = Parameter(typeof (object));
+            var sessionParam = Parameter(typeof (SerializerSession));
             var xs = fieldWriters
-                .Select(Expression.Constant)
+                .Select(Constant)
                 .Select(
                     fieldWriterExpression =>
-                        Expression.Invoke(fieldWriterExpression, streamParam, objectParam, sessionParam))
+                        Invoke(fieldWriterExpression, streamParam, objectParam, sessionParam))
                 .ToList();
-            var body = Expression.Block(xs);
+            var body = Block(xs);
             var writeallFields =
-                Expression.Lambda<Action<Stream, object, SerializerSession>>(body, streamParam, objectParam,
+                Lambda<Action<Stream, object, SerializerSession>>(body, streamParam, objectParam,
                     sessionParam)
                     .Compile();
             return writeallFields;
@@ -166,6 +178,9 @@ namespace Wire
 
         private static FieldInfo[] GetFieldsForType(Type type)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             var fieldInfos = new List<FieldInfo>();
             var current = type;
             while (current != null)
@@ -189,6 +204,15 @@ namespace Wire
         private static Action<Stream, object, SerializerSession> GenerateFieldDeserializer(Serializer serializer,
             Type type, FieldInfo field)
         {
+            if (serializer == null)
+                throw new ArgumentNullException(nameof(serializer));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            if (field == null)
+                throw new ArgumentNullException(nameof(field));
+
             var s = serializer.GetSerializerByType(field.FieldType);
 
             Action<object, object> setter;
@@ -198,16 +222,16 @@ namespace Wire
             }
             else
             {
-                ParameterExpression targetExp = Expression.Parameter(typeof(object), "target");
-                ParameterExpression valueExp = Expression.Parameter(typeof(object), "value");
+                ParameterExpression targetExp = Parameter(typeof(object), "target");
+                ParameterExpression valueExp = Parameter(typeof(object), "value");
 
                 Expression castTartgetExp = field.DeclaringType.IsValueType
-                    ? Expression.Unbox(targetExp, type)
-                    : Expression.Convert(targetExp, type);
-                Expression castValueExp = Expression.Convert(valueExp, field.FieldType);
-                MemberExpression fieldExp = Expression.Field(castTartgetExp, field);
-                BinaryExpression assignExp = Expression.Assign(fieldExp, castValueExp);
-                setter = Expression.Lambda<Action<object, object>>(assignExp, targetExp, valueExp).Compile();
+                    ? Unbox(targetExp, type)
+                    : Convert(targetExp, type);
+                Expression castValueExp = Convert(valueExp, field.FieldType);
+                MemberExpression fieldExp = Field(castTartgetExp, field);
+                BinaryExpression assignExp = Assign(fieldExp, castValueExp);
+                setter = Lambda<Action<object, object>>(assignExp, targetExp, valueExp).Compile();
             }
            
 
@@ -238,6 +262,15 @@ namespace Wire
         private static Action<Stream, object, SerializerSession> GenerateFieldSerializer(Serializer serializer,
             Type type, FieldInfo field)
         {
+            if (serializer == null)
+                throw new ArgumentNullException(nameof(serializer));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            if (field == null)
+                throw new ArgumentNullException(nameof(field));
+
             //get the serializer for the type of the field
             var valueSerializer = serializer.GetSerializerByType(field.FieldType);
             //runtime generate a delegate that reads the content of the given field
@@ -276,13 +309,20 @@ namespace Wire
             }
         }
 
-        private static Func<object, object> GenerateFieldReader(Type type, FieldInfo f)
+        private static Func<object, object> GenerateFieldReader(Type type, FieldInfo field)
         {
-            var param = Expression.Parameter(typeof (object));
-            Expression castParam = Expression.Convert(param, type);
-            Expression x = Expression.Field(castParam, f);
-            Expression castRes = Expression.Convert(x, typeof (object));
-            var getFieldValue = Expression.Lambda<Func<object, object>>(castRes, param).Compile();
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            if (field == null)
+                throw new ArgumentNullException(nameof(field));
+
+            var param = Parameter(typeof (object));
+            Expression castParam = Convert(param, type);
+            Expression x = Field(castParam, field);
+            Expression castRes = Convert(x, typeof (object));
+            var getFieldValue = Lambda<Func<object, object>>(castRes, param).Compile();
             return getFieldValue;
         }
     }
