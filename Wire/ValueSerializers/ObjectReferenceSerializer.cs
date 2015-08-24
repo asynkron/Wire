@@ -1,15 +1,16 @@
 ﻿using System;
 using System.IO;
+using System.Security;
 
 namespace Wire.ValueSerializers
 {
     public class ObjectReferenceSerializer : ValueSerializer
     {
         public static readonly ObjectReferenceSerializer Instance = new ObjectReferenceSerializer();
-
+        public const byte Manifest = 253;
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.WriteByte(253);
+            stream.WriteByte(Manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)

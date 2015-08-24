@@ -6,11 +6,11 @@ namespace Wire.ValueSerializers
     public class GuidSerializer : ValueSerializer
     {
         public static readonly GuidSerializer Instance = new GuidSerializer();
-        private readonly byte[] _manifest = {11};
+        public const byte Manifest = 11;
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.Write(_manifest, 0, _manifest.Length);
+            stream.WriteByte(Manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)

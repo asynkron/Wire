@@ -7,8 +7,8 @@ namespace Wire
 {
     public class SerializerOptions
     {
-        private static readonly Surrogate[] EmptySurrogates = new Surrogate[0];
-        private static readonly ValueSerializerFactory[] EmptyValueSerializerFactories = new ValueSerializerFactory[0];
+        internal static readonly Surrogate[] EmptySurrogates = new Surrogate[0];
+        internal static readonly ValueSerializerFactory[] EmptyValueSerializerFactories = new ValueSerializerFactory[0];
 
         private static readonly ValueSerializerFactory[] DefaultValueSerializerFactories =
         {
@@ -18,10 +18,10 @@ namespace Wire
             new EnumerableSerializerFactory()
         };
 
-        public readonly bool PreserveObjectReferences;
-        public readonly Surrogate[] Surrogates;
-        public readonly ValueSerializerFactory[] ValueSerializerFactories;
-        public readonly bool VersionTolerance;
+        internal readonly bool PreserveObjectReferences;
+        internal readonly Surrogate[] Surrogates;
+        internal readonly ValueSerializerFactory[] ValueSerializerFactories;
+        internal readonly bool VersionTolerance;
 
         public SerializerOptions(bool versionTolerance = false, IEnumerable<Surrogate> surrogates = null,
             bool preserveObjectReferences = false, IEnumerable<ValueSerializerFactory> serializerFactories = null)

@@ -6,11 +6,11 @@ namespace Wire.ValueSerializers
     public class Int64Serializer : ValueSerializer
     {
         public static readonly Int64Serializer Instance = new Int64Serializer();
-        private readonly byte _manifest = 2;
+        public const byte Manifest = 2;
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.WriteByte(_manifest);
+            stream.WriteByte(Manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)

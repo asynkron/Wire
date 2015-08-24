@@ -6,7 +6,7 @@ namespace Wire.ValueSerializers
     public class ConsistentArraySerializer : ValueSerializer
     {
         public static readonly ConsistentArraySerializer Instance = new ConsistentArraySerializer();
-        private readonly byte _manifest = 254;
+        public const byte Manifest = 254;
 
         public override object ReadValue(Stream stream, SerializerSession session)
         {
@@ -31,7 +31,7 @@ namespace Wire.ValueSerializers
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.WriteByte(_manifest);
+            stream.WriteByte(Manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)

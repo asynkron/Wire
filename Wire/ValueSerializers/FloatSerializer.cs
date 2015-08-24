@@ -6,11 +6,11 @@ namespace Wire.ValueSerializers
     public class FloatSerializer : ValueSerializer
     {
         public static readonly FloatSerializer Instance = new FloatSerializer();
-        private readonly byte _manifest = 12;
+        public const byte Manifest = 12;
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.WriteByte(_manifest);
+            stream.WriteByte(Manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)

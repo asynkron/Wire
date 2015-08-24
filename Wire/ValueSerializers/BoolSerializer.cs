@@ -6,11 +6,11 @@ namespace Wire.ValueSerializers
     public class BoolSerializer : ValueSerializer
     {
         public static readonly BoolSerializer Instance = new BoolSerializer();
-        private readonly byte _manifest = 6;
+        public const byte Manifest = 6;
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.WriteByte(_manifest);
+            stream.WriteByte(Manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)

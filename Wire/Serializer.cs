@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -283,43 +282,42 @@ namespace Wire
             var first = stream.ReadByte();
             switch (first)
             {
-                case 0:
+                case NullSerializer.Manifest:
                     return NullSerializer.Instance;
 //TODO: hmm why havent I added 1?
-                case 2:
+                case Int64Serializer.Manifest:
                     return Int64Serializer.Instance;
-                case 3:
+                case Int16Serializer.Manifest:
                     return Int16Serializer.Instance;
-                case 4:
+                case ByteSerializer.Manifest:
                     return ByteSerializer.Instance;
-                case 5:
+                case DateTimeSerializer.Manifest:
                     return DateTimeSerializer.Instance;
-                case 6:
+                case BoolSerializer.Manifest:
                     return BoolSerializer.Instance;
-                case 7:
+                case StringSerializer.Manifest:
                     return StringSerializer.Instance;
-                case 8:
+                case Int32Serializer.Manifest:
                     return Int32Serializer.Instance;
-                case 9:
+                case ByteArraySerializer.Manifest:
                     return ByteArraySerializer.Instance;
-                //insert
-                case 11:
+                case GuidSerializer.Manifest:
                     return GuidSerializer.Instance;
-                case 12:
+                case FloatSerializer.Manifest:
                     return FloatSerializer.Instance;
-                case 13:
+                case DoubleSerializer.Manifest:
                     return DoubleSerializer.Instance;
-                case 14:
+                case DecimalSerializer.Manifest:
                     return DecimalSerializer.Instance;
-                case 15:
+                case CharSerializer.Manifest:
                     return CharSerializer.Instance;
-                case 16:
+                case TypeSerializer.Manifest:
                     return TypeSerializer.Instance;
-                case 253:
+                case ObjectReferenceSerializer.Manifest:
                     return ObjectReferenceSerializer.Instance;
-                case 254:
+                case ConsistentArraySerializer.Manifest:
                     return ConsistentArraySerializer.Instance;
-                case 255:
+                case ObjectSerializer.Manifest:
                 {
                     var type = GetNamedTypeFromManifest(stream, session);
                     return GetCustomDeserialzer(type);
@@ -340,24 +338,6 @@ namespace Wire
                 var typename = Encoding.UTF8.GetString(b);
                 return Type.GetType(typename);
             });
-        }
-    }
-
-    public class ByteArrayEqualityComparer : EqualityComparer<byte[]>
-    {
-        public override bool Equals(byte[] x, byte[] y)
-        {
-            return CodeGenerator.UnsafeCompare(x, y);
-        }
-
-        public override int GetHashCode(byte[] obj)
-        {
-            int hash = 0;
-            for (int i = 0; i < obj.Length; i += 5)
-            {
-                hash += obj[i];
-            }
-            return hash;
         }
     }
 }

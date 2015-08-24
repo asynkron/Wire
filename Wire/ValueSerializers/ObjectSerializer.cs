@@ -10,7 +10,7 @@ namespace Wire.ValueSerializers
         private readonly byte[] _manifest;
         public Func<Stream, SerializerSession, object> _reader;
         public Action<Stream, object, SerializerSession> _writer;
-
+        public const byte Manifest = 255;
         public ObjectSerializer(Type type)
         {
             Type = type;
@@ -19,7 +19,7 @@ namespace Wire.ValueSerializers
             //precalculate the entire manifest for this serializer
             //this helps us to minimize calls to Stream.Write/WriteByte 
             _manifest =
-                new byte[] {255}
+                new[] {Manifest}
                     .Concat(BitConverter.GetBytes(bytes.Length))
                     .Concat(bytes)
                     .ToArray(); //serializer id 255 + assembly qualified name

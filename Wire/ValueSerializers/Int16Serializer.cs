@@ -6,11 +6,11 @@ namespace Wire.ValueSerializers
     public class Int16Serializer : ValueSerializer
     {
         public static readonly Int16Serializer Instance = new Int16Serializer();
-        private readonly byte _manifest = 3;
+        public const byte Manifest = 3;
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.WriteByte(_manifest);
+            stream.WriteByte(Manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)

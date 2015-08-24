@@ -5,11 +5,12 @@ namespace Wire.ValueSerializers
 {
     public class NullSerializer : ValueSerializer
     {
+        public const byte Manifest = 0;
         public static readonly NullSerializer Instance = new NullSerializer();
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.WriteByte(0);
+            stream.WriteByte(Manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)

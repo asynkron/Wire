@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ByteArrayEqualityComparer.cs" />
     <Compile Include="CodeGenerator.cs" />
     <Compile Include="Converters\ArraySerializerFactory.cs" />
     <Compile Include="Converters\EnumerableSerializerFactory.cs" />
