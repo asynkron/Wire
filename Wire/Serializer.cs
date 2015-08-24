@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
@@ -31,20 +30,6 @@ namespace Wire
         private readonly ConcurrentDictionary<Type, ValueSerializer> _deserializers =
             new ConcurrentDictionary<Type, ValueSerializer>();
 
-        //private static readonly Dictionary<Type, ValueSerializer> PrimitiveSerializers = new Dictionary
-        //    <Type, ValueSerializer>
-        //{
-        //    [typeof (int)] = Int32Serializer.Instance,
-        //    [typeof (long)] = Int64Serializer.Instance,
-        //    [typeof (short)] = Int16Serializer.Instance,
-        //    [typeof (byte)] = ByteSerializer.Instance,
-        //    [typeof (DateTime)] = DateTimeSerializer.Instance,
-        //    [typeof (string)] = StringSerializer.Instance,
-        //    [typeof (double)] = DoubleSerializer.Instance,
-        //    [typeof (float)] = FloatSerializer.Instance,
-        //    [typeof (Guid)] = GuidSerializer.Instance
-        //};
-
         private readonly ConcurrentDictionary<Type, ValueSerializer> _serializers =
             new ConcurrentDictionary<Type, ValueSerializer>();
 
@@ -60,7 +45,7 @@ namespace Wire
             Options = options;
         }
 
-        public static bool IsPrimitiveType(Type type)
+        internal static bool IsPrimitiveType(Type type)
         {
             return type == Int32Type ||
                    type == Int64Type ||
@@ -211,13 +196,6 @@ namespace Wire
 
         public ValueSerializer GetDeserializerByType(Type type)
         {
-            //TODO: code generate this
-            //ValueSerializer tmp;
-            //if (_primitiveSerializers.TryGetValue(type, out tmp))
-            //{
-            //    return tmp;
-            //}
-
             if (ReferenceEquals(type.Assembly, CoreaAssembly))
             {
                 if (type == StringType)

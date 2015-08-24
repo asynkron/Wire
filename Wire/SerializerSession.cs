@@ -9,7 +9,7 @@ namespace Wire
         private readonly Dictionary<int, object> _objectById;
         private readonly Dictionary<object, int> _objects;
         public readonly Serializer Serializer;
-        public int NextObjectId;
+        private int _nextObjectId;
 
         public SerializerSession(Serializer serializer)
         {
@@ -33,7 +33,7 @@ namespace Wire
         {
             try
             {
-                _objects.Add(obj, NextObjectId++);
+                _objects.Add(obj, _nextObjectId++);
             }
             catch (Exception x)
             {
@@ -43,7 +43,7 @@ namespace Wire
 
         public void TrackDeserializedObject(object obj)
         {
-            _objectById.Add(NextObjectId++,obj);
+            _objectById.Add(_nextObjectId++,obj);
         }
 
         public object GetDeserializedObject(int id)
