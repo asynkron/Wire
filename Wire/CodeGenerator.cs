@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Xml.XPath;
 using Wire.ValueSerializers;
 
 namespace Wire
@@ -56,27 +57,22 @@ namespace Wire
                     stream.Write(versionTolerantHeader);
                 }
 
-
+       
+                if (preserveObjectReferences)
+                {
+                    session.TrackSerializedObject(o);
+                }
 
                 writeallFields(stream, o, session);
             };
 
-            //avoid one level of invocation
-            if (serializer.Options.VersionTolerance == false)
-            {
-                writer = writeallFields;
-            }
-
-            //  var readAllFieldsVersionIntolerant =  GenerateReadAllFieldsVersionIntolerant(fieldReaders);
-
-            
             Func<Stream, SerializerSession, object> reader = (stream, session) =>
             {
                 //create instance without calling constructor
                 var instance = FormatterServices.GetUninitializedObject(type);
                 if (preserveObjectReferences)
                 {
-                    session.ObjectById.Add(session.NextObjectId++, instance);
+                    session.TrackDeserializedObject(instance);
                 }
 
                 var fieldsToRead = fields.Length;
@@ -120,26 +116,6 @@ namespace Wire
             result._writer = writer;
             result._reader = reader;
         }
-
-//        private static Action<Stream, object, SerializerSession> GenerateReadAllFieldsVersionIntolerant(List<Action<Stream, object, SerializerSession>> fieldReaders)
-//        {
-////TODO: handle version tolerance
-//            var streamParam = Expression.Parameter(typeof (Stream));
-//            var objectParam = Expression.Parameter(typeof (object));
-//            var sessionParam = Expression.Parameter(typeof (SerializerSession));
-//            var xs = fieldReaders
-//                .Select(Expression.Constant)
-//                .Select(
-//                    fieldReaderExpression => Expression.Invoke(fieldReaderExpression, streamParam, objectParam, sessionParam))
-//                .ToList();
-//            var body = Expression.Block(xs);
-
-//            Action<Stream, object, SerializerSession> readAllFields =
-//                Expression.Lambda<Action<Stream, object, SerializerSession>>(body, streamParam, objectParam, sessionParam)
-//                    .Compile();
-
-//            return readAllFields;
-//        }
 
         private static Action<Stream, object, SerializerSession> GenerateWriteAllFieldsDelegate(
             List<Action<Stream, object, SerializerSession>> fieldWriters)
@@ -245,12 +221,6 @@ namespace Wire
                 {
                     var value = s.ReadValue(stream, session);
                     setter(o, value);
-                    //var x = field.GetValue(o);
-                    //if (value != null && !value.Equals(x))
-                    //{
-
-                    //}
-               //     field.SetValue(o, value);
                 };
                 return fieldReader;
             }
@@ -259,13 +229,7 @@ namespace Wire
                 Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
                 {
                     var value = stream.ReadObject(session);
-                 //   field.SetValue(o, value);
                     setter(o, value);
-                    //var x = field.GetValue(o);
-                    //if (value != null && !value.Equals(x))
-                    //{
-
-                    //}
                 };
                 return fieldReader;
             }

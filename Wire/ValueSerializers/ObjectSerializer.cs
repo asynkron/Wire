@@ -34,10 +34,7 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
-            if (session.Serializer.Options.PreserveObjectReferences)
-            {
-                session.Objects.Add(value, session.NextObjectId++);
-            }
+
             _writer(stream, value, session);
         }
 

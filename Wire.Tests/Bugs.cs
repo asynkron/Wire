@@ -12,7 +12,7 @@ namespace Wire.Tests
     public class Bugs
     {
         [TestMethod]
-        public void CanSerializeDeepCyclicReferences()
+        public void CanSerialieCustomType_bug()
         {
             var stream = new MemoryStream();
             var serializer = new Serializer(new SerializerOptions(preserveObjectReferences: true,versionTolerance:true));

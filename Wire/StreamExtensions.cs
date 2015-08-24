@@ -49,7 +49,7 @@ namespace Wire
             else
             {
                 int existingId;
-                if (preserveObjectReferences && session.Objects.TryGetValue(value, out existingId))
+                if (preserveObjectReferences && session.TryGetObjectId(value, out existingId))
                 {
                     //write the serializer manifest
                     ObjectReferenceSerializer.Instance.WriteManifest(stream, null, session);

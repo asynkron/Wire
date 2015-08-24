@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Wire
 {
     public class SerializerSession
     {
         private readonly byte[] _buffer;
-        public readonly Dictionary<int, object> ObjectById;
-        public readonly Dictionary<object, int> Objects;
+        private readonly Dictionary<int, object> _objectById;
+        private readonly Dictionary<object, int> _objects;
         public readonly Serializer Serializer;
         public int NextObjectId;
 
@@ -16,8 +17,8 @@ namespace Wire
             _buffer = new byte[8];
             if (serializer.Options.PreserveObjectReferences)
             {
-                Objects = new Dictionary<object, int>();
-                ObjectById = new Dictionary<int, object>();
+                _objects = new Dictionary<object, int>();
+                _objectById = new Dictionary<int, object>();
             }
         }
 
@@ -26,6 +27,33 @@ namespace Wire
             if (length <= _buffer.Length)
                 return _buffer;
             return new byte[length];
+        }
+
+        public void TrackSerializedObject(object obj)
+        {
+            try
+            {
+                _objects.Add(obj, NextObjectId++);
+            }
+            catch (Exception x)
+            {
+                throw new Exception($"Error tracking object ",x);
+            }
+        }
+
+        public void TrackDeserializedObject(object obj)
+        {
+            _objectById.Add(NextObjectId++,obj);
+        }
+
+        public object GetDeserializedObject(int id)
+        {
+            return _objectById[id];
+        }
+
+        public bool TryGetObjectId(object obj, out int objectId)
+        {
+            return _objects.TryGetValue(obj, out objectId);
         }
     }
 }
