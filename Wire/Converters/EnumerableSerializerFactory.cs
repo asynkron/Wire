@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Wire.ValueSerializers;
 
@@ -49,7 +50,7 @@ namespace Wire.Converters
             var elementType = GetEnumerableType(type) ?? typeof (object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
-            x._writer = (stream, o, session) =>
+            Action<Stream,object,SerializerSession>  writer = (stream, o, session) =>
             {
                 var enumerable = o as ICollection;
                 stream.WriteInt32(enumerable.Count);
@@ -59,7 +60,7 @@ namespace Wire.Converters
                 }
             };
 
-            x._reader = (stream, session) =>
+            Func<Stream, SerializerSession,object>  reader = (stream, session) =>
             {
                 var count = stream.ReadInt32(session);
                 var items = Array.CreateInstance(elementType, count);
@@ -87,6 +88,7 @@ namespace Wire.Converters
 
                 return instance;
             };
+            x.Initialize(reader,writer);
             return x;
         }
     }

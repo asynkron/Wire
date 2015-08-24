@@ -9,8 +9,8 @@ namespace Wire.ValueSerializers
     public class ObjectSerializer : ValueSerializer
     {
         private readonly byte[] _manifest;
-        public Func<Stream, SerializerSession, object> _reader;
-        public Action<Stream, object, SerializerSession> _writer;
+        private Func<Stream, SerializerSession, object> _reader;
+        private Action<Stream, object, SerializerSession> _writer;
         public const byte Manifest = 255;
         private volatile bool _isInitialized = false;
         public ObjectSerializer(Type type)
