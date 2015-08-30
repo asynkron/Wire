@@ -17,7 +17,7 @@ namespace Wire
             _buffer = new byte[8];
             if (serializer.Options.PreserveObjectReferences)
             {
-                _objects = new Dictionary<object, int>(new IdentityEqualityComparer<object>());
+                _objects = new Dictionary<object, int>();
                 _objectById = new Dictionary<int, object>();
             }
         }
@@ -25,7 +25,7 @@ namespace Wire
         public byte[] GetBuffer(int length)
         {
             if (length > _buffer.Length)
-                _buffer = new byte[length];
+                return new byte[length];
 
             return _buffer;
         }

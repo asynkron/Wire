@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using Antmicro.Migrant.Customization;
 using Newtonsoft.Json;
 using ProtoBuf;
 
@@ -33,7 +32,6 @@ namespace Wire.PerfTest
             SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoJsonNet();
             SerializePocoBinaryFormatter();
-            SerializePocoProtoMigrant();
             Console.WriteLine();
             Console.WriteLine("Running hot");
             SerializePocoVersionInteolerant();
@@ -42,7 +40,6 @@ namespace Wire.PerfTest
             SerializePocoVersionInteolerantPreserveObjects();
             SerializePocoJsonNet();
             SerializePocoBinaryFormatter();
-            SerializePocoProtoMigrant();
             Console.ReadLine();
         }
 
@@ -85,22 +82,6 @@ namespace Wire.PerfTest
             sw2.Stop();
             Console.WriteLine($"   {"Deseralize".PadRight(30, ' ')} {sw2.ElapsedMilliseconds} ms");
             Console.WriteLine($"   {"Total".PadRight(30, ' ')} {sw.ElapsedMilliseconds + sw2.ElapsedMilliseconds} ms");
-        }
-
-        private static void SerializePocoProtoMigrant()
-        {
-            var ser = new Antmicro.Migrant.Serializer(new Settings());
-            var s = new MemoryStream();
-            ser.Serialize(poco,s);
-            RunTest("Migrant", () =>
-            {
-                var stream = new MemoryStream();
-                ser.Serialize(poco,stream);
-            }, () =>
-            {
-                s.Position = 0;
-                ser.Deserialize<Poco>(s);
-            });
         }
 
         private static void SerializePocoProtoBufNet()
