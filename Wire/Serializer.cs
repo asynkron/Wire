@@ -126,6 +126,13 @@ namespace Wire
             return (T) s.ReadValue(stream, session);
         }
 
+        public object Deserialize(Stream stream)
+        {
+            var session = new SerializerSession(this);
+            var s = GetDeserializerByManifest(stream, session);
+            return s.ReadValue(stream, session);
+        }
+
         public ValueSerializer GetSerializerByType(Type type)
         {
             //TODO: code generate this
