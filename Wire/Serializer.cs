@@ -321,7 +321,7 @@ namespace Wire
             return TypeNameLookup.GetOrAdd(bytes, b =>
             {
                 var typename = Encoding.UTF8.GetString(b);
-                return Type.GetType(typename);
+                return Type.GetType(typename,true);
             });
         }
     }

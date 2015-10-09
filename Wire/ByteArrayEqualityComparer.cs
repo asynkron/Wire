@@ -11,10 +11,10 @@ namespace Wire
 
         public override int GetHashCode(byte[] obj)
         {
-            int hash = 0;
+            int hash = 17;
             for (int i = 0; i < obj.Length; i += 5)
             {
-                hash += obj[i];
+                hash = hash * 23 + obj[i];
             }
             return hash;
         }

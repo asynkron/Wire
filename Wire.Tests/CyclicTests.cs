@@ -63,11 +63,13 @@ namespace Wire.Tests
     public class Root
     {
         public Bar B1 { get; set; }
+        public long Baz { get; set; }
         public Bar B2 { get; set; }
     }
 
     public class Bar
     {
+        public long Boo { get; set; }
         public Bar Self { get; set; }
         public int XYZ { get; set; }
     }
