@@ -111,6 +111,7 @@ namespace Wire
                 }
 
                 serializer = new ObjectSerializer(type);
+
                 _deserializers.TryAdd(type, serializer);
                 CodeGenerator.BuildSerializer(this, type, (ObjectSerializer) serializer);
                 //just ignore if this fails, another thread have already added an identical serialzer
@@ -181,6 +182,9 @@ namespace Wire
 
                 if (type == ByteType)
                     return ByteSerializer.Instance;
+
+                if (type == SByteType)
+                    return SByteSerializer.Instance;
 
                 if (type == BoolType)
                     return BoolSerializer.Instance;
