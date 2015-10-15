@@ -54,9 +54,11 @@ namespace Wire
             return type == Int32Type ||
                    type == Int64Type ||
                    type == Int16Type ||
+
                    type == UInt32Type ||
                    type == UInt64Type ||
                    type == UInt16Type ||
+
                    type == DateTimeType ||
                    type == BoolType ||
                    type == StringType ||
@@ -163,6 +165,15 @@ namespace Wire
 
                 if (type == Int16Type)
                     return Int16Serializer.Instance;
+
+                if (type == UInt32Type)
+                    return UInt32Serializer.Instance;
+
+                if (type == UInt64Type)
+                    return UInt64Serializer.Instance;
+
+                if (type == UInt16Type)
+                    return UInt16Serializer.Instance;
 
                 if (type == ByteType)
                     return ByteSerializer.Instance;
