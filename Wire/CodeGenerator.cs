@@ -25,7 +25,7 @@ namespace Wire
             if (generatedSerializer == null)
                 throw new ArgumentNullException(nameof(generatedSerializer));
 
-            var fields = GetFieldsForType(type);
+            var fields = GetFieldInfosForType(type);
 
             var fieldWriters = new List<Action<Stream, object, SerializerSession>>();
             var fieldReaders = new List<Action<Stream, object, SerializerSession>>();
@@ -35,8 +35,8 @@ namespace Wire
             {
                 var fieldName = Encoding.UTF8.GetBytes(field.Name);
                 fieldNames.Add(fieldName);
-                fieldWriters.Add(GenerateFieldSerializer(serializer, type, field));
-                fieldReaders.Add(GenerateFieldDeserializer(serializer, type, field));
+                fieldWriters.Add(GenerateFieldInfoSerializer(serializer, field));
+                fieldReaders.Add(GenerateFieldInfoDeserializer(serializer, type, field));
             }
 
 
@@ -92,6 +92,13 @@ namespace Wire
                 writeallFields(stream, o, session);
             };
 
+            var reader = MakeReader(serializer, type, preserveObjectReferences, fields, fieldNames, fieldReaders);
+            generatedSerializer.Initialize(reader, writer);
+        }
+
+        private static Func<Stream, SerializerSession, object> MakeReader(Serializer serializer, Type type, bool preserveObjectReferences, FieldInfo[] fields,
+            List<byte[]> fieldNames, List<Action<Stream, object, SerializerSession>> fieldReaders)
+        {
             Func<Stream, SerializerSession, object> reader = (stream, session) =>
             {
                 //create instance without calling constructor
@@ -113,7 +120,7 @@ namespace Wire
                     for (var i = 0; i < storedFieldCount; i++)
                     {
                         var fieldName = stream.ReadLengthEncodedByteArray(session);
-                        if (!UnsafeCompare(fieldName, fieldNames[i]))
+                        if (!Utils.UnsafeCompare(fieldName, fieldNames[i]))
                         {
                             //TODO
                         }
@@ -138,7 +145,7 @@ namespace Wire
 
                 return instance;
             };
-            generatedSerializer.Initialize(reader, writer);
+            return reader;
         }
 
         private static Action<Stream, object, SerializerSession> GenerateWriteAllFieldsDelegate(
@@ -164,34 +171,7 @@ namespace Wire
             return writeallFields;
         }
 
-        public static unsafe bool UnsafeCompare(byte[] a1, byte[] a2)
-        {
-            if (a1 == null || a2 == null || a1.Length != a2.Length)
-                return false;
-            fixed (byte* p1 = a1, p2 = a2)
-            {
-                byte* x1 = p1, x2 = p2;
-                var l = a1.Length;
-                for (var i = 0; i < l/8; i++, x1 += 8, x2 += 8)
-                    if (*((long*) x1) != *((long*) x2)) return false;
-                if ((l & 4) != 0)
-                {
-                    if (*((int*) x1) != *((int*) x2)) return false;
-                    x1 += 4;
-                    x2 += 4;
-                }
-                if ((l & 2) != 0)
-                {
-                    if (*((short*) x1) != *((short*) x2)) return false;
-                    x1 += 2;
-                    x2 += 2;
-                }
-                if ((l & 1) != 0) if (*x1 != *x2) return false;
-                return true;
-            }
-        }
-
-        private static FieldInfo[] GetFieldsForType(Type type)
+        private static FieldInfo[] GetFieldInfosForType(Type type)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -216,7 +196,7 @@ namespace Wire
             return fields;
         }
 
-        private static Action<Stream, object, SerializerSession> GenerateFieldDeserializer(Serializer serializer,
+        private static Action<Stream, object, SerializerSession> GenerateFieldInfoDeserializer(Serializer serializer,
             Type type, FieldInfo field)
         {
             if (serializer == null)
@@ -274,14 +254,10 @@ namespace Wire
             }
         }
 
-        private static Action<Stream, object, SerializerSession> GenerateFieldSerializer(Serializer serializer,
-            Type type, FieldInfo field)
+        private static Action<Stream, object, SerializerSession> GenerateFieldInfoSerializer(Serializer serializer, FieldInfo field)
         {
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
 
             if (field == null)
                 throw new ArgumentNullException(nameof(field));
@@ -289,7 +265,7 @@ namespace Wire
             //get the serializer for the type of the field
             var valueSerializer = serializer.GetSerializerByType(field.FieldType);
             //runtime generate a delegate that reads the content of the given field
-            var getFieldValue = GenerateFieldReader(field);
+            var getFieldValue = GenerateFieldInfoReader(field);
 
             //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
             if (!serializer.Options.VersionTolerance && Serializer.IsPrimitiveType(field.FieldType))
@@ -324,7 +300,7 @@ namespace Wire
             }
         }
 
-        private static Func<object, object> GenerateFieldReader(FieldInfo field)
+        private static Func<object, object> GenerateFieldInfoReader(FieldInfo field)
         {
             if (field == null)
                 throw new ArgumentNullException(nameof(field));
