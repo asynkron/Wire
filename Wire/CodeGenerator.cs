@@ -204,6 +204,8 @@ namespace Wire
                         .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
                         .Where(f => !f.IsDefined(typeof (NonSerializedAttribute)))
                         .Where(f => !f.IsStatic)
+                        .Where(f => f.FieldType != typeof(IntPtr))
+                        .Where(f => f.FieldType != typeof(UIntPtr))
                         .Where(f => f.Name != "_syncRoot"); //HACK: ignore these 
 
                 fieldInfos.AddRange(tfields);

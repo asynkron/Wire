@@ -29,7 +29,16 @@ namespace Wire.Tests
             var actual = Deserialize<Something>();
             Assert.AreEqual(expected, actual);
         }
-
+        [TestMethod]
+        public void CanSerializeException()
+        {
+            var expected = new ArgumentException("foo","bar");
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<ArgumentException>();
+            Assert.AreEqual(expected.ParamName, actual.ParamName);
+            Assert.AreEqual(expected.Message, actual.Message);
+        }
         [TestMethod]
         public void CanSerializePolymorphicObject()
         {
