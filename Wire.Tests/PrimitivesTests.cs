@@ -42,6 +42,11 @@ namespace Wire.Tests
         {
             SerializeAndAssert((byte) 123);
         }
+        [TestMethod]
+        public void CanSerializeSByte()
+        {
+            SerializeAndAssert((sbyte)123);
+        }
 
         [TestMethod]
         public void CanSerializeInt16()
