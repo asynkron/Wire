@@ -6,7 +6,7 @@ namespace Wire
     {
         public override bool Equals(byte[] x, byte[] y)
         {
-            return CodeGenerator.UnsafeCompare(x, y);
+            return Utils.UnsafeCompare(x, y);
         }
 
         public override int GetHashCode(byte[] obj)
