@@ -19,6 +19,7 @@ namespace Wire
         private static readonly Type UInt16Type = typeof(ushort);
 
         private static readonly Type ByteType = typeof (byte);
+        private static readonly Type SByteType = typeof(sbyte);
         private static readonly Type BoolType = typeof (bool);
         private static readonly Type DateTimeType = typeof (DateTime);
         private static readonly Type StringType = typeof (string);
@@ -58,6 +59,9 @@ namespace Wire
                    type == UInt32Type ||
                    type == UInt64Type ||
                    type == UInt16Type ||
+
+                   type == ByteType ||
+                   type == SByteType ||
 
                    type == DateTimeType ||
                    type == BoolType ||
@@ -227,6 +231,15 @@ namespace Wire
                 if (type == StringType)
                     return StringSerializer.Instance;
 
+                if (type == UInt32Type)
+                    return UInt32Serializer.Instance;
+
+                if (type == UInt64Type)
+                    return UInt64Serializer.Instance;
+
+                if (type == UInt16Type)
+                    return UInt16Serializer.Instance;
+
                 if (type == Int32Type)
                     return Int32Serializer.Instance;
 
@@ -238,6 +251,9 @@ namespace Wire
 
                 if (type == ByteType)
                     return ByteSerializer.Instance;
+
+                if (type == SByteType)
+                    return SByteSerializer.Instance;
 
                 if (type == BoolType)
                     return BoolSerializer.Instance;
@@ -323,6 +339,8 @@ namespace Wire
                     return UInt32Serializer.Instance;
                 case UInt64Serializer.Manifest:
                     return UInt64Serializer.Instance;
+                case SByteSerializer.Manifest:
+                    return SByteSerializer.Instance;
                 case ObjectReferenceSerializer.Manifest:
                     return ObjectReferenceSerializer.Instance;
                 case ConsistentArraySerializer.Manifest:

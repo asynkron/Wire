@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -35,7 +36,7 @@ namespace Wire
                 var fieldName = Encoding.UTF8.GetBytes(field.Name);
                 fieldNames.Add(fieldName);
                 fieldWriters.Add(GenerateFieldSerializer(serializer, type, field));
-                fieldReaders.Add(GenerateFieldDeserializer(serializer,type, field));
+                fieldReaders.Add(GenerateFieldDeserializer(serializer, type, field));
             }
 
 
@@ -56,7 +57,7 @@ namespace Wire
                 writeallFields = (_1, _2, _3) => { };
             }
 
-            if (System.Diagnostics.Debugger.IsAttached)
+            if (Debugger.IsAttached)
             {
                 var tmp = writeallFields;
                 writeallFields = (stream, o, session) =>
@@ -67,7 +68,7 @@ namespace Wire
                     }
                     catch (Exception x)
                     {
-                        throw new Exception($"Unable to write all fields of {type.Name}",x);
+                        throw new Exception($"Unable to write all fields of {type.Name}", x);
                     }
                 };
             }
@@ -82,7 +83,7 @@ namespace Wire
                     stream.Write(versionTolerantHeader);
                 }
 
-       
+
                 if (preserveObjectReferences)
                 {
                     session.TrackSerializedObject(o);
@@ -204,8 +205,8 @@ namespace Wire
                         .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
                         .Where(f => !f.IsDefined(typeof (NonSerializedAttribute)))
                         .Where(f => !f.IsStatic)
-                        .Where(f => f.FieldType != typeof(IntPtr))
-                        .Where(f => f.FieldType != typeof(UIntPtr))
+                        .Where(f => f.FieldType != typeof (IntPtr))
+                        .Where(f => f.FieldType != typeof (UIntPtr))
                         .Where(f => f.Name != "_syncRoot"); //HACK: ignore these 
 
                 fieldInfos.AddRange(tfields);
@@ -214,8 +215,6 @@ namespace Wire
             var fields = fieldInfos.OrderBy(f => f.Name).ToArray();
             return fields;
         }
-
-       
 
         private static Action<Stream, object, SerializerSession> GenerateFieldDeserializer(Serializer serializer,
             Type type, FieldInfo field)
@@ -238,18 +237,18 @@ namespace Wire
             }
             else
             {
-                ParameterExpression targetExp = Parameter(typeof(object), "target");
-                ParameterExpression valueExp = Parameter(typeof(object), "value");
+                var targetExp = Parameter(typeof (object), "target");
+                var valueExp = Parameter(typeof (object), "value");
 
                 Expression castTartgetExp = field.DeclaringType.IsValueType
                     ? Unbox(targetExp, type)
                     : Convert(targetExp, type);
                 Expression castValueExp = Convert(valueExp, field.FieldType);
-                MemberExpression fieldExp = Field(castTartgetExp, field);
-                BinaryExpression assignExp = Assign(fieldExp, castValueExp);
+                var fieldExp = Field(castTartgetExp, field);
+                var assignExp = Assign(fieldExp, castValueExp);
                 setter = Lambda<Action<object, object>>(assignExp, targetExp, valueExp).Compile();
             }
-           
+
 
             if (!serializer.Options.VersionTolerance && Serializer.IsPrimitiveType(field.FieldType))
             {
@@ -331,12 +330,14 @@ namespace Wire
                 throw new ArgumentNullException(nameof(field));
 
             var param = Parameter(typeof (object));
-            Expression castParam = field.DeclaringType.IsValueType?Unbox(param,field.DeclaringType):Convert(param, field.DeclaringType);
+            Expression castParam = field.DeclaringType.IsValueType
+                ? Unbox(param, field.DeclaringType)
+                : Convert(param, field.DeclaringType);
             Expression readField = Field(castParam, field);
             Expression castRes = Convert(readField, typeof (object));
             var getFieldValue = Lambda<Func<object, object>>(castRes, param).Compile();
 
-            if (System.Diagnostics.Debugger.IsAttached)
+            if (Debugger.IsAttached)
             {
                 return target =>
                 {
@@ -346,7 +347,7 @@ namespace Wire
                     }
                     catch (Exception ex)
                     {
-                        throw new Exception($"Failed to read value of field {field.Name}",ex);
+                        throw new Exception($"Failed to read value of field {field.Name}", ex);
                     }
                 };
             }
