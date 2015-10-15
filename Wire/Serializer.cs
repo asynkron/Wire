@@ -13,6 +13,11 @@ namespace Wire
         private static readonly Type Int32Type = typeof (int);
         private static readonly Type Int64Type = typeof (long);
         private static readonly Type Int16Type = typeof (short);
+
+        private static readonly Type UInt32Type = typeof(uint);
+        private static readonly Type UInt64Type = typeof(ulong);
+        private static readonly Type UInt16Type = typeof(ushort);
+
         private static readonly Type ByteType = typeof (byte);
         private static readonly Type BoolType = typeof (bool);
         private static readonly Type DateTimeType = typeof (DateTime);
@@ -49,6 +54,9 @@ namespace Wire
             return type == Int32Type ||
                    type == Int64Type ||
                    type == Int16Type ||
+                   type == UInt32Type ||
+                   type == UInt64Type ||
+                   type == UInt16Type ||
                    type == DateTimeType ||
                    type == BoolType ||
                    type == StringType ||
@@ -263,7 +271,7 @@ namespace Wire
         }
 
         public ValueSerializer GetDeserializerByManifest(Stream stream, SerializerSession session)
-        {
+        {            
             var first = stream.ReadByte();
             switch (first)
             {
@@ -296,8 +304,14 @@ namespace Wire
                     return DecimalSerializer.Instance;
                 case CharSerializer.Manifest:
                     return CharSerializer.Instance;
-                case TypeSerializer.Manifest:
+                case TypeSerializer.Manifest:                
                     return TypeSerializer.Instance;
+                case UInt16Serializer.Manifest:
+                    return UInt16Serializer.Instance;
+                case UInt32Serializer.Manifest:
+                    return UInt32Serializer.Instance;
+                case UInt64Serializer.Manifest:
+                    return UInt64Serializer.Instance;
                 case ObjectReferenceSerializer.Manifest:
                     return ObjectReferenceSerializer.Instance;
                 case ConsistentArraySerializer.Manifest:

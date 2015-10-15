@@ -5,7 +5,7 @@ namespace Wire
 {
     public class SerializerSession
     {
-        private byte[] _buffer;
+        private readonly byte[] _buffer;
         private readonly Dictionary<int, object> _objectById;
         private readonly Dictionary<object, int> _objects;
         public readonly Serializer Serializer;

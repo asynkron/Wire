@@ -51,6 +51,7 @@
     <Compile Include="Converters\ValueSerializerFactory.cs" />
     <Compile Include="SerializerOptions.cs" />
     <Compile Include="StreamExtensions.cs" />
+    <Compile Include="Surrogate.cs" />
     <Compile Include="ValueSerializers\ArraySerializer.cs" />
     <Compile Include="ValueSerializers\BoolSerializer.cs" />
     <Compile Include="ValueSerializers\ByteArraySerializer.cs" />
@@ -75,6 +76,9 @@
     <Compile Include="ValueSerializers\StringSerializer.cs" />
     <Compile Include="ValueSerializers\ToSurrogateSerializer.cs" />
     <Compile Include="ValueSerializers\TypeSerializer.cs" />
+    <Compile Include="ValueSerializers\UInt16Serializer.cs" />
+    <Compile Include="ValueSerializers\UInt32Serializer.cs" />
+    <Compile Include="ValueSerializers\UInt64Serializer.cs" />
     <Compile Include="ValueSerializers\ValueSerializer.cs" />
   </ItemGroup>
   <ItemGroup>

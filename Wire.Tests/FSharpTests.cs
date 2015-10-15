@@ -1,4 +1,5 @@
-﻿using Microsoft.FSharp.Core;
+﻿using Akka.Actor;
+using Microsoft.FSharp.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Wire.FSharpTestTypes;
 
@@ -45,6 +46,27 @@ namespace Wire.Tests
             Reset();
             var actual = Deserialize<object>();
             Assert.AreEqual(expected, actual);
+        }
+
+        public class FooActor : UntypedActor
+        {
+            protected override void OnReceive(object message)
+            {                
+            }
+        }
+
+        [TestMethod]
+        public void CanSerializeUser()
+        {
+                var expected = new User("foo", new FSharpOption<string>(null), "hello");
+                Serialize(expected);
+                Reset();
+                var actual = Deserialize<User>();
+               // Assert.AreEqual(expected, actual);
+                Assert.AreEqual(expected.aref, actual.aref);
+                Assert.AreEqual(expected.name, actual.name);
+                Assert.AreEqual(expected.connections, actual.connections);
+            
         }
     }
 }
