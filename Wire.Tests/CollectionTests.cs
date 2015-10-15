@@ -107,6 +107,6 @@ namespace Wire.Tests
             Reset();
             var actual = Deserialize<DateTime[]>();
             CollectionAssert.AreEqual(expected, actual);
-        }
+        }        
     }
 }
