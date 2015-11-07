@@ -19,7 +19,32 @@ namespace Wire.Converters
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            ValueSerializer arraySerializer = new ArraySerializer(type);
+            ObjectSerializer arraySerializer = new ObjectSerializer(type);
+            var _elementType = type.GetElementType();
+            arraySerializer.Initialize((stream, session) =>
+            {
+                var length = stream.ReadInt32(session);
+                var array = Array.CreateInstance(_elementType, length); //create the array
+
+                for (var i = 0; i < length; i++)
+                {
+                    var value = stream.ReadObject(session);
+                    array.SetValue(value, i); //set the element value
+                }
+                return array;
+            }, (stream, arr, session) =>
+            {
+                var array = arr as Array;
+                var elementSerializer = session.Serializer.GetSerializerByType(_elementType);
+                stream.WriteInt32(array.Length);
+                var preserveObjectReferences = session.Serializer.Options.PreserveObjectReferences;
+
+                for (var i = 0; i < array.Length; i++) //write the elements
+                {
+                    var value = array.GetValue(i);
+                    stream.WriteObject(value, _elementType, elementSerializer, preserveObjectReferences, session);
+                }
+            });
             typeMapping.TryAdd(type, arraySerializer);
             return arraySerializer;
         }

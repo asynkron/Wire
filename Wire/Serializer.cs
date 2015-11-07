@@ -351,25 +351,12 @@ namespace Wire
                     return ConsistentArraySerializer.Instance;
                 case ObjectSerializer.Manifest:
                 {
-                    var type = GetNamedTypeFromManifest(stream, session);
+                    var type = ObjectSerializer.GetTypeFromManifest(stream, session);
                     return GetCustomDeserialzer(type);
                 }
                 default:
                     throw new NotSupportedException("Unknown manifest value");
             }
-        }
-
-        private static readonly ConcurrentDictionary<byte[],Type> TypeNameLookup = new ConcurrentDictionary<byte[], Type>(new ByteArrayEqualityComparer()); 
-
-        public Type GetNamedTypeFromManifest(Stream stream, SerializerSession session)
-        {
-            var bytes = (byte[]) ByteArraySerializer.Instance.ReadValue(stream, session);
-            
-            return TypeNameLookup.GetOrAdd(bytes, b =>
-            {
-                var typename = Encoding.UTF8.GetString(b);
-                return Type.GetType(typename,true);
-            });
-        }
+        }        
     }
 }

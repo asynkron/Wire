@@ -1,13 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using System.Collections.Immutable;
 namespace Wire.Tests
 {
     [TestClass]
     public class CollectionTests : TestBase
     {
+
+        [TestMethod]
+        public void CanSerializeImmutableDictionary()
+        {
+            var map = ImmutableDictionary<string, object>.Empty;
+            var serializer = new Wire.Serializer();
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(map, stream);
+                stream.Position = 0;
+                var map2 = serializer.Deserialize(stream);  // exception
+            }
+        }
+
         //TODO: HashSet causes stack overflow on serialization right now
         [TestMethod]
         public void CanSerializeSet()

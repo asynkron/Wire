@@ -8,6 +8,7 @@ namespace Wire
         private readonly byte[] _buffer;
         private readonly Dictionary<int, object> _objectById;
         private readonly Dictionary<object, int> _objects;
+        private readonly Dictionary<Type, int> _typeIdentifiers;
         public readonly Serializer Serializer;
         private int _nextObjectId;
 
@@ -15,6 +16,7 @@ namespace Wire
         {
             Serializer = serializer;
             _buffer = new byte[8];
+            _typeIdentifiers = new Dictionary<Type, int>();
             if (serializer.Options.PreserveObjectReferences)
             {
                 _objects = new Dictionary<object, int>();
@@ -40,7 +42,7 @@ namespace Wire
             {
                 throw new Exception($"Error tracking object ",x);
             }
-        }
+        }        
 
         public void TrackDeserializedObject(object obj)
         {

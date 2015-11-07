@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,18 +13,21 @@ namespace Wire.ValueSerializers
         private Func<Stream, SerializerSession, object> _reader;
         private Action<Stream, object, SerializerSession> _writer;
         public const byte Manifest = 255;
+        public const byte TypeNameHeader = 1;
+        public const byte TypeIdentifier = 2;
+
         private volatile bool _isInitialized = false;
         public ObjectSerializer(Type type)
         {
             Type = type;
-            var bytes = Encoding.UTF8.GetBytes(type.AssemblyQualifiedName);
+            var typeNameBytes = Encoding.UTF8.GetBytes(type.AssemblyQualifiedName);
 
             //precalculate the entire manifest for this serializer
             //this helps us to minimize calls to Stream.Write/WriteByte 
             _manifest =
-                new[] {Manifest}
-                    .Concat(BitConverter.GetBytes(bytes.Length))
-                    .Concat(bytes)
+                new[] {Manifest, TypeNameHeader}
+                    .Concat(BitConverter.GetBytes(typeNameBytes.Length))
+                    .Concat(typeNameBytes)
                     .ToArray(); //serializer id 255 + assembly qualified name
 
             //initialize reader and writer with dummy handlers that wait until the serializer is fully initialized
@@ -68,6 +72,33 @@ namespace Wire.ValueSerializers
             _reader = reader;
             _writer = writer;
             _isInitialized = true;
+        }
+
+        private static readonly ConcurrentDictionary<byte[], Type> TypeNameLookup = new ConcurrentDictionary<byte[], Type>(new ByteArrayEqualityComparer());
+
+        private static Type GetTypeFromManifestName(Stream stream, SerializerSession session)
+        {
+            var bytes = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
+
+            return TypeNameLookup.GetOrAdd(bytes, b =>
+            {
+                var typename = Encoding.UTF8.GetString(b);
+                return Type.GetType(typename, true);
+            });
+        }
+
+        public static Type GetTypeFromManifest(Stream stream, SerializerSession session)
+        {
+            var x = stream.ReadByte();
+            if (x == TypeNameHeader)
+            {
+                return GetTypeFromManifestName(stream, session);
+            }
+            if (x == TypeIdentifier)
+            {
+                return null;
+            }
+            throw new Exception("Unknown object type");
         }
     }
 }
