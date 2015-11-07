@@ -27,7 +27,7 @@ namespace Wire
 
             var fields = GetFieldInfosForType(type);
 
-            var fieldWriters = new List<Action<Stream, object, SerializerSession>>();
+            var fieldWriters = new List<ValueWriter>();
             var fieldReaders = new List<Action<Stream, object, DeserializerSession>>();
             var fieldNames = new List<byte[]>();
 
@@ -46,7 +46,7 @@ namespace Wire
                     (current, fieldName) => current.Concat(BitConverter.GetBytes(fieldName.Length)).Concat(fieldName))
                     .ToArray();
 
-            Action<Stream, object, SerializerSession> writeallFields = null;
+            ValueWriter writeallFields = null;
 
             if (fieldWriters.Any())
             {
@@ -75,7 +75,7 @@ namespace Wire
 
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             var versiontolerance = serializer.Options.VersionTolerance;
-            Action<Stream, object, SerializerSession> writer = (stream, o, session) =>
+            ValueWriter writer = (stream, o, session) =>
             {
                 if (versiontolerance)
                 {
@@ -96,10 +96,10 @@ namespace Wire
             generatedSerializer.Initialize(reader, writer);
         }
 
-        private static Func<Stream, DeserializerSession, object> MakeReader(Serializer serializer, Type type, bool preserveObjectReferences, FieldInfo[] fields,
+        private static ValueReader MakeReader(Serializer serializer, Type type, bool preserveObjectReferences, FieldInfo[] fields,
             List<byte[]> fieldNames, List<Action<Stream, object, DeserializerSession>> fieldReaders)
         {
-            Func<Stream, DeserializerSession, object> reader = (stream, session) =>
+            ValueReader reader = (stream, session) =>
             {
                 //create instance without calling constructor
                 var instance = FormatterServices.GetUninitializedObject(type);
@@ -148,8 +148,8 @@ namespace Wire
             return reader;
         }
 
-        private static Action<Stream, object, SerializerSession> GenerateWriteAllFieldsDelegate(
-            List<Action<Stream, object, SerializerSession>> fieldWriters)
+        private static ValueWriter GenerateWriteAllFieldsDelegate(
+            List<ValueWriter> fieldWriters)
         {
             if (fieldWriters == null)
                 throw new ArgumentNullException(nameof(fieldWriters));
@@ -165,7 +165,7 @@ namespace Wire
                 .ToList();
             var body = Block(xs);
             var writeallFields =
-                Lambda<Action<Stream, object, SerializerSession>>(body, streamParam, objectParam,
+                Lambda<ValueWriter>(body, streamParam, objectParam,
                     sessionParam)
                     .Compile();
             return writeallFields;
@@ -254,7 +254,7 @@ namespace Wire
             }
         }
 
-        private static Action<Stream, object, SerializerSession> GenerateFieldInfoSerializer(Serializer serializer, FieldInfo field)
+        private static ValueWriter GenerateFieldInfoSerializer(Serializer serializer, FieldInfo field)
         {
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
@@ -272,7 +272,7 @@ namespace Wire
             {
                 //primitive types does not need to write any manifest, if the field type is known
                 //nor can they be null (StringSerializer has it's own null handling)
-                Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
+                ValueWriter fieldWriter = (stream, o, session) =>
                 {
                     var value = getFieldValue(o);
                     valueSerializer.WriteValue(stream, value, session);
@@ -290,7 +290,7 @@ namespace Wire
                 }
                 var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
-                Action<Stream, object, SerializerSession> fieldWriter = (stream, o, session) =>
+                ValueWriter fieldWriter = (stream, o, session) =>
                 {
                     var value = getFieldValue(o);
 

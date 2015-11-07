@@ -50,7 +50,7 @@ namespace Wire.Converters
             var elementType = GetEnumerableType(type) ?? typeof (object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
-            Action<Stream,object,SerializerSession>  writer = (stream, o, session) =>
+            ValueWriter  writer = (stream, o, session) =>
             {
                 var enumerable = o as ICollection;
                 stream.WriteInt32(enumerable.Count);
@@ -60,7 +60,7 @@ namespace Wire.Converters
                 }
             };
 
-            Func<Stream, DeserializerSession,object>  reader = (stream, session) =>
+            ValueReader  reader = (stream, session) =>
             {
                 var count = stream.ReadInt32(session);
                 var items = Array.CreateInstance(elementType, count);

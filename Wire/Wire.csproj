@@ -45,10 +45,12 @@
     <Compile Include="ByteArrayEqualityComparer.cs" />
     <Compile Include="CodeGenerator.cs" />
     <Compile Include="Converters\ArraySerializerFactory.cs" />
+    <Compile Include="Converters\DictionarySerializerFactory.cs" />
     <Compile Include="Converters\EnumerableSerializerFactory.cs" />
     <Compile Include="Converters\FromSurrogateSerializerFactory.cs" />
     <Compile Include="Converters\ToSurrogateSerializerFactory.cs" />
     <Compile Include="Converters\ValueSerializerFactory.cs" />
+    <Compile Include="Delegates.cs" />
     <Compile Include="DeserializeSession.cs" />
     <Compile Include="SerializerOptions.cs" />
     <Compile Include="StreamExtensions.cs" />

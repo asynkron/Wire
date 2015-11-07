@@ -10,8 +10,8 @@ namespace Wire.ValueSerializers
     public class ObjectSerializer : ValueSerializer
     {
         private readonly byte[] _manifest;
-        private Func<Stream, DeserializerSession, object> _reader;
-        private Action<Stream, object, SerializerSession> _writer;
+        private ValueReader _reader;
+        private ValueWriter _writer;
         public const byte Manifest = 255;
         public const byte TypeNameHeader = 1;
         public const byte TypeIdentifier = 2;
@@ -19,6 +19,9 @@ namespace Wire.ValueSerializers
         private volatile bool _isInitialized = false;
         public ObjectSerializer(Type type)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             Type = type;
             var typeNameBytes = Encoding.UTF8.GetBytes(type.AssemblyQualifiedName);
 
@@ -76,7 +79,7 @@ namespace Wire.ValueSerializers
             return Type;
         }
 
-        public void Initialize(Func<Stream, DeserializerSession, object> reader, Action<Stream, object, SerializerSession> writer)
+        public void Initialize(ValueReader reader, ValueWriter writer)
         {
             _reader = reader;
             _writer = writer;

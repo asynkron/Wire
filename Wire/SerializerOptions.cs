@@ -14,7 +14,9 @@ namespace Wire
             new ToSurrogateSerializerFactory(),
             new FromSurrogateSerializerFactory(),
             new ArraySerializerFactory(),
-            new EnumerableSerializerFactory()
+            new DictionarySerializerFactory(),
+            new EnumerableSerializerFactory(),
+            
         };
 
         internal readonly bool PreserveObjectReferences;
