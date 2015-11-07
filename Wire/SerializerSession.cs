@@ -40,13 +40,13 @@ namespace Wire
 
         public bool ShouldWriteTypeManifest(Type type)
         {
-            return !_typeToIdentifier.ContainsKey(type);
-        }
-
-        public void WriteTypeManifest(Type type)
-        {
-            _typeToIdentifier.Add(type, _nextTypeId);
-            _nextTypeId++;         
+            if (!_typeToIdentifier.ContainsKey(type))
+            {
+                _typeToIdentifier.Add(type, _nextTypeId);
+                _nextTypeId++;
+                return true;
+            }
+            return false;
         }
 
         public int GetTypeIdentifier(Type type)

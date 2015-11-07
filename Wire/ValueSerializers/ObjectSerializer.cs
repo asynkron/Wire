@@ -50,8 +50,7 @@ namespace Wire.ValueSerializers
         {
             if (session.ShouldWriteTypeManifest(type))
             {
-                stream.Write(_manifest);
-                session.WriteTypeManifest(type);
+                stream.Write(_manifest);               
             }
             else
             {
