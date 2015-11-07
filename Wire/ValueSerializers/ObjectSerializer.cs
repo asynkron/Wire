@@ -48,7 +48,17 @@ namespace Wire.ValueSerializers
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.Write(_manifest);
+            if (session.ShouldWriteTypeManifest(type))
+            {
+                stream.Write(_manifest);
+                session.WriteTypeManifest(type);
+            }
+            else
+            {
+                var typeIdentifier = session.GetTypeIdentifier(type);
+                stream.Write(new []{Manifest, TypeIdentifier});
+                stream.WriteInt32(typeIdentifier);
+            }
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
@@ -92,11 +102,15 @@ namespace Wire.ValueSerializers
             var x = stream.ReadByte();
             if (x == TypeNameHeader)
             {
-                return GetTypeFromManifestName(stream, session);
+                var type = GetTypeFromManifestName(stream, session);
+                session.TrackDeserializedType(type);
+                return type;
             }
             if (x == TypeIdentifier)
             {
-                return null;
+                var typeId = stream.ReadInt32(session);
+                var type = session.GetTypeFromTypeId(typeId);
+                return type;
             }
             throw new Exception("Unknown object type");
         }

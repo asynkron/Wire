@@ -20,11 +20,11 @@ namespace Wire.Converters
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
             ObjectSerializer arraySerializer = new ObjectSerializer(type);
-            var _elementType = type.GetElementType();
+            var elementType = type.GetElementType();
             arraySerializer.Initialize((stream, session) =>
             {
                 var length = stream.ReadInt32(session);
-                var array = Array.CreateInstance(_elementType, length); //create the array
+                var array = Array.CreateInstance(elementType, length); //create the array
 
                 for (var i = 0; i < length; i++)
                 {
@@ -35,14 +35,14 @@ namespace Wire.Converters
             }, (stream, arr, session) =>
             {
                 var array = arr as Array;
-                var elementSerializer = session.Serializer.GetSerializerByType(_elementType);
+                var elementSerializer = session.Serializer.GetSerializerByType(elementType);
                 stream.WriteInt32(array.Length);
                 var preserveObjectReferences = session.Serializer.Options.PreserveObjectReferences;
 
                 for (var i = 0; i < array.Length; i++) //write the elements
                 {
                     var value = array.GetValue(i);
-                    stream.WriteObject(value, _elementType, elementSerializer, preserveObjectReferences, session);
+                    stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
                 }
             });
             typeMapping.TryAdd(type, arraySerializer);

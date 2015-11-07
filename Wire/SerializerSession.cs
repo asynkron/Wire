@@ -8,15 +8,18 @@ namespace Wire
         private readonly byte[] _buffer;
         private readonly Dictionary<int, object> _objectById;
         private readonly Dictionary<object, int> _objects;
-        private readonly Dictionary<Type, int> _typeIdentifiers;
+        private readonly Dictionary<Type, int> _typeToIdentifier;
+        private readonly Dictionary<int, Type> _identifierToType;
         public readonly Serializer Serializer;
         private int _nextObjectId;
+        private int _nextTypeId;
 
         public SerializerSession(Serializer serializer)
         {
             Serializer = serializer;
             _buffer = new byte[8];
-            _typeIdentifiers = new Dictionary<Type, int>();
+            _typeToIdentifier = new Dictionary<Type, int>();
+            _identifierToType = new Dictionary<int, Type>();
             if (serializer.Options.PreserveObjectReferences)
             {
                 _objects = new Dictionary<object, int>();
@@ -57,6 +60,33 @@ namespace Wire
         public bool TryGetObjectId(object obj, out int objectId)
         {
             return _objects.TryGetValue(obj, out objectId);
+        }
+
+        public void TrackDeserializedType(Type type)
+        {
+            _identifierToType.Add(_nextTypeId,type);
+            _nextTypeId++;
+        }
+
+        public Type GetTypeFromTypeId(int typeId)
+        {
+            return _identifierToType[typeId];
+        }
+
+        public bool ShouldWriteTypeManifest(Type type)
+        {
+            return !_typeToIdentifier.ContainsKey(type);
+        }
+
+        public void WriteTypeManifest(Type type)
+        {
+            _typeToIdentifier.Add(type,_nextTypeId);
+            _nextTypeId++;
+        }
+
+        public int GetTypeIdentifier(Type type)
+        {
+            return _typeToIdentifier[type];
         }
     }
 }
