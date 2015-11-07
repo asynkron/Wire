@@ -45,6 +45,7 @@
     <Compile Include="ByteArrayEqualityComparer.cs" />
     <Compile Include="CodeGenerator.cs" />
     <Compile Include="Converters\ArraySerializerFactory.cs" />
+    <Compile Include="Converters\DefaultDictionarySerializerFactory.cs" />
     <Compile Include="Converters\DictionarySerializerFactory.cs" />
     <Compile Include="Converters\EnumerableSerializerFactory.cs" />
     <Compile Include="Converters\FromSurrogateSerializerFactory.cs" />
