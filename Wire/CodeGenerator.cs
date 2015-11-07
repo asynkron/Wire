@@ -28,7 +28,7 @@ namespace Wire
             var fields = GetFieldInfosForType(type);
 
             var fieldWriters = new List<Action<Stream, object, SerializerSession>>();
-            var fieldReaders = new List<Action<Stream, object, SerializerSession>>();
+            var fieldReaders = new List<Action<Stream, object, DeserializerSession>>();
             var fieldNames = new List<byte[]>();
 
             foreach (var field in fields)
@@ -96,10 +96,10 @@ namespace Wire
             generatedSerializer.Initialize(reader, writer);
         }
 
-        private static Func<Stream, SerializerSession, object> MakeReader(Serializer serializer, Type type, bool preserveObjectReferences, FieldInfo[] fields,
-            List<byte[]> fieldNames, List<Action<Stream, object, SerializerSession>> fieldReaders)
+        private static Func<Stream, DeserializerSession, object> MakeReader(Serializer serializer, Type type, bool preserveObjectReferences, FieldInfo[] fields,
+            List<byte[]> fieldNames, List<Action<Stream, object, DeserializerSession>> fieldReaders)
         {
-            Func<Stream, SerializerSession, object> reader = (stream, session) =>
+            Func<Stream, DeserializerSession, object> reader = (stream, session) =>
             {
                 //create instance without calling constructor
                 var instance = FormatterServices.GetUninitializedObject(type);
@@ -196,7 +196,7 @@ namespace Wire
             return fields;
         }
 
-        private static Action<Stream, object, SerializerSession> GenerateFieldInfoDeserializer(Serializer serializer,
+        private static Action<Stream, object, DeserializerSession> GenerateFieldInfoDeserializer(Serializer serializer,
             Type type, FieldInfo field)
         {
             if (serializer == null)
@@ -236,7 +236,7 @@ namespace Wire
                 //if they are included, we need to be able to skip past unknown property data
                 //e.g. if sender have added a new property that the receiveing end does not yet know about
                 //which we cannot do w/o a manifest
-                Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
+                Action<Stream, object, DeserializerSession> fieldReader = (stream, o, session) =>
                 {
                     var value = s.ReadValue(stream, session);
                     setter(o, value);
@@ -245,7 +245,7 @@ namespace Wire
             }
             else
             {
-                Action<Stream, object, SerializerSession> fieldReader = (stream, o, session) =>
+                Action<Stream, object, DeserializerSession> fieldReader = (stream, o, session) =>
                 {
                     var value = stream.ReadObject(session);
                     setter(o, value);

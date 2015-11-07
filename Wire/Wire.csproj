@@ -49,6 +49,7 @@
     <Compile Include="Converters\FromSurrogateSerializerFactory.cs" />
     <Compile Include="Converters\ToSurrogateSerializerFactory.cs" />
     <Compile Include="Converters\ValueSerializerFactory.cs" />
+    <Compile Include="DeserializeSession.cs" />
     <Compile Include="SerializerOptions.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="Surrogate.cs" />

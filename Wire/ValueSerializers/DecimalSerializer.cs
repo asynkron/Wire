@@ -22,7 +22,7 @@ namespace Wire.ValueSerializers
             stream.WriteInt32(data[3]);
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
             var parts = new[]
             {

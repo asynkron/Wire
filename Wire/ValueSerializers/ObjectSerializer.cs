@@ -10,7 +10,7 @@ namespace Wire.ValueSerializers
     public class ObjectSerializer : ValueSerializer
     {
         private readonly byte[] _manifest;
-        private Func<Stream, SerializerSession, object> _reader;
+        private Func<Stream, DeserializerSession, object> _reader;
         private Action<Stream, object, SerializerSession> _writer;
         public const byte Manifest = 255;
         public const byte TypeNameHeader = 1;
@@ -67,7 +67,7 @@ namespace Wire.ValueSerializers
             _writer(stream, value, session);
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
             return _reader(stream, session);
         }
@@ -77,7 +77,7 @@ namespace Wire.ValueSerializers
             return Type;
         }
 
-        public void Initialize(Func<Stream, SerializerSession, object> reader, Action<Stream, object, SerializerSession> writer)
+        public void Initialize(Func<Stream, DeserializerSession, object> reader, Action<Stream, object, SerializerSession> writer)
         {
             _reader = reader;
             _writer = writer;
@@ -86,7 +86,7 @@ namespace Wire.ValueSerializers
 
         private static readonly ConcurrentDictionary<byte[], Type> TypeNameLookup = new ConcurrentDictionary<byte[], Type>(new ByteArrayEqualityComparer());
 
-        private static Type GetTypeFromManifestName(Stream stream, SerializerSession session)
+        private static Type GetTypeFromManifestName(Stream stream, DeserializerSession session)
         {
             var bytes = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
 
@@ -97,7 +97,7 @@ namespace Wire.ValueSerializers
             });
         }
 
-        public static Type GetTypeFromManifest(Stream stream, SerializerSession session)
+        public static Type GetTypeFromManifest(Stream stream, DeserializerSession session)
         {
             var x = stream.ReadByte();
             if (x == TypeNameHeader)

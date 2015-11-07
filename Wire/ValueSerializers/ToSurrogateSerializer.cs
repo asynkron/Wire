@@ -27,7 +27,7 @@ namespace Wire.ValueSerializers
             stream.WriteObject(surrogateValue, _type, _surrogateSerializer, session.Serializer.Options.PreserveObjectReferences, session);
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
             throw new NotSupportedException();
         }

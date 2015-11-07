@@ -19,7 +19,7 @@ namespace Wire.ValueSerializers
             stream.Write(bytes);
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
             var size = sizeof (float);
             var buffer = session.GetBuffer(size);

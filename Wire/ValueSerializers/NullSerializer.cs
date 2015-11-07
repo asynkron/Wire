@@ -17,7 +17,7 @@ namespace Wire.ValueSerializers
         {
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
             return null;
         }

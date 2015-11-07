@@ -8,7 +8,7 @@ namespace Wire.ValueSerializers
         public static readonly ConsistentArraySerializer Instance = new ConsistentArraySerializer();
         public const byte Manifest = 254;
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
             var elementSerializer = session.Serializer.GetDeserializerByManifest(stream, session);
             //read the element type

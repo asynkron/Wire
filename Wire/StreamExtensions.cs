@@ -12,7 +12,7 @@ namespace Wire
             self.Write(bytes, 0, bytes.Length);
         }
 
-        public static int ReadInt32(this Stream self, SerializerSession session)
+        public static int ReadInt32(this Stream self, DeserializerSession session)
         {
             var buffer = session.GetBuffer(4);
             self.Read(buffer, 0, 4);
@@ -20,7 +20,7 @@ namespace Wire
             return res;
         }
 
-        public static byte[] ReadLengthEncodedByteArray(this Stream self, SerializerSession session)
+        public static byte[] ReadLengthEncodedByteArray(this Stream self, DeserializerSession session)
         {
             var length = self.ReadInt32(session);
             var buffer = session.GetBuffer(length);
@@ -72,7 +72,7 @@ namespace Wire
             }
         }
 
-        public static object ReadObject(this Stream stream, SerializerSession session)
+        public static object ReadObject(this Stream stream, DeserializerSession session)
         {
             var s = session.Serializer.GetDeserializerByManifest(stream, session);
             var value = s.ReadValue(stream, session); //read the element value

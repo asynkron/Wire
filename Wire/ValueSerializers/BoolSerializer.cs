@@ -19,7 +19,7 @@ namespace Wire.ValueSerializers
             stream.WriteByte((byte) (b ? 1 : 0));
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
             var b = stream.ReadByte();
             return b != 0;

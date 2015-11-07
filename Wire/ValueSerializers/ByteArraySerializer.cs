@@ -19,7 +19,7 @@ namespace Wire.ValueSerializers
             stream.WriteLengthEncodedByteArray(bytes);
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
             return stream.ReadLengthEncodedByteArray(session);
         }

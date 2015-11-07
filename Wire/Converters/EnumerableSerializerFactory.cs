@@ -60,7 +60,7 @@ namespace Wire.Converters
                 }
             };
 
-            Func<Stream, SerializerSession,object>  reader = (stream, session) =>
+            Func<Stream, DeserializerSession,object>  reader = (stream, session) =>
             {
                 var count = stream.ReadInt32(session);
                 var items = Array.CreateInstance(elementType, count);

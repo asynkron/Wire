@@ -136,14 +136,14 @@ namespace Wire
 
         public T Deserialize<T>(Stream stream)
         {
-            var session = new SerializerSession(this);
+            var session = new DeserializerSession(this);
             var s = GetDeserializerByManifest(stream, session);
             return (T) s.ReadValue(stream, session);
         }
 
         public object Deserialize(Stream stream)
         {
-            var session = new SerializerSession(this);
+            var session = new DeserializerSession(this);
             var s = GetDeserializerByManifest(stream, session);
             return s.ReadValue(stream, session);
         }
@@ -301,7 +301,7 @@ namespace Wire
             return serializer;
         }
 
-        public ValueSerializer GetDeserializerByManifest(Stream stream, SerializerSession session)
+        public ValueSerializer GetDeserializerByManifest(Stream stream, DeserializerSession session)
         {            
             var first = stream.ReadByte();
             switch (first)

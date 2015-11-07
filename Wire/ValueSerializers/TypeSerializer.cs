@@ -29,7 +29,7 @@ namespace Wire.ValueSerializers
             }
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
             var length = (int) Int32Serializer.Instance.ReadValue(stream, session);
             if (length == -1)
