@@ -38,7 +38,7 @@ namespace Wire.Converters
             ValueReader reader = (stream, session) =>
             {
                 var count = stream.ReadInt32(session);
-                var instance = (IDictionary)Activator.CreateInstance(type);
+                var instance = (IDictionary)Activator.CreateInstance(type,count);
                 for (int i = 0; i < count; i++)
                 {
                     var entry = (DictionaryEntry)stream.ReadObject(session);
