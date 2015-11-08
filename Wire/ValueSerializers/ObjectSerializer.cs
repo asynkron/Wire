@@ -59,7 +59,7 @@ namespace Wire.ValueSerializers
             {
                 var typeIdentifier = session.GetTypeIdentifier(type);
                 stream.Write(new []{Manifest, TypeIdentifier});
-                stream.WriteInt32(typeIdentifier);
+                stream.WriteUInt16((ushort)typeIdentifier);
             }
         }
 
@@ -110,7 +110,7 @@ namespace Wire.ValueSerializers
             }
             if (x == TypeIdentifier)
             {
-                var typeId = stream.ReadInt32(session);
+                var typeId = stream.ReadUInt16(session);
                 var type = session.GetTypeFromTypeId(typeId);
                 return type;
             }

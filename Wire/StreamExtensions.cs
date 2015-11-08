@@ -6,6 +6,20 @@ namespace Wire
 {
     public static class StreamExtensions
     {
+        public static int ReadUInt16(this Stream self, DeserializerSession session)
+        {
+            var buffer = session.GetBuffer(2);
+            self.Read(buffer, 0, 2);
+            var res = BitConverter.ToUInt16(buffer, 0);
+            return res;
+        }
+
+        public static void WriteUInt16(this Stream self, UInt16 value)
+        {
+            var bytes = BitConverter.GetBytes(value);
+            self.Write(bytes, 0, bytes.Length);
+        }
+
         public static void WriteInt32(this Stream self, int value)
         {
             var bytes = BitConverter.GetBytes(value);
