@@ -12,9 +12,8 @@ namespace Wire.ValueSerializers
         private readonly byte[] _manifest;
         private ValueReader _reader;
         private ValueWriter _writer;
-        public const byte Manifest = 255;
-        public const byte TypeNameHeader = 1;
-        public const byte TypeIdentifier = 2;
+        public const byte ManifestFull = 255;
+        public const byte ManifestIndex = 254;
 
         private volatile bool _isInitialized = false;
         public ObjectSerializer(Type type)
@@ -28,7 +27,7 @@ namespace Wire.ValueSerializers
             //precalculate the entire manifest for this serializer
             //this helps us to minimize calls to Stream.Write/WriteByte 
             _manifest =
-                new[] {Manifest, TypeNameHeader}
+                new[] {ManifestFull}
                     .Concat(BitConverter.GetBytes(typeNameBytes.Length))
                     .Concat(typeNameBytes)
                     .ToArray(); //serializer id 255 + assembly qualified name
@@ -58,7 +57,7 @@ namespace Wire.ValueSerializers
             else
             {
                 var typeIdentifier = session.GetTypeIdentifier(type);
-                stream.Write(new []{Manifest, TypeIdentifier});
+                stream.Write(new []{ManifestIndex});
                 stream.WriteUInt16((ushort)typeIdentifier);
             }
         }
@@ -99,22 +98,19 @@ namespace Wire.ValueSerializers
             });
         }
 
-        public static Type GetTypeFromManifest(Stream stream, DeserializerSession session)
+        public static Type GetTypeFromManifestFull(Stream stream, DeserializerSession session)
         {
-            var x = stream.ReadByte();
-            if (x == TypeNameHeader)
-            {
-                var type = GetTypeFromManifestName(stream, session);
-                session.TrackDeserializedType(type);
-                return type;
-            }
-            if (x == TypeIdentifier)
-            {
-                var typeId = stream.ReadUInt16(session);
-                var type = session.GetTypeFromTypeId(typeId);
-                return type;
-            }
-            throw new Exception("Unknown object type");
+            var type = GetTypeFromManifestName(stream, session);
+            session.TrackDeserializedType(type);
+            return type;
+
+        }
+
+        public static Type GetTypeFromManifestIndex(Stream stream, DeserializerSession session)
+        {
+            var typeId = stream.ReadUInt16(session);
+            var type = session.GetTypeFromTypeId(typeId);
+            return type;
         }
     }
 }

@@ -349,11 +349,16 @@ namespace Wire
                     return ObjectReferenceSerializer.Instance;
                 case ConsistentArraySerializer.Manifest:
                     return ConsistentArraySerializer.Instance;
-                case ObjectSerializer.Manifest:
+                case ObjectSerializer.ManifestFull:
                 {
-                    var type = ObjectSerializer.GetTypeFromManifest(stream, session);
+                    var type = ObjectSerializer.GetTypeFromManifestFull(stream, session);
                     return GetCustomDeserialzer(type);
                 }
+                case ObjectSerializer.ManifestIndex:
+                    {
+                        var type = ObjectSerializer.GetTypeFromManifestIndex(stream, session);
+                        return GetCustomDeserialzer(type);
+                    }
                 default:
                     throw new NotSupportedException("Unknown manifest value");
             }
