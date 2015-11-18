@@ -30,12 +30,6 @@ namespace Wire.Converters
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var x = type
-                .GetInterfaces()
-                .First(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof (IDictionary<,>));
-            var keyType = x.GetGenericArguments()[0];
-            var valueType = x.GetGenericArguments()[1];
-
             var ser = new ObjectSerializer(type);
             var elementSerializer = serializer.GetSerializerByType(typeof (DictionaryEntry));
 
