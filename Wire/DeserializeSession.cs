@@ -6,8 +6,8 @@ namespace Wire
     public class DeserializerSession
     {
         private readonly byte[] _buffer;
-        private readonly Dictionary<int, object> _objectById;
         private readonly Dictionary<int, Type> _identifierToType;
+        private readonly Dictionary<int, object> _objectById;
         public readonly Serializer Serializer;
         private int _nextObjectId;
         private int _nextTypeId;

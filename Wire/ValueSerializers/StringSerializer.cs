@@ -6,8 +6,8 @@ namespace Wire.ValueSerializers
 {
     public class StringSerializer : ValueSerializer
     {
-        public static readonly StringSerializer Instance = new StringSerializer();
         public const byte Manifest = 7;
+        public static readonly StringSerializer Instance = new StringSerializer();
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {

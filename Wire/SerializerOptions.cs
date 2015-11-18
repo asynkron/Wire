@@ -16,8 +16,8 @@ namespace Wire
             //order is important, try dictionaries before enumerables as dicts are also enumerable
             new DefaultDictionarySerializerFactory(),
             new DictionarySerializerFactory(),
-            new ArraySerializerFactory(),            
-            new EnumerableSerializerFactory(),            
+            new ArraySerializerFactory(),
+            new EnumerableSerializerFactory()
         };
 
         internal readonly bool PreserveObjectReferences;

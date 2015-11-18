@@ -5,8 +5,8 @@ namespace Wire.ValueSerializers
 {
     public class BoolSerializer : ValueSerializer
     {
-        public static readonly BoolSerializer Instance = new BoolSerializer();
         public const byte Manifest = 6;
+        public static readonly BoolSerializer Instance = new BoolSerializer();
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {

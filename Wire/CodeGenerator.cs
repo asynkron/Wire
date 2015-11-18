@@ -96,7 +96,8 @@ namespace Wire
             generatedSerializer.Initialize(reader, writer);
         }
 
-        private static ValueReader MakeReader(Serializer serializer, Type type, bool preserveObjectReferences, FieldInfo[] fields,
+        private static ValueReader MakeReader(Serializer serializer, Type type, bool preserveObjectReferences,
+            FieldInfo[] fields,
             List<byte[]> fieldNames, List<Action<Stream, object, DeserializerSession>> fieldReaders)
         {
             ValueReader reader = (stream, session) =>

@@ -5,8 +5,8 @@ namespace Wire.ValueSerializers
 {
     public class DecimalSerializer : ValueSerializer
     {
-        public static readonly DecimalSerializer Instance = new DecimalSerializer();
         public const byte Manifest = 14;
+        public static readonly DecimalSerializer Instance = new DecimalSerializer();
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {

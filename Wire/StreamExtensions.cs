@@ -14,7 +14,7 @@ namespace Wire
             return res;
         }
 
-        public static void WriteUInt16(this Stream self, UInt16 value)
+        public static void WriteUInt16(this Stream self, ushort value)
         {
             var bytes = BitConverter.GetBytes(value);
             self.Write(bytes, 0, bytes.Length);

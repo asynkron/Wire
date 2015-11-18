@@ -19,7 +19,7 @@ namespace Wire.Converters
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            ObjectSerializer arraySerializer = new ObjectSerializer(type);
+            var arraySerializer = new ObjectSerializer(type);
             var elementType = type.GetElementType();
             arraySerializer.Initialize((stream, session) =>
             {

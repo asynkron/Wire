@@ -5,8 +5,8 @@ namespace Wire.ValueSerializers
 {
     public class DoubleSerializer : ValueSerializer
     {
-        public static readonly DoubleSerializer Instance = new DoubleSerializer();
         public const byte Manifest = 13;
+        public static readonly DoubleSerializer Instance = new DoubleSerializer();
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {

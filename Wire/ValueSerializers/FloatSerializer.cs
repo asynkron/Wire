@@ -5,8 +5,8 @@ namespace Wire.ValueSerializers
 {
     public class FloatSerializer : ValueSerializer
     {
-        public static readonly FloatSerializer Instance = new FloatSerializer();
         public const byte Manifest = 12;
+        public static readonly FloatSerializer Instance = new FloatSerializer();
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {

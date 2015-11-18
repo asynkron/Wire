@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Wire.ValueSerializers;
 
 namespace Wire
@@ -14,12 +13,12 @@ namespace Wire
         private static readonly Type Int64Type = typeof (long);
         private static readonly Type Int16Type = typeof (short);
 
-        private static readonly Type UInt32Type = typeof(uint);
-        private static readonly Type UInt64Type = typeof(ulong);
-        private static readonly Type UInt16Type = typeof(ushort);
+        private static readonly Type UInt32Type = typeof (uint);
+        private static readonly Type UInt64Type = typeof (ulong);
+        private static readonly Type UInt16Type = typeof (ushort);
 
         private static readonly Type ByteType = typeof (byte);
-        private static readonly Type SByteType = typeof(sbyte);
+        private static readonly Type SByteType = typeof (sbyte);
         private static readonly Type BoolType = typeof (bool);
         private static readonly Type DateTimeType = typeof (DateTime);
         private static readonly Type StringType = typeof (string);
@@ -31,7 +30,7 @@ namespace Wire
         private static readonly Type ByteArrayType = typeof (byte[]);
         private static readonly Type TypeType = typeof (Type);
         private static readonly Type RuntimeType = Type.GetType("System.RuntimeType");
-        private static readonly Assembly CoreaAssembly = typeof (int).Assembly;
+        private static readonly Assembly CoreAssembly = typeof (int).Assembly;
 
         private readonly ConcurrentDictionary<Type, ValueSerializer> _deserializers =
             new ConcurrentDictionary<Type, ValueSerializer>();
@@ -41,11 +40,11 @@ namespace Wire
 
         internal readonly SerializerOptions Options;
 
-        public Serializer() : this ( new SerializerOptions())
+        public Serializer() : this(new SerializerOptions())
         {
         }
 
-        public Serializer(SerializerOptions options) 
+        public Serializer(SerializerOptions options)
         {
             Options = options;
         }
@@ -55,14 +54,11 @@ namespace Wire
             return type == Int32Type ||
                    type == Int64Type ||
                    type == Int16Type ||
-
                    type == UInt32Type ||
                    type == UInt64Type ||
                    type == UInt16Type ||
-
                    type == ByteType ||
                    type == SByteType ||
-
                    type == DateTimeType ||
                    type == BoolType ||
                    type == StringType ||
@@ -157,7 +153,7 @@ namespace Wire
             //    return tmp;
             //}
 
-            if (ReferenceEquals(type.Assembly, CoreaAssembly))
+            if (ReferenceEquals(type.Assembly, CoreAssembly))
             {
                 if (type == StringType)
                     return StringSerializer.Instance;
@@ -230,7 +226,7 @@ namespace Wire
 
         public ValueSerializer GetDeserializerByType(Type type)
         {
-            if (ReferenceEquals(type.Assembly, CoreaAssembly))
+            if (ReferenceEquals(type.Assembly, CoreAssembly))
             {
                 if (type == StringType)
                     return StringSerializer.Instance;
@@ -302,7 +298,7 @@ namespace Wire
         }
 
         public ValueSerializer GetDeserializerByManifest(Stream stream, DeserializerSession session)
-        {            
+        {
             var first = stream.ReadByte();
             switch (first)
             {
@@ -335,7 +331,7 @@ namespace Wire
                     return DecimalSerializer.Instance;
                 case CharSerializer.Manifest:
                     return CharSerializer.Instance;
-                case TypeSerializer.Manifest:                
+                case TypeSerializer.Manifest:
                     return TypeSerializer.Instance;
                 case UInt16Serializer.Manifest:
                     return UInt16Serializer.Instance;
@@ -355,13 +351,13 @@ namespace Wire
                     return GetCustomDeserialzer(type);
                 }
                 case ObjectSerializer.ManifestIndex:
-                    {
-                        var type = ObjectSerializer.GetTypeFromManifestIndex(stream, session);
-                        return GetCustomDeserialzer(type);
-                    }
+                {
+                    var type = ObjectSerializer.GetTypeFromManifestIndex(stream, session);
+                    return GetCustomDeserialzer(type);
+                }
                 default:
                     throw new NotSupportedException("Unknown manifest value");
             }
-        }        
+        }
     }
 }

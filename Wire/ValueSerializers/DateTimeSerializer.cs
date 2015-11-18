@@ -5,8 +5,8 @@ namespace Wire.ValueSerializers
 {
     public class DateTimeSerializer : ValueSerializer
     {
-        public static readonly DateTimeSerializer Instance = new DateTimeSerializer();
         public const byte Manifest = 5;
+        public static readonly DateTimeSerializer Instance = new DateTimeSerializer();
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {

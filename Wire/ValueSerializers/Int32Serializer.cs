@@ -5,8 +5,8 @@ namespace Wire.ValueSerializers
 {
     public class Int32Serializer : ValueSerializer
     {
-        public static readonly Int32Serializer Instance = new Int32Serializer();
         public const byte Manifest = 8;
+        public static readonly Int32Serializer Instance = new Int32Serializer();
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {

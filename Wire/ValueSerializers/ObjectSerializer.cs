@@ -9,13 +9,18 @@ namespace Wire.ValueSerializers
 {
     public class ObjectSerializer : ValueSerializer
     {
-        private readonly byte[] _manifest;
-        private ValueReader _reader;
-        private ValueWriter _writer;
         public const byte ManifestFull = 255;
         public const byte ManifestIndex = 254;
 
-        private volatile bool _isInitialized = false;
+        private static readonly ConcurrentDictionary<byte[], Type> TypeNameLookup =
+            new ConcurrentDictionary<byte[], Type>(new ByteArrayEqualityComparer());
+
+        private readonly byte[] _manifest;
+
+        private volatile bool _isInitialized;
+        private ValueReader _reader;
+        private ValueWriter _writer;
+
         public ObjectSerializer(Type type)
         {
             if (type == null)
@@ -52,19 +57,18 @@ namespace Wire.ValueSerializers
         {
             if (session.ShouldWriteTypeManifest(type))
             {
-                stream.Write(_manifest);               
+                stream.Write(_manifest);
             }
             else
             {
                 var typeIdentifier = session.GetTypeIdentifier(type);
-                stream.Write(new []{ManifestIndex});
-                stream.WriteUInt16((ushort)typeIdentifier);
+                stream.Write(new[] {ManifestIndex});
+                stream.WriteUInt16((ushort) typeIdentifier);
             }
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
-
             _writer(stream, value, session);
         }
 
@@ -85,11 +89,9 @@ namespace Wire.ValueSerializers
             _isInitialized = true;
         }
 
-        private static readonly ConcurrentDictionary<byte[], Type> TypeNameLookup = new ConcurrentDictionary<byte[], Type>(new ByteArrayEqualityComparer());
-
         private static Type GetTypeFromManifestName(Stream stream, DeserializerSession session)
         {
-            var bytes = (byte[])ByteArraySerializer.Instance.ReadValue(stream, session);
+            var bytes = (byte[]) ByteArraySerializer.Instance.ReadValue(stream, session);
 
             return TypeNameLookup.GetOrAdd(bytes, b =>
             {
@@ -103,7 +105,6 @@ namespace Wire.ValueSerializers
             var type = GetTypeFromManifestName(stream, session);
             session.TrackDeserializedType(type);
             return type;
-
         }
 
         public static Type GetTypeFromManifestIndex(Stream stream, DeserializerSession session)

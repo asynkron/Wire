@@ -5,8 +5,8 @@ namespace Wire.ValueSerializers
 {
     public class UInt16Serializer : ValueSerializer
     {
-        public static readonly UInt16Serializer Instance = new UInt16Serializer();
         public const byte Manifest = 17;
+        public static readonly UInt16Serializer Instance = new UInt16Serializer();
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
@@ -15,13 +15,13 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
-            var bytes = BitConverter.GetBytes((UInt16)value);
+            var bytes = BitConverter.GetBytes((ushort) value);
             stream.Write(bytes);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
-            var size = sizeof(UInt16);
+            var size = sizeof (ushort);
             var buffer = session.GetBuffer(size);
             stream.Read(buffer, 0, size);
             return BitConverter.ToUInt16(buffer, 0);
@@ -29,7 +29,7 @@ namespace Wire.ValueSerializers
 
         public override Type GetElementType()
         {
-            return typeof(UInt16);
+            return typeof (ushort);
         }
     }
 }

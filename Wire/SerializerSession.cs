@@ -29,10 +29,10 @@ namespace Wire
             }
             catch (Exception x)
             {
-                throw new Exception($"Error tracking object ",x);
+                throw new Exception($"Error tracking object ", x);
             }
-        }        
-            
+        }
+
         public bool TryGetObjectId(object obj, out int objectId)
         {
             return _objects.TryGetValue(obj, out objectId);
