@@ -51,7 +51,6 @@ namespace Wire.Tests
             CollectionAssert.AreEqual(expected.ToList(), actual.ToList());
         }
 
-        //TODO: Dictionary causes stack overflow on serialization right now
         [TestMethod]
         public void CanSerializeDictionary()
         {
