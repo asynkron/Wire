@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using Wire.ValueSerializers;
 
 namespace Wire.Converters
@@ -28,18 +26,26 @@ namespace Wire.Converters
             {
                 var dict = stream.ReadObject(session) as Dictionary<string, object>;
                 var info = new SerializationInfo(type,new FormatterConverter());
+                // ReSharper disable once PossibleNullReferenceException
                 foreach (var item in dict)
                 {
                     info.AddValue(item.Key,item.Value);
                 }
-
-                return null;
+                
+                // protected Dictionary(SerializationInfo info, StreamingContext context);
+                var flags = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Default;
+                var ctor = type.GetConstructor(flags,null, new Type[] { typeof (SerializationInfo), typeof (StreamingContext)},null);
+                var instance = ctor.Invoke(new object[] {info, new StreamingContext()});
+                var deserializationCallback = instance as IDeserializationCallback;
+                deserializationCallback?.OnDeserialization(this);
+                return instance;
             };
 
             ValueWriter writer = (stream, o, session) =>
             {
                 var info = new SerializationInfo(type, new FormatterConverter());
                 var serializable = o as ISerializable;
+                // ReSharper disable once PossibleNullReferenceException
                 serializable.GetObjectData(info,new StreamingContext());
                 var dict = new Dictionary<string, object>();
                 foreach (var item in info)

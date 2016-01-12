@@ -24,7 +24,6 @@ namespace Wire.Tests
             }
         }
 
-        //TODO: HashSet causes stack overflow on serialization right now
         [TestMethod]
         public void CanSerializeSet()
         {
@@ -48,6 +47,32 @@ namespace Wire.Tests
             Serialize(expected);
             Reset();
             var actual = Deserialize<HashSet<Something>>();
+            CollectionAssert.AreEqual(expected.ToList(), actual.ToList());
+        }
+
+        [TestMethod]
+        public void CanStack()
+        {
+            var expected = new Stack<Something>();
+            expected.Push(new Something
+            {
+                BoolProp = true,
+                Else = new Else
+                {
+                    Name = "Yoho"
+                },
+                Int32Prop = 999,
+                StringProp = "Yesbox!"
+            });
+
+
+            expected.Push(new Something());
+
+            expected.Push(new Something());
+
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<Stack<Something>>();
             CollectionAssert.AreEqual(expected.ToList(), actual.ToList());
         }
 

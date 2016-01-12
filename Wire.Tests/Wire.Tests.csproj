@@ -69,6 +69,7 @@
     <Compile Include="CyclicTests.cs" />
     <Compile Include="FSharpTests.cs" />
     <Compile Include="ImmutableCollectionsTests.cs" />
+    <Compile Include="ISerializableTests.cs" />
     <Compile Include="PrimitivesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Something.cs" />
