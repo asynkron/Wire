@@ -1,7 +1,29 @@
+using System;
+
 namespace Wire
 {
     public static class Utils
     {
+        private static string CoreAssemblyName = GetCoreAssemblyName();
+
+        private static string GetCoreAssemblyName()
+        {
+            var name = 1.GetType().AssemblyQualifiedName;
+            var part = name.Substring(name.IndexOf(", Version", StringComparison.Ordinal));
+            return part;
+        }
+
+        public static string GetShortAssemblyQualifiedName(this Type self)
+        {
+            var name = self.AssemblyQualifiedName.Replace(CoreAssemblyName, ",%core%");
+            return name;
+        }
+
+        public static string ToQualifiedAssemblyName(string shortName)
+        {
+            return shortName.Replace(",%core%", CoreAssemblyName);
+        }
+
         public static unsafe bool UnsafeCompare(byte[] a1, byte[] a2)
         {
             if (a1 == null || a2 == null || a1.Length != a2.Length)

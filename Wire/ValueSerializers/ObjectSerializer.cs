@@ -11,6 +11,7 @@ namespace Wire.ValueSerializers
     {
         public const byte ManifestFull = 255;
         public const byte ManifestIndex = 254;
+      
 
         private static readonly ConcurrentDictionary<byte[], Type> TypeNameLookup =
             new ConcurrentDictionary<byte[], Type>(new ByteArrayEqualityComparer());
@@ -27,9 +28,10 @@ namespace Wire.ValueSerializers
                 throw new ArgumentNullException(nameof(type));
 
             Type = type;
+            var typeName = type.GetShortAssemblyQualifiedName();
             // ReSharper disable once PossibleNullReferenceException
             // ReSharper disable once AssignNullToNotNullAttribute
-            var typeNameBytes = Encoding.UTF8.GetBytes(type.AssemblyQualifiedName);
+            var typeNameBytes = Encoding.UTF8.GetBytes(typeName);
 
             //precalculate the entire manifest for this serializer
             //this helps us to minimize calls to Stream.Write/WriteByte 
@@ -97,7 +99,8 @@ namespace Wire.ValueSerializers
 
             return TypeNameLookup.GetOrAdd(bytes, b =>
             {
-                var typename = Encoding.UTF8.GetString(b);
+                var shortName = Encoding.UTF8.GetString(b);
+                var typename = Utils.ToQualifiedAssemblyName(shortName);
                 return Type.GetType(typename, true);
             });
         }

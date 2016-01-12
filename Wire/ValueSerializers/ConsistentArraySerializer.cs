@@ -36,17 +36,30 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
-            var array = value as Array;
             var elementType = value.GetType().GetElementType();
             var elementSerializer = session.Serializer.GetSerializerByType(elementType);
             elementSerializer.WriteManifest(stream, elementType, session); //write array element type
             // ReSharper disable once PossibleNullReferenceException
-            stream.WriteInt32(array.Length);
-            for (var i = 0; i < array.Length; i++) //write the elements
+            WriteValues((dynamic)value, stream,elementSerializer,session);
+        }
+
+        private static void WriteValues<T>(T[] array, Stream stream, ValueSerializer elementSerializer, SerializerSession session)
+        {
+            stream.WriteInt32(array.Length);           
+            for (int i = 0; i < array.Length; i++)
             {
-                var elementValue = array.GetValue(i);
-                elementSerializer.WriteValue(stream, elementValue, session);
+                var value = array[i];
+                elementSerializer.WriteValue(stream, value, session);
             }
+        }
+        private static T[] ReadValues<T>(int length, Stream stream, DeserializerSession session, T[] array)
+        {
+            for (var i = 0; i < length; i++)
+            {
+                var value = (T)stream.ReadObject(session);
+                array[i] = value;
+            }
+            return array;
         }
     }
 }

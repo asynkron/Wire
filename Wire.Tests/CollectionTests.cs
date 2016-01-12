@@ -51,7 +51,7 @@ namespace Wire.Tests
         }
 
         [TestMethod]
-        public void CanStack()
+        public void CanSerializeStack()
         {
             var expected = new Stack<Something>();
             expected.Push(new Something
