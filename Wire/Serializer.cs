@@ -210,7 +210,7 @@ namespace Wire
                     return TypeSerializer.Instance;
             }
 
-            if (type.IsArray)
+            if (type.IsArray && type.GetArrayRank() == 1)
             {
                 var elementType = type.GetElementType();
                 if (IsPrimitiveType(elementType))
@@ -283,7 +283,7 @@ namespace Wire
                     return TypeSerializer.Instance;
             }
 
-            if (type.IsArray)
+            if (type.IsArray && type.GetArrayRank() == 1)
             {
                 var elementType = type.GetElementType();
                 if (IsPrimitiveType(elementType))

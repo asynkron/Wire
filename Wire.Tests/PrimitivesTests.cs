@@ -7,6 +7,54 @@ namespace Wire.Tests
     public class PrimitivesTest : TestBase
     {
         [TestMethod]
+        public void CanSerializeTuple1()
+        {
+            SerializeAndAssert(Tuple.Create("abc"));
+        }
+
+        [TestMethod]
+        public void CanSerializeTuple2()
+        {
+            SerializeAndAssert(Tuple.Create(1,123));
+        }
+
+        [TestMethod]
+        public void CanSerializeTuple3()
+        {
+            SerializeAndAssert(Tuple.Create(1, 2, 3));
+        }
+
+        [TestMethod]
+        public void CanSerializeTuple4()
+        {
+            SerializeAndAssert(Tuple.Create(1, 2, 3, 4));
+        }
+
+        [TestMethod]
+        public void CanSerializeTuple5()
+        {
+            SerializeAndAssert(Tuple.Create(1, 2, 3, 4, 5));
+        }
+
+        [TestMethod]
+        public void CanSerializeTuple6()
+        {
+            SerializeAndAssert(Tuple.Create(1, 2, 3, 4, 5, 6));
+        }
+
+        [TestMethod]
+        public void CanSerializeTuple7()
+        {
+            SerializeAndAssert(Tuple.Create(1, 2, 3, 4, 5, 6, 7));
+        }
+
+        [TestMethod]
+        public void CanSerializeTuple8()
+        {
+            SerializeAndAssert(Tuple.Create(1, 2, 3, 4, 5, 6, 7, 8));
+        }
+
+        [TestMethod]
         public void CanSerializeBool()
         {
             SerializeAndAssert(true);

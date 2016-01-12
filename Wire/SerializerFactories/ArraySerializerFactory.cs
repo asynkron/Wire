@@ -8,7 +8,7 @@ namespace Wire.SerializerFactories
     {
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            return type.IsArray;
+            return type.IsArray && type.GetArrayRank() == 1;
         }
 
         public override bool CanDeserialize(Serializer serializer, Type type)

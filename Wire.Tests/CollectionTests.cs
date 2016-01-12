@@ -139,6 +139,27 @@ namespace Wire.Tests
             CollectionAssert.AreEqual(expected, actual);
         }
 
+
+        [TestMethod]
+        public void CanSerializeMultiDimentionalArray()
+        {
+            var expected = new double[3, 3, 3];
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        expected[i, j, k] = i + j + k;
+                    }
+                }
+            }
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<double[,,]>();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
         [TestMethod]
         public void CanSerializePrimitiveArray()
         {
