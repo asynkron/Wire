@@ -221,6 +221,7 @@ namespace Wire
                 var targetExp = Parameter(typeof (object), "target");
                 var valueExp = Parameter(typeof (object), "value");
 
+                // ReSharper disable once PossibleNullReferenceException
                 Expression castTartgetExp = field.DeclaringType.IsValueType
                     ? Unbox(targetExp, type)
                     : Convert(targetExp, type);
