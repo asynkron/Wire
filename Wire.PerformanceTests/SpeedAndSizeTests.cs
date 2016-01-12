@@ -34,6 +34,30 @@ namespace Wire.PerformanceTests
         }
 
         [TestMethod]
+        public void TestDateTimeArray()
+        {
+            var arr = new DateTime[200];
+            for (int i = 0; i < arr.Length; i++)
+            {
+                arr[i] = DateTime.Now;
+            }
+
+            Test(arr);
+        }
+
+        [TestMethod]
+        public void TestGuidArray()
+        {
+            var arr = new Guid[200];
+            for (int i = 0; i < arr.Length; i++)
+            {
+                arr[i] = Guid.NewGuid();
+            }
+
+            Test(arr);
+        }
+
+        [TestMethod]
         public void TestIntArray()
         {
             var arr = new int[1000];
