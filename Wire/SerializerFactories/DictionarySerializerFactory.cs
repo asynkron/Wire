@@ -58,6 +58,7 @@ namespace Wire.SerializerFactories
                 }
             };
             ser.Initialize(reader, writer);
+            typeMapping.TryAdd(type, ser);
             return ser;
         }
     }
