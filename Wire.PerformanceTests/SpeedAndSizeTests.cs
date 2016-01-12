@@ -172,10 +172,11 @@ namespace Wire.PerformanceTests
             double picklerTs;
             long wireSize;
             long picklerSize;
+            const int repeat = 10000;
             {
                 MemoryStream wireStream = new MemoryStream();
                 wireSerializer.Serialize(value, wireStream);
-                const int repeat = 10000;
+                
                 var sw = Stopwatch.StartNew();
                 for (int i = 0; i < repeat; i++)
                 {
@@ -186,14 +187,12 @@ namespace Wire.PerformanceTests
                 wireTs = sw.Elapsed.TotalMilliseconds;
                 wireSize = wireStream.ToArray().Length;
             }
-            Console.WriteLine($"Wire elapsed time {wireTs:n0} MS");
-            Console.WriteLine($"Wire payload size {wireSize} bytes");
+
 
             //using (MemoryStream picklerStram = new MemoryStream())
             {
                 MemoryStream picklerStram = new MemoryStream();
                 pickler.Serialize(picklerStram,value);
-                const int repeat = 10000;
                 var sw = Stopwatch.StartNew();
                 for (int i = 0; i < repeat; i++)
                 {
@@ -204,7 +203,12 @@ namespace Wire.PerformanceTests
                 picklerTs = sw.Elapsed.TotalMilliseconds;
                 picklerSize = picklerStram.ToArray().Length;
             }
+            Console.WriteLine($"Serializing {value.GetType().Name} {repeat:n0} times");
+            Console.WriteLine();
+            Console.WriteLine($"Wire elapsed time      {wireTs:n0} MS");            
             Console.WriteLine($"FsPickler elapsed time {picklerTs:n0} MS");
+            Console.WriteLine();
+            Console.WriteLine($"Wire payload size      {wireSize} bytes");
             Console.WriteLine($"FsPickler payload size {picklerSize} bytes");
 
             //assert that we are in a 10% margin of FsPickler
