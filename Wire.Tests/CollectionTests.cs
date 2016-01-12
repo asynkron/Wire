@@ -139,6 +139,21 @@ namespace Wire.Tests
             CollectionAssert.AreEqual(expected, actual);
         }
 
+        [TestMethod]
+        public void CanSerializeArrayOfTuples()
+        {
+            var expected = new[]
+            {
+                Tuple.Create(1,2,3),
+                Tuple.Create(4,5,6),
+                Tuple.Create(7,8,9),
+            };
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<Tuple<int,int,int>[]>();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
 
         [TestMethod]
         public void CanSerializeMultiDimentionalArray()

@@ -117,19 +117,19 @@ namespace Wire.Tests
         [TestMethod]
         public void CanSerializeUInt16()
         {
-            SerializeAndAssert((UInt16)123);
+            SerializeAndAssert((ushort)123);
         }
 
         [TestMethod]
         public void CanSerializeUInt64()
         {
-            SerializeAndAssert((UInt64)123);
+            SerializeAndAssert((ulong)123);
         }
 
         [TestMethod]
         public void CanSerializeUInt32()
         {
-            SerializeAndAssert((UInt32)123);
+            SerializeAndAssert((uint)123);
         }
 
         [TestMethod]
