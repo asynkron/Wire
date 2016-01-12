@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Wire.Converters;
+using Wire.SerializerFactories;
 
 namespace Wire
 {

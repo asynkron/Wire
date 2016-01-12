@@ -44,15 +44,15 @@
   <ItemGroup>
     <Compile Include="ByteArrayEqualityComparer.cs" />
     <Compile Include="CodeGenerator.cs" />
-    <Compile Include="Converters\ArraySerializerFactory.cs" />
-    <Compile Include="Converters\DefaultDictionarySerializerFactory.cs" />
-    <Compile Include="Converters\DictionarySerializerFactory.cs" />
-    <Compile Include="Converters\EnumerableSerializerFactory.cs" />
-    <Compile Include="Converters\FromSurrogateSerializerFactory.cs" />
-    <Compile Include="Converters\ImmutableCollectionsSerializerFactory.cs" />
-    <Compile Include="Converters\ISerializableSerializerFactory.cs" />
-    <Compile Include="Converters\ToSurrogateSerializerFactory.cs" />
-    <Compile Include="Converters\ValueSerializerFactory.cs" />
+    <Compile Include="SerializerFactories\ArraySerializerFactory.cs" />
+    <Compile Include="SerializerFactories\DefaultDictionarySerializerFactory.cs" />
+    <Compile Include="SerializerFactories\DictionarySerializerFactory.cs" />
+    <Compile Include="SerializerFactories\EnumerableSerializerFactory.cs" />
+    <Compile Include="SerializerFactories\FromSurrogateSerializerFactory.cs" />
+    <Compile Include="SerializerFactories\ImmutableCollectionsSerializerFactory.cs" />
+    <Compile Include="SerializerFactories\ISerializableSerializerFactory.cs" />
+    <Compile Include="SerializerFactories\ToSurrogateSerializerFactory.cs" />
+    <Compile Include="SerializerFactories\ValueSerializerFactory.cs" />
     <Compile Include="Delegates.cs" />
     <Compile Include="DeserializeSession.cs" />
     <Compile Include="SerializerOptions.cs" />

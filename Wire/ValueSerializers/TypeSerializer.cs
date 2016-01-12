@@ -25,6 +25,7 @@ namespace Wire.ValueSerializers
                 var type = (Type) value;
                 var name = type.AssemblyQualifiedName;
                 // ReSharper disable once PossibleNullReferenceException
+                // ReSharper disable once AssignNullToNotNullAttribute
                 var bytes = Encoding.UTF8.GetBytes(name);
                 stream.WriteLengthEncodedByteArray(bytes);
             }

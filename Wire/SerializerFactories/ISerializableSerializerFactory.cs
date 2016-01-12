@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Wire.ValueSerializers;
 
-namespace Wire.Converters
+namespace Wire.SerializerFactories
 {
     // ReSharper disable once InconsistentNaming
     public class ISerializableSerializerFactory : ValueSerializerFactory

@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using Wire.ValueSerializers;
 
-namespace Wire.Converters
+namespace Wire.SerializerFactories
 {
     public abstract class ValueSerializerFactory
     {

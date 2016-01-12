@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Wire.ValueSerializers;
 
-namespace Wire.Converters
+namespace Wire.SerializerFactories
 {
     public class DefaultDictionarySerializerFactory : ValueSerializerFactory
     {

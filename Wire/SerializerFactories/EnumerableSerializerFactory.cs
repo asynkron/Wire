@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Wire.ValueSerializers;
 
-namespace Wire.Converters
+namespace Wire.SerializerFactories
 {
     public class EnumerableSerializerFactory : ValueSerializerFactory
     {

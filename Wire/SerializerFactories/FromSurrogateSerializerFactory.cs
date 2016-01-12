@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using Wire.ValueSerializers;
 
-namespace Wire.Converters
+namespace Wire.SerializerFactories
 {
     public class FromSurrogateSerializerFactory : ValueSerializerFactory
     {
