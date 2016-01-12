@@ -31,6 +31,7 @@ namespace Wire.SerializerFactories
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
             var ser = new ObjectSerializer(type);
+            typeMapping.TryAdd(type, ser);
             var elementSerializer = serializer.GetSerializerByType(typeof (DictionaryEntry));
 
             ValueReader reader = (stream, session) =>
@@ -58,7 +59,7 @@ namespace Wire.SerializerFactories
                 }
             };
             ser.Initialize(reader, writer);
-            typeMapping.TryAdd(type, ser);
+            
             return ser;
         }
     }
