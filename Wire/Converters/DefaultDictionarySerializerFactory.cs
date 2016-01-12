@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using Wire.ValueSerializers;
 
 namespace Wire.Converters
@@ -45,6 +44,7 @@ namespace Wire.Converters
             ValueWriter writer = (stream, obj, session) =>
             {
                 var dict = obj as IDictionary;
+                // ReSharper disable once PossibleNullReferenceException
                 stream.WriteInt32(dict.Count);
                 foreach (var item in dict)
                 {

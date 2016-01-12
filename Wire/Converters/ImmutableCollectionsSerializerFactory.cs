@@ -33,7 +33,7 @@ namespace Wire.Converters
         private static Type GetEnumerableType(Type type)
         {
             return type.GetInterfaces()
-                .Where(intType => intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                .Where(intType => intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
                 .Select(intType => intType.GetGenericArguments()[0])
                 .FirstOrDefault();
         }
@@ -45,7 +45,7 @@ namespace Wire.Converters
             typeMapping.TryAdd(type, x);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
-            var elementType = GetEnumerableType(type) ?? typeof(object);
+            var elementType = GetEnumerableType(type) ?? typeof (object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
             ValueWriter writer = (stream, o, session) =>
@@ -54,7 +54,7 @@ namespace Wire.Converters
                 if (enumerable == null)
                 {
                     // object can be IEnumerable but not ICollection i.e. ImmutableQueue
-                    var e = (IEnumerable)o;
+                    var e = (IEnumerable) o;
                     var list = new ArrayList();
                     foreach (var element in e)
                         list.Add(element);
@@ -90,11 +90,11 @@ namespace Wire.Converters
                             ImmutableCollectionsNamespace + "." + typeName + ", " + ImmutableCollectionsAssembly, true);
                     var genericTypes = elementType.IsGenericType
                         ? elementType.GetGenericArguments()
-                        : new[] { elementType };
+                        : new[] {elementType};
                     var createRange = creatorType.GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .First(methodInfo => methodInfo.Name == "CreateRange" && methodInfo.GetParameters().Length == 1)
                         .MakeGenericMethod(genericTypes);
-                    var instance = createRange.Invoke(null, new object[] { items });
+                    var instance = createRange.Invoke(null, new object[] {items});
                     return instance;
                 }
                 else
@@ -103,7 +103,7 @@ namespace Wire.Converters
                     var addRange = type.GetMethod("AddRange");
                     if (addRange != null)
                     {
-                        addRange.Invoke(instance, new object[] { items });
+                        addRange.Invoke(instance, new object[] {items});
                         return instance;
                     }
                     var add = type.GetMethod("Add");
@@ -111,7 +111,7 @@ namespace Wire.Converters
                     {
                         for (var i = 0; i < items.Length; i++)
                         {
-                            add.Invoke(instance, new[] { items.GetValue(i) });
+                            add.Invoke(instance, new[] {items.GetValue(i)});
                         }
                     }
 

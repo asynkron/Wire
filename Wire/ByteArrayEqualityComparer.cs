@@ -12,6 +12,8 @@ namespace Wire
         public override int GetHashCode(byte[] obj)
         {
             var hash = 17;
+            if (obj == null)
+                return hash;
             for (var i = 0; i < obj.Length; i += 5)
             {
                 hash = hash*23 + obj[i];

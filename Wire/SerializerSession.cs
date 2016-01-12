@@ -29,7 +29,7 @@ namespace Wire
             }
             catch (Exception x)
             {
-                throw new Exception($"Error tracking object ", x);
+                throw new Exception("Error tracking object ", x);
             }
         }
 

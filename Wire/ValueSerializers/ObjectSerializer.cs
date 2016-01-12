@@ -27,6 +27,7 @@ namespace Wire.ValueSerializers
                 throw new ArgumentNullException(nameof(type));
 
             Type = type;
+            // ReSharper disable once PossibleNullReferenceException
             var typeNameBytes = Encoding.UTF8.GetBytes(type.AssemblyQualifiedName);
 
             //precalculate the entire manifest for this serializer

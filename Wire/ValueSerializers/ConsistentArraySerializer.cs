@@ -40,6 +40,7 @@ namespace Wire.ValueSerializers
             var elementType = value.GetType().GetElementType();
             var elementSerializer = session.Serializer.GetSerializerByType(elementType);
             elementSerializer.WriteManifest(stream, elementType, session); //write array element type
+            // ReSharper disable once PossibleNullReferenceException
             stream.WriteInt32(array.Length);
             for (var i = 0; i < array.Length; i++) //write the elements
             {

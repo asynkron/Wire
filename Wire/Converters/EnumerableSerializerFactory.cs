@@ -20,7 +20,7 @@ namespace Wire.Converters
             if (isGenericEnumerable)
                 return true;
 
-            if (typeof(ICollection).IsAssignableFrom(type))
+            if (typeof (ICollection).IsAssignableFrom(type))
                 return true;
 
             return false;
@@ -34,7 +34,7 @@ namespace Wire.Converters
         private static Type GetEnumerableType(Type type)
         {
             return type.GetInterfaces()
-                .Where(intType => intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                .Where(intType => intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
                 .Select(intType => intType.GetGenericArguments()[0])
                 .FirstOrDefault();
         }
@@ -46,12 +46,13 @@ namespace Wire.Converters
             typeMapping.TryAdd(type, x);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
-            var elementType = GetEnumerableType(type) ?? typeof(object);
+            var elementType = GetEnumerableType(type) ?? typeof (object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
             ValueWriter writer = (stream, o, session) =>
             {
                 var enumerable = o as ICollection;
+                // ReSharper disable once PossibleNullReferenceException
                 stream.WriteInt32(enumerable.Count);
                 foreach (var value in enumerable)
                 {
@@ -73,15 +74,15 @@ namespace Wire.Converters
                 var addRange = type.GetMethod("AddRange");
                 if (addRange != null)
                 {
-                    addRange.Invoke(instance, new object[] { items });
+                    addRange.Invoke(instance, new object[] {items});
                     return instance;
                 }
                 var add = type.GetMethod("Add");
                 if (add != null)
                 {
-                    for (int i = 0; i < items.Length; i++)
+                    for (var i = 0; i < items.Length; i++)
                     {
-                        add.Invoke(instance, new[] { items.GetValue(i) });
+                        add.Invoke(instance, new[] {items.GetValue(i)});
                     }
                 }
 

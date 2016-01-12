@@ -48,6 +48,7 @@ namespace Wire.Converters
             ValueWriter writer = (stream, obj, session) =>
             {
                 var dict = obj as IDictionary;
+                // ReSharper disable once PossibleNullReferenceException
                 stream.WriteInt32(dict.Count);
                 foreach (var item in dict)
                 {

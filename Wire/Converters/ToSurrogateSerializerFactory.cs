@@ -22,6 +22,7 @@ namespace Wire.Converters
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
             var surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.From.IsAssignableFrom(type));
+            // ReSharper disable once PossibleNullReferenceException
             ValueSerializer objectSerializer = new ObjectSerializer(surrogate.To);
             var toSurrogateSerializer = new ToSurrogateSerializer(surrogate.ToSurrogate, surrogate.To, objectSerializer);
             typeMapping.TryAdd(type, toSurrogateSerializer);

@@ -46,7 +46,7 @@ namespace Wire
                     (current, fieldName) => current.Concat(BitConverter.GetBytes(fieldName.Length)).Concat(fieldName))
                     .ToArray();
 
-            ValueWriter writeallFields = null;
+            ValueWriter writeallFields;
 
             if (fieldWriters.Any())
             {
@@ -54,7 +54,7 @@ namespace Wire
             }
             else
             {
-                writeallFields = (_1, _2, _3) => { };
+                writeallFields = (a, b, c) => { };
             }
 
             if (Debugger.IsAttached)
@@ -307,6 +307,7 @@ namespace Wire
                 throw new ArgumentNullException(nameof(field));
 
             var param = Parameter(typeof (object));
+            // ReSharper disable once PossibleNullReferenceException
             Expression castParam = field.DeclaringType.IsValueType
                 ? Unbox(param, field.DeclaringType)
                 : Convert(param, field.DeclaringType);

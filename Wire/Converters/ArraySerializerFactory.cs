@@ -36,6 +36,7 @@ namespace Wire.Converters
             {
                 var array = arr as Array;
                 var elementSerializer = session.Serializer.GetSerializerByType(elementType);
+                // ReSharper disable once PossibleNullReferenceException
                 stream.WriteInt32(array.Length);
                 var preserveObjectReferences = session.Serializer.Options.PreserveObjectReferences;
 
