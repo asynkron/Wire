@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nessos.FsPickler;
 
@@ -68,6 +69,26 @@ namespace Wire.PerformanceTests
 
             Test(arr);
         }
+
+        [TestMethod]
+        public void TestShortString()
+        {
+            
+            Test("hello");
+        }
+
+        [TestMethod]
+        public void TestLongString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Hello");
+            for (int i = 0; i < 10; i++)
+            {
+                sb.Append(sb);
+            }
+            Test(sb.ToString());
+        }
+
 
         [TestMethod]
         public void TestStringArray()
