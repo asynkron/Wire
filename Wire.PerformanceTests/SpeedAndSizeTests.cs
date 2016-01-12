@@ -69,6 +69,30 @@ namespace Wire.PerformanceTests
             Test(arr);
         }
 
+        [TestMethod]
+        public void TestStringArray()
+        {
+            var arr = new string[1000];
+            for (int i = 0; i < arr.Length; i++)
+            {
+                arr[i] = "hello" + i;
+            }
+
+            Test(arr);
+        }
+
+        [TestMethod]
+        public void TestBoolArray()
+        {
+            var arr = new bool[1000];
+            for (int i = 0; i < arr.Length; i++)
+            {
+                arr[i] = i % 2 == 0;
+            }
+
+            Test(arr);
+        }
+
 
         [TestMethod]
         public void TestTuple()
