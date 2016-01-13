@@ -184,6 +184,18 @@ namespace Wire.PerformanceTests
         }
 
         [TestMethod]
+        public void TestTupleArray()
+        {
+            var arr = new Tuple<int,int>[100];
+            for (int i = 0; i < arr.Length; i++)
+            {
+                arr[i] = Tuple.Create(i, 999 - i);
+            }
+
+            Test(arr);
+        }
+
+        [TestMethod]
         public void TestList()
         {
             var list = new List<int>()

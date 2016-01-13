@@ -63,7 +63,6 @@ namespace Wire.ValueSerializers
                     elementSerializer.WriteValue(stream, value, session);
                 }
             }    
-
         }
 
         private static T[] ReadValues<T>(int length, Stream stream, DeserializerSession session, T[] array)
