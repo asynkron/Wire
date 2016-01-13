@@ -12,6 +12,18 @@ namespace Wire.PerformanceTests
     public class SpeedAndSizeTests
     {
         [Serializable]
+        public class CyclicA
+        {
+            public CyclicB B { get; set; }
+        }
+
+        [Serializable]
+        public class CyclicB
+        {
+            public CyclicA A { get; set; }
+        }
+
+        [Serializable]
         public class Poco
         {
             public int Age { get; set; }
@@ -32,6 +44,12 @@ namespace Wire.PerformanceTests
             }
 
             Test(arr);
+        }
+
+        [TestMethod]
+        public void TestDateTime()
+        {
+            Test(DateTime.Now);
         }
 
         [TestMethod]
@@ -58,6 +76,7 @@ namespace Wire.PerformanceTests
             Test(arr);
         }
 
+        //fails as we are slower than FsPickler when serializing the integer array, we have slightly smaller payload though
         [TestMethod]
         public void TestIntArray()
         {
@@ -90,18 +109,61 @@ namespace Wire.PerformanceTests
         }
 
 
+        //TODO: fails as FsPickler uses 2 bytes for length encoding instead of 4 as Wire does
+        //our payload gets bigger
         [TestMethod]
         public void TestStringArray()
         {
             var arr = new string[1000];
             for (int i = 0; i < arr.Length; i++)
             {
-                arr[i] = "hello" + i;
+                arr[i] = "hello";
             }
 
             Test(arr);
         }
 
+
+        [TestMethod]
+        public void TestByteArray()
+        {
+            var arr = new byte[1000];
+            for (int i = 0; i < arr.Length; i++)
+            {
+                arr[i] = (byte)(i%255);
+            }
+
+            Test(arr);
+        }
+
+        [TestMethod]
+        public void TestType()
+        {
+            Test(typeof(int));
+        }
+
+
+
+        ///fails big time, we are writing the entire qualified type name for each entry, fs pickler does not.
+        [TestMethod]
+        public void TestTypeArray()
+        {
+            var arr = new Type[100];
+            for (int i = 0; i < arr.Length; i++)
+            {
+                arr[i] = typeof (int);
+            }
+
+            Test(arr);
+        }
+
+        [TestMethod]
+        public void TestGuid()
+        {
+            Test(Guid.NewGuid());
+        }
+
+        //fails as we are slower than FsPickler when serializing the integer array, we have slightly smaller payload though
         [TestMethod]
         public void TestBoolArray()
         {
@@ -149,6 +211,18 @@ namespace Wire.PerformanceTests
                 Age = 40,
                 Name = "Roger"
             });
+        }
+
+        //fails as our payload is bigger, probably due to qualified typename, we are faster though
+        [TestMethod]
+        public void TestCyclic()
+        {
+            var a = new CyclicA();
+            var b = new CyclicB();
+            a.B = b;
+            b.A = a;
+
+            Test(a);
         }
 
         [TestMethod]
