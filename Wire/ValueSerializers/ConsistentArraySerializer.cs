@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Wire.ValueSerializers
 {
@@ -45,13 +46,26 @@ namespace Wire.ValueSerializers
 
         private static void WriteValues<T>(T[] array, Stream stream, ValueSerializer elementSerializer, SerializerSession session)
         {
-            stream.WriteInt32(array.Length);           
-            for (int i = 0; i < array.Length; i++)
+            
+            stream.WriteInt32(array.Length);
+            if (Utils.IsFixedSizeType(typeof(T)))
             {
-                var value = array[i];
-                elementSerializer.WriteValue(stream, value, session);
+                var size = Utils.GetTypeSize(typeof(T));
+                byte[] result = new byte[array.Length * size];
+                Buffer.BlockCopy(array, 0, result, 0, result.Length);
+                stream.Write(result);
             }
+            else
+            {
+                for (int i = 0; i < array.Length; i++)
+                {
+                    var value = array[i];
+                    elementSerializer.WriteValue(stream, value, session);
+                }
+            }    
+
         }
+
         private static T[] ReadValues<T>(int length, Stream stream, DeserializerSession session, T[] array)
         {
             for (var i = 0; i < length; i++)

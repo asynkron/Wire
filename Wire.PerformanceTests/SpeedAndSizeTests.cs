@@ -90,18 +90,18 @@ namespace Wire.PerformanceTests
         }
 
         [TestMethod]
-        public void TestShortString()
+        public void TestStringShort()
         {
             
             Test("hello");
         }
 
         [TestMethod]
-        public void TestLongString()
+        public void TestStringLong()
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("Hello");
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 14; i++)
             {
                 sb.Append(sb);
             }
