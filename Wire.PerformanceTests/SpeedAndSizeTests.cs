@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Microsoft.FSharp.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nessos.FsPickler;
 
@@ -249,6 +250,15 @@ namespace Wire.PerformanceTests
             Test(dict);
         }
 
+        //TODO: F# lists are recursive cons lists, wire currently write those objects
+        //we could optimize to convert to array and write it all in one go
+        [TestMethod]
+        public void TestFSharpList()
+        {
+            var list = ListModule.OfArray(new[] { 1, 2, 3, 4});
+            Test(list);
+        }
+
         private void Test(object value)
         {
             Serializer wireSerializer = new Serializer(new SerializerOptions(false,null,true,null));
@@ -267,7 +277,7 @@ namespace Wire.PerformanceTests
                 for (int i = 0; i < repeat; i++)
                 {
                     wireStream = new MemoryStream();
-                    wireSerializer.Serialize(value, wireStream);
+                    WireSerialize(value, wireSerializer, wireStream);
                 }
                 sw.Stop();
                 wireTs = sw.Elapsed.TotalMilliseconds;
@@ -293,13 +303,20 @@ namespace Wire.PerformanceTests
             Console.WriteLine();
             Console.WriteLine($"Wire elapsed time      {wireTs:n0} MS");            
             Console.WriteLine($"FsPickler elapsed time {picklerTs:n0} MS");
+            Console.WriteLine($"Wire is {picklerTs / wireTs :n2} times faster than FsPickler");
             Console.WriteLine();
             Console.WriteLine($"Wire payload size      {wireSize} bytes");
             Console.WriteLine($"FsPickler payload size {picklerSize} bytes");
+            Console.WriteLine($"Wire is {picklerSize / (double)wireSize:n2} times smaller than FsPickler");
 
             //assert that we are in a 10% margin of FsPickler
             Assert.IsTrue(wireTs <= picklerTs * 1.1, "Wire was slower than FsPickler");
             Assert.IsTrue(wireSize <= picklerSize * 1.1, "Wire payload was larger than FsPickler");
+        }
+
+        private static void WireSerialize(object value, Serializer wireSerializer, MemoryStream wireStream)
+        {
+            wireSerializer.Serialize(value, wireStream);
         }
     }
 }
