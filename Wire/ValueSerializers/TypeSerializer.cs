@@ -11,7 +11,16 @@ namespace Wire.ValueSerializers
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            stream.WriteByte(Manifest);
+            if (session.ShouldWriteTypeManifest(type))
+            {
+                stream.WriteByte(Manifest);
+            }
+            else
+            {
+                var typeIdentifier = session.GetTypeIdentifier(type);
+                stream.Write(new[] { ObjectSerializer.ManifestIndex });
+                stream.WriteUInt16((ushort) typeIdentifier);
+            }
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
@@ -23,11 +32,25 @@ namespace Wire.ValueSerializers
             else
             {
                 var type = (Type) value;
-                var name = type.AssemblyQualifiedName;
-                // ReSharper disable once PossibleNullReferenceException
-                // ReSharper disable once AssignNullToNotNullAttribute
-                var bytes = Encoding.UTF8.GetBytes(name);
-                stream.WriteLengthEncodedByteArray(bytes);
+                int existingId;
+                if (session.Serializer.Options.PreserveObjectReferences && session.TryGetObjectId(type, out existingId))
+                {
+                    ObjectReferenceSerializer.Instance.WriteManifest(stream, null, session);
+                    ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
+                }
+                else
+                { 
+                    //type was not written before, add it to the tacked object list
+                    var name = type.GetShortAssemblyQualifiedName();
+                    if (session.Serializer.Options.PreserveObjectReferences)
+                    {
+                        session.TrackSerializedObject(type);
+                    }
+                    // ReSharper disable once PossibleNullReferenceException
+                    // ReSharper disable once AssignNullToNotNullAttribute
+                    var bytes = Encoding.UTF8.GetBytes(name);
+                    stream.WriteLengthEncodedByteArray(bytes);
+                }
             }
         }
 
@@ -39,8 +62,14 @@ namespace Wire.ValueSerializers
 
             var buffer = session.GetBuffer(length);
             stream.Read(buffer, 0, length);
-            var name = Encoding.UTF8.GetString(buffer, 0, length);
+            var shortname = Encoding.UTF8.GetString(buffer, 0, length);
+            var name = Utils.ToQualifiedAssemblyName(shortname);
             var type = Type.GetType(name);
+            //add the deserialized type to lookup
+            if (session.Serializer.Options.PreserveObjectReferences)
+            {
+                session.TrackDeserializedObject(type);
+            }
             return type;
         }
 
