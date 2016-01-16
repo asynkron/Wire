@@ -37,7 +37,7 @@ namespace Wire
         public static byte[] ReadLengthEncodedByteArray(this Stream self, DeserializerSession session)
         {
             var length = self.ReadInt32(session);
-            var buffer = session.GetBuffer(length);
+            var buffer = new byte[length];
             self.Read(buffer, 0, length);
             return buffer;
         }

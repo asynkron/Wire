@@ -13,13 +13,15 @@ namespace Wire
         {
             new ToSurrogateSerializerFactory(),
             new FromSurrogateSerializerFactory(),
+            new FSharpListSerializerFactory(), 
             //order is important, try dictionaries before enumerables as dicts are also enumerable
             new ImmutableCollectionsSerializerFactory(),
             new DefaultDictionarySerializerFactory(),
             new DictionarySerializerFactory(),
             new ArraySerializerFactory(),
             new ISerializableSerializerFactory(),
-            new EnumerableSerializerFactory()
+            new EnumerableSerializerFactory(),
+            
         };
 
         internal readonly bool PreserveObjectReferences;

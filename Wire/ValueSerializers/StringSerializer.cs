@@ -16,22 +16,43 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
+            //null = 0
+            // [0]
+            //length < 255 gives length + 1 as a single byte + payload
+            // [B length+1] [Payload]
+            //others gives 254 + int32 length + payload
+            // [B 254] [I Length] [Payload]
             if (value == null)
             {
-                stream.WriteInt32(-1);
+                stream.WriteByte(0);
             }
             else
             {
                 var bytes = Encoding.UTF8.GetBytes((string) value);
-                stream.WriteLengthEncodedByteArray(bytes);
+                if (bytes.Length < 255)
+                {
+                    stream.WriteByte((byte)(bytes.Length+1));
+                    stream.Write(bytes, 0, bytes.Length);
+                }
+                else
+                {
+                    stream.WriteByte(254);
+                    stream.WriteInt32(bytes.Length);
+                    stream.Write(bytes,0,bytes.Length);
+                }
+                
             }
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
-            var length = (int) Int32Serializer.Instance.ReadValue(stream, session);
-            if (length == -1)
+            var length = stream.ReadByte();
+            if (length == 0)
                 return null;
+            length --;
+
+            if (length == 254)
+                length = stream.ReadInt32(session);
 
             var buffer = session.GetBuffer(length);
 

@@ -255,7 +255,7 @@ namespace Wire.PerformanceTests
         [TestMethod]
         public void TestFSharpList()
         {
-            var list = ListModule.OfArray(new[] { 1, 2, 3, 4});
+            var list = ListModule.OfArray(new[] { 1, 2, 3, 4,5,6,7,8,9,0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
             Test(list);
         }
 
