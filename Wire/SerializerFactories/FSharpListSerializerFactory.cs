@@ -36,32 +36,25 @@ namespace Wire.SerializerFactories
             var elementType = GetEnumerableType(type);
             var arrType = elementType.MakeArrayType();
             var listModule = type.Assembly.GetType("Microsoft.FSharp.Collections.ListModule");
-            var method = listModule.GetMethod("OfArray");
+            var ofArray = listModule.GetMethod("OfArray");
+            var ofArrayConcrete = ofArray.MakeGenericMethod(elementType);
+            var toArray = listModule.GetMethod("ToArray");
+            var toArrayConcrete = toArray.MakeGenericMethod(elementType);
 
             ValueWriter writer = (stream, o, session) =>
             {
-                var e = (IEnumerable) o;
-                var list = new ArrayList();
-                foreach (var element in e)
-                    list.Add(element);
-
-                var arr = list.ToArray(elementType);
-
+                //TODO: codegen this
+                var arr = toArrayConcrete.Invoke(null, new[] {o});
                 var arrSerializer = serializer.GetSerializerByType(arrType);
                 arrSerializer.WriteValue(stream,arr,session);
             };
 
             ValueReader reader = (stream, session) =>
-            {
-               
+            {               
                 var arrSerializer = serializer.GetSerializerByType(arrType);
-
-                var items = (Array)arrSerializer.ReadValue(stream, session);
-             
-                //TODO: codegen this
-                var concrete = method.MakeGenericMethod(elementType);
-                var res = concrete.Invoke(null, new object[] { items});
-
+                var items = (Array)arrSerializer.ReadValue(stream, session);             
+                //TODO: codegen this                
+                var res = ofArrayConcrete.Invoke(null, new object[] { items});
                 return res;
             };
             x.Initialize(reader, writer);
