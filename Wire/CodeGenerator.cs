@@ -332,5 +332,16 @@ namespace Wire
             }
             return getFieldValue;
         }
+
+        public static Func<object, object> CompileToDelegate(MethodInfo method, Type argType)
+        {
+            var arg = Expression.Parameter(typeof (object));
+            var castArg = Expression.Convert(arg, argType);
+            var call = Expression.Call(method, new Expression[] {castArg});
+            var castRes = Expression.Convert(call, typeof (object));
+            var lambda = Expression.Lambda<Func<object, object>>(castRes, arg);
+            var compiled = lambda.Compile();
+            return compiled;
+        }
     }
 }

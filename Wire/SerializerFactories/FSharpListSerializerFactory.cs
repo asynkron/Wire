@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using Wire.ValueSerializers;
 
 namespace Wire.SerializerFactories
@@ -38,13 +40,14 @@ namespace Wire.SerializerFactories
             var listModule = type.Assembly.GetType("Microsoft.FSharp.Collections.ListModule");
             var ofArray = listModule.GetMethod("OfArray");
             var ofArrayConcrete = ofArray.MakeGenericMethod(elementType);
+            var ofArrayCompiled = CodeGenerator.CompileToDelegate(ofArrayConcrete, arrType);
             var toArray = listModule.GetMethod("ToArray");
             var toArrayConcrete = toArray.MakeGenericMethod(elementType);
+            var toArrayCompiled = CodeGenerator.CompileToDelegate(toArrayConcrete, type);
 
             ValueWriter writer = (stream, o, session) =>
             {
-                //TODO: codegen this
-                var arr = toArrayConcrete.Invoke(null, new[] {o});
+                var arr = toArrayCompiled(o);
                 var arrSerializer = serializer.GetSerializerByType(arrType);
                 arrSerializer.WriteValue(stream,arr,session);
             };
@@ -52,9 +55,8 @@ namespace Wire.SerializerFactories
             ValueReader reader = (stream, session) =>
             {               
                 var arrSerializer = serializer.GetSerializerByType(arrType);
-                var items = (Array)arrSerializer.ReadValue(stream, session);             
-                //TODO: codegen this                
-                var res = ofArrayConcrete.Invoke(null, new object[] { items});
+                var items = (Array)arrSerializer.ReadValue(stream, session);                          
+                var res = ofArrayCompiled(items);
                 return res;
             };
             x.Initialize(reader, writer);
