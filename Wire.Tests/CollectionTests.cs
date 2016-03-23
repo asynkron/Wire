@@ -140,6 +140,42 @@ namespace Wire.Tests
         }
 
         [TestMethod]
+        public void CanSerializeByteArray()
+        {
+            var expected = new byte[]
+            {
+                1,2,3,4
+            };
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<byte[]>();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Issue18()
+        {
+            var msg = new byte[] { 1, 2, 3, 4 };
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
+
+            byte[] serialized;
+            using (var ms = new MemoryStream())
+            {
+                serializer.Serialize(msg, ms);
+                serialized = ms.ToArray();
+            }
+
+            byte[] deserialized;
+            using (var ms = new MemoryStream(serialized))
+            {
+                deserialized = serializer.Deserialize<byte[]>(ms);
+            }
+
+            Assert.IsTrue(msg.SequenceEqual(deserialized));
+        }
+
+
+        [TestMethod]
         public void CanSerializeArrayOfTuples()
         {
             var expected = new[]
