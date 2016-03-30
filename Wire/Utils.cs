@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Linq;
 
 namespace Wire
 {
@@ -55,7 +56,7 @@ namespace Wire
 #else
         public static bool UnsafeCompare(byte[] a1, byte[] a2)
         {
-            return StructuralComparisons.StructuralEqualityComparer.Equals(a1, a2);
+            return a1.SequenceEqual(a2);
         }
 #endif
 
