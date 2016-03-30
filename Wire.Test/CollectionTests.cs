@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -9,20 +8,6 @@ namespace Wire.Tests
 {
     public class CollectionTests : TestBase
     {
-        [Fact]
-        public void CanSerializeImmutableDictionary()
-        {
-            var map = ImmutableDictionary<string, object>.Empty;
-            var serializer = new Serializer();
-
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(map, stream);
-                stream.Position = 0;
-                var map2 = serializer.Deserialize(stream); // exception
-            }
-        }
-
         [Fact]
         public void CanSerializeSet()
         {

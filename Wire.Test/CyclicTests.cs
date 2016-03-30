@@ -1,9 +1,8 @@
 ﻿using System.IO;
 using Xunit;
 
-namespace Wire.Tests
-{
-    
+namespace Wire.Test
+{    
     public class CyclicTests
     {
         [Fact]
