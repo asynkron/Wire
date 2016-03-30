@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Wire.ValueSerializers;
 
 namespace Wire.SerializerFactories
@@ -21,7 +22,7 @@ namespace Wire.SerializerFactories
         private static Type GetEnumerableType(Type type)
         {
             return type.GetInterfaces()
-                .Where(intType => intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                .Where(intType => intType.GetTypeInfo().IsGenericType && intType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 .Select(intType => intType.GetGenericArguments()[0])
                 .FirstOrDefault();
         }
@@ -34,7 +35,7 @@ namespace Wire.SerializerFactories
 
             var elementType = GetEnumerableType(type);
             var arrType = elementType.MakeArrayType();
-            var listModule = type.Assembly.GetType("Microsoft.FSharp.Collections.ListModule");
+            var listModule = type.GetTypeInfo().Assembly.GetType("Microsoft.FSharp.Collections.ListModule");
             var ofArray = listModule.GetMethod("OfArray");
             var ofArrayConcrete = ofArray.MakeGenericMethod(elementType);
             var ofArrayCompiled = CodeGenerator.CompileToDelegate(ofArrayConcrete, arrType);

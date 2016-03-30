@@ -19,7 +19,9 @@ namespace Wire
             new DefaultDictionarySerializerFactory(),
             new DictionarySerializerFactory(),
             new ArraySerializerFactory(),
+#if false
             new ISerializableSerializerFactory(),
+#endif
             new EnumerableSerializerFactory(),
             
         };

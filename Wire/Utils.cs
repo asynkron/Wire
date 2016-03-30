@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 
 namespace Wire
 {
@@ -24,6 +25,7 @@ namespace Wire
             return shortName.Replace(",%core%", CoreAssemblyName);
         }
 
+#if false
         public static unsafe bool UnsafeCompare(byte[] a1, byte[] a2)
         {
             if (a1 == null || a2 == null || a1.Length != a2.Length)
@@ -50,6 +52,12 @@ namespace Wire
                 return true;
             }
         }
+#else
+        public static bool UnsafeCompare(byte[] a1, byte[] a2)
+        {
+            return StructuralComparisons.StructuralEqualityComparer.Equals(a1, a2);
+        }
+#endif
 
         public static bool IsFixedSizeType(Type type)
         {

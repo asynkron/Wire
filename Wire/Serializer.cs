@@ -30,7 +30,7 @@ namespace Wire
         private static readonly Type ByteArrayType = typeof (byte[]);
         private static readonly Type TypeType = typeof (Type);
         private static readonly Type RuntimeType = Type.GetType("System.RuntimeType");
-        private static readonly Assembly CoreAssembly = typeof (int).Assembly;
+        private static readonly Assembly CoreAssembly = typeof (int).GetTypeInfo().Assembly;
 
         private readonly ConcurrentDictionary<Type, ValueSerializer> _deserializers =
             new ConcurrentDictionary<Type, ValueSerializer>();
@@ -153,7 +153,7 @@ namespace Wire
             //    return tmp;
             //}
 
-            if (ReferenceEquals(type.Assembly, CoreAssembly))
+            if (ReferenceEquals(type.GetTypeInfo().Assembly, CoreAssembly))
             {
                 if (type == StringType)
                     return StringSerializer.Instance;
@@ -226,7 +226,7 @@ namespace Wire
 
         public ValueSerializer GetDeserializerByType(Type type)
         {
-            if (ReferenceEquals(type.Assembly, CoreAssembly))
+            if (ReferenceEquals(type.GetTypeInfo().Assembly, CoreAssembly))
             {
                 if (type == StringType)
                     return StringSerializer.Instance;

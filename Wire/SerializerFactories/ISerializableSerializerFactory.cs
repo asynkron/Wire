@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if false
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
@@ -67,3 +68,4 @@ namespace Wire.SerializerFactories
         }
     }
 }
+#endif

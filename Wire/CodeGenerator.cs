@@ -5,7 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+#if false
 using System.Runtime.Serialization;
+#endif
 using System.Text;
 using Wire.ValueSerializers;
 using static System.Linq.Expressions.Expression;
@@ -103,7 +105,11 @@ namespace Wire
             ValueReader reader = (stream, session) =>
             {
                 //create instance without calling constructor
+#if false
                 var instance = FormatterServices.GetUninitializedObject(type);
+#else
+                var instance = "";
+#endif
                 if (preserveObjectReferences)
                 {
                     session.TrackDeserializedObject(instance);
@@ -184,14 +190,16 @@ namespace Wire
                 var tfields =
                     current
                         .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+#if false
                         .Where(f => !f.IsDefined(typeof (NonSerializedAttribute)))
+#endif
                         .Where(f => !f.IsStatic)
                         .Where(f => f.FieldType != typeof (IntPtr))
                         .Where(f => f.FieldType != typeof (UIntPtr))
                         .Where(f => f.Name != "_syncRoot"); //HACK: ignore these 
 
                 fieldInfos.AddRange(tfields);
-                current = current.BaseType;
+                current = current.GetTypeInfo().BaseType;
             }
             var fields = fieldInfos.OrderBy(f => f.Name).ToArray();
             return fields;
@@ -222,7 +230,7 @@ namespace Wire
                 var valueExp = Parameter(typeof (object), "value");
 
                 // ReSharper disable once PossibleNullReferenceException
-                Expression castTartgetExp = field.DeclaringType.IsValueType
+                Expression castTartgetExp = field.DeclaringType.GetTypeInfo().IsValueType
                     ? Unbox(targetExp, type)
                     : Convert(targetExp, type);
                 Expression castValueExp = Convert(valueExp, field.FieldType);
@@ -284,7 +292,7 @@ namespace Wire
             else
             {
                 var valueType = field.FieldType;
-                if (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof (Nullable<>))
+                if (field.FieldType.GetTypeInfo().IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof (Nullable<>))
                 {
                     var nullableType = field.FieldType.GetGenericArguments()[0];
                     valueSerializer = serializer.GetSerializerByType(nullableType);
@@ -309,7 +317,7 @@ namespace Wire
 
             var param = Parameter(typeof (object));
             // ReSharper disable once PossibleNullReferenceException
-            Expression castParam = field.DeclaringType.IsValueType
+            Expression castParam = field.DeclaringType.GetTypeInfo().IsValueType
                 ? Unbox(param, field.DeclaringType)
                 : Convert(param, field.DeclaringType);
             Expression readField = Field(castParam, field);

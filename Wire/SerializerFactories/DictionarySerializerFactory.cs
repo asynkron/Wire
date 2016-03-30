@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Wire.ValueSerializers;
 
 namespace Wire.SerializerFactories
@@ -18,7 +19,7 @@ namespace Wire.SerializerFactories
         {
             return type
                 .GetInterfaces()
-                .Select(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof (IDictionary<,>))
+                .Select(t => t.GetTypeInfo().IsGenericType && t.GetTypeInfo().GetGenericTypeDefinition() == typeof (IDictionary<,>))
                 .Any(isDict => isDict);
         }
 

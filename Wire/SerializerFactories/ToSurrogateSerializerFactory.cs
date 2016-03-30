@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Reflection;
 using Wire.ValueSerializers;
 
 namespace Wire.SerializerFactories
@@ -21,7 +22,7 @@ namespace Wire.SerializerFactories
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.From.IsAssignableFrom(type));
+            var surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.From.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()));
             // ReSharper disable once PossibleNullReferenceException
             ValueSerializer objectSerializer = new ObjectSerializer(surrogate.To);
             var toSurrogateSerializer = new ToSurrogateSerializer(surrogate.ToSurrogate, surrogate.To, objectSerializer);

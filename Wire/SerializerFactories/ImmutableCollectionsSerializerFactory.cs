@@ -33,7 +33,7 @@ namespace Wire.SerializerFactories
         private static Type GetEnumerableType(Type type)
         {
             return type.GetInterfaces()
-                .Where(intType => intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
+                .Where(intType => intType.GetTypeInfo().IsGenericType && intType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
                 .Select(intType => intType.GetGenericArguments()[0])
                 .FirstOrDefault();
         }
@@ -55,9 +55,7 @@ namespace Wire.SerializerFactories
                 {
                     // object can be IEnumerable but not ICollection i.e. ImmutableQueue
                     var e = (IEnumerable) o;
-                    var list = new ArrayList();
-                    foreach (var element in e)
-                        list.Add(element);
+                    var list = e.Cast<object>().ToList();//
 
                     enumerable = list;
                 }
@@ -88,7 +86,7 @@ namespace Wire.SerializerFactories
                     var creatorType =
                         Type.GetType(
                             ImmutableCollectionsNamespace + "." + typeName + ", " + ImmutableCollectionsAssembly, true);
-                    var genericTypes = elementType.IsGenericType
+                    var genericTypes = elementType.GetTypeInfo().IsGenericType
                         ? elementType.GetGenericArguments()
                         : new[] {elementType};
                     var createRange = creatorType.GetMethods(BindingFlags.Public | BindingFlags.Static)

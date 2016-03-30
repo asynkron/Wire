@@ -99,7 +99,7 @@ namespace Wire.ValueSerializers
 
             return TypeNameLookup.GetOrAdd(bytes, b =>
             {
-                var shortName = Encoding.UTF8.GetString(b);
+                var shortName = Encoding.UTF8.GetString(b,0,b.Length);
                 var typename = Utils.ToQualifiedAssemblyName(shortName);
                 return Type.GetType(typename, true);
             });
