@@ -6,7 +6,7 @@ namespace Wire
 {
     public static class Utils
     {
-        private static string CoreAssemblyName = GetCoreAssemblyName();
+        private static readonly string CoreAssemblyName = GetCoreAssemblyName();
 
         private static string GetCoreAssemblyName()
         {

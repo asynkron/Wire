@@ -105,11 +105,7 @@ namespace Wire
             ValueReader reader = (stream, session) =>
             {
                 //create instance without calling constructor
-#if false
-                var instance = FormatterServices.GetUninitializedObject(type);
-#else
-                var instance = "";
-#endif
+                var instance = type.GetEmptyObject();
                 if (preserveObjectReferences)
                 {
                     session.TrackDeserializedObject(instance);
