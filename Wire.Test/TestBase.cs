@@ -5,10 +5,10 @@ namespace Wire.Tests
     
     public abstract class TestBase
     {
-        private Serializer serializer;
-        private MemoryStream stream;
+        private readonly Serializer serializer;
+        private readonly MemoryStream stream;
 
-        public TestBase()
+        protected TestBase()
         {
             serializer = new Serializer();
             stream = new MemoryStream();

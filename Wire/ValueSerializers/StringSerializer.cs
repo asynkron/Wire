@@ -29,14 +29,14 @@ namespace Wire.ValueSerializers
             else
             {
                 var bytes = Encoding.UTF8.GetBytes((string) value);
-                if (bytes.Length < 255)
+                if (bytes.Length < 254)
                 {
                     stream.WriteByte((byte)(bytes.Length+1));
                     stream.Write(bytes, 0, bytes.Length);
                 }
                 else
                 {
-                    stream.WriteByte(254);
+                    stream.WriteByte(255);
                     stream.WriteInt32(bytes.Length);
                     stream.Write(bytes,0,bytes.Length);
                 }
@@ -49,10 +49,15 @@ namespace Wire.ValueSerializers
             var length = stream.ReadByte();
             if (length == 0)
                 return null;
-            length --;
 
-            if (length == 254)
+            if (length == 255)
+            {
                 length = stream.ReadInt32(session);
+            }
+            else
+            {
+                length--;
+            }
 
             var buffer = session.GetBuffer(length);
 

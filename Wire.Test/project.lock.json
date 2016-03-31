@@ -133,9 +133,21 @@
           "lib/net45/Newtonsoft.Json.dll": {}
         }
       },
+      "System.Runtime.Serialization.Primitives/4.1.0-beta-23516": {
+        "type": "package",
+        "compile": {
+          "ref/net45/_._": {}
+        },
+        "runtime": {
+          "lib/net45/_._": {}
+        }
+      },
       "Wire/1.0.0": {
         "type": "project",
-        "framework": ".NETFramework,Version=v4.5.1"
+        "framework": ".NETFramework,Version=v4.5.1",
+        "dependencies": {
+          "System.Runtime.Serialization.Primitives": "4.1.0-beta-23516"
+        }
       },
       "xunit/2.2.0-beta1-build3239": {
         "type": "package",
@@ -863,6 +875,19 @@
           "lib/DNXCore50/System.Runtime.InteropServices.dll": {}
         }
       },
+      "System.Runtime.Serialization.Primitives/4.1.0-beta-23516": {
+        "type": "package",
+        "dependencies": {
+          "System.Resources.ResourceManager": "4.0.0",
+          "System.Runtime": "4.0.20"
+        },
+        "compile": {
+          "ref/dotnet5.4/System.Runtime.Serialization.Primitives.dll": {}
+        },
+        "runtime": {
+          "lib/dotnet5.4/System.Runtime.Serialization.Primitives.dll": {}
+        }
+      },
       "System.Security.Cryptography.Algorithms/4.0.0-beta-23516": {
         "type": "package",
         "dependencies": {
@@ -1038,6 +1063,7 @@
           "System.Collections.Concurrent": "4.0.12-rc2-23811",
           "System.Linq": "4.0.1-beta-23516",
           "System.Runtime": "4.0.21-beta-23516",
+          "System.Runtime.Serialization.Primitives": "4.1.0-beta-23516",
           "System.Threading": "4.0.11-beta-23516"
         }
       },
@@ -1339,9 +1365,21 @@
           "lib/net45/Newtonsoft.Json.dll": {}
         }
       },
+      "System.Runtime.Serialization.Primitives/4.1.0-beta-23516": {
+        "type": "package",
+        "compile": {
+          "ref/net45/_._": {}
+        },
+        "runtime": {
+          "lib/net45/_._": {}
+        }
+      },
       "Wire/1.0.0": {
         "type": "project",
-        "framework": ".NETFramework,Version=v4.5.1"
+        "framework": ".NETFramework,Version=v4.5.1",
+        "dependencies": {
+          "System.Runtime.Serialization.Primitives": "4.1.0-beta-23516"
+        }
       },
       "xunit/2.2.0-beta1-build3239": {
         "type": "package",
@@ -1584,9 +1622,21 @@
           "lib/net45/Newtonsoft.Json.dll": {}
         }
       },
+      "System.Runtime.Serialization.Primitives/4.1.0-beta-23516": {
+        "type": "package",
+        "compile": {
+          "ref/net45/_._": {}
+        },
+        "runtime": {
+          "lib/net45/_._": {}
+        }
+      },
       "Wire/1.0.0": {
         "type": "project",
-        "framework": ".NETFramework,Version=v4.5.1"
+        "framework": ".NETFramework,Version=v4.5.1",
+        "dependencies": {
+          "System.Runtime.Serialization.Primitives": "4.1.0-beta-23516"
+        }
       },
       "xunit/2.2.0-beta1-build3239": {
         "type": "package",
@@ -2647,6 +2697,19 @@
           "lib/DNXCore50/System.Runtime.InteropServices.dll": {}
         }
       },
+      "System.Runtime.Serialization.Primitives/4.1.0-beta-23516": {
+        "type": "package",
+        "dependencies": {
+          "System.Resources.ResourceManager": "4.0.0",
+          "System.Runtime": "4.0.20"
+        },
+        "compile": {
+          "ref/dotnet5.4/System.Runtime.Serialization.Primitives.dll": {}
+        },
+        "runtime": {
+          "lib/dotnet5.4/System.Runtime.Serialization.Primitives.dll": {}
+        }
+      },
       "System.Security.Cryptography.Algorithms/4.0.0-beta-23516": {
         "type": "package",
         "dependencies": {
@@ -2847,6 +2910,7 @@
           "System.Collections.Concurrent": "4.0.12-rc2-23811",
           "System.Linq": "4.0.1-beta-23516",
           "System.Runtime": "4.0.21-beta-23516",
+          "System.Runtime.Serialization.Primitives": "4.1.0-beta-23516",
           "System.Threading": "4.0.11-beta-23516"
         }
       },
@@ -3966,6 +4030,19 @@
           "lib/DNXCore50/System.Runtime.InteropServices.dll": {}
         }
       },
+      "System.Runtime.Serialization.Primitives/4.1.0-beta-23516": {
+        "type": "package",
+        "dependencies": {
+          "System.Resources.ResourceManager": "4.0.0",
+          "System.Runtime": "4.0.20"
+        },
+        "compile": {
+          "ref/dotnet5.4/System.Runtime.Serialization.Primitives.dll": {}
+        },
+        "runtime": {
+          "lib/dotnet5.4/System.Runtime.Serialization.Primitives.dll": {}
+        }
+      },
       "System.Security.Cryptography.Algorithms/4.0.0-beta-23516": {
         "type": "package",
         "dependencies": {
@@ -4166,6 +4243,7 @@
           "System.Collections.Concurrent": "4.0.12-rc2-23811",
           "System.Linq": "4.0.1-beta-23516",
           "System.Runtime": "4.0.21-beta-23516",
+          "System.Runtime.Serialization.Primitives": "4.1.0-beta-23516",
           "System.Threading": "4.0.11-beta-23516"
         }
       },
@@ -6412,6 +6490,67 @@
         "System.Runtime.InteropServices.4.0.21-beta-23516.nupkg",
         "System.Runtime.InteropServices.4.0.21-beta-23516.nupkg.sha512",
         "System.Runtime.InteropServices.nuspec"
+      ]
+    },
+    "System.Runtime.Serialization.Primitives/4.1.0-beta-23516": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "Dsl95PE2vyGIy9voclfTVKSqYD8O4PjsMS+TV0bM3N1xNraS2BBaChGk1stGmf04cn2/xA3cZyh80bkZL+v1/Q==",
+      "files": [
+        "lib/dotnet5.4/System.Runtime.Serialization.Primitives.dll",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net45/_._",
+        "lib/netcore50/System.Runtime.Serialization.Primitives.dll",
+        "lib/win8/_._",
+        "lib/wp80/_._",
+        "lib/wpa81/_._",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "ref/dotnet5.1/de/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.1/es/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.1/fr/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.1/it/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.1/ja/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.1/ko/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.1/ru/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.1/System.Runtime.Serialization.Primitives.dll",
+        "ref/dotnet5.1/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.1/zh-hans/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.1/zh-hant/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.4/de/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.4/es/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.4/fr/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.4/it/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.4/ja/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.4/ko/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.4/ru/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.4/System.Runtime.Serialization.Primitives.dll",
+        "ref/dotnet5.4/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.4/zh-hans/System.Runtime.Serialization.Primitives.xml",
+        "ref/dotnet5.4/zh-hant/System.Runtime.Serialization.Primitives.xml",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net45/_._",
+        "ref/netcore50/de/System.Runtime.Serialization.Primitives.xml",
+        "ref/netcore50/es/System.Runtime.Serialization.Primitives.xml",
+        "ref/netcore50/fr/System.Runtime.Serialization.Primitives.xml",
+        "ref/netcore50/it/System.Runtime.Serialization.Primitives.xml",
+        "ref/netcore50/ja/System.Runtime.Serialization.Primitives.xml",
+        "ref/netcore50/ko/System.Runtime.Serialization.Primitives.xml",
+        "ref/netcore50/ru/System.Runtime.Serialization.Primitives.xml",
+        "ref/netcore50/System.Runtime.Serialization.Primitives.dll",
+        "ref/netcore50/System.Runtime.Serialization.Primitives.xml",
+        "ref/netcore50/zh-hans/System.Runtime.Serialization.Primitives.xml",
+        "ref/netcore50/zh-hant/System.Runtime.Serialization.Primitives.xml",
+        "ref/win8/_._",
+        "ref/wp80/_._",
+        "ref/wpa81/_._",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "System.Runtime.Serialization.Primitives.4.1.0-beta-23516.nupkg",
+        "System.Runtime.Serialization.Primitives.4.1.0-beta-23516.nupkg.sha512",
+        "System.Runtime.Serialization.Primitives.nuspec"
       ]
     },
     "System.Security.Cryptography.Algorithms/4.0.0-beta-23516": {

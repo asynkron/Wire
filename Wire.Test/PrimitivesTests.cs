@@ -135,11 +135,17 @@ namespace Wire.Tests
         [Fact]
         public void CanSerializeString()
         {
-            SerializeAndAssert("hello");
+            for (int i = 0; i < 2000; i++)
+            {
+                var str = new string('a',i);
+                SerializeAndAssert(str);
+            }
+            
         }
 
         private void SerializeAndAssert(object expected)
         {
+            Reset();
             Serialize(expected);
             Reset();
             var res = Deserialize<object>();
