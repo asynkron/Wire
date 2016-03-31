@@ -9,6 +9,20 @@ namespace Wire.Tests
     public class CollectionTests : TestBase
     {
         [Fact]
+        public void CanSerializeSetOfInt()
+        {
+            var expected = new HashSet<int>
+            {
+                1,2,3,4,5
+            };
+
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<HashSet<int>>();
+            Assert.Equal(expected.ToList(), actual.ToList());
+        }
+
+        [Fact]
         public void CanSerializeSet()
         {
             var expected = new HashSet<Something>
