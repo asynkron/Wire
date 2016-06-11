@@ -69,7 +69,7 @@ namespace Wire.Tests
         [TestMethod]
         public void CanSerializeDateTime()
         {
-            SerializeAndAssert(DateTime.Now);
+            SerializeAndAssert(DateTime.UtcNow);
         }
 
         [TestMethod]
