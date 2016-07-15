@@ -15,7 +15,7 @@ namespace Wire.SerializerFactories
 
         public override bool CanDeserialize(Serializer serializer, Type type)
         {
-            var surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.To.IsAssignableFrom(type));
+            var surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.To.GetTypeInfo().IsAssignableFrom(type));
             return surrogate != null;
         }
 

@@ -1,19 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+#if SERIALIZATION
+using System.Runtime.Serialization;
+#else
+using System.Reflection;
+#endif
 
 namespace Wire
 {
     public static class TypeExtensions
     {
+#if !SERIALIZATION
+        private static readonly Func<Type, object> getUninitializedObjectDelegate = (Func<Type, object>)
+            typeof(string)
+                .GetTypeInfo()
+                .Assembly
+                .GetType("System.Runtime.Serialization.FormatterServices")
+                ?.GetTypeInfo()
+                ?.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+                ?.CreateDelegate(typeof(Func<Type, object>));
+
         public static object GetEmptyObject(this Type type)
         {
-#if false
-            return FormatterServices.GetUninitializedObject(type);
-#else
-            return Activator.CreateInstance(type); //TODO fix
-#endif
+            return getUninitializedObjectDelegate(type);
         }
+#else
+        public static object GetEmptyObject(this Type type)
+        {
+            return FormatterServices.GetUninitializedObject(type);
+        }
+#endif
+
     }
 }

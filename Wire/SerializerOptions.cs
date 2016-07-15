@@ -19,8 +19,8 @@ namespace Wire
             new DefaultDictionarySerializerFactory(),
             new DictionarySerializerFactory(),
             new ArraySerializerFactory(),
-#if false
-            new ISerializableSerializerFactory(),
+#if SERIALIZATION
+            new ISerializableSerializerFactory(), //TODO: this will mess up the indexes in the serializer payload
 #endif
             new EnumerableSerializerFactory(),
             

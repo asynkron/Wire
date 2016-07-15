@@ -1,26 +1,31 @@
 ﻿{
-  "version": "1.0.0-*",
-  "description": "Wire Class Library",
-  "authors": [ "ralsing" ],
-  "tags": [ "" ],
-  "projectUrl": "",
-  "licenseUrl": "",
-  "dependencies": {
-    "System.Runtime.Serialization.Primitives": "4.1.0-beta-23516"
+  "version": "0.6.2-*",
+  "description": "Wire, fast binary POCO serializer",
+  "authors": [
+    "Roger Johansson"
+  ],
+  "packOptions": {
+    "tags": [
+      "serialization",
+      "akka.net",
+      "poco"
+    ],
+    "projectUrl": "https://github.com/akkadotnet/Wire",
+    "licenseUrl": "https://github.com/akkadotnet/Wire/blob/master/LICENSE",
+    "iconUrl": "https://raw.githubusercontent.com/akkadotnet/Wire/master/Resources/logo.png"
   },
-
+  "dependencies": {
+  },
   "frameworks": {
-    "net451": { },
-    "dotnet5.4": {
+    "netstandard1.6": {
+      "imports": "dnxcore50",
       "dependencies": {
-        "Microsoft.CSharp": "4.0.1-beta-23516",
-        "System.Collections": "4.0.11-beta-23516",
-        "System.Linq": "4.0.1-beta-23516",
-        "System.Runtime": "4.0.21-beta-23516",
-        "System.Threading": "4.0.11-beta-23516",
-        "System.Collections.Concurrent": "4.0.12-rc2-23811",
-        
+        "NETStandard.Library": "1.6.0"
       }
+    },
+    "net451": {
+      "imports": "dotnet5.4",
+      "dependencies": {}
     }
   }
 }

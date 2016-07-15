@@ -24,7 +24,7 @@ namespace Wire
             return shortName.Replace(",%core%", CoreAssemblyName);
         }
 
-#if false
+#if UNSAFE
         public static unsafe bool UnsafeCompare(byte[] a1, byte[] a2)
         {
             if (a1 == null || a2 == null || a1.Length != a2.Length)

@@ -32,9 +32,11 @@ namespace Wire.SerializerFactories
 
         private static Type GetEnumerableType(Type type)
         {
-            return type.GetInterfaces()
-                .Where(intType => intType.GetTypeInfo().IsGenericType && intType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
-                .Select(intType => intType.GetGenericArguments()[0])
+            return type
+                .GetTypeInfo()
+                .GetInterfaces()
+                .Where(intType => intType.GetTypeInfo().IsGenericType && intType.GetTypeInfo().GetGenericTypeDefinition() == typeof (IEnumerable<>))
+                .Select(intType => intType.GetTypeInfo().GetGenericArguments()[0])
                 .FirstOrDefault();
         }
 
@@ -87,9 +89,9 @@ namespace Wire.SerializerFactories
                         Type.GetType(
                             ImmutableCollectionsNamespace + "." + typeName + ", " + ImmutableCollectionsAssembly, true);
                     var genericTypes = elementType.GetTypeInfo().IsGenericType
-                        ? elementType.GetGenericArguments()
+                        ? elementType.GetTypeInfo().GetGenericArguments()
                         : new[] {elementType};
-                    var createRange = creatorType.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                    var createRange = creatorType.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .First(methodInfo => methodInfo.Name == "CreateRange" && methodInfo.GetParameters().Length == 1)
                         .MakeGenericMethod(genericTypes);
                     var instance = createRange.Invoke(null, new object[] {items});
@@ -98,13 +100,13 @@ namespace Wire.SerializerFactories
                 else
                 {
                     var instance = Activator.CreateInstance(type);
-                    var addRange = type.GetMethod("AddRange");
+                    var addRange = type.GetTypeInfo().GetMethod("AddRange");
                     if (addRange != null)
                     {
                         addRange.Invoke(instance, new object[] {items});
                         return instance;
                     }
-                    var add = type.GetMethod("Add");
+                    var add = type.GetTypeInfo().GetMethod("Add");
                     if (add != null)
                     {
                         for (var i = 0; i < items.Length; i++)

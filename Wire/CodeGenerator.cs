@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-#if false
+#if SERIALIZATION
 using System.Runtime.Serialization;
 #endif
 using System.Text;
@@ -185,8 +185,9 @@ namespace Wire
             {
                 var tfields =
                     current
+                        .GetTypeInfo()
                         .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
-#if false
+#if SERIALIZATION
                         .Where(f => !f.IsDefined(typeof (NonSerializedAttribute)))
 #endif
                         .Where(f => !f.IsStatic)
@@ -290,7 +291,7 @@ namespace Wire
                 var valueType = field.FieldType;
                 if (field.FieldType.GetTypeInfo().IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof (Nullable<>))
                 {
-                    var nullableType = field.FieldType.GetGenericArguments()[0];
+                    var nullableType = field.FieldType.GetTypeInfo().GetGenericArguments()[0];
                     valueSerializer = serializer.GetSerializerByType(nullableType);
                     valueType = nullableType;
                 }
