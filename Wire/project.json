@@ -20,7 +20,8 @@
     "netstandard1.6": {
       "imports": "dnxcore50",
       "dependencies": {
-        "NETStandard.Library": "1.6.0"
+        "NETStandard.Library": "1.6.0",
+        "Microsoft.CSharp": "4.0.1"
       }
     },
     "net451": {
