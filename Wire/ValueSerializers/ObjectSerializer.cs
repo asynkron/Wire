@@ -1,9 +1,9 @@
 using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using ByteArrayTypeLookup = System.Collections.Concurrent.ConcurrentDictionary<byte[], System.Type>;
 
 namespace Wire.ValueSerializers
 {
@@ -13,14 +13,13 @@ namespace Wire.ValueSerializers
         public const byte ManifestIndex = 254;
       
 
-        private static readonly ConcurrentDictionary<byte[], Type> TypeNameLookup =
-            new ConcurrentDictionary<byte[], Type>(new ByteArrayEqualityComparer());
+        private static readonly ByteArrayTypeLookup TypeNameLookup = new ByteArrayTypeLookup(new ByteArrayEqualityComparer());
 
         private readonly byte[] _manifest;
 
         private volatile bool _isInitialized;
-        private ValueReader _reader;
-        private ValueWriter _writer;
+        private TypeReader _reader;
+        private TypeWriter _writer;
 
         public ObjectSerializer(Type type)
         {
@@ -87,7 +86,7 @@ namespace Wire.ValueSerializers
             return Type;
         }
 
-        public void Initialize(ValueReader reader, ValueWriter writer)
+        public void Initialize(TypeReader reader, TypeWriter writer)
         {
             _reader = reader;
             _writer = writer;

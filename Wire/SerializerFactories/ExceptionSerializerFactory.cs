@@ -7,6 +7,7 @@ namespace Wire.SerializerFactories
 {
     public class ExceptionSerializerFactory : ValueSerializerFactory
     {
+        private static readonly TypeInfo ExceptionTypeInfo = typeof(Exception).GetTypeInfo();
         private readonly FieldInfo _className;
         private readonly FieldInfo _innerException;
         private readonly FieldInfo _stackTraceString;
@@ -15,18 +16,18 @@ namespace Wire.SerializerFactories
 
         public ExceptionSerializerFactory()
         {
-            const BindingFlags bf = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-            var t = typeof(Exception).GetTypeInfo();
-            _className = t.GetField("_className", bf);
-            _innerException = t.GetField("_innerException", bf);
-            _message = t.GetField("_message", bf);
-            _remoteStackTraceString = t.GetField("_remoteStackTraceString", bf);
-            _stackTraceString = t.GetField("_stackTraceString", bf);
+            var bf = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+
+            _className = ExceptionTypeInfo.GetField("_className", bf);
+            _innerException = ExceptionTypeInfo.GetField("_innerException", bf);
+            _message = ExceptionTypeInfo.GetField("_message", bf);
+            _remoteStackTraceString = ExceptionTypeInfo.GetField("_remoteStackTraceString", bf);
+            _stackTraceString = ExceptionTypeInfo.GetField("_stackTraceString", bf);
         }
 
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            return typeof(Exception).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+            return ExceptionTypeInfo.IsAssignableFrom(type.GetTypeInfo());
         }
 
         public override bool CanDeserialize(Serializer serializer, Type type)
@@ -65,7 +66,7 @@ namespace Wire.SerializerFactories
                 StringSerializer.Instance.WriteValue(stream, message, session);
                 StringSerializer.Instance.WriteValue(stream, remoteStackTraceString, session);
                 StringSerializer.Instance.WriteValue(stream, stackTraceString, session);
-                stream.WriteObject(innerException, session);
+                stream.WriteObjectWithManifest(innerException, session);
             });
             typeMapping.TryAdd(type, exceptionSerializer);
             return exceptionSerializer;

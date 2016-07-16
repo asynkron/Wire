@@ -52,7 +52,7 @@ namespace Wire.SerializerFactories
             var elementType = GetEnumerableType(type) ?? typeof (object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
-            ValueWriter writer = (stream, o, session) =>
+            TypeWriter writer = (stream, o, session) =>
             {
                 var enumerable = o as ICollection;
                 // ReSharper disable once PossibleNullReferenceException
@@ -63,7 +63,7 @@ namespace Wire.SerializerFactories
                 }
             };
 
-            ValueReader reader = (stream, session) =>
+            TypeReader reader = (stream, session) =>
             {
                 var count = stream.ReadInt32(session);
                 var items = Array.CreateInstance(elementType, count);

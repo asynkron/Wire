@@ -45,14 +45,14 @@ namespace Wire.SerializerFactories
             var toArrayConcrete = toArray.MakeGenericMethod(elementType);
             var toArrayCompiled = CodeGenerator.CompileToDelegate(toArrayConcrete, type);
 
-            ValueWriter writer = (stream, o, session) =>
+            TypeWriter writer = (stream, o, session) =>
             {
                 var arr = toArrayCompiled(o);
                 var arrSerializer = serializer.GetSerializerByType(arrType);
                 arrSerializer.WriteValue(stream,arr,session);
             };
 
-            ValueReader reader = (stream, session) =>
+            TypeReader reader = (stream, session) =>
             {               
                 var arrSerializer = serializer.GetSerializerByType(arrType);
                 var items = (Array)arrSerializer.ReadValue(stream, session);                          

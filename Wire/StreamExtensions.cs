@@ -53,7 +53,7 @@ namespace Wire
             self.Write(bytes, 0, bytes.Length);
         }
 
-        public static void WriteObject(this Stream stream, object value, SerializerSession session)
+        public static void WriteObjectWithManifest(this Stream stream, object value, SerializerSession session)
         {
             if (value == null) //value is null
             {

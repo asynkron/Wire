@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="ByteArrayEqualityComparer.cs" />
     <Compile Include="CodeGenerator.cs" />
+    <Compile Include="ReflectionEx.cs" />
     <Compile Include="SerializerFactories\ArraySerializerFactory.cs" />
     <Compile Include="SerializerFactories\DefaultDictionarySerializerFactory.cs" />
     <Compile Include="SerializerFactories\DictionarySerializerFactory.cs" />
@@ -60,7 +61,6 @@
     <Compile Include="SerializerOptions.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="Surrogate.cs" />
-    <Compile Include="TypeExtensions.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ValueSerializers\BoolSerializer.cs" />
     <Compile Include="ValueSerializers\ByteArraySerializer.cs" />
