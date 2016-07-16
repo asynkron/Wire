@@ -119,7 +119,8 @@ namespace Wire
                     var storedFieldCount = stream.ReadByte();
                     if (storedFieldCount != fieldsToRead)
                     {
-                        //TODO: 
+                        //TODO: version mismatch, different field count
+                        //I dont think we need to do anything special here atm.
                     }
 
                     for (var i = 0; i < storedFieldCount; i++)
@@ -127,11 +128,21 @@ namespace Wire
                         var fieldName = stream.ReadLengthEncodedByteArray(session);
                         if (!Utils.UnsafeCompare(fieldName, fieldNames[i]))
                         {
-                            //TODO
+                            //TODO: field name mismatch
+                            //this should really be a compare less equal or greater
+                            //to know if the field is added or removed
+
+                            //1) if names are equal, read the value and assign the field
+
+                            //2) if the field is less than the expected field, then this field is an unknown new field
+                            //we need to read this object and just ignore its content.
+
+                            //3) if the field is greater than the expected, we need to check the next expected until
+                            //the current is less or equal, then goto 1)
                         }
                     }
 
-                    //   writeallFields(stream, instance, session);
+                    //this should be moved up in the version tolerant loop
                     for (var i = 0; i < storedFieldCount; i++)
                     {
                         var fieldReader = fieldReaders[i];
@@ -140,7 +151,6 @@ namespace Wire
                 }
                 else
                 {
-                    //  writeallFields(stream, instance, session);
                     for (var i = 0; i < fieldsToRead; i++)
                     {
                         var fieldReader = fieldReaders[i];
@@ -187,7 +197,7 @@ namespace Wire
                 var tfields =
                     current
                         .GetTypeInfo()
-                        .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                        .GetFields(BindingFlagsEx.All)
 #if SERIALIZATION
                         .Where(f => !f.IsDefined(typeof(NonSerializedAttribute)))
 #endif

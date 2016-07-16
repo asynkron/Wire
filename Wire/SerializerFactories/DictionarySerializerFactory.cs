@@ -10,10 +10,7 @@ namespace Wire.SerializerFactories
 {
     public class DictionarySerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type)
-        {
-            return IsInterface(type);
-        }
+        public override bool CanSerialize(Serializer serializer, Type type) => IsInterface(type);
 
         private static bool IsInterface(Type type)
         {
@@ -24,10 +21,7 @@ namespace Wire.SerializerFactories
                 .Any(isDict => isDict);
         }
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return IsInterface(type);
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => IsInterface(type);
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)

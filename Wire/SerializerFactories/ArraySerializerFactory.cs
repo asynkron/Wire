@@ -8,15 +8,9 @@ namespace Wire.SerializerFactories
 {
     public class ArraySerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type)
-        {
-            return type.IsOneDimensionalArray();
-        }
+        public override bool CanSerialize(Serializer serializer, Type type) => type.IsOneDimensionalArray();
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return CanSerialize(serializer, type);
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
         private static void WriteValues<T>(IReadOnlyList<T> array,Stream stream,Type elementType, ValueSerializer elementSerializer, SerializerSession session)
         {

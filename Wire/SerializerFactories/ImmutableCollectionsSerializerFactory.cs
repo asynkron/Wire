@@ -15,20 +15,15 @@ namespace Wire.SerializerFactories
 
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            if (type.Namespace != null && type.Namespace.Equals(ImmutableCollectionsNamespace))
-            {
-                var isGenericEnumerable = GetEnumerableType(type) != null;
-                if (isGenericEnumerable)
-                    return true;
-            }
+            if (type.Namespace == null || !type.Namespace.Equals(ImmutableCollectionsNamespace)) return false;
+            var isGenericEnumerable = GetEnumerableType(type) != null;
+            if (isGenericEnumerable)
+                return true;
 
             return false;
         }
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return CanSerialize(serializer, type);
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
         private static Type GetEnumerableType(Type type)
         {

@@ -23,15 +23,9 @@ namespace Wire.SerializerFactories
             _stackTraceString = ExceptionTypeInfo.GetField("_stackTraceString", BindingFlagsEx.All);
         }
 
-        public override bool CanSerialize(Serializer serializer, Type type)
-        {
-            return ExceptionTypeInfo.IsAssignableFrom(type.GetTypeInfo());
-        }
+        public override bool CanSerialize(Serializer serializer, Type type) => ExceptionTypeInfo.IsAssignableFrom(type.GetTypeInfo());
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return CanSerialize(serializer, type);
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)

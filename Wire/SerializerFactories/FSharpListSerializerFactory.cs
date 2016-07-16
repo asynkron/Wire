@@ -9,15 +9,9 @@ namespace Wire.SerializerFactories
 {
     public class FSharpListSerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type)
-        {
-            return type.FullName.StartsWith("Microsoft.FSharp.Collections.FSharpList`1");
-        }
+        public override bool CanSerialize(Serializer serializer, Type type) => type.FullName.StartsWith("Microsoft.FSharp.Collections.FSharpList`1");
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return CanSerialize(serializer, type);
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
         private static Type GetEnumerableType(Type type)
         {

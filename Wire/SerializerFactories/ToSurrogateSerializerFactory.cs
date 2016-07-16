@@ -10,14 +10,11 @@ namespace Wire.SerializerFactories
     {
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            var surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.From.GetTypeInfo().IsAssignableFrom(type));
+            var surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.IsSurrogateFor(type));
             return surrogate != null;
         }
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return false;
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => false;
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
