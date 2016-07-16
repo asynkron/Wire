@@ -13,7 +13,7 @@ namespace Wire
 {
     public class CodeGenerator
     {
-        public static void BuildSerializer(Serializer serializer, Type type, ObjectSerializer GetdSerializer)
+        public static void BuildSerializer(Serializer serializer, Type type, ObjectSerializer objectSerializer)
         {
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
@@ -21,8 +21,8 @@ namespace Wire
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            if (GetdSerializer == null)
-                throw new ArgumentNullException(nameof(GetdSerializer));
+            if (objectSerializer == null)
+                throw new ArgumentNullException(nameof(objectSerializer));
 
             var fields = GetFieldInfosForType(type);
 
@@ -84,10 +84,10 @@ namespace Wire
             };
 
             var reader = GetReader(serializer, type, preserveObjectReferences, fields, fieldNames, fieldReaders);
-            GetdSerializer.Initialize(reader, writer);
+            objectSerializer.Initialize(reader, writer);
         }
 
-        private static byte[] GetTypeManifest(List<byte[]> fieldNames)
+        private static byte[] GetTypeManifest(IReadOnlyCollection<byte[]> fieldNames)
         {
             IEnumerable<byte> result = new[] {(byte) fieldNames.Count};
             foreach (var name in fieldNames)
@@ -241,7 +241,7 @@ namespace Wire
             }
 
 
-            if (!serializer.Options.VersionTolerance && TypeEx.IsPrimitiveType(field.FieldType))
+            if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
             {
                 //Only optimize if property names are not included.
                 //if they are included, we need to be able to skip past unknown property data
@@ -279,7 +279,7 @@ namespace Wire
             var getFieldValue = GetFieldInfoReader(field);
 
             //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
-            if (!serializer.Options.VersionTolerance && TypeEx.IsPrimitiveType(field.FieldType))
+            if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
             {
                 //primitive types does not need to write any manifest, if the field type is known
                 //nor can they be null (StringSerializer has it's own null handling)
