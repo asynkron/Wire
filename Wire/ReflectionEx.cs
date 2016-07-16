@@ -6,6 +6,9 @@ namespace Wire
 {
     internal static class TypeEx
     {
+        //Why not inline typeof you ask?
+        //Because it actually generates calls to get the type.
+        //We prefetch all primitives here
         internal static readonly Type Int32Type = typeof(int);
         internal static readonly Type Int64Type = typeof(long);
         internal static readonly Type Int16Type = typeof(short);
@@ -26,7 +29,7 @@ namespace Wire
         internal static readonly Type TypeType = typeof(Type);
         internal static readonly Type RuntimeType = Type.GetType("System.RuntimeType");
 
-        internal static bool IsPrimitiveType(Type type)
+        internal static bool IsWirePrimitive(this Type type)
         {
             return type == Int32Type ||
                    type == Int64Type ||
@@ -48,6 +51,7 @@ namespace Wire
         }
 
 #if !SERIALIZATION
+        //HACK: the GetUnitializedObject actually exists in .NET Core, its just not public
         private static readonly Func<Type, object> getUninitializedObjectDelegate = (Func<Type, object>)
             typeof(string)
                 .GetTypeInfo()
@@ -67,6 +71,11 @@ namespace Wire
             return FormatterServices.GetUninitializedObject(type);
         }
 #endif
+
+        public static bool IsOneDimensionalArray(this Type type)
+        {
+            return type.IsArray && type.GetArrayRank() == 1;
+        }
     }
 
     public static class BindingFlagsEx

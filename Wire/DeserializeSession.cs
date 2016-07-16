@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-
+using IntToObjectLookup = System.Collections.Generic.Dictionary<int, object>;
+using IntToTypeLookup = System.Collections.Generic.Dictionary<int, System.Type>;
 namespace Wire
 {
     public class DeserializerSession
     {
         private readonly byte[] _buffer;
-        private readonly Dictionary<int, Type> _identifierToType;
-        private readonly Dictionary<int, object> _objectById;
+        private readonly IntToTypeLookup _identifierToType;
+        private readonly IntToObjectLookup _objectById;
         public readonly Serializer Serializer;
         private int _nextObjectId;
         private int _nextTypeId;
@@ -16,10 +16,10 @@ namespace Wire
         {
             Serializer = serializer;
             _buffer = new byte[8];
-            _identifierToType = new Dictionary<int, Type>();
+            _identifierToType = new IntToTypeLookup();
             if (serializer.Options.PreserveObjectReferences)
             {
-                _objectById = new Dictionary<int, object>();
+                _objectById = new IntToObjectLookup();
             }
         }
 

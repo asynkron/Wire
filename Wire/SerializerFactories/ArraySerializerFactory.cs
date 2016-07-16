@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using Wire.ValueSerializers;
 
@@ -9,7 +10,7 @@ namespace Wire.SerializerFactories
     {
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            return type.IsArray && type.GetArrayRank() == 1;
+            return type.IsOneDimensionalArray();
         }
 
         public override bool CanDeserialize(Serializer serializer, Type type)
@@ -17,11 +18,11 @@ namespace Wire.SerializerFactories
             return CanSerialize(serializer, type);
         }
 
-        private static void WriteValues<T>(T[] array,Stream stream,Type elementType, ValueSerializer elementSerializer, SerializerSession session)
+        private static void WriteValues<T>(IReadOnlyList<T> array,Stream stream,Type elementType, ValueSerializer elementSerializer, SerializerSession session)
         {
-            stream.WriteInt32(array.Length);
+            stream.WriteInt32(array.Count);
             var preserveObjectReferences = session.Serializer.Options.PreserveObjectReferences;
-            for (int i = 0; i < array.Length; i++)
+            for (int i = 0; i < array.Count; i++)
             {
                 var value = array[i];
                 stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);

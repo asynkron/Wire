@@ -16,13 +16,11 @@ namespace Wire.SerializerFactories
 
         public ExceptionSerializerFactory()
         {
-            var bf = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-
-            _className = ExceptionTypeInfo.GetField("_className", bf);
-            _innerException = ExceptionTypeInfo.GetField("_innerException", bf);
-            _message = ExceptionTypeInfo.GetField("_message", bf);
-            _remoteStackTraceString = ExceptionTypeInfo.GetField("_remoteStackTraceString", bf);
-            _stackTraceString = ExceptionTypeInfo.GetField("_stackTraceString", bf);
+            _className = ExceptionTypeInfo.GetField("_className", BindingFlagsEx.All);
+            _innerException = ExceptionTypeInfo.GetField("_innerException", BindingFlagsEx.All);
+            _message = ExceptionTypeInfo.GetField("_message", BindingFlagsEx.All);
+            _remoteStackTraceString = ExceptionTypeInfo.GetField("_remoteStackTraceString", BindingFlagsEx.All);
+            _stackTraceString = ExceptionTypeInfo.GetField("_stackTraceString", BindingFlagsEx.All);
         }
 
         public override bool CanSerialize(Serializer serializer, Type type)
@@ -61,7 +59,6 @@ namespace Wire.SerializerFactories
                 var remoteStackTraceString = _remoteStackTraceString.GetValue(exception);
                 var stackTraceString = _stackTraceString.GetValue(exception);
                 var innerException = _innerException.GetValue(exception);
-
                 StringSerializer.Instance.WriteValue(stream, className, session);
                 StringSerializer.Instance.WriteValue(stream, message, session);
                 StringSerializer.Instance.WriteValue(stream, remoteStackTraceString, session);

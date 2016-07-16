@@ -22,7 +22,10 @@ namespace Wire.SerializerFactories
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.From.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()));
+            var surrogate = serializer
+                .Options
+                .Surrogates
+                .FirstOrDefault(s => s.IsSurrogateFor(type));
             // ReSharper disable once PossibleNullReferenceException
             ValueSerializer objectSerializer = new ObjectSerializer(surrogate.To);
             var toSurrogateSerializer = new ToSurrogateSerializer(surrogate.ToSurrogate, surrogate.To, objectSerializer);

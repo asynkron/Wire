@@ -13,7 +13,7 @@ namespace Wire
 {
     public class CodeGenerator
     {
-        public static void BuildSerializer(Serializer serializer, Type type, ObjectSerializer generatedSerializer)
+        public static void BuildSerializer(Serializer serializer, Type type, ObjectSerializer GetdSerializer)
         {
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
@@ -21,12 +21,12 @@ namespace Wire
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            if (generatedSerializer == null)
-                throw new ArgumentNullException(nameof(generatedSerializer));
+            if (GetdSerializer == null)
+                throw new ArgumentNullException(nameof(GetdSerializer));
 
             var fields = GetFieldInfosForType(type);
 
-            var fieldWriters = new List<TypeWriter>();
+            var fieldWriters = new List<ObjectWriter>();
             var fieldReaders = new List<FieldReader>();
             var fieldNames = new List<byte[]>();
 
@@ -34,28 +34,25 @@ namespace Wire
             {
                 var fieldName = Encoding.UTF8.GetBytes(field.Name);
                 fieldNames.Add(fieldName);
-                fieldWriters.Add(GenerateValueWriter(serializer, field));
-                fieldReaders.Add(GenerateFieldReader(serializer, type, field));
+                fieldWriters.Add(GetValueWriter(serializer, field));
+                fieldReaders.Add(GetFieldReader(serializer, type, field));
             }
 
-
-
-
-            TypeWriter writeallFields;
+            FieldsWriter writeFields;
 
             if (fieldWriters.Any())
             {
-                writeallFields = GenerateTypeWriter(fieldWriters);
+                writeFields = GetFieldsWriter(fieldWriters);
             }
             else
             {
-                writeallFields = (a, b, c) => { };
+                writeFields = (a, b, c) => { };
             }
 
             if (Debugger.IsAttached)
             {
-                var tmp = writeallFields;
-                writeallFields = (stream, o, session) =>
+                var tmp = writeFields;
+                writeFields = (stream, o, session) =>
                 {
                     try
                     {
@@ -71,7 +68,7 @@ namespace Wire
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             var versiontolerance = serializer.Options.VersionTolerance;
             var typeManifest = GetTypeManifest(fieldNames);
-            TypeWriter writer = (stream, o, session) =>
+            ObjectWriter writer = (stream, o, session) =>
             {
                 if (versiontolerance)
                 {
@@ -83,11 +80,11 @@ namespace Wire
                     session.TrackSerializedObject(o);
                 }
 
-                writeallFields(stream, o, session);
+                writeFields(stream, o, session);
             };
 
-            var reader = MakeReader(serializer, type, preserveObjectReferences, fields, fieldNames, fieldReaders);
-            generatedSerializer.Initialize(reader, writer);
+            var reader = GetReader(serializer, type, preserveObjectReferences, fields, fieldNames, fieldReaders);
+            GetdSerializer.Initialize(reader, writer);
         }
 
         private static byte[] GetTypeManifest(List<byte[]> fieldNames)
@@ -99,7 +96,7 @@ namespace Wire
             return versionTolerantHeader;
         }
 
-        private static TypeReader MakeReader(
+        private static ObjectReader GetReader(
             Serializer serializer,
             Type type,
             bool preserveObjectReferences,
@@ -107,7 +104,7 @@ namespace Wire
             IReadOnlyList<byte[]> fieldNames,
             IReadOnlyList<FieldReader> fieldReaders)
         {
-            TypeReader reader = (stream, session) =>
+            ObjectReader reader = (stream, session) =>
             {
                 //create instance without calling constructor
                 var instance = type.GetEmptyObject();
@@ -156,7 +153,7 @@ namespace Wire
             return reader;
         }
 
-        private static TypeWriter GenerateTypeWriter(IReadOnlyList<TypeWriter> fieldWriters)
+        private static FieldsWriter GetFieldsWriter(IReadOnlyList<ObjectWriter> fieldWriters)
         {
             if (fieldWriters == null)
                 throw new ArgumentNullException(nameof(fieldWriters));
@@ -166,13 +163,13 @@ namespace Wire
             var sessionParam = Parameter(typeof(SerializerSession));
             var xs = fieldWriters
                 .Select(Constant)
-                .Select(
-                    fieldWriterExpression =>
-                        Invoke(fieldWriterExpression, streamParam, objectParam, sessionParam))
+                .Select(fieldWriterExpression => 
+                    Invoke(fieldWriterExpression, streamParam, objectParam, sessionParam))
                 .ToList();
+
             var body = Block(xs);
             var writeallFields =
-                Lambda<TypeWriter>(body, streamParam, objectParam,
+                Lambda<FieldsWriter>(body, streamParam, objectParam,
                     sessionParam)
                     .Compile();
             return writeallFields;
@@ -206,7 +203,7 @@ namespace Wire
             return fields;
         }
 
-        private static FieldReader GenerateFieldReader(
+        private static FieldReader GetFieldReader(
             Serializer serializer,
             Type type, 
             FieldInfo field)
@@ -225,6 +222,7 @@ namespace Wire
             Action<object, object> setter;
             if (field.IsInitOnly)
             {
+                //TODO: field is readonly, can we set it via IL or only via reflection
                 setter = field.SetValue;
             }
             else
@@ -267,7 +265,7 @@ namespace Wire
             }
         }
 
-        private static TypeWriter GenerateValueWriter(Serializer serializer, FieldInfo field)
+        private static ObjectWriter GetValueWriter(Serializer serializer, FieldInfo field)
         {
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
@@ -277,15 +275,15 @@ namespace Wire
 
             //get the serializer for the type of the field
             var valueSerializer = serializer.GetSerializerByType(field.FieldType);
-            //runtime generate a delegate that reads the content of the given field
-            var getFieldValue = GenerateFieldInfoReader(field);
+            //runtime Get a delegate that reads the content of the given field
+            var getFieldValue = GetFieldInfoReader(field);
 
             //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
             if (!serializer.Options.VersionTolerance && TypeEx.IsPrimitiveType(field.FieldType))
             {
                 //primitive types does not need to write any manifest, if the field type is known
                 //nor can they be null (StringSerializer has it's own null handling)
-                TypeWriter fieldWriter = (stream, o, session) =>
+                ObjectWriter fieldWriter = (stream, o, session) =>
                 {
                     var value = getFieldValue(o);
                     valueSerializer.WriteValue(stream, value, session);
@@ -304,7 +302,7 @@ namespace Wire
                 }
                 var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
-                TypeWriter fieldWriter = (stream, o, session) =>
+                ObjectWriter fieldWriter = (stream, o, session) =>
                 {
                     var value = getFieldValue(o);
 
@@ -314,7 +312,7 @@ namespace Wire
             }
         }
 
-        private static Func<object, object> GenerateFieldInfoReader(FieldInfo field)
+        private static Func<object, object> GetFieldInfoReader(FieldInfo field)
         {
             if (field == null)
                 throw new ArgumentNullException(nameof(field));

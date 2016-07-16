@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Wire
 {
@@ -24,6 +25,11 @@ namespace Wire
             Func<TSurrogate, TSource> fromSurrogate)
         {
             return new Surrogate<TSource, TSurrogate>(toSurrogate, fromSurrogate);
+        }
+
+        public bool IsSurrogateFor(Type type)
+        {
+            return From.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
         }
     }
 }
