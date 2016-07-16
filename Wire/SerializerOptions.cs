@@ -15,6 +15,7 @@ namespace Wire
             new FromSurrogateSerializerFactory(),
             new FSharpListSerializerFactory(), 
             //order is important, try dictionaries before enumerables as dicts are also enumerable
+            new ExceptionSerializerFactory(), 
             new ImmutableCollectionsSerializerFactory(),
             new DefaultDictionarySerializerFactory(),
             new DictionarySerializerFactory(),

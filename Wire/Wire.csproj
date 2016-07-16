@@ -48,6 +48,7 @@
     <Compile Include="SerializerFactories\DefaultDictionarySerializerFactory.cs" />
     <Compile Include="SerializerFactories\DictionarySerializerFactory.cs" />
     <Compile Include="SerializerFactories\EnumerableSerializerFactory.cs" />
+    <Compile Include="SerializerFactories\ExceptionSerializerFactory.cs" />
     <Compile Include="SerializerFactories\FromSurrogateSerializerFactory.cs" />
     <Compile Include="SerializerFactories\FSharpListSerializerFactory.cs" />
     <Compile Include="SerializerFactories\ImmutableCollectionsSerializerFactory.cs" />

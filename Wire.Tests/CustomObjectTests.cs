@@ -29,14 +29,19 @@ namespace Wire.Tests
             var actual = Deserialize<Something>();
             Assert.AreEqual(expected, actual);
         }
+
+
+        //this uses a lightweight serialization of exceptions to conform to .NET core's lack of ISerializable
+        //all custom exception information will be lost.
+        //only message, inner exception, stacktrace and the bare minimum will be preserved.
         [TestMethod]
         public void CanSerializeException()
         {
-            var expected = new ArgumentException("foo","bar");
+            var expected = new Exception("hello wire");
             Serialize(expected);
             Reset();
-            var actual = Deserialize<ArgumentException>();
-            Assert.AreEqual(expected.ParamName, actual.ParamName);
+            var actual = Deserialize<Exception>();
+            Assert.AreEqual(expected.StackTrace, actual.StackTrace);
             Assert.AreEqual(expected.Message, actual.Message);
         }
         [TestMethod]
