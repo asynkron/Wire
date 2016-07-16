@@ -36,7 +36,7 @@ namespace Wire.SerializerFactories
             typeMapping.TryAdd(type, ser);
             var elementSerializer = serializer.GetSerializerByType(typeof (DictionaryEntry));
 
-            TypeReader reader = (stream, session) =>
+            ObjectReader reader = (stream, session) =>
             {
                 var count = stream.ReadInt32(session);
                 var entries = new DictionaryEntry[count];
@@ -48,7 +48,7 @@ namespace Wire.SerializerFactories
                 return null;
             };
 
-            TypeWriter writer = (stream, obj, session) =>
+            ObjectWriter writer = (stream, obj, session) =>
             {
                 var dict = obj as IDictionary;
                 // ReSharper disable once PossibleNullReferenceException

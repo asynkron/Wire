@@ -18,8 +18,8 @@ namespace Wire.ValueSerializers
         private readonly byte[] _manifest;
 
         private volatile bool _isInitialized;
-        private TypeReader _reader;
-        private TypeWriter _writer;
+        private ObjectReader _reader;
+        private ObjectWriter _writer;
 
         public ObjectSerializer(Type type)
         {
@@ -86,7 +86,7 @@ namespace Wire.ValueSerializers
             return Type;
         }
 
-        public void Initialize(TypeReader reader, TypeWriter writer)
+        public void Initialize(ObjectReader reader, ObjectWriter writer)
         {
             _reader = reader;
             _writer = writer;

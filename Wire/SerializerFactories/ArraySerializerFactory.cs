@@ -22,7 +22,7 @@ namespace Wire.SerializerFactories
         {
             stream.WriteInt32(array.Count);
             var preserveObjectReferences = session.Serializer.Options.PreserveObjectReferences;
-            for (int i = 0; i < array.Count; i++)
+            for (var i = 0; i < array.Count; i++)
             {
                 var value = array[i];
                 stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);

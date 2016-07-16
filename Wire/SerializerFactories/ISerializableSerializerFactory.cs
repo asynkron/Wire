@@ -26,7 +26,7 @@ namespace Wire.SerializerFactories
         {
             var serializableSerializer = new ObjectSerializer(type);
             typeMapping.TryAdd(type, serializableSerializer);
-            TypeReader reader = (stream, session) =>
+            ObjectReader reader = (stream, session) =>
             {
                 var dict = stream.ReadObject(session) as Dictionary<string, object>;
                 var info = new SerializationInfo(type, new FormatterConverter());
@@ -46,7 +46,7 @@ namespace Wire.SerializerFactories
                 return instance;
             };
 
-            TypeWriter writer = (stream, o, session) =>
+            ObjectWriter writer = (stream, o, session) =>
             {
                 var info = new SerializationInfo(type, new FormatterConverter());
                 var serializable = o as ISerializable;

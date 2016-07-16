@@ -50,7 +50,7 @@ namespace Wire.SerializerFactories
             var elementType = GetEnumerableType(type) ?? typeof (object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
-            TypeWriter writer = (stream, o, session) =>
+            ObjectWriter writer = (stream, o, session) =>
             {
                 var enumerable = o as ICollection;
                 if (enumerable == null)
@@ -69,7 +69,7 @@ namespace Wire.SerializerFactories
                 }
             };
 
-            TypeReader reader = (stream, session) =>
+            ObjectReader reader = (stream, session) =>
             {
                 var count = stream.ReadInt32(session);
                 var items = Array.CreateInstance(elementType, count);
@@ -107,12 +107,10 @@ namespace Wire.SerializerFactories
                         return instance;
                     }
                     var add = type.GetTypeInfo().GetMethod("Add");
-                    if (add != null)
+                    if (add == null) return instance;
+                    for (var i = 0; i < items.Length; i++)
                     {
-                        for (var i = 0; i < items.Length; i++)
-                        {
-                            add.Invoke(instance, new[] {items.GetValue(i)});
-                        }
+                        add.Invoke(instance, new[] {items.GetValue(i)});
                     }
 
                     return instance;

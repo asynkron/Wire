@@ -167,7 +167,7 @@ namespace Wire
             if (type.IsArray && type.GetArrayRank() == 1)
             {
                 var elementType = type.GetElementType();
-                if (TypeEx.IsPrimitiveType(elementType))
+                if (elementType.IsWirePrimitive())
                 {
                     return ConsistentArraySerializer.Instance;
                 }
@@ -240,7 +240,7 @@ namespace Wire
             if (type.IsArray && type.GetArrayRank() == 1)
             {
                 var elementType = type.GetElementType();
-                if (TypeEx.IsPrimitiveType(elementType))
+                if (elementType.IsWirePrimitive())
                 {
                     return ConsistentArraySerializer.Instance;
                 }
