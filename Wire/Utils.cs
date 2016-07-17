@@ -116,12 +116,6 @@ namespace Wire
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static string BytesToString(byte[] bytes)
-        {
-            return Utf8.GetString(bytes);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static string BytesToString(byte[] bytes,int offset, int count)
         {
             return Utf8.GetString(bytes,offset,count);
