@@ -62,6 +62,22 @@ namespace Wire.Tests
         }
 
         [TestMethod]
+        public void CanSerializeStruct()
+        {
+            var expected = new StuctValue
+            {
+                Prop1 = "hello",
+                Prop2 = 123,
+            };
+
+
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<StuctValue>();
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
         public void CanSerializeObject()
         {
             var expected = new Something

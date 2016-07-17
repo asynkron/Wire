@@ -1,5 +1,5 @@
 ﻿{
-  "version": "0.6.2-*",
+  "version": "0.7.0-*",
   "description": "Wire, fast binary POCO serializer",
   "authors": [
     "Roger Johansson"
@@ -12,7 +12,7 @@
     ],
     "projectUrl": "https://github.com/akkadotnet/Wire",
     "licenseUrl": "https://github.com/akkadotnet/Wire/blob/master/LICENSE",
-    "iconUrl": "https://raw.githubusercontent.com/akkadotnet/Wire/master/Resources/logo.png"
+    "iconUrl": "https://raw.githubusercontent.com/hmemcpy/NServiceBus.Wire/master/icon.png"
   },
   "dependencies": {
   },

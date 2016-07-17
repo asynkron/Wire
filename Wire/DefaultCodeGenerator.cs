@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using Wire.ValueSerializers;
 
@@ -211,10 +212,8 @@ namespace Wire
 
             if (field == null)
                 throw new ArgumentNullException(nameof(field));
-
-            var s = serializer.GetSerializerByType(field.FieldType);
-
-            FieldInfoWriter setter;
+            
+            FieldInfoWriter setter;// = GetSetDelegate(field);
             if (field.IsInitOnly)
             {
                 //TODO: field is readonly, can we set it via IL or only via reflection
@@ -235,7 +234,7 @@ namespace Wire
                 setter = Expression.Lambda<FieldInfoWriter>(assignExp, targetExp, valueExp).Compile();
             }
 
-
+            var s = serializer.GetSerializerByType(field.FieldType);
             if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
             {
                 //Only optimize if property names are not included.
