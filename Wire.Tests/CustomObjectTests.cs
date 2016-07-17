@@ -107,5 +107,15 @@ namespace Wire.Tests
             var actual = Deserialize<Tuple<string>>();
             Assert.AreEqual(expected,actual);
         }
+
+        [TestMethod]
+        public void CanSerializeType()
+        {
+            var expected = Tuple.Create(GetType(), GetType(), (Type)null);
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<Tuple<Type, Type, Type>>();
+            Assert.AreEqual(expected, actual);
+        }
     }
 }
