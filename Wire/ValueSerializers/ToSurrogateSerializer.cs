@@ -24,8 +24,7 @@ namespace Wire.ValueSerializers
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var surrogateValue = _translator(value);
-            stream.WriteObject(surrogateValue, _type, _surrogateSerializer,
-                session.Serializer.Options.PreserveObjectReferences, session);
+            stream.WriteObjectWithManifest(surrogateValue, session);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)

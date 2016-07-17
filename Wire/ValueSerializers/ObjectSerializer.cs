@@ -11,9 +11,10 @@ namespace Wire.ValueSerializers
     {
         public const byte ManifestFull = 255;
         public const byte ManifestIndex = 254;
-      
 
-        private static readonly ByteArrayTypeLookup TypeNameLookup = new ByteArrayTypeLookup(new ByteArrayEqualityComparer());
+
+        private static readonly ByteArrayTypeLookup TypeNameLookup =
+            new ByteArrayTypeLookup(new ByteArrayEqualityComparer());
 
         private readonly byte[] _manifest;
 
@@ -99,7 +100,7 @@ namespace Wire.ValueSerializers
 
             return TypeNameLookup.GetOrAdd(bytes, b =>
             {
-                var shortName = Encoding.UTF8.GetString(b,0,b.Length);
+                var shortName = Encoding.UTF8.GetString(b, 0, b.Length);
                 var typename = Utils.ToQualifiedAssemblyName(shortName);
                 return Type.GetType(typename, true);
             });

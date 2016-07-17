@@ -28,7 +28,7 @@ namespace Wire.ValueSerializers
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
-            var size = sizeof (int);
+            const int size = sizeof (int);
             var buffer = session.GetBuffer(size);
             stream.Read(buffer, 0, size);
             return BitConverter.ToInt32(buffer, 0);

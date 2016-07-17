@@ -21,7 +21,7 @@ namespace Wire.ValueSerializers
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
-            var size = sizeof (ulong);
+            const int size = sizeof (ulong);
             var buffer = session.GetBuffer(size);
             stream.Read(buffer, 0, size);
             return BitConverter.ToUInt64(buffer, 0);
