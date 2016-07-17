@@ -5,7 +5,7 @@ namespace Wire
 {
     public class DeserializerSession
     {
-        private readonly byte[] _buffer;
+        private byte[] _buffer;
         private readonly IntToTypeLookup _identifierToType;
         private readonly IntToObjectLookup _objectById;
         public readonly Serializer Serializer;
@@ -26,7 +26,9 @@ namespace Wire
         public byte[] GetBuffer(int length)
         {
             if (length > _buffer.Length)
-                return new byte[length];
+            {
+                _buffer = new byte[length];
+            }
 
             return _buffer;
         }
