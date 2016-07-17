@@ -16,7 +16,7 @@ namespace Wire.PerfTest
 
         public WireForOrleansSerializer()
         {
-            _serializer = new Serializer();
+            _serializer = new Serializer(new SerializerOptions(preserveObjectReferences:true));
         }
 
         public void Initialize(TraceLogger logger)

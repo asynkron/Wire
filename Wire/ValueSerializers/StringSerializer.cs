@@ -28,7 +28,7 @@ namespace Wire.ValueSerializers
             }
             else
             {
-                var bytes = Encoding.UTF8.GetBytes((string) value);
+                var bytes =Utils.StringToBytes((string) value);
                 if (bytes.Length < 254)
                 {
                     stream.WriteByte((byte)(bytes.Length+1));
@@ -62,7 +62,7 @@ namespace Wire.ValueSerializers
             var buffer = session.GetBuffer(length);
 
             stream.Read(buffer, 0, length);
-            var res = Encoding.UTF8.GetString(buffer, 0, length);
+            var res = Utils.BytesToString(buffer, 0, length);
             return res;
         }
 

@@ -32,7 +32,7 @@ namespace Wire.ValueSerializers
             var typeName = type.GetShortAssemblyQualifiedName();
             // ReSharper disable once PossibleNullReferenceException
             // ReSharper disable once AssignNullToNotNullAttribute
-            var typeNameBytes = Encoding.UTF8.GetBytes(typeName);
+            var typeNameBytes = Utils.StringToBytes(typeName);
 
             //precalculate the entire manifest for this serializer
             //this helps us to minimize calls to Stream.Write/WriteByte 
@@ -100,7 +100,7 @@ namespace Wire.ValueSerializers
 
             return TypeNameLookup.GetOrAdd(bytes, b =>
             {
-                var shortName = Encoding.UTF8.GetString(b, 0, b.Length);
+                var shortName = Utils.BytesToString(b, 0, b.Length);
                 var typename = Utils.ToQualifiedAssemblyName(shortName);
                 return Type.GetType(typename, true);
             });

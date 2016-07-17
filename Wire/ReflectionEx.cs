@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+#if SERIALIZATION
+using System.Runtime.Serialization;
+#endif
 
 namespace Wire
 {

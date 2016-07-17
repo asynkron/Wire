@@ -37,7 +37,7 @@ namespace Wire
 
             foreach (var field in fields)
             {
-                var fieldName = Encoding.UTF8.GetBytes(field.Name);
+                var fieldName = Utils.StringToBytes(field.Name);
                 fieldNames.Add(fieldName);
                 fieldWriters.Add(GetObjectWriter(serializer, field));
                 fieldReaders.Add(GetFieldReader(serializer, type, field));
