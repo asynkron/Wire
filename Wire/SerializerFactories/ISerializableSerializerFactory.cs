@@ -58,8 +58,7 @@ namespace Wire.SerializerFactories
                     dict.Add(item.Name, item.Value);
                 }
                 var dictSerializer = serializer.GetSerializerByType(typeof (Dictionary<string, object>));
-                stream.WriteObject(dict, typeof (Dictionary<string, object>), dictSerializer,
-                    serializer.Options.PreserveObjectReferences, session);
+                stream.WriteObjectWithManifest(dict, session);
             };
             serializableSerializer.Initialize(reader, writer);
             
