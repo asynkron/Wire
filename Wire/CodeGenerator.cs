@@ -13,6 +13,8 @@ namespace Wire
 {
     public class CodeGenerator
     {
+        //The reason this is void and takes an objectserializer as arg is that serialization can be recursive.
+        //we need to make this method able to find the result of itself in such cases.
         public static void BuildSerializer(Serializer serializer, Type type, ObjectSerializer objectSerializer)
         {
             if (serializer == null)
@@ -34,21 +36,22 @@ namespace Wire
             {
                 var fieldName = Encoding.UTF8.GetBytes(field.Name);
                 fieldNames.Add(fieldName);
-                fieldWriters.Add(GetValueWriter(serializer, field));
+                fieldWriters.Add(GetObjectWriter(serializer, field));
                 fieldReaders.Add(GetFieldReader(serializer, type, field));
             }
 
             FieldsWriter writeFields;
-
             if (fieldWriters.Any())
             {
                 writeFields = GetFieldsWriter(fieldWriters);
             }
             else
             {
+                //this type has no fields
                 writeFields = (a, b, c) => { };
             }
 
+            //if the debugger is attached, wrap the fields writer in a try catch block and throw readable exceptions
             if (Debugger.IsAttached)
             {
                 var tmp = writeFields;
@@ -83,7 +86,10 @@ namespace Wire
                 writeFields(stream, o, session);
             };
 
-            var reader = GetReader(serializer, type, preserveObjectReferences, fields, fieldNames, fieldReaders);
+            var reader = serializer.Options.VersionTolerance ? 
+                GetVersionTolerantReader(type, preserveObjectReferences, fields, fieldNames, fieldReaders) : 
+                GetVersionIntolerantReader(type, preserveObjectReferences, fieldReaders);
+            
             objectSerializer.Initialize(reader, writer);
         }
 
@@ -91,14 +97,40 @@ namespace Wire
         {
             IEnumerable<byte> result = new[] {(byte) fieldNames.Count};
             foreach (var name in fieldNames)
-                result = result.Concat(BitConverter.GetBytes(name.Length)).Concat(name);
+            {
+                var encodedLength = BitConverter.GetBytes(name.Length);
+                result = result.Concat(encodedLength);
+                result = result.Concat(name);
+            }
             var versionTolerantHeader = result.ToArray();
             return versionTolerantHeader;
         }
 
-        private static ObjectReader GetReader(
-            Serializer serializer,
+        private static ObjectReader GetVersionIntolerantReader(
             Type type,
+            bool preserveObjectReferences,
+            IReadOnlyList<FieldReader> fieldReaders)
+        {
+            ObjectReader reader = (stream, session) =>
+            {
+                //create instance without calling constructor
+                var instance = type.GetEmptyObject();
+                if (preserveObjectReferences)
+                {
+                    session.TrackDeserializedObject(instance);
+                }
+
+                foreach(var fieldReader in fieldReaders)
+                {
+                    fieldReader(stream, instance, session);
+                }
+
+                return instance;
+            };
+            return reader;
+        }
+
+        private static ObjectReader GetVersionTolerantReader(Type type,
             bool preserveObjectReferences,
             IReadOnlyList<FieldInfo> fields,
             IReadOnlyList<byte[]> fieldNames,
@@ -114,48 +146,38 @@ namespace Wire
                 }
 
                 var fieldsToRead = fields.Count;
-                if (serializer.Options.VersionTolerance)
+
+                var storedFieldCount = stream.ReadByte();
+                if (storedFieldCount != fieldsToRead)
                 {
-                    var storedFieldCount = stream.ReadByte();
-                    if (storedFieldCount != fieldsToRead)
+                    //TODO: version mismatch, different field count
+                    //I dont think we need to do anything special here atm.
+                }
+
+                for (var i = 0; i < storedFieldCount; i++)
+                {
+                    var fieldName = stream.ReadLengthEncodedByteArray(session);
+                    if (!Utils.UnsafeCompare(fieldName, fieldNames[i]))
                     {
-                        //TODO: version mismatch, different field count
-                        //I dont think we need to do anything special here atm.
-                    }
+                        //TODO: field name mismatch
+                        //this should really be a compare less equal or greater
+                        //to know if the field is added or removed
 
-                    for (var i = 0; i < storedFieldCount; i++)
-                    {
-                        var fieldName = stream.ReadLengthEncodedByteArray(session);
-                        if (!Utils.UnsafeCompare(fieldName, fieldNames[i]))
-                        {
-                            //TODO: field name mismatch
-                            //this should really be a compare less equal or greater
-                            //to know if the field is added or removed
+                        //1) if names are equal, read the value and assign the field
 
-                            //1) if names are equal, read the value and assign the field
+                        //2) if the field is less than the expected field, then this field is an unknown new field
+                        //we need to read this object and just ignore its content.
 
-                            //2) if the field is less than the expected field, then this field is an unknown new field
-                            //we need to read this object and just ignore its content.
-
-                            //3) if the field is greater than the expected, we need to check the next expected until
-                            //the current is less or equal, then goto 1)
-                        }
-                    }
-
-                    //this should be moved up in the version tolerant loop
-                    for (var i = 0; i < storedFieldCount; i++)
-                    {
-                        var fieldReader = fieldReaders[i];
-                        fieldReader(stream, instance, session);
+                        //3) if the field is greater than the expected, we need to check the next expected until
+                        //the current is less or equal, then goto 1)
                     }
                 }
-                else
+
+                //this should be moved up in the version tolerant loop
+                for (var i = 0; i < storedFieldCount; i++)
                 {
-                    for (var i = 0; i < fieldsToRead; i++)
-                    {
-                        var fieldReader = fieldReaders[i];
-                        fieldReader(stream, instance, session);
-                    }
+                    var fieldReader = fieldReaders[i];
+                    fieldReader(stream, instance, session);
                 }
 
                 return instance;
@@ -229,7 +251,7 @@ namespace Wire
 
             var s = serializer.GetSerializerByType(field.FieldType);
 
-            Action<object, object> setter;
+            FieldInfoWriter setter;
             if (field.IsInitOnly)
             {
                 //TODO: field is readonly, can we set it via IL or only via reflection
@@ -247,7 +269,7 @@ namespace Wire
                 Expression castValueExp = Convert(valueExp, field.FieldType);
                 var fieldExp = Field(castTartgetExp, field);
                 var assignExp = Assign(fieldExp, castValueExp);
-                setter = Lambda<Action<object, object>>(assignExp, targetExp, valueExp).Compile();
+                setter = Lambda<FieldInfoWriter>(assignExp, targetExp, valueExp).Compile();
             }
 
 
@@ -275,7 +297,7 @@ namespace Wire
             }
         }
 
-        private static ObjectWriter GetValueWriter(Serializer serializer, FieldInfo field)
+        private static ObjectWriter GetObjectWriter(Serializer serializer, FieldInfo field)
         {
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
@@ -322,7 +344,8 @@ namespace Wire
             }
         }
 
-        private static Func<object, object> GetFieldInfoReader(FieldInfo field)
+
+        private static FieldInfoReader GetFieldInfoReader(FieldInfo field)
         {
             if (field == null)
                 throw new ArgumentNullException(nameof(field));
@@ -336,7 +359,7 @@ namespace Wire
                 : Convert(param, field.DeclaringType);
             Expression readField = Field(castParam, field);
             Expression castRes = Convert(readField, typeof(object));
-            var getFieldValue = Lambda<Func<object, object>>(castRes, param).Compile();
+            var getFieldValue = Lambda<FieldInfoReader>(castRes, param).Compile();
 
             if (Debugger.IsAttached)
             {
@@ -355,13 +378,14 @@ namespace Wire
             return getFieldValue;
         }
 
-        public static Func<object, object> CompileToDelegate(MethodInfo method, Type argType)
+        //used by some serializer factories to go from object -> object to T -> object
+        public static TypedArray CompileToDelegate(MethodInfo method, Type argType)
         {
             var arg = Parameter(typeof(object));
             var castArg = Convert(arg, argType);
             var call = Call(method, new Expression[] {castArg});
             var castRes = Convert(call, typeof(object));
-            var lambda = Lambda<Func<object, object>>(castRes, arg);
+            var lambda = Lambda<TypedArray>(castRes, arg);
             var compiled = lambda.Compile();
             return compiled;
         }
