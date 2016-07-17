@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Wire.ValueSerializers;
 
@@ -23,6 +24,17 @@ namespace Wire.SerializerFactories
                 .FirstOrDefault();
         }
 
+        private static TypedArray CompileToDelegate(MethodInfo method, Type argType)
+        {
+            var arg = Expression.Parameter(typeof(object));
+            var castArg = Expression.Convert(arg, argType);
+            var call = Expression.Call(method, new Expression[] { castArg });
+            var castRes = Expression.Convert(call, typeof(object));
+            var lambda = Expression.Lambda<TypedArray>(castRes, arg);
+            var compiled = lambda.Compile();
+            return compiled;
+        }
+
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
@@ -34,10 +46,10 @@ namespace Wire.SerializerFactories
             var listModule = type.GetTypeInfo().Assembly.GetType("Microsoft.FSharp.Collections.ListModule");
             var ofArray = listModule.GetTypeInfo().GetMethod("OfArray");
             var ofArrayConcrete = ofArray.MakeGenericMethod(elementType);
-            var ofArrayCompiled = CodeGenerator.CompileToDelegate(ofArrayConcrete, arrType);
+            var ofArrayCompiled = CompileToDelegate(ofArrayConcrete, arrType);
             var toArray = listModule.GetTypeInfo().GetMethod("ToArray");
             var toArrayConcrete = toArray.MakeGenericMethod(elementType);
-            var toArrayCompiled = CodeGenerator.CompileToDelegate(toArrayConcrete, type);
+            var toArrayCompiled = CompileToDelegate(toArrayConcrete, type);
 
             ObjectWriter writer = (stream, o, session) =>
             {

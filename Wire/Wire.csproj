@@ -43,7 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ByteArrayEqualityComparer.cs" />
-    <Compile Include="CodeGenerator.cs" />
+    <Compile Include="DefaultCodeGenerator.cs" />
     <Compile Include="ReflectionEx.cs" />
     <Compile Include="SerializerFactories\ArraySerializerFactory.cs" />
     <Compile Include="SerializerFactories\DefaultDictionarySerializerFactory.cs" />

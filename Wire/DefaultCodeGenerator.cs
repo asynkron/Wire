@@ -7,15 +7,17 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Wire.ValueSerializers;
-using static System.Linq.Expressions.Expression;
 
 namespace Wire
 {
-    public class CodeGenerator
+    public interface ICodeGenerator
     {
-        //The reason this is void and takes an objectserializer as arg is that serialization can be recursive.
-        //we need to make this method able to find the result of itself in such cases.
-        public static void BuildSerializer(Serializer serializer, Type type, ObjectSerializer objectSerializer)
+        void BuildSerializer(Serializer serializer, Type type, ObjectSerializer objectSerializer);
+    }
+
+    public class DefaultCodeGenerator : ICodeGenerator
+    {
+        public  void BuildSerializer(Serializer serializer, Type type, ObjectSerializer objectSerializer)
         {
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
@@ -26,7 +28,7 @@ namespace Wire
             if (objectSerializer == null)
                 throw new ArgumentNullException(nameof(objectSerializer));
 
-            var fields = GetFieldInfosForType(type);
+            var fields = ReflectionEx.GetFieldInfosForType(type);
 
             var fieldWriters = new List<ObjectWriter>();
             var fieldReaders = new List<FieldReader>();
@@ -40,16 +42,9 @@ namespace Wire
                 fieldReaders.Add(GetFieldReader(serializer, type, field));
             }
 
-            FieldsWriter writeFields;
-            if (fieldWriters.Any())
-            {
-                writeFields = GetFieldsWriter(fieldWriters);
-            }
-            else
-            {
-                //this type has no fields
-                writeFields = (a, b, c) => { };
-            }
+            var writeFields = fieldWriters.Any() ? 
+                GetFieldsWriter(fieldWriters) : 
+                ((a, b, c) => { }); //empty writer
 
             //if the debugger is attached, wrap the fields writer in a try catch block and throw readable exceptions
             if (Debugger.IsAttached)
@@ -93,7 +88,7 @@ namespace Wire
             objectSerializer.Initialize(reader, writer);
         }
 
-        private static byte[] GetTypeManifest(IReadOnlyCollection<byte[]> fieldNames)
+        private  byte[] GetTypeManifest(IReadOnlyCollection<byte[]> fieldNames)
         {
             IEnumerable<byte> result = new[] {(byte) fieldNames.Count};
             foreach (var name in fieldNames)
@@ -106,7 +101,7 @@ namespace Wire
             return versionTolerantHeader;
         }
 
-        private static ObjectReader GetVersionIntolerantReader(
+        private  ObjectReader GetVersionIntolerantReader(
             Type type,
             bool preserveObjectReferences,
             IReadOnlyList<FieldReader> fieldReaders)
@@ -120,8 +115,11 @@ namespace Wire
                     session.TrackDeserializedObject(instance);
                 }
 
-                foreach(var fieldReader in fieldReaders)
+                //do not use foreach here due to perf
+                // ReSharper disable once ForCanBeConvertedToForeach
+                for (var i =0;i<fieldReaders.Count;i++)
                 {
+                    var fieldReader = fieldReaders[i];
                     fieldReader(stream, instance, session);
                 }
 
@@ -130,7 +128,7 @@ namespace Wire
             return reader;
         }
 
-        private static ObjectReader GetVersionTolerantReader(Type type,
+        private  ObjectReader GetVersionTolerantReader(Type type,
             bool preserveObjectReferences,
             IReadOnlyList<FieldInfo> fields,
             IReadOnlyList<byte[]> fieldNames,
@@ -145,14 +143,7 @@ namespace Wire
                     session.TrackDeserializedObject(instance);
                 }
 
-                var fieldsToRead = fields.Count;
-
                 var storedFieldCount = stream.ReadByte();
-                if (storedFieldCount != fieldsToRead)
-                {
-                    //TODO: version mismatch, different field count
-                    //I dont think we need to do anything special here atm.
-                }
 
                 for (var i = 0; i < storedFieldCount; i++)
                 {
@@ -185,57 +176,29 @@ namespace Wire
             return reader;
         }
 
-        private static FieldsWriter GetFieldsWriter(IReadOnlyList<ObjectWriter> fieldWriters)
+        private  FieldsWriter GetFieldsWriter(IReadOnlyList<ObjectWriter> fieldWriters)
         {
             if (fieldWriters == null)
                 throw new ArgumentNullException(nameof(fieldWriters));
 
-            var streamParam = Parameter(typeof(Stream));
-            var objectParam = Parameter(typeof(object));
-            var sessionParam = Parameter(typeof(SerializerSession));
+            var streamParam = Expression.Parameter(typeof(Stream));
+            var objectParam = Expression.Parameter(typeof(object));
+            var sessionParam = Expression.Parameter(typeof(SerializerSession));
             var xs = fieldWriters
-                .Select(Constant)
+                .Select(Expression.Constant)
                 .Select(fieldWriterExpression => 
-                    Invoke(fieldWriterExpression, streamParam, objectParam, sessionParam))
+                    Expression.Invoke(fieldWriterExpression, streamParam, objectParam, sessionParam))
                 .ToList();
 
-            var body = Block(xs);
+            var body = Expression.Block(xs);
             var writeallFields =
-                Lambda<FieldsWriter>(body, streamParam, objectParam,
+                Expression.Lambda<FieldsWriter>(body, streamParam, objectParam,
                     sessionParam)
                     .Compile();
             return writeallFields;
         }
 
-        private static FieldInfo[] GetFieldInfosForType(Type type)
-        {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            var fieldInfos = new List<FieldInfo>();
-            var current = type;
-            while (current != null)
-            {
-                var tfields =
-                    current
-                        .GetTypeInfo()
-                        .GetFields(BindingFlagsEx.All)
-#if SERIALIZATION
-                        .Where(f => !f.IsDefined(typeof(NonSerializedAttribute)))
-#endif
-                        .Where(f => !f.IsStatic)
-                        .Where(f => f.FieldType != typeof(IntPtr))
-                        .Where(f => f.FieldType != typeof(UIntPtr))
-                        .Where(f => f.Name != "_syncRoot"); //HACK: ignore these 
-
-                fieldInfos.AddRange(tfields);
-                current = current.GetTypeInfo().BaseType;
-            }
-            var fields = fieldInfos.OrderBy(f => f.Name).ToArray();
-            return fields;
-        }
-
-        private static FieldReader GetFieldReader(
+        private  FieldReader GetFieldReader(
             Serializer serializer,
             Type type, 
             FieldInfo field)
@@ -259,17 +222,17 @@ namespace Wire
             }
             else
             {
-                var targetExp = Parameter(typeof(object), "target");
-                var valueExp = Parameter(typeof(object), "value");
+                var targetExp = Expression.Parameter(typeof(object), "target");
+                var valueExp = Expression.Parameter(typeof(object), "value");
 
                 // ReSharper disable once PossibleNullReferenceException
                 Expression castTartgetExp = field.DeclaringType.GetTypeInfo().IsValueType
-                    ? Unbox(targetExp, type)
-                    : Convert(targetExp, type);
-                Expression castValueExp = Convert(valueExp, field.FieldType);
-                var fieldExp = Field(castTartgetExp, field);
-                var assignExp = Assign(fieldExp, castValueExp);
-                setter = Lambda<FieldInfoWriter>(assignExp, targetExp, valueExp).Compile();
+                    ? Expression.Unbox(targetExp, type)
+                    : Expression.Convert(targetExp, type);
+                Expression castValueExp = Expression.Convert(valueExp, field.FieldType);
+                var fieldExp = Expression.Field(castTartgetExp, field);
+                var assignExp = Expression.Assign(fieldExp, castValueExp);
+                setter = Expression.Lambda<FieldInfoWriter>(assignExp, targetExp, valueExp).Compile();
             }
 
 
@@ -297,7 +260,7 @@ namespace Wire
             }
         }
 
-        private static ObjectWriter GetObjectWriter(Serializer serializer, FieldInfo field)
+        private  ObjectWriter GetObjectWriter(Serializer serializer, FieldInfo field)
         {
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
@@ -344,22 +307,21 @@ namespace Wire
             }
         }
 
-
-        private static FieldInfoReader GetFieldInfoReader(FieldInfo field)
+        private  FieldInfoReader GetFieldInfoReader(FieldInfo field)
         {
             if (field == null)
                 throw new ArgumentNullException(nameof(field));
 
-            var param = Parameter(typeof(object));
+            var param = Expression.Parameter(typeof(object));
             // ReSharper disable once PossibleNullReferenceException
             Expression castParam = field.DeclaringType.GetTypeInfo().IsValueType
                 // ReSharper disable once AssignNullToNotNullAttribute
-                ? Unbox(param, field.DeclaringType)
+                ? Expression.Unbox(param, field.DeclaringType)
                 // ReSharper disable once AssignNullToNotNullAttribute
-                : Convert(param, field.DeclaringType);
-            Expression readField = Field(castParam, field);
-            Expression castRes = Convert(readField, typeof(object));
-            var getFieldValue = Lambda<FieldInfoReader>(castRes, param).Compile();
+                : Expression.Convert(param, field.DeclaringType);
+            Expression readField = Expression.Field(castParam, field);
+            Expression castRes = Expression.Convert(readField, typeof(object));
+            var getFieldValue = Expression.Lambda<FieldInfoReader>(castRes, param).Compile();
 
             if (Debugger.IsAttached)
             {
@@ -376,18 +338,6 @@ namespace Wire
                 };
             }
             return getFieldValue;
-        }
-
-        //used by some serializer factories to go from object -> object to T -> object
-        public static TypedArray CompileToDelegate(MethodInfo method, Type argType)
-        {
-            var arg = Parameter(typeof(object));
-            var castArg = Convert(arg, argType);
-            var call = Call(method, new Expression[] {castArg});
-            var castRes = Convert(call, typeof(object));
-            var lambda = Lambda<TypedArray>(castRes, arg);
-            var compiled = lambda.Compile();
-            return compiled;
         }
     }
 }
