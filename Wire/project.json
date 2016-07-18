@@ -1,5 +1,5 @@
 ﻿{
-  "version": "0.7.0-*",
+  "version": "0.7.1-*",
   "description": "Wire, fast binary POCO serializer",
   "authors": [
     "Roger Johansson"
@@ -24,7 +24,7 @@
         "Microsoft.CSharp": "4.0.1"
       }
     },
-    "net451": {
+    "net450": {
       "imports": "dotnet5.4",
       "dependencies": {}
     }
