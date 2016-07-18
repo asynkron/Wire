@@ -1,13 +1,19 @@
 ﻿using System;
 using IntToObjectLookup = System.Collections.Generic.Dictionary<int, object>;
 using IntToTypeLookup = System.Collections.Generic.Dictionary<int, System.Type>;
+using TypeToVersionInfoLookup = System.Collections.Generic.Dictionary<System.Type, Wire.TypeVersionInfo>;
 namespace Wire
 {
+    public class TypeVersionInfo
+    {
+
+    }
     public class DeserializerSession
     {
-        private readonly byte[] _buffer;
+        private byte[] _buffer;
         private readonly IntToTypeLookup _identifierToType;
         private readonly IntToObjectLookup _objectById;
+        private readonly TypeToVersionInfoLookup _versionInfoByType;
         public readonly Serializer Serializer;
         private int _nextObjectId;
         private int _nextTypeId;
@@ -21,12 +27,18 @@ namespace Wire
             {
                 _objectById = new IntToObjectLookup();
             }
+            if (serializer.Options.VersionTolerance)
+            {
+                _versionInfoByType = new TypeToVersionInfoLookup();
+            }
         }
 
         public byte[] GetBuffer(int length)
         {
             if (length > _buffer.Length)
-                return new byte[length];
+            {
+                _buffer = new byte[length];
+            }
 
             return _buffer;
         }
@@ -50,6 +62,17 @@ namespace Wire
         public Type GetTypeFromTypeId(int typeId)
         {
             return _identifierToType[typeId];
+        }
+
+        public void TrackDeserializedTypeWithVersion(Type type, TypeVersionInfo versionInfo)
+        {
+            TrackDeserializedType(type);
+            _versionInfoByType.Add(type, versionInfo);
+        }
+
+        public TypeVersionInfo GetVersionInfo(Type type)
+        {
+            return _versionInfoByType[type];
         }
     }
 }

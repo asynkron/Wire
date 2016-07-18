@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using ByteArrayTypeLookup = System.Collections.Concurrent.ConcurrentDictionary<byte[], System.Type>;
 
@@ -9,17 +9,32 @@ namespace Wire.ValueSerializers
 {
     public class ObjectSerializer : ValueSerializer
     {
+        public const byte ManifestVersion = 251;
         public const byte ManifestFull = 255;
         public const byte ManifestIndex = 254;
-      
 
-        private static readonly ByteArrayTypeLookup TypeNameLookup = new ByteArrayTypeLookup(new ByteArrayEqualityComparer());
+        private static readonly ByteArrayTypeLookup TypeNameLookup =
+            new ByteArrayTypeLookup(new ByteArrayEqualityComparer());
 
         private readonly byte[] _manifest;
+        private readonly byte[] _manifestWithVersionInfo;
 
         private volatile bool _isInitialized;
         private ObjectReader _reader;
         private ObjectWriter _writer;
+
+        private byte[] GetTypeManifest(IReadOnlyCollection<byte[]> fieldNames)
+        {
+            IEnumerable<byte> result = new[] { (byte)fieldNames.Count };
+            foreach (var name in fieldNames)
+            {
+                var encodedLength = BitConverter.GetBytes(name.Length);
+                result = result.Concat(encodedLength);
+                result = result.Concat(name);
+            }
+            var versionTolerantHeader = result.ToArray();
+            return versionTolerantHeader;
+        }
 
         public ObjectSerializer(Type type)
         {
@@ -31,7 +46,11 @@ namespace Wire.ValueSerializers
             var typeName = type.GetShortAssemblyQualifiedName();
             // ReSharper disable once PossibleNullReferenceException
             // ReSharper disable once AssignNullToNotNullAttribute
-            var typeNameBytes = Encoding.UTF8.GetBytes(typeName);
+            var typeNameBytes = Utils.StringToBytes(typeName);
+
+            var fields = ReflectionEx.GetFieldInfosForType(type);
+            var fieldNames = fields.Select(field => Utils.StringToBytes(field.Name)).ToList();
+            var versionInfo = GetTypeManifest(fieldNames);
 
             //precalculate the entire manifest for this serializer
             //this helps us to minimize calls to Stream.Write/WriteByte 
@@ -40,6 +59,16 @@ namespace Wire.ValueSerializers
                     .Concat(BitConverter.GetBytes(typeNameBytes.Length))
                     .Concat(typeNameBytes)
                     .ToArray(); //serializer id 255 + assembly qualified name
+
+            //this is the same as the above, but including all field names of the type, in alphabetical order
+            _manifestWithVersionInfo =
+                new[] { ManifestVersion }
+                    .Concat(BitConverter.GetBytes(typeNameBytes.Length))
+                    .Concat(typeNameBytes)
+                    .Concat(versionInfo)
+                    .ToArray(); //serializer id 255 + assembly qualified name + versionInfo
+
+
 
             //initialize reader and writer with dummy handlers that wait until the serializer is fully initialized
             _writer = (stream, o, session) =>
@@ -61,7 +90,10 @@ namespace Wire.ValueSerializers
         {
             if (session.ShouldWriteTypeManifest(type))
             {
-                stream.Write(_manifest);
+                if (session.Serializer.Options.VersionTolerance)
+                    stream.Write(_manifestWithVersionInfo);
+                else
+                    stream.Write(_manifest);
             }
             else
             {
@@ -99,7 +131,7 @@ namespace Wire.ValueSerializers
 
             return TypeNameLookup.GetOrAdd(bytes, b =>
             {
-                var shortName = Encoding.UTF8.GetString(b,0,b.Length);
+                var shortName = Utils.BytesToString(b, 0, b.Length);
                 var typename = Utils.ToQualifiedAssemblyName(shortName);
                 return Type.GetType(typename, true);
             });
@@ -109,6 +141,21 @@ namespace Wire.ValueSerializers
         {
             var type = GetTypeFromManifestName(stream, session);
             session.TrackDeserializedType(type);
+            return type;
+        }
+
+        public static Type GetTypeFromManifestVersion(Stream stream, DeserializerSession session)
+        {
+            var type = GetTypeFromManifestName(stream, session);
+
+            var fieldCount = stream.ReadByte();
+            for (int i = 0; i < fieldCount; i++)
+            {
+                var fieldName = stream.ReadLengthEncodedByteArray(session);
+
+            }
+
+            session.TrackDeserializedTypeWithVersion(type, null);
             return type;
         }
 

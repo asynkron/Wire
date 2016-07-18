@@ -5,6 +5,7 @@ namespace Wire
 {
     public class SerializerSession
     {
+        private byte[] _buffer;
         private readonly Dictionary<object, int> _objects;
         private readonly Dictionary<Type, int> _typeToIdentifier;
         public readonly Serializer Serializer;
@@ -19,6 +20,19 @@ namespace Wire
             {
                 _objects = new Dictionary<object, int>();
             }
+        }
+
+        public byte[] GetBuffer(int length)
+        {
+            if (length < 8)
+                length = 8;
+
+            if (length > _buffer?.Length)
+            {
+                _buffer = new byte[length];
+            }
+
+            return _buffer;
         }
 
         public void TrackSerializedObject(object obj)

@@ -3,19 +3,17 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Wire.ValueSerializers;
-using TypeSerializerLookup = System.Collections.Concurrent.ConcurrentDictionary<System.Type, Wire.ValueSerializers.ValueSerializer>;
+using TypeSerializerLookup =
+    System.Collections.Concurrent.ConcurrentDictionary<System.Type, Wire.ValueSerializers.ValueSerializer>;
+
 namespace Wire
 {
     public class Serializer
     {
-
-        private static readonly Assembly CoreAssembly = typeof (int).GetTypeInfo().Assembly;
-
         private readonly TypeSerializerLookup _deserializers = new TypeSerializerLookup();
-
         private readonly TypeSerializerLookup _serializers = new TypeSerializerLookup();
-
         internal readonly SerializerOptions Options;
+        internal readonly ICodeGenerator CodeGenerator = new DefaultCodeGenerator();
 
         public Serializer() : this(new SerializerOptions())
         {
@@ -27,26 +25,31 @@ namespace Wire
         }
 
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ValueSerializer GetCustomSerialzer(Type type)
         {
             ValueSerializer serializer;
-            if (!_serializers.TryGetValue(type, out serializer))
-            {
-                foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
-                {
-                    if (valueSerializerFactory.CanSerialize(this, type))
-                    {
-                        return valueSerializerFactory.BuildSerializer(this, type, _serializers);
-                    }
-                }
 
-                serializer = new ObjectSerializer(type);
-                _serializers.TryAdd(type, serializer);
-                CodeGenerator.BuildSerializer(this, type, (ObjectSerializer) serializer);
-                //just ignore if this fails, another thread have already added an identical serialzer
+            //do we already have a serializer for this type?
+            if (_serializers.TryGetValue(type, out serializer))
+                return serializer;
+
+            //is there a serializer factory that can handle this type?
+            foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
+            {
+                if (valueSerializerFactory.CanSerialize(this, type))
+                {
+                    return valueSerializerFactory.BuildSerializer(this, type, _serializers);
+                }
             }
+
+            //none of the above, lets create a POCO object serializer
+            serializer = new ObjectSerializer(type);
+            //add it to the serializer lookup incase of recursive serialization
+            if (!_serializers.TryAdd(type, serializer)) return _serializers[type];
+            //build the serializer IL code
+            CodeGenerator.BuildSerializer(this, type, (ObjectSerializer)serializer);
+            //just ignore if this fails, another thread have already added an identical serialzer
             return serializer;
         }
 
@@ -54,22 +57,26 @@ namespace Wire
         private ValueSerializer GetCustomDeserialzer(Type type)
         {
             ValueSerializer serializer;
-            if (!_deserializers.TryGetValue(type, out serializer))
+
+            //do we already have a deserializer for this type?
+            if (_deserializers.TryGetValue(type, out serializer))
+                return serializer;
+
+            //is there a deserializer factory that can handle this type?
+            foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
             {
-                foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
+                if (valueSerializerFactory.CanDeserialize(this, type))
                 {
-                    if (valueSerializerFactory.CanDeserialize(this, type))
-                    {
-                        return valueSerializerFactory.BuildSerializer(this, type, _deserializers);
-                    }
+                    return valueSerializerFactory.BuildSerializer(this, type, _deserializers);
                 }
-
-                serializer = new ObjectSerializer(type);
-
-                _deserializers.TryAdd(type, serializer);
-                CodeGenerator.BuildSerializer(this, type, (ObjectSerializer) serializer);
-                //just ignore if this fails, another thread have already added an identical serialzer
             }
+
+            //none of the above, lets create a POCO object deserializer
+            serializer = new ObjectSerializer(type);
+            //add it to the serializer lookup incase of recursive serialization
+            if (!_deserializers.TryAdd(type, serializer)) return _deserializers[type];
+            //build the serializer IL code
+            CodeGenerator.BuildSerializer(this, type, (ObjectSerializer)serializer);
             return serializer;
         }
 
@@ -104,8 +111,9 @@ namespace Wire
 
         public ValueSerializer GetSerializerByType(Type type)
         {
-            if (ReferenceEquals(type.GetTypeInfo().Assembly, CoreAssembly))
+            if (ReferenceEquals(type.GetTypeInfo().Assembly, ReflectionEx.CoreAssembly))
             {
+                //faster than hash lookup you know...
                 if (type == TypeEx.StringType)
                     return StringSerializer.Instance;
 
@@ -164,7 +172,7 @@ namespace Wire
                     return TypeSerializer.Instance;
             }
 
-            if (type.IsArray && type.GetArrayRank() == 1)
+            if (type.IsOneDimensionalArray())
             {
                 var elementType = type.GetElementType();
                 if (elementType.IsWirePrimitive())
@@ -180,8 +188,9 @@ namespace Wire
 
         public ValueSerializer GetDeserializerByType(Type type)
         {
-            if (ReferenceEquals(type.GetTypeInfo().Assembly, CoreAssembly))
+            if (ReferenceEquals(type.GetTypeInfo().Assembly, ReflectionEx.CoreAssembly))
             {
+                //faster than hash lookup you know...
                 if (type == TypeEx.StringType)
                     return StringSerializer.Instance;
 
@@ -237,7 +246,7 @@ namespace Wire
                     return TypeSerializer.Instance;
             }
 
-            if (type.IsArray && type.GetArrayRank() == 1)
+            if (type.IsOneDimensionalArray())
             {
                 var elementType = type.GetElementType();
                 if (elementType.IsWirePrimitive())
@@ -302,6 +311,11 @@ namespace Wire
                 case ObjectSerializer.ManifestFull:
                 {
                     var type = ObjectSerializer.GetTypeFromManifestFull(stream, session);
+                    return GetCustomDeserialzer(type);
+                }
+                case ObjectSerializer.ManifestVersion:
+                {
+                    var type = ObjectSerializer.GetTypeFromManifestVersion(stream, session);
                     return GetCustomDeserialzer(type);
                 }
                 case ObjectSerializer.ManifestIndex:
