@@ -25,7 +25,7 @@ namespace Wire
                 //known types can only be used when version intolerant as we lack type information
                 foreach (var type in serializer.Options.KnownTypes)
                 {
-                    ShouldWriteTypeManifest(type);
+                    TrackSerializedType(type);
                 }
             }
         }
@@ -65,9 +65,13 @@ namespace Wire
             if (_typeToIdentifier.ContainsKey(type))
                 return false;
 
+            return true;
+        }
+
+        public void TrackSerializedType(Type type)
+        {
             _typeToIdentifier.Add(type, _nextTypeId);
             _nextTypeId++;
-            return true;
         }
 
         public int GetTypeIdentifier(Type type)

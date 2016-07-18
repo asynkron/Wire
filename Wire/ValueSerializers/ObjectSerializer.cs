@@ -90,6 +90,7 @@ namespace Wire.ValueSerializers
         {
             if (session.ShouldWriteTypeManifest(type))
             {
+                session.TrackSerializedType(type);
                 if (session.Serializer.Options.VersionTolerance)
                     stream.Write(_manifestWithVersionInfo);
                 else
