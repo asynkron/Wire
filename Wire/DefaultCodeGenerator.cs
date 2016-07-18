@@ -122,8 +122,8 @@ namespace Wire
                     session.TrackDeserializedObject(instance);
                 }
 
-                //TODO: read all of the manifest in one chunk
-               // var storedFieldCount = stream.ReadByte();
+                var versionInfo = session.GetVersionInfo(type);
+                
 
                 //for (var i = 0; i < storedFieldCount; i++)
                 //{

@@ -155,7 +155,7 @@ namespace Wire.ValueSerializers
 
             }
 
-            session.TrackDeserializedType(type);
+            session.TrackDeserializedTypeWithVersion(type, null);
             return type;
         }
 
