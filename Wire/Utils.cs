@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Wire
 {
@@ -11,19 +12,24 @@ namespace Wire
         private static string GetCoreAssemblyName()
         {
             var name = 1.GetType().AssemblyQualifiedName;
-            var part = name.Substring(name.IndexOf(", Version", StringComparison.Ordinal));
+            var part = name.Substring( name.IndexOf(", Version", StringComparison.Ordinal));
             return part;
         }
 
         public static string GetShortAssemblyQualifiedName(this Type self)
         {
-            var name = self.AssemblyQualifiedName.Replace(CoreAssemblyName, ",%core%");
+            var name = self.AssemblyQualifiedName;
+            name = name.Replace(CoreAssemblyName, ",%core%");
+            name = name.Replace(", Culture=neutral", "");
+            name = name.Replace(", PublicKeyToken=null", "");
+            name = name.Replace(", Version=1.0.0.0", "");
             return name;
         }
 
         public static string ToQualifiedAssemblyName(string shortName)
         {
-            return shortName.Replace(",%core%", CoreAssemblyName);
+            var res = shortName.Replace(",%core%", CoreAssemblyName);
+            return res;
         }
 
 #if UNSAFE
