@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Wire
 {
@@ -22,7 +21,7 @@ namespace Wire
             name = name.Replace(CoreAssemblyName, ",%core%");
             name = name.Replace(", Culture=neutral", "");
             name = name.Replace(", PublicKeyToken=null", "");
-            name = name.Replace(", Version=1.0.0.0", "");
+            name = name.Replace(", Version=1.0.0.0", ""); //TODO: regex or whatever...
             return name;
         }
 
