@@ -313,6 +313,11 @@ namespace Wire
                     var type = ObjectSerializer.GetTypeFromManifestFull(stream, session);
                     return GetCustomDeserialzer(type);
                 }
+                case ObjectSerializer.ManifestVersion:
+                {
+                    var type = ObjectSerializer.GetTypeFromManifestVersion(stream, session);
+                    return GetCustomDeserialzer(type);
+                }
                 case ObjectSerializer.ManifestIndex:
                 {
                     var type = ObjectSerializer.GetTypeFromManifestIndex(stream, session);

@@ -9,6 +9,7 @@ namespace Wire.ValueSerializers
 {
     public class ObjectSerializer : ValueSerializer
     {
+        public const byte ManifestVersion = 251;
         public const byte ManifestFull = 255;
         public const byte ManifestIndex = 254;
 
@@ -61,7 +62,7 @@ namespace Wire.ValueSerializers
 
             //this is the same as the above, but including all field names of the type, in alphabetical order
             _manifestWithVersionInfo =
-                new[] { ManifestFull }
+                new[] { ManifestVersion }
                     .Concat(BitConverter.GetBytes(typeNameBytes.Length))
                     .Concat(typeNameBytes)
                     .Concat(versionInfo)
@@ -139,14 +140,19 @@ namespace Wire.ValueSerializers
         public static Type GetTypeFromManifestFull(Stream stream, DeserializerSession session)
         {
             var type = GetTypeFromManifestName(stream, session);
-            if (session.Serializer.Options.VersionTolerance)
-            {
-                var fieldCount = stream.ReadByte();
-                for (int i = 0; i < fieldCount; i++)
-                {
-                    var fieldName = stream.ReadLengthEncodedByteArray(session);
+            session.TrackDeserializedType(type);
+            return type;
+        }
 
-                }
+        public static Type GetTypeFromManifestVersion(Stream stream, DeserializerSession session)
+        {
+            var type = GetTypeFromManifestName(stream, session);
+
+            var fieldCount = stream.ReadByte();
+            for (int i = 0; i < fieldCount; i++)
+            {
+                var fieldName = stream.ReadLengthEncodedByteArray(session);
+
             }
 
             session.TrackDeserializedType(type);
