@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Orleans.Runtime;
 using Orleans.Serialization;
 
@@ -16,7 +12,7 @@ namespace Wire.PerfTest
 
         public WireForOrleansSerializer()
         {
-            _serializer = new Serializer(new SerializerOptions(preserveObjectReferences:true));
+            _serializer = new Serializer(new SerializerOptions(preserveObjectReferences: true));
         }
 
         public void Initialize(TraceLogger logger)

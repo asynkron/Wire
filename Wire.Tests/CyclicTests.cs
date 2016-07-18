@@ -10,7 +10,7 @@ namespace Wire.Tests
         public void CanSerializeDeepCyclicReferences()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(preserveObjectReferences: true,versionTolerance:true));
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
             var root = new Root();
             var bar = new Bar();
             bar.Self = bar;
@@ -31,7 +31,7 @@ namespace Wire.Tests
         public void CanSerializeCyclicReferences()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(preserveObjectReferences: true,versionTolerance:true));
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
             var bar = new Bar();
             bar.Self = bar;
             bar.XYZ = 234;
