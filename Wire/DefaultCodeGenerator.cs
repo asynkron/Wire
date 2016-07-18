@@ -33,12 +33,9 @@ namespace Wire
 
             var fieldWriters = new List<ObjectWriter>();
             var fieldReaders = new List<FieldReader>();
-            var fieldNames = new List<byte[]>();
 
             foreach (var field in fields)
             {
-                var fieldName = Utils.StringToBytes(field.Name);
-                fieldNames.Add(fieldName);
                 fieldWriters.Add(GetObjectWriter(serializer, field));
                 fieldReaders.Add(GetFieldReader(serializer, type, field));
             }
@@ -65,15 +62,8 @@ namespace Wire
             }
 
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
-            var versiontolerance = serializer.Options.VersionTolerance;
-            var typeManifest = GetTypeManifest(fieldNames);
             ObjectWriter writer = (stream, o, session) =>
             {
-                if (versiontolerance)
-                {
-                    stream.Write(typeManifest);
-                }
-
                 if (preserveObjectReferences)
                 {
                     session.TrackSerializedObject(o);
@@ -83,24 +73,13 @@ namespace Wire
             };
 
             var reader = serializer.Options.VersionTolerance ? 
-                GetVersionTolerantReader(type, preserveObjectReferences, fields, fieldNames, fieldReaders) : 
+                GetVersionTolerantReader(type, preserveObjectReferences, fields, fieldReaders) : 
                 GetVersionIntolerantReader(type, preserveObjectReferences, fieldReaders);
             
             objectSerializer.Initialize(reader, writer);
         }
 
-        private  byte[] GetTypeManifest(IReadOnlyCollection<byte[]> fieldNames)
-        {
-            IEnumerable<byte> result = new[] {(byte) fieldNames.Count};
-            foreach (var name in fieldNames)
-            {
-                var encodedLength = BitConverter.GetBytes(name.Length);
-                result = result.Concat(encodedLength);
-                result = result.Concat(name);
-            }
-            var versionTolerantHeader = result.ToArray();
-            return versionTolerantHeader;
-        }
+
 
         private  ObjectReader GetVersionIntolerantReader(
             Type type,
@@ -132,7 +111,6 @@ namespace Wire
         private  ObjectReader GetVersionTolerantReader(Type type,
             bool preserveObjectReferences,
             IReadOnlyList<FieldInfo> fields,
-            IReadOnlyList<byte[]> fieldNames,
             IReadOnlyList<FieldReader> fieldReaders)
         {
             ObjectReader reader = (stream, session) =>
@@ -144,29 +122,30 @@ namespace Wire
                     session.TrackDeserializedObject(instance);
                 }
 
-                var storedFieldCount = stream.ReadByte();
+                //TODO: read all of the manifest in one chunk
+               // var storedFieldCount = stream.ReadByte();
 
-                for (var i = 0; i < storedFieldCount; i++)
-                {
-                    var fieldName = stream.ReadLengthEncodedByteArray(session);
-                    if (!Utils.UnsafeCompare(fieldName, fieldNames[i]))
-                    {
-                        //TODO: field name mismatch
-                        //this should really be a compare less equal or greater
-                        //to know if the field is added or removed
+                //for (var i = 0; i < storedFieldCount; i++)
+                //{
+                //    var fieldName = stream.ReadLengthEncodedByteArray(session);
+                //    if (!Utils.UnsafeCompare(fieldName, fieldNames[i]))
+                //    {
+                //        //TODO: field name mismatch
+                //        //this should really be a compare less equal or greater
+                //        //to know if the field is added or removed
 
-                        //1) if names are equal, read the value and assign the field
+                //        //1) if names are equal, read the value and assign the field
 
-                        //2) if the field is less than the expected field, then this field is an unknown new field
-                        //we need to read this object and just ignore its content.
+                //        //2) if the field is less than the expected field, then this field is an unknown new field
+                //        //we need to read this object and just ignore its content.
 
-                        //3) if the field is greater than the expected, we need to check the next expected until
-                        //the current is less or equal, then goto 1)
-                    }
-                }
+                //        //3) if the field is greater than the expected, we need to check the next expected until
+                //        //the current is less or equal, then goto 1)
+                //    }
+                //}
 
                 //this should be moved up in the version tolerant loop
-                for (var i = 0; i < storedFieldCount; i++)
+                for (var i = 0; i < fieldReaders.Count; i++)
                 {
                     var fieldReader = fieldReaders[i];
                     fieldReader(stream, instance, session);
