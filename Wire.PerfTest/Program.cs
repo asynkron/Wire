@@ -27,7 +27,8 @@ namespace Wire.PerfTest
             Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
             Console.WriteLine();
             Console.WriteLine("Running cold");
-            
+
+            SerializePocoPreRegister();
             SerializePocoVersionInteolerant();
             SerializePoco();
             SerializePocoVersionInteolerantPreserveObjects();
@@ -40,6 +41,7 @@ namespace Wire.PerfTest
             SerializePocoBinaryFormatter();
             Console.WriteLine();
             Console.WriteLine("Running hot");
+            SerializePocoPreRegister();
             SerializePocoVersionInteolerant();
             SerializePoco();
             SerializePocoVersionInteolerantPreserveObjects();
@@ -159,6 +161,23 @@ namespace Wire.PerfTest
                 s.Position = 0;
                 var o = bf.Deserialize(s);
             },bytes.Length);
+        }
+
+        private static void SerializePocoPreRegister()
+        {
+            var serializer = new Serializer(new SerializerOptions(knownTypes:new[] {typeof(Poco)}));
+            var s = new MemoryStream();
+            serializer.Serialize(Poco, s);
+            var bytes = s.ToArray();
+            RunTest("Wire - preregister types", () =>
+            {
+                var stream = new MemoryStream();
+                serializer.Serialize(Poco, stream);
+            }, () =>
+            {
+                s.Position = 0;
+                serializer.Deserialize<Poco>(s);
+            }, bytes.Length);
         }
 
         private static void SerializePocoVersionInteolerant()

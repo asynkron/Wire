@@ -11,7 +11,7 @@ namespace Wire.Tests
         public void CanSerialieCustomType_bug()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(preserveObjectReferences: true,versionTolerance:true));
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
             var root = new Recover(SnapshotSelectionCriteria.Latest);
 
             serializer.Serialize(root, stream);

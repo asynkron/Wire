@@ -31,6 +31,14 @@ namespace Wire
             {
                 _versionInfoByType = new TypeToVersionInfoLookup();
             }
+            else
+            {
+                //known types can only be used when version intolerant as we lack type version information
+                foreach (var type in serializer.Options.KnownTypes)
+                {
+                    TrackDeserializedType(type);
+                }
+            }
         }
 
         public byte[] GetBuffer(int length)
