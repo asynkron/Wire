@@ -226,7 +226,7 @@ namespace Wire.PerformanceTests
             });
         }
 
-        [TestMethod, Ignore, Description("Works but is slower than FS Pickler")]
+        [TestMethod]
         //fails as our payload is bigger, probably due to qualified typename, we are faster though
         public void TestCyclic()
         {
