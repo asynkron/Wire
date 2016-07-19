@@ -13,7 +13,10 @@ namespace Wire.SerializerFactories
         {
             //TODO: check for constructor with IEnumerable<T> param
 
-            if (type.GetMethod("AddRange") == null)
+            if (type.GetMethod("AddRange") == null && type.GetMethod("Add") == null)
+                return false;
+
+            if (type.GetProperty("Count") == null)
                 return false;
 
             var isGenericEnumerable = GetEnumerableType(type) != null;
@@ -49,11 +52,14 @@ namespace Wire.SerializerFactories
             var elementType = GetEnumerableType(type) ?? typeof (object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
+            var countProperty = type.GetProperty("Count");
+            Func<object, int> countGetter = o => (int)countProperty.GetValue(o);
+
             ValueWriter writer = (stream, o, session) =>
             {
-                var enumerable = o as ICollection;
+                stream.WriteInt32(countGetter(o));
+                var enumerable = o as IEnumerable;
                 // ReSharper disable once PossibleNullReferenceException
-                stream.WriteInt32(enumerable.Count);
                 foreach (var value in enumerable)
                 {
                     stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
