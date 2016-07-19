@@ -48,7 +48,7 @@ namespace Wire.ValueSerializers
                     }
                     // ReSharper disable once PossibleNullReferenceException
                     // ReSharper disable once AssignNullToNotNullAttribute
-                    var bytes = Encoding.UTF8.GetBytes(name);
+                    var bytes = Utils.StringToBytes(name);
                     stream.WriteLengthEncodedByteArray(bytes);
                 }
             }
@@ -62,7 +62,7 @@ namespace Wire.ValueSerializers
 
             var buffer = session.GetBuffer(length);
             stream.Read(buffer, 0, length);
-            var shortname = Encoding.UTF8.GetString(buffer, 0, length);
+            var shortname = Utils.BytesToString(buffer, 0, length);
             var name = Utils.ToQualifiedAssemblyName(shortname);
             var type = Type.GetType(name);
             //add the deserialized type to lookup

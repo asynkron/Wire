@@ -1,29 +1,37 @@
 using System;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Wire
 {
     public static class Utils
     {
-        private static string CoreAssemblyName = GetCoreAssemblyName();
+        private static readonly string CoreAssemblyName = GetCoreAssemblyName();
 
         private static string GetCoreAssemblyName()
         {
             var name = 1.GetType().AssemblyQualifiedName;
-            var part = name.Substring(name.IndexOf(", Version", StringComparison.Ordinal));
+            var part = name.Substring( name.IndexOf(", Version", StringComparison.Ordinal));
             return part;
         }
 
         public static string GetShortAssemblyQualifiedName(this Type self)
         {
-            var name = self.AssemblyQualifiedName.Replace(CoreAssemblyName, ",%core%");
+            var name = self.AssemblyQualifiedName;
+            name = name.Replace(CoreAssemblyName, ",%core%");
+            name = name.Replace(", Culture=neutral", "");
+            name = name.Replace(", PublicKeyToken=null", "");
+            name = name.Replace(", Version=1.0.0.0", ""); //TODO: regex or whatever...
             return name;
         }
 
         public static string ToQualifiedAssemblyName(string shortName)
         {
-            return shortName.Replace(",%core%", CoreAssemblyName);
+            var res = shortName.Replace(",%core%", CoreAssemblyName);
+            return res;
         }
 
+#if UNSAFE
         public static unsafe bool UnsafeCompare(byte[] a1, byte[] a2)
         {
             if (a1 == null || a2 == null || a1.Length != a2.Length)
@@ -50,6 +58,31 @@ namespace Wire
                 return true;
             }
         }
+#else
+        public static bool UnsafeCompare(byte[] a1, byte[] a2)
+        {
+            if (a1 == a2)
+            {
+                return true;
+            }
+            if ((a1 != null) && (a2 != null))
+            {
+                if (a1.Length != a2.Length)
+                {
+                    return false;
+                }
+                for (int i = 0; i < a1.Length; i++)
+                {
+                    if (a1[i] != a2[i])
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+#endif
 
         public static bool IsFixedSizeType(Type type)
         {
@@ -77,6 +110,20 @@ namespace Wire
                 return sizeof (ulong);
 
             throw new NotSupportedException();
+        }
+
+        private static readonly UTF8Encoding Utf8 = (UTF8Encoding) Encoding.UTF8;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static byte[] StringToBytes(string str)
+        {
+            return Utf8.GetBytes(str);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static string BytesToString(byte[] bytes,int offset, int count)
+        {
+            return Utf8.GetString(bytes,offset,count);
         }
     }
 }

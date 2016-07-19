@@ -28,15 +28,15 @@ namespace Wire.ValueSerializers
             }
             else
             {
-                var bytes = Encoding.UTF8.GetBytes((string) value);
-                if (bytes.Length < 255)
+                var bytes =Utils.StringToBytes((string) value);
+                if (bytes.Length < 254)
                 {
                     stream.WriteByte((byte)(bytes.Length+1));
                     stream.Write(bytes, 0, bytes.Length);
                 }
                 else
                 {
-                    stream.WriteByte(254);
+                    stream.WriteByte(255);
                     stream.WriteInt32(bytes.Length);
                     stream.Write(bytes,0,bytes.Length);
                 }
@@ -47,17 +47,22 @@ namespace Wire.ValueSerializers
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
             var length = stream.ReadByte();
-            if (length == 0)
-                return null;
-            length --;
-
-            if (length == 254)
-                length = stream.ReadInt32(session);
+            switch (length)
+            {
+                case 0:
+                    return null;
+                case 255:
+                    length = stream.ReadInt32(session);
+                    break;
+                default:
+                    length--;
+                    break;
+            }
 
             var buffer = session.GetBuffer(length);
 
             stream.Read(buffer, 0, length);
-            var res = Encoding.UTF8.GetString(buffer, 0, length);
+            var res = Utils.BytesToString(buffer, 0, length);
             return res;
         }
 

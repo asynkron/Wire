@@ -1,39 +1,57 @@
 ﻿using System;
-using System.Collections.Generic;
-
+using IntToObjectLookup = System.Collections.Generic.List<object>;
+using IntToTypeLookup = System.Collections.Generic.List<System.Type>;
+using TypeToVersionInfoLookup = System.Collections.Generic.Dictionary<System.Type, Wire.TypeVersionInfo>;
 namespace Wire
 {
+    public class TypeVersionInfo
+    {
+
+    }
     public class DeserializerSession
     {
-        private readonly byte[] _buffer;
-        private readonly Dictionary<int, Type> _identifierToType;
-        private readonly Dictionary<int, object> _objectById;
+        private byte[] _buffer;
+        private readonly IntToTypeLookup _identifierToType;
+        private readonly IntToObjectLookup _objectById;
+        private readonly TypeToVersionInfoLookup _versionInfoByType;
         public readonly Serializer Serializer;
-        private int _nextObjectId;
-        private int _nextTypeId;
 
         public DeserializerSession(Serializer serializer)
         {
             Serializer = serializer;
             _buffer = new byte[8];
-            _identifierToType = new Dictionary<int, Type>();
+            _identifierToType = new IntToTypeLookup();
             if (serializer.Options.PreserveObjectReferences)
             {
-                _objectById = new Dictionary<int, object>();
+                _objectById = new IntToObjectLookup();
+            }
+            if (serializer.Options.VersionTolerance)
+            {
+                _versionInfoByType = new TypeToVersionInfoLookup();
+            }
+            else
+            {
+                //known types can only be used when version intolerant as we lack type version information
+                foreach (var type in serializer.Options.KnownTypes)
+                {
+                    TrackDeserializedType(type);
+                }
             }
         }
 
         public byte[] GetBuffer(int length)
         {
             if (length > _buffer.Length)
-                return new byte[length];
+            {
+                _buffer = new byte[length];
+            }
 
             return _buffer;
         }
 
         public void TrackDeserializedObject(object obj)
         {
-            _objectById.Add(_nextObjectId++, obj);
+            _objectById.Add(obj);
         }
 
         public object GetDeserializedObject(int id)
@@ -43,13 +61,23 @@ namespace Wire
 
         public void TrackDeserializedType(Type type)
         {
-            _identifierToType.Add(_nextTypeId, type);
-            _nextTypeId++;
+            _identifierToType.Add(type);
         }
 
         public Type GetTypeFromTypeId(int typeId)
         {
             return _identifierToType[typeId];
+        }
+
+        public void TrackDeserializedTypeWithVersion(Type type, TypeVersionInfo versionInfo)
+        {
+            TrackDeserializedType(type);
+            _versionInfoByType.Add(type, versionInfo);
+        }
+
+        public TypeVersionInfo GetVersionInfo(Type type)
+        {
+            return _versionInfoByType[type];
         }
     }
 }

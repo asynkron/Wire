@@ -15,26 +15,23 @@ namespace Wire.SerializerFactories
 
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            if (type.Namespace != null && type.Namespace.Equals(ImmutableCollectionsNamespace))
-            {
-                var isGenericEnumerable = GetEnumerableType(type) != null;
-                if (isGenericEnumerable)
-                    return true;
-            }
+            if (type.Namespace == null || !type.Namespace.Equals(ImmutableCollectionsNamespace)) return false;
+            var isGenericEnumerable = GetEnumerableType(type) != null;
+            if (isGenericEnumerable)
+                return true;
 
             return false;
         }
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return CanSerialize(serializer, type);
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
         private static Type GetEnumerableType(Type type)
         {
-            return type.GetInterfaces()
-                .Where(intType => intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
-                .Select(intType => intType.GetGenericArguments()[0])
+            return type
+                .GetTypeInfo()
+                .GetInterfaces()
+                .Where(intType => intType.GetTypeInfo().IsGenericType && intType.GetTypeInfo().GetGenericTypeDefinition() == typeof (IEnumerable<>))
+                .Select(intType => intType.GetTypeInfo().GetGenericArguments()[0])
                 .FirstOrDefault();
         }
 
@@ -48,16 +45,14 @@ namespace Wire.SerializerFactories
             var elementType = GetEnumerableType(type) ?? typeof (object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
-            ValueWriter writer = (stream, o, session) =>
+            ObjectWriter writer = (stream, o, session) =>
             {
                 var enumerable = o as ICollection;
                 if (enumerable == null)
                 {
                     // object can be IEnumerable but not ICollection i.e. ImmutableQueue
                     var e = (IEnumerable) o;
-                    var list = new ArrayList();
-                    foreach (var element in e)
-                        list.Add(element);
+                    var list = e.Cast<object>().ToList();//
 
                     enumerable = list;
                 }
@@ -69,7 +64,7 @@ namespace Wire.SerializerFactories
                 }
             };
 
-            ValueReader reader = (stream, session) =>
+            ObjectReader reader = (stream, session) =>
             {
                 var count = stream.ReadInt32(session);
                 var items = Array.CreateInstance(elementType, count);
@@ -88,10 +83,10 @@ namespace Wire.SerializerFactories
                     var creatorType =
                         Type.GetType(
                             ImmutableCollectionsNamespace + "." + typeName + ", " + ImmutableCollectionsAssembly, true);
-                    var genericTypes = elementType.IsGenericType
-                        ? elementType.GetGenericArguments()
+                    var genericTypes = elementType.GetTypeInfo().IsGenericType
+                        ? elementType.GetTypeInfo().GetGenericArguments()
                         : new[] {elementType};
-                    var createRange = creatorType.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                    var createRange = creatorType.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .First(methodInfo => methodInfo.Name == "CreateRange" && methodInfo.GetParameters().Length == 1)
                         .MakeGenericMethod(genericTypes);
                     var instance = createRange.Invoke(null, new object[] {items});
@@ -100,19 +95,17 @@ namespace Wire.SerializerFactories
                 else
                 {
                     var instance = Activator.CreateInstance(type);
-                    var addRange = type.GetMethod("AddRange");
+                    var addRange = type.GetTypeInfo().GetMethod("AddRange");
                     if (addRange != null)
                     {
                         addRange.Invoke(instance, new object[] {items});
                         return instance;
                     }
-                    var add = type.GetMethod("Add");
-                    if (add != null)
+                    var add = type.GetTypeInfo().GetMethod("Add");
+                    if (add == null) return instance;
+                    for (var i = 0; i < items.Length; i++)
                     {
-                        for (var i = 0; i < items.Length; i++)
-                        {
-                            add.Invoke(instance, new[] {items.GetValue(i)});
-                        }
+                        add.Invoke(instance, new[] {items.GetValue(i)});
                     }
 
                     return instance;

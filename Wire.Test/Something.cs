@@ -6,11 +6,6 @@ using System.Threading.Tasks;
 
 namespace Wire.Tests
 {
-    public struct StuctValue
-    {
-        public string Prop1 { get; set; }
-        public int Prop2 { get; set; }
-    }
     public class Something : IEquatable<Something>
     {
         public bool Equals(Something other)

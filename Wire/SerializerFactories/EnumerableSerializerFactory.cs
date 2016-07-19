@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Wire.ValueSerializers;
 
 namespace Wire.SerializerFactories
@@ -23,7 +24,7 @@ namespace Wire.SerializerFactories
             if (isGenericEnumerable)
                 return true;
 
-            if (typeof (ICollection).IsAssignableFrom(type))
+            if (typeof (ICollection).GetTypeInfo().IsAssignableFrom(type))
                 return true;
 
             return false;
@@ -36,9 +37,11 @@ namespace Wire.SerializerFactories
 
         private static Type GetEnumerableType(Type type)
         {
-            return type.GetInterfaces()
-                .Where(intType => intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
-                .Select(intType => intType.GetGenericArguments()[0])
+            return type
+                .GetTypeInfo()
+                .GetInterfaces()
+                .Where(intType => intType.GetTypeInfo().IsGenericType && intType.GetTypeInfo().GetGenericTypeDefinition() == typeof (IEnumerable<>))
+                .Select(intType => intType.GetTypeInfo().GetGenericArguments()[0])
                 .FirstOrDefault();
         }
 
@@ -53,9 +56,9 @@ namespace Wire.SerializerFactories
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
             var countProperty = type.GetProperty("Count");
+           
             Func<object, int> countGetter = o => (int)countProperty.GetValue(o);
-
-            ValueWriter writer = (stream, o, session) =>
+            ObjectWriter writer = (stream, o, session) =>
             {
                 stream.WriteInt32(countGetter(o));
                 var enumerable = o as IEnumerable;
@@ -66,7 +69,7 @@ namespace Wire.SerializerFactories
                 }
             };
 
-            ValueReader reader = (stream, session) =>
+            ObjectReader reader = (stream, session) =>
             {
                 var count = stream.ReadInt32(session);
                 var items = Array.CreateInstance(elementType, count);
@@ -77,13 +80,13 @@ namespace Wire.SerializerFactories
                 }
                 //HACK: this needs to be fixed, codegenerated or whatever
                 var instance = Activator.CreateInstance(type);
-                var addRange = type.GetMethod("AddRange");
+                var addRange = type.GetTypeInfo().GetMethod("AddRange");
                 if (addRange != null)
                 {
                     addRange.Invoke(instance, new object[] {items});
                     return instance;
                 }
-                var add = type.GetMethod("Add");
+                var add = type.GetTypeInfo().GetMethod("Add");
                 if (add != null)
                 {
                     for (var i = 0; i < items.Length; i++)

@@ -1,44 +1,19 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Wire.ValueSerializers;
+using TypeSerializerLookup =
+    System.Collections.Concurrent.ConcurrentDictionary<System.Type, Wire.ValueSerializers.ValueSerializer>;
 
 namespace Wire
 {
     public class Serializer
     {
-        private static readonly Type Int32Type = typeof (int);
-        private static readonly Type Int64Type = typeof (long);
-        private static readonly Type Int16Type = typeof (short);
-
-        private static readonly Type UInt32Type = typeof (uint);
-        private static readonly Type UInt64Type = typeof (ulong);
-        private static readonly Type UInt16Type = typeof (ushort);
-
-        private static readonly Type ByteType = typeof (byte);
-        private static readonly Type SByteType = typeof (sbyte);
-        private static readonly Type BoolType = typeof (bool);
-        private static readonly Type DateTimeType = typeof (DateTime);
-        private static readonly Type StringType = typeof (string);
-        private static readonly Type GuidType = typeof (Guid);
-        private static readonly Type FloatType = typeof (float);
-        private static readonly Type DoubleType = typeof (double);
-        private static readonly Type DecimalType = typeof (decimal);
-        private static readonly Type CharType = typeof (char);
-        private static readonly Type ByteArrayType = typeof (byte[]);
-        private static readonly Type TypeType = typeof (Type);
-        private static readonly Type RuntimeType = Type.GetType("System.RuntimeType");
-        private static readonly Assembly CoreAssembly = typeof (int).Assembly;
-
-        private readonly ConcurrentDictionary<Type, ValueSerializer> _deserializers =
-            new ConcurrentDictionary<Type, ValueSerializer>();
-
-        private readonly ConcurrentDictionary<Type, ValueSerializer> _serializers =
-            new ConcurrentDictionary<Type, ValueSerializer>();
-
+        private readonly TypeSerializerLookup _deserializers = new TypeSerializerLookup();
+        private readonly TypeSerializerLookup _serializers = new TypeSerializerLookup();
         internal readonly SerializerOptions Options;
+        internal readonly ICodeGenerator CodeGenerator = new DefaultCodeGenerator();
 
         public Serializer() : this(new SerializerOptions())
         {
@@ -49,46 +24,32 @@ namespace Wire
             Options = options;
         }
 
-        internal static bool IsPrimitiveType(Type type)
-        {
-            return type == Int32Type ||
-                   type == Int64Type ||
-                   type == Int16Type ||
-                   type == UInt32Type ||
-                   type == UInt64Type ||
-                   type == UInt16Type ||
-                   type == ByteType ||
-                   type == SByteType ||
-                   type == DateTimeType ||
-                   type == BoolType ||
-                   type == StringType ||
-                   type == GuidType ||
-                   type == FloatType ||
-                   type == DoubleType ||
-                   type == DecimalType ||
-                   type == CharType;
-            //add TypeSerializer with null support
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ValueSerializer GetCustomSerialzer(Type type)
         {
             ValueSerializer serializer;
-            if (!_serializers.TryGetValue(type, out serializer))
-            {
-                foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
-                {
-                    if (valueSerializerFactory.CanSerialize(this, type))
-                    {
-                        return valueSerializerFactory.BuildSerializer(this, type, _serializers);
-                    }
-                }
 
-                serializer = new ObjectSerializer(type);
-                _serializers.TryAdd(type, serializer);
-                CodeGenerator.BuildSerializer(this, type, (ObjectSerializer) serializer);
-                //just ignore if this fails, another thread have already added an identical serialzer
+            //do we already have a serializer for this type?
+            if (_serializers.TryGetValue(type, out serializer))
+                return serializer;
+
+            //is there a serializer factory that can handle this type?
+            foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
+            {
+                if (valueSerializerFactory.CanSerialize(this, type))
+                {
+                    return valueSerializerFactory.BuildSerializer(this, type, _serializers);
+                }
             }
+
+            //none of the above, lets create a POCO object serializer
+            serializer = new ObjectSerializer(type);
+            //add it to the serializer lookup incase of recursive serialization
+            if (!_serializers.TryAdd(type, serializer)) return _serializers[type];
+            //build the serializer IL code
+            CodeGenerator.BuildSerializer(this, type, (ObjectSerializer)serializer);
+            //just ignore if this fails, another thread have already added an identical serialzer
             return serializer;
         }
 
@@ -96,22 +57,26 @@ namespace Wire
         private ValueSerializer GetCustomDeserialzer(Type type)
         {
             ValueSerializer serializer;
-            if (!_deserializers.TryGetValue(type, out serializer))
+
+            //do we already have a deserializer for this type?
+            if (_deserializers.TryGetValue(type, out serializer))
+                return serializer;
+
+            //is there a deserializer factory that can handle this type?
+            foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
             {
-                foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
+                if (valueSerializerFactory.CanDeserialize(this, type))
                 {
-                    if (valueSerializerFactory.CanDeserialize(this, type))
-                    {
-                        return valueSerializerFactory.BuildSerializer(this, type, _deserializers);
-                    }
+                    return valueSerializerFactory.BuildSerializer(this, type, _deserializers);
                 }
-
-                serializer = new ObjectSerializer(type);
-
-                _deserializers.TryAdd(type, serializer);
-                CodeGenerator.BuildSerializer(this, type, (ObjectSerializer) serializer);
-                //just ignore if this fails, another thread have already added an identical serialzer
             }
+
+            //none of the above, lets create a POCO object deserializer
+            serializer = new ObjectSerializer(type);
+            //add it to the serializer lookup incase of recursive serialization
+            if (!_deserializers.TryAdd(type, serializer)) return _deserializers[type];
+            //build the serializer IL code
+            CodeGenerator.BuildSerializer(this, type, (ObjectSerializer)serializer);
             return serializer;
         }
 
@@ -146,74 +111,71 @@ namespace Wire
 
         public ValueSerializer GetSerializerByType(Type type)
         {
-            //TODO: code generate this
-            //ValueSerializer tmp;
-            //if (_primitiveSerializers.TryGetValue(type, out tmp))
-            //{
-            //    return tmp;
-            //}
-
-            if (ReferenceEquals(type.Assembly, CoreAssembly))
+            if (ReferenceEquals(type.GetTypeInfo().Assembly, ReflectionEx.CoreAssembly))
             {
-                if (type == StringType)
+                //faster than hash lookup you know...
+                if (type == TypeEx.StringType)
                     return StringSerializer.Instance;
 
-                if (type == Int32Type)
+                if (type == TypeEx.Int32Type)
                     return Int32Serializer.Instance;
 
-                if (type == Int64Type)
+                if (type == TypeEx.Int64Type)
                     return Int64Serializer.Instance;
 
-                if (type == Int16Type)
+                if (type == TypeEx.Int16Type)
                     return Int16Serializer.Instance;
 
-                if (type == UInt32Type)
+                if (type == TypeEx.UInt32Type)
                     return UInt32Serializer.Instance;
 
-                if (type == UInt64Type)
+                if (type == TypeEx.UInt64Type)
                     return UInt64Serializer.Instance;
 
-                if (type == UInt16Type)
+                if (type == TypeEx.UInt16Type)
                     return UInt16Serializer.Instance;
 
-                if (type == ByteType)
+                if (type == TypeEx.ByteType)
                     return ByteSerializer.Instance;
 
-                if (type == SByteType)
+                if (type == TypeEx.SByteType)
                     return SByteSerializer.Instance;
 
-                if (type == BoolType)
+                if (type == TypeEx.BoolType)
                     return BoolSerializer.Instance;
 
-                if (type == DateTimeType)
+                if (type == TypeEx.DateTimeType)
                     return DateTimeSerializer.Instance;
 
-                if (type == GuidType)
+                if (type == TypeEx.GuidType)
                     return GuidSerializer.Instance;
 
-                if (type == FloatType)
+                if (type == TypeEx.FloatType)
                     return FloatSerializer.Instance;
 
-                if (type == DoubleType)
+                if (type == TypeEx.DoubleType)
                     return DoubleSerializer.Instance;
 
-                if (type == DecimalType)
+                if (type == TypeEx.DecimalType)
                     return DecimalSerializer.Instance;
 
-                if (type == CharType)
+                if (type == TypeEx.CharType)
                     return CharSerializer.Instance;
 
-                if (type == ByteArrayType)
+                if (type == TypeEx.ByteArrayType)
                     return ByteArraySerializer.Instance;
 
-                if (type == TypeType || type == RuntimeType)
+                if (type == TypeEx.TypeType)
+                    return TypeSerializer.Instance;
+
+                if (type == TypeEx.RuntimeType)
                     return TypeSerializer.Instance;
             }
 
-            if (type.IsArray && type.GetArrayRank() == 1)
+            if (type.IsOneDimensionalArray())
             {
                 var elementType = type.GetElementType();
-                if (IsPrimitiveType(elementType))
+                if (elementType.IsWirePrimitive())
                 {
                     return ConsistentArraySerializer.Instance;
                 }
@@ -226,67 +188,68 @@ namespace Wire
 
         public ValueSerializer GetDeserializerByType(Type type)
         {
-            if (ReferenceEquals(type.Assembly, CoreAssembly))
+            if (ReferenceEquals(type.GetTypeInfo().Assembly, ReflectionEx.CoreAssembly))
             {
-                if (type == StringType)
+                //faster than hash lookup you know...
+                if (type == TypeEx.StringType)
                     return StringSerializer.Instance;
 
-                if (type == UInt32Type)
+                if (type == TypeEx.UInt32Type)
                     return UInt32Serializer.Instance;
 
-                if (type == UInt64Type)
+                if (type == TypeEx.UInt64Type)
                     return UInt64Serializer.Instance;
 
-                if (type == UInt16Type)
+                if (type == TypeEx.UInt16Type)
                     return UInt16Serializer.Instance;
 
-                if (type == Int32Type)
+                if (type == TypeEx.Int32Type)
                     return Int32Serializer.Instance;
 
-                if (type == Int64Type)
+                if (type == TypeEx.Int64Type)
                     return Int64Serializer.Instance;
 
-                if (type == Int16Type)
+                if (type == TypeEx.Int16Type)
                     return Int16Serializer.Instance;
 
-                if (type == ByteType)
+                if (type == TypeEx.ByteType)
                     return ByteSerializer.Instance;
 
-                if (type == SByteType)
+                if (type == TypeEx.SByteType)
                     return SByteSerializer.Instance;
 
-                if (type == BoolType)
+                if (type == TypeEx.BoolType)
                     return BoolSerializer.Instance;
 
-                if (type == DateTimeType)
+                if (type == TypeEx.DateTimeType)
                     return DateTimeSerializer.Instance;
 
-                if (type == GuidType)
+                if (type == TypeEx.GuidType)
                     return GuidSerializer.Instance;
 
-                if (type == FloatType)
+                if (type == TypeEx.FloatType)
                     return FloatSerializer.Instance;
 
-                if (type == DoubleType)
+                if (type == TypeEx.DoubleType)
                     return DoubleSerializer.Instance;
 
-                if (type == DecimalType)
+                if (type == TypeEx.DecimalType)
                     return DecimalSerializer.Instance;
 
-                if (type == CharType)
+                if (type == TypeEx.CharType)
                     return CharSerializer.Instance;
 
-                if (type == ByteArrayType)
+                if (type == TypeEx.ByteArrayType)
                     return ByteArraySerializer.Instance;
 
-                if (type == TypeType || type == RuntimeType)
+                if (type == TypeEx.TypeType || type == TypeEx.RuntimeType)
                     return TypeSerializer.Instance;
             }
 
-            if (type.IsArray && type.GetArrayRank() == 1)
+            if (type.IsOneDimensionalArray())
             {
                 var elementType = type.GetElementType();
-                if (IsPrimitiveType(elementType))
+                if (elementType.IsWirePrimitive())
                 {
                     return ConsistentArraySerializer.Instance;
                 }
@@ -348,6 +311,11 @@ namespace Wire
                 case ObjectSerializer.ManifestFull:
                 {
                     var type = ObjectSerializer.GetTypeFromManifestFull(stream, session);
+                    return GetCustomDeserialzer(type);
+                }
+                case ObjectSerializer.ManifestVersion:
+                {
+                    var type = ObjectSerializer.GetTypeFromManifestVersion(stream, session);
                     return GetCustomDeserialzer(type);
                 }
                 case ObjectSerializer.ManifestIndex:

@@ -1,16 +1,15 @@
 ﻿using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
-namespace Wire.Tests
-{
-    [TestClass]
+namespace Wire.Test
+{    
     public class CyclicTests
     {
-        [TestMethod]
+        [Fact]
         public void CanSerializeDeepCyclicReferences()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
+            var serializer = new Serializer(new SerializerOptions(preserveObjectReferences: true,versionTolerance:true));
             var root = new Root();
             var bar = new Bar();
             bar.Self = bar;
@@ -21,17 +20,17 @@ namespace Wire.Tests
             serializer.Serialize(root, stream);
             stream.Position = 0;
             var actual = serializer.Deserialize<Root>(stream);
-            Assert.AreSame(actual.B1, actual.B1);
-            Assert.AreSame(actual.B1, actual.B2);
-            Assert.AreSame(actual.B1, actual.B1.Self);
-            Assert.AreSame(actual.B1, actual.B2.Self);
+            Assert.Same(actual.B1, actual.B1);
+            Assert.Same(actual.B1, actual.B2);
+            Assert.Same(actual.B1, actual.B1.Self);
+            Assert.Same(actual.B1, actual.B2.Self);
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeCyclicReferences()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
+            var serializer = new Serializer(new SerializerOptions(preserveObjectReferences: true,versionTolerance:true));
             var bar = new Bar();
             bar.Self = bar;
             bar.XYZ = 234;
@@ -39,11 +38,11 @@ namespace Wire.Tests
             serializer.Serialize(bar, stream);
             stream.Position = 0;
             var actual = serializer.Deserialize<Bar>(stream);
-            Assert.AreSame(actual, actual.Self);
-            Assert.AreEqual(bar.XYZ, actual.XYZ);
+            Assert.Same(actual, actual.Self);
+            Assert.Equal(bar.XYZ, actual.XYZ);
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeMultiLevelCyclicReferences()
         {
             var stream = new MemoryStream();
@@ -56,7 +55,7 @@ namespace Wire.Tests
             serializer.Serialize(a, stream);
             stream.Position = 0;
             var actual = serializer.Deserialize<A>(stream);
-            Assert.AreSame(actual, actual.B.A);
+            Assert.Same(actual, actual.B.A);
         }
     }
 

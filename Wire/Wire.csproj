@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;SERIALIZATION, UNSAFE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -26,7 +26,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;SERIALIZATION, UNSAFE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -43,11 +43,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ByteArrayEqualityComparer.cs" />
-    <Compile Include="CodeGenerator.cs" />
+    <Compile Include="DefaultCodeGenerator.cs" />
+    <Compile Include="ReflectionEx.cs" />
     <Compile Include="SerializerFactories\ArraySerializerFactory.cs" />
     <Compile Include="SerializerFactories\DefaultDictionarySerializerFactory.cs" />
     <Compile Include="SerializerFactories\DictionarySerializerFactory.cs" />
     <Compile Include="SerializerFactories\EnumerableSerializerFactory.cs" />
+    <Compile Include="SerializerFactories\ExceptionSerializerFactory.cs" />
     <Compile Include="SerializerFactories\FromSurrogateSerializerFactory.cs" />
     <Compile Include="SerializerFactories\FSharpListSerializerFactory.cs" />
     <Compile Include="SerializerFactories\ImmutableCollectionsSerializerFactory.cs" />
@@ -91,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="project.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

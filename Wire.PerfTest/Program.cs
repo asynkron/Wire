@@ -3,20 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using Newtonsoft.Json;
+using Orleans.Serialization;
 using ProtoBuf;
 
 namespace Wire.PerfTest
 {
     internal class Program
     {
-        private static readonly Poco poco = new Poco
+        private static readonly Poco Poco = new Poco
         {
-            Age = 123,
-            Name = "Hello",
-            //Foo = "kfksdjfksjdfkjsdkfjskfjksd",
-            //Yoo = DateTime.Now
+            IntProp = 123,
+            StringProp = "Hello",
+            GuidProp = Guid.NewGuid(),
+            DateProp = DateTime.Now
         };
 
         private static void Main(string[] args)
@@ -24,20 +27,29 @@ namespace Wire.PerfTest
             Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
             Console.WriteLine();
             Console.WriteLine("Running cold");
-            
-            SerializePocoVersionInteolerant();
-            SerializePocoProtoBufNet();
 
+            SerializePocoPreRegister();
+            SerializePocoVersionInteolerant();
             SerializePoco();
             SerializePocoVersionInteolerantPreserveObjects();
+
+            SerializePocoProtoBufNet();
+            SerializePocoOrleans();
+            SerializePocoOrleansWithWire();
+
             SerializePocoJsonNet();
             SerializePocoBinaryFormatter();
             Console.WriteLine();
             Console.WriteLine("Running hot");
+            SerializePocoPreRegister();
             SerializePocoVersionInteolerant();
-            SerializePocoProtoBufNet();
             SerializePoco();
             SerializePocoVersionInteolerantPreserveObjects();
+
+            SerializePocoProtoBufNet();
+            SerializePocoOrleans();
+            SerializePocoOrleansWithWire();
+
             SerializePocoJsonNet();
             SerializePocoBinaryFormatter();
             Console.ReadLine();
@@ -51,17 +63,17 @@ namespace Wire.PerfTest
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                 PreserveReferencesHandling = PreserveReferencesHandling.All
             };
-            var data = JsonConvert.SerializeObject(poco, settings);
+            var data = JsonConvert.SerializeObject(Poco, settings);
             RunTest("Json.NET", () =>
             {
-                JsonConvert.SerializeObject(poco, settings);
+                JsonConvert.SerializeObject(Poco, settings);
             }, () =>
             {
                 var o = JsonConvert.DeserializeObject(data, settings);
-            });
+            },Encoding.UTF8.GetBytes(data).Length);
         }
 
-        private static void RunTest(string testName, Action serialize, Action deserialize)
+        private static void RunTest(string testName, Action serialize, Action deserialize,int size)
         {
             var tmp = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -81,87 +93,143 @@ namespace Wire.PerfTest
             }
             sw2.Stop();
             Console.WriteLine($"   {"Deseralize".PadRight(30, ' ')} {sw2.ElapsedMilliseconds} ms");
+            Console.WriteLine($"   {"Size".PadRight(30,' ')} {size} bytes");
             Console.WriteLine($"   {"Total".PadRight(30, ' ')} {sw.ElapsedMilliseconds + sw2.ElapsedMilliseconds} ms");
+        }
+
+        private static void SerializePocoOrleans()
+        {
+            SerializationManager.InitializeForTesting();
+            var bytes = SerializationManager.SerializeToByteArray(Poco);
+
+            RunTest("Orleans", () =>
+            {
+              //  var stream = new BinaryTokenStreamWriter();
+                SerializationManager.SerializeToByteArray(Poco);
+               // stream.ReleaseBuffers();
+            }, () =>
+            {
+                SerializationManager.DeserializeFromByteArray<Poco>(bytes);
+            }, bytes.Length);
+        }
+
+        private static void SerializePocoOrleansWithWire()
+        {
+            SerializationManager.InitializeForTesting(new List<TypeInfo> { typeof(WireForOrleansSerializer).GetTypeInfo() });
+            var bytes = SerializationManager.SerializeToByteArray(Poco);
+
+            RunTest("Orleans with Wire", () =>
+            {
+                //  var stream = new BinaryTokenStreamWriter();
+                SerializationManager.SerializeToByteArray(Poco);
+                // stream.ReleaseBuffers();
+            }, () =>
+            {
+                SerializationManager.DeserializeFromByteArray<Poco>(bytes);
+            }, bytes.Length);
         }
 
         private static void SerializePocoProtoBufNet()
         {
             var s = new MemoryStream();
-            ProtoBuf.Serializer.Serialize(s, poco);
+            ProtoBuf.Serializer.Serialize(s, Poco);
+            var bytes = s.ToArray();
             RunTest("Protobuf.NET", () =>
             {
                 var stream = new MemoryStream();
-                ProtoBuf.Serializer.Serialize(stream, poco);
+                ProtoBuf.Serializer.Serialize(stream, Poco);
             }, () =>
             {
                 s.Position = 0;
                 ProtoBuf.Serializer.Deserialize<Poco>(s);
-            });
+            },bytes.Length);
         }
 
         private static void SerializePocoBinaryFormatter()
         {
             var bf = new BinaryFormatter();
             var s = new MemoryStream();
-            bf.Serialize(s, poco);
+            
+            bf.Serialize(s, Poco);
+            var bytes = s.ToArray();
             RunTest("Binary formatter", () =>
             {
                 var stream = new MemoryStream();
-                bf.Serialize(stream, poco);
+                bf.Serialize(stream, Poco);
             }, () =>
             {
                 s.Position = 0;
                 var o = bf.Deserialize(s);
-            });
+            },bytes.Length);
+        }
+
+        private static void SerializePocoPreRegister()
+        {
+            var serializer = new Serializer(new SerializerOptions(knownTypes:new[] {typeof(Poco)}));
+            var s = new MemoryStream();
+            serializer.Serialize(Poco, s);
+            var bytes = s.ToArray();
+            RunTest("Wire - preregister types", () =>
+            {
+                var stream = new MemoryStream();
+                serializer.Serialize(Poco, stream);
+            }, () =>
+            {
+                s.Position = 0;
+                serializer.Deserialize<Poco>(s);
+            }, bytes.Length);
         }
 
         private static void SerializePocoVersionInteolerant()
         {
             var serializer = new Serializer(new SerializerOptions(false));
             var s = new MemoryStream();
-            serializer.Serialize(poco, s);
+            serializer.Serialize(Poco, s);
+            var bytes = s.ToArray();
             RunTest("Wire - no version data", () =>
             {
                 var stream = new MemoryStream();
-                serializer.Serialize(poco, stream);
+                serializer.Serialize(Poco, stream);
             }, () =>
             {
                 s.Position = 0;
                 serializer.Deserialize<Poco>(s);
-            });
+            },bytes.Length);
         }
 
         private static void SerializePocoVersionInteolerantPreserveObjects()
         {
             var serializer = new Serializer(new SerializerOptions(false, preserveObjectReferences: true));
             var s = new MemoryStream();
-            serializer.Serialize(poco, s);
+            serializer.Serialize(Poco, s);
+            var bytes = s.ToArray();
             RunTest("Wire - preserve object refs", () =>
             {
                 var stream = new MemoryStream();
-                serializer.Serialize(poco, stream);
+                serializer.Serialize(Poco, stream);
             }, () =>
             {
                 s.Position = 0;
                 serializer.Deserialize<Poco>(s);
-            });
+            },bytes.Length);
         }
 
         private static void SerializePoco()
         {
             var serializer = new Serializer(new SerializerOptions(true));
             var s = new MemoryStream();
-            serializer.Serialize(poco, s);
+            serializer.Serialize(Poco, s);
+            var bytes = s.ToArray();
             RunTest("Wire - version tolerant", () =>
             {
                 var stream = new MemoryStream();
 
-                serializer.Serialize(poco, stream);
+                serializer.Serialize(Poco, stream);
             }, () =>
             {
                 s.Position = 0;
                 serializer.Deserialize<Poco>(s);
-            });
+            },bytes.Length);
         }
     }
 
@@ -177,16 +245,16 @@ namespace Wire.PerfTest
     public class Poco
     {
         [ProtoMember(1)]
-        public string Name { get; set; }
+        public string StringProp { get; set; }
 
         [ProtoMember(2)]
-        public int Age { get; set; }
+        public int IntProp { get; set; }
 
-        //[ProtoMember(3)]
-        //public string Foo { get; set; }
+        [ProtoMember(3)]
+        public Guid GuidProp { get; set; }
 
-        //[ProtoMember(4)]
-        //public DateTime Yoo { get; set; }
+        [ProtoMember(4)]
+        public DateTime DateProp { get; set; }
     }
 
     public class Poco2 : Poco
@@ -203,8 +271,8 @@ namespace Wire.PerfTest
             var parts = Data.Split('|');
             return new Poco
             {
-                Age = int.Parse(parts[0]),
-                Name = parts[1]
+                IntProp = int.Parse(parts[0]),
+                StringProp = parts[1]
             };
         }
     }

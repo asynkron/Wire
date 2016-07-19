@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if SERIALIZATION
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
@@ -25,7 +26,7 @@ namespace Wire.SerializerFactories
         {
             var serializableSerializer = new ObjectSerializer(type);
             typeMapping.TryAdd(type, serializableSerializer);
-            ValueReader reader = (stream, session) =>
+            ObjectReader reader = (stream, session) =>
             {
                 var dict = stream.ReadObject(session) as Dictionary<string, object>;
                 var info = new SerializationInfo(type, new FormatterConverter());
@@ -45,7 +46,7 @@ namespace Wire.SerializerFactories
                 return instance;
             };
 
-            ValueWriter writer = (stream, o, session) =>
+            ObjectWriter writer = (stream, o, session) =>
             {
                 var info = new SerializationInfo(type, new FormatterConverter());
                 var serializable = o as ISerializable;
@@ -57,8 +58,7 @@ namespace Wire.SerializerFactories
                     dict.Add(item.Name, item.Value);
                 }
                 var dictSerializer = serializer.GetSerializerByType(typeof (Dictionary<string, object>));
-                stream.WriteObject(dict, typeof (Dictionary<string, object>), dictSerializer,
-                    serializer.Options.PreserveObjectReferences, session);
+                stream.WriteObjectWithManifest(dict, session);
             };
             serializableSerializer.Initialize(reader, writer);
             
@@ -67,3 +67,4 @@ namespace Wire.SerializerFactories
         }
     }
 }
+#endif
