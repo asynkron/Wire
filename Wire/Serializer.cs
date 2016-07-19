@@ -346,13 +346,9 @@ namespace Wire
                 case ConsistentArraySerializer.Manifest:
                     return ConsistentArraySerializer.Instance;
                 case ObjectSerializer.ManifestFull:
-                {
-                    var type = ObjectSerializer.GetTypeFromManifestFull(stream, session);
-                    return GetCustomDeserialzer(type);
-                }
                 case ObjectSerializer.ManifestIndex:
                 {
-                    var type = ObjectSerializer.GetTypeFromManifestIndex(stream, session);
+                    var type = session.Serializer.Options.TypeResolver.ReadType(stream, first, session);
                     return GetCustomDeserialzer(type);
                 }
                 default:

@@ -11,12 +11,6 @@ namespace Wire.ValueSerializers
     {
         public const byte ManifestFull = 255;
         public const byte ManifestIndex = 254;
-      
-
-        private static readonly ConcurrentDictionary<byte[], Type> TypeNameLookup =
-            new ConcurrentDictionary<byte[], Type>(new ByteArrayEqualityComparer());
-
-        private readonly byte[] _manifest;
 
         private volatile bool _isInitialized;
         private ValueReader _reader;
@@ -28,18 +22,6 @@ namespace Wire.ValueSerializers
                 throw new ArgumentNullException(nameof(type));
 
             Type = type;
-            var typeName = type.GetShortAssemblyQualifiedName();
-            // ReSharper disable once PossibleNullReferenceException
-            // ReSharper disable once AssignNullToNotNullAttribute
-            var typeNameBytes = Encoding.UTF8.GetBytes(typeName);
-
-            //precalculate the entire manifest for this serializer
-            //this helps us to minimize calls to Stream.Write/WriteByte 
-            _manifest =
-                new[] {ManifestFull}
-                    .Concat(BitConverter.GetBytes(typeNameBytes.Length))
-                    .Concat(typeNameBytes)
-                    .ToArray(); //serializer id 255 + assembly qualified name
 
             //initialize reader and writer with dummy handlers that wait until the serializer is fully initialized
             _writer = (stream, o, session) =>
@@ -59,16 +41,7 @@ namespace Wire.ValueSerializers
 
         public override void WriteManifest(Stream stream, Type type, SerializerSession session)
         {
-            if (session.ShouldWriteTypeManifest(type))
-            {
-                stream.Write(_manifest);
-            }
-            else
-            {
-                var typeIdentifier = session.GetTypeIdentifier(type);
-                stream.Write(new[] {ManifestIndex});
-                stream.WriteUInt16((ushort) typeIdentifier);
-            }
+            session.Serializer.Options.TypeResolver.WriteType(stream, type, session);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
@@ -91,32 +64,6 @@ namespace Wire.ValueSerializers
             _reader = reader;
             _writer = writer;
             _isInitialized = true;
-        }
-
-        private static Type GetTypeFromManifestName(Stream stream, DeserializerSession session)
-        {
-            var bytes = (byte[]) ByteArraySerializer.Instance.ReadValue(stream, session);
-
-            return TypeNameLookup.GetOrAdd(bytes, b =>
-            {
-                var shortName = Encoding.UTF8.GetString(b);
-                var typename = Utils.ToQualifiedAssemblyName(shortName);
-                return Type.GetType(typename, true);
-            });
-        }
-
-        public static Type GetTypeFromManifestFull(Stream stream, DeserializerSession session)
-        {
-            var type = GetTypeFromManifestName(stream, session);
-            session.TrackDeserializedType(type);
-            return type;
-        }
-
-        public static Type GetTypeFromManifestIndex(Stream stream, DeserializerSession session)
-        {
-            var typeId = stream.ReadUInt16(session);
-            var type = session.GetTypeFromTypeId(typeId);
-            return type;
         }
     }
 }

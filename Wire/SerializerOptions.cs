@@ -28,9 +28,12 @@ namespace Wire
         internal readonly Surrogate[] Surrogates;
         internal readonly ValueSerializerFactory[] ValueSerializerFactories;
         internal readonly bool VersionTolerance;
+        internal readonly ITypeResolver TypeResolver;
 
-        public SerializerOptions(bool versionTolerance = false, IEnumerable<Surrogate> surrogates = null,
-            bool preserveObjectReferences = false, IEnumerable<ValueSerializerFactory> serializerFactories = null)
+        public SerializerOptions(
+            bool versionTolerance = false, IEnumerable<Surrogate> surrogates = null,
+            bool preserveObjectReferences = false, IEnumerable<ValueSerializerFactory> serializerFactories = null,
+            ITypeResolver typeResolver = null)
         {
             VersionTolerance = versionTolerance;
             Surrogates = surrogates?.ToArray() ?? EmptySurrogates;
@@ -41,6 +44,7 @@ namespace Wire
                     .ToArray();
 
             PreserveObjectReferences = preserveObjectReferences;
+            TypeResolver = typeResolver ?? new DefaultTypeResolver();
         }
     }
 }
