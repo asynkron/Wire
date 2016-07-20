@@ -35,7 +35,7 @@ namespace Wire.PerformanceTests
         public void TestPocoArray()
         {
             var arr = new Poco[200];
-            for (int i = 0; i < arr.Length; i++)
+            for (var i = 0; i < arr.Length; i++)
             {
                 arr[i] = new Poco()
                 {
@@ -57,7 +57,7 @@ namespace Wire.PerformanceTests
         public void TestDateTimeArray()
         {
             var arr = new DateTime[200];
-            for (int i = 0; i < arr.Length; i++)
+            for (var i = 0; i < arr.Length; i++)
             {
                 arr[i] = DateTime.Now;
             }
@@ -69,7 +69,7 @@ namespace Wire.PerformanceTests
         public void TestGuidArray()
         {
             var arr = new Guid[200];
-            for (int i = 0; i < arr.Length; i++)
+            for (var i = 0; i < arr.Length; i++)
             {
                 arr[i] = Guid.NewGuid();
             }
@@ -82,7 +82,7 @@ namespace Wire.PerformanceTests
         public void TestIntArray()
         {
             var arr = new int[1000];
-            for (int i = 0; i < arr.Length; i++)
+            for (var i = 0; i < arr.Length; i++)
             {
                 arr[i] = i;
             }
@@ -100,9 +100,9 @@ namespace Wire.PerformanceTests
         [TestMethod]
         public void TestStringLong()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append("Hello");
-            for (int i = 0; i < 14; i++)
+            for (var i = 0; i < 14; i++)
             {
                 sb.Append(sb);
             }
@@ -116,7 +116,7 @@ namespace Wire.PerformanceTests
         public void TestStringArray()
         {
             var arr = new string[1000];
-            for (int i = 0; i < arr.Length; i++)
+            for (var i = 0; i < arr.Length; i++)
             {
                 arr[i] = "hello";
             }
@@ -129,7 +129,7 @@ namespace Wire.PerformanceTests
         public void TestByteArray()
         {
             var arr = new byte[1000];
-            for (int i = 0; i < arr.Length; i++)
+            for (var i = 0; i < arr.Length; i++)
             {
                 arr[i] = (byte)(i%255);
             }
@@ -150,7 +150,7 @@ namespace Wire.PerformanceTests
         public void TestTypeArray()
         {
             var arr = new Type[100];
-            for (int i = 0; i < arr.Length; i++)
+            for (var i = 0; i < arr.Length; i++)
             {
                 arr[i] = typeof (int);
             }
@@ -169,7 +169,7 @@ namespace Wire.PerformanceTests
         public void TestBoolArray()
         {
             var arr = new bool[1000];
-            for (int i = 0; i < arr.Length; i++)
+            for (var i = 0; i < arr.Length; i++)
             {
                 arr[i] = i % 2 == 0;
             }
@@ -188,7 +188,7 @@ namespace Wire.PerformanceTests
         public void TestTupleArray()
         {
             var arr = new Tuple<int,int>[100];
-            for (int i = 0; i < arr.Length; i++)
+            for (var i = 0; i < arr.Length; i++)
             {
                 arr[i] = Tuple.Create(i, 999 - i);
             }
@@ -270,11 +270,11 @@ namespace Wire.PerformanceTests
             long picklerSize;
             const int repeat = 10000;
             {
-                MemoryStream wireStream = new MemoryStream();
+                var wireStream = new MemoryStream();
                 wireSerializer.Serialize(value, wireStream);
                 
                 var sw = Stopwatch.StartNew();
-                for (int i = 0; i < repeat; i++)
+                for (var i = 0; i < repeat; i++)
                 {
                     wireStream = new MemoryStream();
                     WireSerialize(value, wireSerializer, wireStream);
@@ -287,10 +287,10 @@ namespace Wire.PerformanceTests
 
             //using (MemoryStream picklerStram = new MemoryStream())
             {
-                MemoryStream picklerStram = new MemoryStream();
+                var picklerStram = new MemoryStream();
                 pickler.Serialize(picklerStram,value);
                 var sw = Stopwatch.StartNew();
-                for (int i = 0; i < repeat; i++)
+                for (var i = 0; i < repeat; i++)
                 {
                     picklerStram = new MemoryStream();
                     pickler.Serialize(picklerStram, value);

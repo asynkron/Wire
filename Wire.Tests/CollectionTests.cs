@@ -195,11 +195,11 @@ namespace Wire.Tests
         public void CanSerializeMultiDimentionalArray()
         {
             var expected = new double[3, 3, 3];
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
-                for (int j = 0; j < 3; j++)
+                for (var j = 0; j < 3; j++)
                 {
-                    for (int k = 0; k < 3; k++)
+                    for (var k = 0; k < 3; k++)
                     {
                         expected[i, j, k] = i + j + k;
                     }

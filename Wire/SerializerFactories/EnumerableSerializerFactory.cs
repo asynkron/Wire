@@ -56,7 +56,9 @@ namespace Wire.SerializerFactories
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
             var countProperty = type.GetProperty("Count");
-           
+            var addRange = type.GetTypeInfo().GetMethod("AddRange");
+            var add = type.GetTypeInfo().GetMethod("Add");
+
             Func<object, int> countGetter = o => (int)countProperty.GetValue(o);
             ObjectWriter writer = (stream, o, session) =>
             {
@@ -80,13 +82,12 @@ namespace Wire.SerializerFactories
                 }
                 //HACK: this needs to be fixed, codegenerated or whatever
                 var instance = Activator.CreateInstance(type);
-                var addRange = type.GetTypeInfo().GetMethod("AddRange");
+               
                 if (addRange != null)
                 {
                     addRange.Invoke(instance, new object[] {items});
                     return instance;
                 }
-                var add = type.GetTypeInfo().GetMethod("Add");
                 if (add != null)
                 {
                     for (var i = 0; i < items.Length; i++)

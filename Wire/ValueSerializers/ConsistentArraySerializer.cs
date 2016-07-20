@@ -15,7 +15,7 @@ namespace Wire.ValueSerializers
             //read the element type
             var elementType = elementSerializer.GetElementType();
             //get the element type serializer
-            var length = (int) Int32Serializer.Instance.ReadValue(stream, session); //read the array length
+            var length = stream.ReadInt32(session);
             var array = Array.CreateInstance(elementType, length); //create the array
             for (var i = 0; i < length; i++)
             {
@@ -51,15 +51,14 @@ namespace Wire.ValueSerializers
             if (Utils.IsFixedSizeType(typeof(T)))
             {
                 var size = Utils.GetTypeSize(typeof(T));
-                byte[] result = new byte[array.Length * size];
+                var result = new byte[array.Length * size];
                 Buffer.BlockCopy(array, 0, result, 0, result.Length);
                 stream.Write(result);
             }
             else
             {
-                for (int i = 0; i < array.Length; i++)
+                foreach (var value in array)
                 {
-                    var value = array[i];
                     elementSerializer.WriteValue(stream, value, session);
                 }
             }    

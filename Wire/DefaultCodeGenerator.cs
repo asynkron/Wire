@@ -5,8 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Text;
 using Wire.ValueSerializers;
 
 namespace Wire
@@ -81,7 +79,7 @@ namespace Wire
 
 
 
-        private  ObjectReader GetVersionIntolerantReader(
+        private ObjectReader GetVersionIntolerantReader(
             Type type,
             bool preserveObjectReferences,
             IReadOnlyList<FieldReader> fieldReaders)
@@ -96,10 +94,8 @@ namespace Wire
                 }
 
                 //do not use foreach here due to perf
-                // ReSharper disable once ForCanBeConvertedToForeach
-                for (var i =0;i<fieldReaders.Count;i++)
+                foreach (var fieldReader in fieldReaders)
                 {
-                    var fieldReader = fieldReaders[i];
                     fieldReader(stream, instance, session);
                 }
 
@@ -145,9 +141,8 @@ namespace Wire
                 //}
 
                 //this should be moved up in the version tolerant loop
-                for (var i = 0; i < fieldReaders.Count; i++)
+                foreach (var fieldReader in fieldReaders)
                 {
-                    var fieldReader = fieldReaders[i];
                     fieldReader(stream, instance, session);
                 }
 
@@ -156,6 +151,8 @@ namespace Wire
             return reader;
         }
 
+        //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
+        //no loops involved
         private  FieldsWriter GetFieldsWriter(IReadOnlyList<ObjectWriter> fieldWriters)
         {
             if (fieldWriters == null)
