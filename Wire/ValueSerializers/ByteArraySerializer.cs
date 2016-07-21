@@ -17,11 +17,22 @@ namespace Wire.ValueSerializers
         {
             var bytes = (byte[]) value;
             stream.WriteLengthEncodedByteArray(bytes);
+
+            if (session.Serializer.Options.PreserveObjectReferences)
+            {
+                session.TrackSerializedObject(bytes);
+            }
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
-            return stream.ReadLengthEncodedByteArray(session);
+            var res = stream.ReadLengthEncodedByteArray(session);
+            if (session.Serializer.Options.PreserveObjectReferences)
+            {
+                session.TrackDeserializedObject(res);
+            }
+            return res;
+
         }
 
         public override Type GetElementType()

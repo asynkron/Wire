@@ -22,6 +22,11 @@ namespace Wire.ValueSerializers
                 var value = elementSerializer.ReadValue(stream, session); //read the element value
                 array.SetValue(value, i); //set the element value
             }
+
+            if (session.Serializer.Options.PreserveObjectReferences)
+            {
+                session.TrackDeserializedObject(array);
+            }
             return array;
         }
 
@@ -42,6 +47,10 @@ namespace Wire.ValueSerializers
             elementSerializer.WriteManifest(stream, elementType, session); //write array element type
             // ReSharper disable once PossibleNullReferenceException
             WriteValues((dynamic)value, stream,elementSerializer,session);
+            if (session.Serializer.Options.PreserveObjectReferences)
+            {
+                session.TrackSerializedObject(value);
+            }
         }
 
         private static void WriteValues<T>(T[] array, Stream stream, ValueSerializer elementSerializer, SerializerSession session)
@@ -62,16 +71,6 @@ namespace Wire.ValueSerializers
                     elementSerializer.WriteValue(stream, value, session);
                 }
             }    
-        }
-
-        private static T[] ReadValues<T>(int length, Stream stream, DeserializerSession session, T[] array)
-        {
-            for (var i = 0; i < length; i++)
-            {
-                var value = (T)stream.ReadObject(session);
-                array[i] = value;
-            }
-            return array;
         }
     }
 }

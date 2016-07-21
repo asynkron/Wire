@@ -128,7 +128,7 @@ namespace Wire.ValueSerializers
 
         private static Type GetTypeFromManifestName(Stream stream, DeserializerSession session)
         {
-            var bytes = (byte[]) ByteArraySerializer.Instance.ReadValue(stream, session);
+            var bytes = stream.ReadLengthEncodedByteArray(session);
 
             return TypeNameLookup.GetOrAdd(bytes, b =>
             {
