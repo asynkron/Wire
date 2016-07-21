@@ -76,6 +76,8 @@ namespace Wire.Tests
             CollectionAssert.AreEqual(expected.ToList(), actual.ToList());
         }
 
+
+
         [TestMethod]
         public void CanSerializeDictionary()
         {

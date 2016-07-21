@@ -21,14 +21,13 @@ namespace Wire.SerializerFactories
                 stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
             }
         }
-        private static T[] ReadValues<T>(int length, Stream stream, DeserializerSession session, T[] array)
+        private static void ReadValues<T>(int length, Stream stream, DeserializerSession session, T[] array)
         {
             for (var i = 0; i < length; i++)
             {
                 var value = (T)stream.ReadObject(session);
                 array[i] = value;
             }
-            return array;
         }
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
@@ -42,21 +41,24 @@ namespace Wire.SerializerFactories
             {
                 var length = stream.ReadInt32(session);
                 var array = Array.CreateInstance(elementType, length); //create the array
-
-                var res = ReadValues(length, stream, session, (dynamic) array);
                 if (session.Serializer.Options.PreserveObjectReferences)
                 {
-                    session.TrackDeserializedObject(res);
+                    session.TrackDeserializedObject(array);
                 }
-                return res;
+
+                ReadValues(length, stream, session, (dynamic) array);
+
+                return array;
             };
             ObjectWriter writer = (stream, arr, session) =>
             {
-                WriteValues((dynamic) arr, stream, elementType, elementSerializer, session);
                 if (session.Serializer.Options.PreserveObjectReferences)
                 {
                     session.TrackSerializedObject(arr);
                 }
+
+                WriteValues((dynamic) arr, stream, elementType, elementSerializer, session);
+ 
             };
             arraySerializer.Initialize(reader, writer);
             typeMapping.TryAdd(type, arraySerializer);

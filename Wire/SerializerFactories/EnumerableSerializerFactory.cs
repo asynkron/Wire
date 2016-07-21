@@ -64,16 +64,23 @@ namespace Wire.SerializerFactories
 
             ObjectReader reader = (stream, session) =>
             {
+                var instance = Activator.CreateInstance(type);
+                if (session.Serializer.Options.PreserveObjectReferences)
+                {
+                    session.TrackDeserializedObject(instance);
+                }
+
+
                 var count = stream.ReadInt32(session);
                 var items = Array.CreateInstance(elementType, count);
+
                 for (var i = 0; i < count; i++)
                 {
                     var value = stream.ReadObject(session);
                     items.SetValue(value, i);
                 }
                 //HACK: this needs to be fixed, codegenerated or whatever
-                var instance = Activator.CreateInstance(type);
-               
+
                 if (addRange != null)
                 {
                     addRange.Invoke(instance, new object[] {items});
@@ -87,14 +94,16 @@ namespace Wire.SerializerFactories
                     }
                 }
 
-                if (session.Serializer.Options.PreserveObjectReferences)
-                {
-                    session.TrackDeserializedObject(instance);
-                }
+
                 return instance;
             };
             ObjectWriter writer = (stream, o, session) =>
             {
+                if (session.Serializer.Options.PreserveObjectReferences)
+                {
+                    session.TrackSerializedObject(o);
+                }
+
                 stream.WriteInt32(countGetter(o));
                 var enumerable = o as IEnumerable;
                 // ReSharper disable once PossibleNullReferenceException
@@ -103,10 +112,7 @@ namespace Wire.SerializerFactories
                     stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
                 }
 
-                if (session.Serializer.Options.PreserveObjectReferences)
-                {
-                    session.TrackSerializedObject(o);
-                }
+
             };
             x.Initialize(reader, writer);
             return x;

@@ -17,16 +17,18 @@ namespace Wire.ValueSerializers
             //get the element type serializer
             var length = stream.ReadInt32(session);
             var array = Array.CreateInstance(elementType, length); //create the array
+            if (session.Serializer.Options.PreserveObjectReferences)
+            {
+                session.TrackDeserializedObject(array);
+            }
+
             for (var i = 0; i < length; i++)
             {
                 var value = elementSerializer.ReadValue(stream, session); //read the element value
                 array.SetValue(value, i); //set the element value
             }
 
-            if (session.Serializer.Options.PreserveObjectReferences)
-            {
-                session.TrackDeserializedObject(array);
-            }
+
             return array;
         }
 
@@ -42,15 +44,16 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
+            if (session.Serializer.Options.PreserveObjectReferences)
+            {
+                session.TrackSerializedObject(value);
+            }
             var elementType = value.GetType().GetElementType();
             var elementSerializer = session.Serializer.GetSerializerByType(elementType);
             elementSerializer.WriteManifest(stream, elementType, session); //write array element type
             // ReSharper disable once PossibleNullReferenceException
             WriteValues((dynamic)value, stream,elementSerializer,session);
-            if (session.Serializer.Options.PreserveObjectReferences)
-            {
-                session.TrackSerializedObject(value);
-            }
+
         }
 
         private static void WriteValues<T>(T[] array, Stream stream, ValueSerializer elementSerializer, SerializerSession session)

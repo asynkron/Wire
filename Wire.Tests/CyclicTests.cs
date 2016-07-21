@@ -75,8 +75,8 @@ namespace Wire.Tests
             stream.Position = 0;
             var res = serializer.Deserialize<Dictionary<string, List<string>>>(stream);
 
-            Assert.AreSame(res["one"], res["three"]);
-            Assert.AreNotSame(res["one"], res["two"]);
+            Assert.AreSame(res["one"], res["two"]);
+            Assert.AreNotSame(res["one"], res["three"]);
         }
 
 
