@@ -38,16 +38,27 @@ namespace Wire.SerializerFactories
             var elementType = type.GetElementType();
             var elementSerializer = serializer.GetSerializerByType(elementType);
             //TODO: code gen this part
-            arraySerializer.Initialize((stream, session) =>
+            ObjectReader reader = (stream, session) =>
             {
                 var length = stream.ReadInt32(session);
                 var array = Array.CreateInstance(elementType, length); //create the array
 
-                return ReadValues(length, stream, session, (dynamic)array);
-            }, (stream, arr, session) =>
-            {                
-                WriteValues((dynamic)arr,stream,elementType,elementSerializer,session);   
-            });
+                var res = ReadValues(length, stream, session, (dynamic) array);
+                if (session.Serializer.Options.PreserveObjectReferences)
+                {
+                    session.TrackDeserializedObject(res);
+                }
+                return res;
+            };
+            ObjectWriter writer = (stream, arr, session) =>
+            {
+                WriteValues((dynamic) arr, stream, elementType, elementSerializer, session);
+                if (session.Serializer.Options.PreserveObjectReferences)
+                {
+                    session.TrackSerializedObject(arr);
+                }
+            };
+            arraySerializer.Initialize(reader, writer);
             typeMapping.TryAdd(type, arraySerializer);
             return arraySerializer;
         }

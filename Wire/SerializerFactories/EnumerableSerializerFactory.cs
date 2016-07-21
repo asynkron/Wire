@@ -60,16 +60,7 @@ namespace Wire.SerializerFactories
             var add = type.GetTypeInfo().GetMethod("Add");
 
             Func<object, int> countGetter = o => (int)countProperty.GetValue(o);
-            ObjectWriter writer = (stream, o, session) =>
-            {
-                stream.WriteInt32(countGetter(o));
-                var enumerable = o as IEnumerable;
-                // ReSharper disable once PossibleNullReferenceException
-                foreach (var value in enumerable)
-                {
-                    stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
-                }
-            };
+
 
             ObjectReader reader = (stream, session) =>
             {
@@ -96,7 +87,26 @@ namespace Wire.SerializerFactories
                     }
                 }
 
+                if (session.Serializer.Options.PreserveObjectReferences)
+                {
+                    session.TrackDeserializedObject(instance);
+                }
                 return instance;
+            };
+            ObjectWriter writer = (stream, o, session) =>
+            {
+                stream.WriteInt32(countGetter(o));
+                var enumerable = o as IEnumerable;
+                // ReSharper disable once PossibleNullReferenceException
+                foreach (var value in enumerable)
+                {
+                    stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
+                }
+
+                if (session.Serializer.Options.PreserveObjectReferences)
+                {
+                    session.TrackSerializedObject(o);
+                }
             };
             x.Initialize(reader, writer);
             return x;

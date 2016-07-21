@@ -52,6 +52,34 @@ namespace Wire.Tests
             Assert.AreNotSame(res[1], res[2]);
         }
 
+        //From Orleans
+        [TestMethod]
+        public void CanSerializeDictionaryPreserveObjectReferences2()
+        {
+            var stream = new MemoryStream();
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
+
+            var val = new List<string> { "first", "second" };
+
+            var val2 = new List<string> { "first", "second" };
+
+            var source = new Dictionary<string, List<string>>
+            {
+                ["one"] = val,
+                ["two"] = val,
+                ["three"] = val2
+            };
+
+
+            serializer.Serialize(source, stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize<Dictionary<string, List<string>>>(stream);
+
+            Assert.AreSame(res["one"], res["three"]);
+            Assert.AreNotSame(res["one"], res["two"]);
+        }
+
+
         [TestMethod]
         public void CanSerializeCyclicReferences()
         {
@@ -109,3 +137,4 @@ namespace Wire.Tests
         public A A { get; set; }
     }
 }
+ 
