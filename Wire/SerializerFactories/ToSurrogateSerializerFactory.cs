@@ -28,7 +28,7 @@ namespace Wire.SerializerFactories
             var toSurrogateSerializer = new ToSurrogateSerializer(surrogate.ToSurrogate, surrogate.To, objectSerializer);
             typeMapping.TryAdd(type, toSurrogateSerializer);
 
-            serializer.CodeGenerator.BuildSerializer(serializer, surrogate.To, (ObjectSerializer) objectSerializer);
+            serializer.CodeGenerator.BuildSerializer(serializer, (ObjectSerializer) objectSerializer);
             return toSurrogateSerializer;
         }
     }

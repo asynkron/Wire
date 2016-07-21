@@ -11,13 +11,14 @@ namespace Wire
 {
     public interface ICodeGenerator
     {
-        void BuildSerializer(Serializer serializer, Type type, ObjectSerializer objectSerializer);
+        void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer);
     }
 
     public class DefaultCodeGenerator : ICodeGenerator
     {
-        public  void BuildSerializer(Serializer serializer, Type type, ObjectSerializer objectSerializer)
+        public  void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer)
         {
+            var type = objectSerializer.Type;
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
 
