@@ -11,8 +11,9 @@ namespace Wire.Tests
         {
             public int Prop { get; set; }
         }
+
         [TestMethod]
-        public void CanSerializeDeepCyclicReferences()
+        public void CanSerializeDelegate()
         {
             var stream = new MemoryStream();
             var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
@@ -28,5 +29,4 @@ namespace Wire.Tests
             Assert.AreEqual(1,d.Prop);
         }
     }
-
 }
