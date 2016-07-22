@@ -33,6 +33,7 @@ namespace Wire.SerializerFactories
 
             ObjectReader reader = (stream, session) =>
             {
+                throw new NotSupportedException("Generic IDictionary<TKey,TValue> are not yet supported");
                 var instance = Activator.CreateInstance(type);
                 if (preserveObjectReferences)
                 {

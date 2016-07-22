@@ -14,10 +14,10 @@ namespace Wire.SerializerFactories
         {
             //TODO: check for constructor with IEnumerable<T> param
 
-            if (type.GetMethod("AddRange") == null && type.GetMethod("Add") == null)
+            if (type.GetTypeInfo().GetMethod("AddRange") == null && type.GetTypeInfo().GetMethod("Add") == null)
                 return false;
 
-            if (type.GetProperty("Count") == null)
+            if (type.GetTypeInfo().GetProperty("Count") == null)
                 return false;
 
             var isGenericEnumerable = GetEnumerableType(type) != null;
@@ -55,7 +55,7 @@ namespace Wire.SerializerFactories
             var elementType = GetEnumerableType(type) ?? typeof (object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
-            var countProperty = type.GetProperty("Count");
+            var countProperty = type.GetTypeInfo().GetProperty("Count");
             var addRange = type.GetTypeInfo().GetMethod("AddRange");
             var add = type.GetTypeInfo().GetMethod("Add");
 
