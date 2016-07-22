@@ -47,6 +47,7 @@
     <Compile Include="ReflectionEx.cs" />
     <Compile Include="SerializerFactories\ArraySerializerFactory.cs" />
     <Compile Include="SerializerFactories\DefaultDictionarySerializerFactory.cs" />
+    <Compile Include="SerializerFactories\DelegateSerializerFactory.cs" />
     <Compile Include="SerializerFactories\DictionarySerializerFactory.cs" />
     <Compile Include="SerializerFactories\EnumerableSerializerFactory.cs" />
     <Compile Include="SerializerFactories\ExceptionSerializerFactory.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="SerializerFactories\FSharpListSerializerFactory.cs" />
     <Compile Include="SerializerFactories\ImmutableCollectionsSerializerFactory.cs" />
     <Compile Include="SerializerFactories\ISerializableSerializerFactory.cs" />
+    <Compile Include="SerializerFactories\MethodInfoSerializerFactory.cs" />
     <Compile Include="SerializerFactories\ToSurrogateSerializerFactory.cs" />
     <Compile Include="SerializerFactories\ValueSerializerFactory.cs" />
     <Compile Include="Delegates.cs" />
@@ -61,6 +63,7 @@
     <Compile Include="SerializerOptions.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="Surrogate.cs" />
+    <Compile Include="TrackingExtensions.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ValueSerializers\BoolSerializer.cs" />
     <Compile Include="ValueSerializers\ByteArraySerializer.cs" />

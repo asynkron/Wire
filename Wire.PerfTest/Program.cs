@@ -16,10 +16,10 @@ namespace Wire.PerfTest
     {
         private static readonly Poco Poco = new Poco
         {
-            Age = 123,
-            Name = "Hello",
-            Foo = "kfksdjfksjdfkjsdkfjskfjksd",
-            Yoo = DateTime.Now
+            IntProp = 123,
+            StringProp = "Hello",
+            GuidProp = Guid.NewGuid(),
+            DateProp = DateTime.Now
         };
 
         private static void Main(string[] args)
@@ -245,16 +245,16 @@ namespace Wire.PerfTest
     public class Poco
     {
         [ProtoMember(1)]
-        public string Name { get; set; }
+        public string StringProp { get; set; }
 
         [ProtoMember(2)]
-        public int Age { get; set; }
+        public int IntProp { get; set; }
 
         [ProtoMember(3)]
-        public string Foo { get; set; }
+        public Guid GuidProp { get; set; }
 
         [ProtoMember(4)]
-        public DateTime Yoo { get; set; }
+        public DateTime DateProp { get; set; }
     }
 
     public class Poco2 : Poco
@@ -271,8 +271,8 @@ namespace Wire.PerfTest
             var parts = Data.Split('|');
             return new Poco
             {
-                Age = int.Parse(parts[0]),
-                Name = parts[1]
+                IntProp = int.Parse(parts[0]),
+                StringProp = parts[1]
             };
         }
     }

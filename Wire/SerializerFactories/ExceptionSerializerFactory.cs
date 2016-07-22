@@ -34,10 +34,10 @@ namespace Wire.SerializerFactories
             exceptionSerializer.Initialize((stream, session) =>
             {
                 var exception = Activator.CreateInstance(type);
-                var className = StringSerializer.Instance.ReadValue(stream, session);
-                var message = StringSerializer.Instance.ReadValue(stream, session);
-                var remoteStackTraceString = StringSerializer.Instance.ReadValue(stream, session);
-                var stackTraceString = StringSerializer.Instance.ReadValue(stream, session);
+                var className = stream.ReadString(session);
+                var message = stream.ReadString(session);
+                var remoteStackTraceString = stream.ReadString(session);
+                var stackTraceString = stream.ReadString(session);
                 var innerException = stream.ReadObject(session);
 
                 _className.SetValue(exception,className);
@@ -53,10 +53,10 @@ namespace Wire.SerializerFactories
                 var remoteStackTraceString = _remoteStackTraceString.GetValue(exception);
                 var stackTraceString = _stackTraceString.GetValue(exception);
                 var innerException = _innerException.GetValue(exception);
-                StringSerializer.Instance.WriteValue(stream, className, session);
-                StringSerializer.Instance.WriteValue(stream, message, session);
-                StringSerializer.Instance.WriteValue(stream, remoteStackTraceString, session);
-                StringSerializer.Instance.WriteValue(stream, stackTraceString, session);
+                stream.WriteString(className);
+                stream.WriteString(message);
+                stream.WriteString(remoteStackTraceString);
+                stream.WriteString(stackTraceString);
                 stream.WriteObjectWithManifest(innerException, session);
             });
             typeMapping.TryAdd(type, exceptionSerializer);

@@ -23,11 +23,16 @@ namespace Wire.SerializerFactories
             var ser = new ObjectSerializer(type);
             typeMapping.TryAdd(type, ser);
             var elementSerializer = serializer.GetSerializerByType(typeof (DictionaryEntry));
-
+            var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             ObjectReader reader = (stream, session) =>
             {
                 var count = stream.ReadInt32(session);
                 var instance = (IDictionary) Activator.CreateInstance(type, count);
+                if (preserveObjectReferences)
+                {
+                    session.TrackDeserializedObject(instance);
+                }
+
                 for (var i = 0; i < count; i++)
                 {
                     var entry = (DictionaryEntry) stream.ReadObject(session);
@@ -38,10 +43,15 @@ namespace Wire.SerializerFactories
 
             ObjectWriter writer = (stream, obj, session) =>
             {
+
+                if (preserveObjectReferences)
+                {
+                    session.TrackSerializedObject(obj);
+                }
                 var dict = obj as IDictionary;
                 // ReSharper disable once PossibleNullReferenceException
                 stream.WriteInt32(dict.Count);
-                foreach (var item in dict)
+                foreach (DictionaryEntry item in dict)
                 {
                     stream.WriteObject(item, typeof (DictionaryEntry), elementSerializer,
                         serializer.Options.PreserveObjectReferences, session);

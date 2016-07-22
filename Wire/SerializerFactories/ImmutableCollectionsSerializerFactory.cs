@@ -45,6 +45,20 @@ namespace Wire.SerializerFactories
             var elementType = GetEnumerableType(type) ?? typeof (object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
+            var typeName = type.Name;
+            var genericSufixIdx = typeName.IndexOf('`');
+            typeName = genericSufixIdx != -1 ? typeName.Substring(0, genericSufixIdx) : typeName;
+            var creatorType =
+                Type.GetType(
+                    ImmutableCollectionsNamespace + "." + typeName + ", " + ImmutableCollectionsAssembly, true);
+
+            var genericTypes = elementType.GetTypeInfo().IsGenericType
+                   ? elementType.GetTypeInfo().GetGenericArguments()
+                   : new[] { elementType };
+            var createRange = creatorType.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .First(methodInfo => methodInfo.Name == "CreateRange" && methodInfo.GetParameters().Length == 1)
+                .MakeGenericMethod(genericTypes);
+
             ObjectWriter writer = (stream, o, session) =>
             {
                 var enumerable = o as ICollection;
@@ -62,6 +76,10 @@ namespace Wire.SerializerFactories
                 {
                     stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
                 }
+                if (preserveObjectReferences)
+                {
+                    session.TrackSerializedObject(o);
+                }
             };
 
             ObjectReader reader = (stream, session) =>
@@ -73,43 +91,13 @@ namespace Wire.SerializerFactories
                     var value = stream.ReadObject(session);
                     items.SetValue(value, i);
                 }
-
-                //HACK: this needs to be fixed, codegenerated or whatever
-                if (type.Namespace != null && type.Namespace.Equals(ImmutableCollectionsNamespace))
+               
+                var instance = createRange.Invoke(null, new object[] {items});
+                if (preserveObjectReferences)
                 {
-                    var typeName = type.Name;
-                    var genericSufixIdx = typeName.IndexOf('`');
-                    typeName = genericSufixIdx != -1 ? typeName.Substring(0, genericSufixIdx) : typeName;
-                    var creatorType =
-                        Type.GetType(
-                            ImmutableCollectionsNamespace + "." + typeName + ", " + ImmutableCollectionsAssembly, true);
-                    var genericTypes = elementType.GetTypeInfo().IsGenericType
-                        ? elementType.GetTypeInfo().GetGenericArguments()
-                        : new[] {elementType};
-                    var createRange = creatorType.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .First(methodInfo => methodInfo.Name == "CreateRange" && methodInfo.GetParameters().Length == 1)
-                        .MakeGenericMethod(genericTypes);
-                    var instance = createRange.Invoke(null, new object[] {items});
-                    return instance;
+                    session.TrackDeserializedObject(instance);
                 }
-                else
-                {
-                    var instance = Activator.CreateInstance(type);
-                    var addRange = type.GetTypeInfo().GetMethod("AddRange");
-                    if (addRange != null)
-                    {
-                        addRange.Invoke(instance, new object[] {items});
-                        return instance;
-                    }
-                    var add = type.GetTypeInfo().GetMethod("Add");
-                    if (add == null) return instance;
-                    for (var i = 0; i < items.Length; i++)
-                    {
-                        add.Invoke(instance, new[] {items.GetValue(i)});
-                    }
-
-                    return instance;
-                }
+                return instance;
             };
             x.Initialize(reader, writer);
             return x;

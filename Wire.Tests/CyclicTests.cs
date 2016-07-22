@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Wire.Tests
@@ -26,6 +28,57 @@ namespace Wire.Tests
             Assert.AreSame(actual.B1, actual.B1.Self);
             Assert.AreSame(actual.B1, actual.B2.Self);
         }
+
+        [TestMethod]
+        public void CanSerializeDictionaryPreserveObjectReferences()
+        {
+            var stream = new MemoryStream();
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
+
+            var arr1 = new[] {1, 2, 3};
+            var arr2 = new[] { 1, 2, 3 };
+            var obj = new Dictionary<int, int[]>
+            {
+                [1] = arr1,
+                [2] = arr2,
+                [3] = arr1,
+            };
+
+            serializer.Serialize(obj, stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize<Dictionary<int, int[]>>(stream);
+
+            Assert.AreSame(res[1], res[3]);
+            Assert.AreNotSame(res[1], res[2]);
+        }
+
+        //From Orleans
+        [TestMethod]
+        public void CanSerializeDictionaryPreserveObjectReferences2()
+        {
+            var stream = new MemoryStream();
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
+
+            var val = new List<string> { "first", "second" };
+
+            var val2 = new List<string> { "first", "second" };
+
+            var source = new Dictionary<string, List<string>>
+            {
+                ["one"] = val,
+                ["two"] = val,
+                ["three"] = val2
+            };
+
+
+            serializer.Serialize(source, stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize<Dictionary<string, List<string>>>(stream);
+
+            Assert.AreSame(res["one"], res["two"]);
+            Assert.AreNotSame(res["one"], res["three"]);
+        }
+
 
         [TestMethod]
         public void CanSerializeCyclicReferences()
@@ -84,3 +137,4 @@ namespace Wire.Tests
         public A A { get; set; }
     }
 }
+ 

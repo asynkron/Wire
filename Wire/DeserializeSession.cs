@@ -1,6 +1,6 @@
 ﻿using System;
-using IntToObjectLookup = System.Collections.Generic.Dictionary<int, object>;
-using IntToTypeLookup = System.Collections.Generic.Dictionary<int, System.Type>;
+using IntToObjectLookup = System.Collections.Generic.List<object>;
+using IntToTypeLookup = System.Collections.Generic.List<System.Type>;
 using TypeToVersionInfoLookup = System.Collections.Generic.Dictionary<System.Type, Wire.TypeVersionInfo>;
 namespace Wire
 {
@@ -15,8 +15,6 @@ namespace Wire
         private readonly IntToObjectLookup _objectById;
         private readonly TypeToVersionInfoLookup _versionInfoByType;
         public readonly Serializer Serializer;
-        private int _nextObjectId;
-        private int _nextTypeId;
 
         public DeserializerSession(Serializer serializer)
         {
@@ -53,7 +51,7 @@ namespace Wire
 
         public void TrackDeserializedObject(object obj)
         {
-            _objectById.Add(_nextObjectId++, obj);
+            _objectById.Add(obj);
         }
 
         public object GetDeserializedObject(int id)
@@ -63,8 +61,7 @@ namespace Wire
 
         public void TrackDeserializedType(Type type)
         {
-            _identifierToType.Add(_nextTypeId, type);
-            _nextTypeId++;
+            _identifierToType.Add(type);
         }
 
         public Type GetTypeFromTypeId(int typeId)

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.Serialization;
 using Wire.ValueSerializers;
 
@@ -36,9 +35,7 @@ namespace Wire.SerializerFactories
                     info.AddValue(item.Key, item.Value);
                 }
 
-                // protected Dictionary(SerializationInfo info, StreamingContext context);
-                var flags = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Default;
-                var ctor = type.GetConstructor(flags, null,
+                var ctor = type.GetConstructor(BindingFlagsEx.All, null,
                     new[] {typeof (SerializationInfo), typeof (StreamingContext)}, null);
                 var instance = ctor.Invoke(new object[] {info, new StreamingContext()});
                 var deserializationCallback = instance as IDeserializationCallback;
@@ -57,11 +54,9 @@ namespace Wire.SerializerFactories
                 {
                     dict.Add(item.Name, item.Value);
                 }
-                var dictSerializer = serializer.GetSerializerByType(typeof (Dictionary<string, object>));
                 stream.WriteObjectWithManifest(dict, session);
             };
             serializableSerializer.Initialize(reader, writer);
-            
 
             return serializableSerializer;
         }

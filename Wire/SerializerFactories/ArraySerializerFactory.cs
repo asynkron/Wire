@@ -16,20 +16,18 @@ namespace Wire.SerializerFactories
         {
             stream.WriteInt32(array.Count);
             var preserveObjectReferences = session.Serializer.Options.PreserveObjectReferences;
-            for (var i = 0; i < array.Count; i++)
+            foreach (var value in array)
             {
-                var value = array[i];
                 stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
             }
         }
-        private static T[] ReadValues<T>(int length, Stream stream, DeserializerSession session, T[] array)
+        private static void ReadValues<T>(int length, Stream stream, DeserializerSession session, T[] array)
         {
             for (var i = 0; i < length; i++)
             {
                 var value = (T)stream.ReadObject(session);
                 array[i] = value;
             }
-            return array;
         }
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
@@ -38,17 +36,32 @@ namespace Wire.SerializerFactories
             var arraySerializer = new ObjectSerializer(type);
             var elementType = type.GetElementType();
             var elementSerializer = serializer.GetSerializerByType(elementType);
+            var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             //TODO: code gen this part
-            arraySerializer.Initialize((stream, session) =>
+            ObjectReader reader = (stream, session) =>
             {
                 var length = stream.ReadInt32(session);
                 var array = Array.CreateInstance(elementType, length); //create the array
+                if (preserveObjectReferences)
+                {
+                    session.TrackDeserializedObject(array);
+                }
 
-                return ReadValues(length, stream, session, (dynamic)array);
-            }, (stream, arr, session) =>
-            {                
-                WriteValues((dynamic)arr,stream,elementType,elementSerializer,session);   
-            });
+                ReadValues(length, stream, session, (dynamic) array);
+
+                return array;
+            };
+            ObjectWriter writer = (stream, arr, session) =>
+            {
+                if (preserveObjectReferences)
+                {
+                    session.TrackSerializedObject(arr);
+                }
+
+                WriteValues((dynamic) arr, stream, elementType, elementSerializer, session);
+ 
+            };
+            arraySerializer.Initialize(reader, writer);
             typeMapping.TryAdd(type, arraySerializer);
             return arraySerializer;
         }

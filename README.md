@@ -1,5 +1,7 @@
 # Wire
 
+[![Join the chat at https://gitter.im/akkadotnet/Wire](https://badges.gitter.im/akkadotnet/Wire.svg)](https://gitter.im/akkadotnet/Wire?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A high performance polymorphic serializer for the .NET framework.
 
 ## Polymorphic serializations
