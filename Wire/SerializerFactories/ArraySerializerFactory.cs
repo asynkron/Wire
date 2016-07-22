@@ -36,12 +36,13 @@ namespace Wire.SerializerFactories
             var arraySerializer = new ObjectSerializer(type);
             var elementType = type.GetElementType();
             var elementSerializer = serializer.GetSerializerByType(elementType);
+            var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             //TODO: code gen this part
             ObjectReader reader = (stream, session) =>
             {
                 var length = stream.ReadInt32(session);
                 var array = Array.CreateInstance(elementType, length); //create the array
-                if (session.Serializer.Options.PreserveObjectReferences)
+                if (preserveObjectReferences)
                 {
                     session.TrackDeserializedObject(array);
                 }
@@ -52,7 +53,7 @@ namespace Wire.SerializerFactories
             };
             ObjectWriter writer = (stream, arr, session) =>
             {
-                if (session.Serializer.Options.PreserveObjectReferences)
+                if (preserveObjectReferences)
                 {
                     session.TrackSerializedObject(arr);
                 }

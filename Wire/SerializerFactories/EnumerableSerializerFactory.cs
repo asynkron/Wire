@@ -65,7 +65,7 @@ namespace Wire.SerializerFactories
             ObjectReader reader = (stream, session) =>
             {
                 var instance = Activator.CreateInstance(type);
-                if (session.Serializer.Options.PreserveObjectReferences)
+                if (preserveObjectReferences)
                 {
                     session.TrackDeserializedObject(instance);
                 }
@@ -97,9 +97,12 @@ namespace Wire.SerializerFactories
 
                 return instance;
             };
+
+
+
             ObjectWriter writer = (stream, o, session) =>
             {
-                if (session.Serializer.Options.PreserveObjectReferences)
+                if (preserveObjectReferences)
                 {
                     session.TrackSerializedObject(o);
                 }

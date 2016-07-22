@@ -26,12 +26,18 @@ namespace Wire.SerializerFactories
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
+            var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             var ser = new ObjectSerializer(type);
             typeMapping.TryAdd(type, ser);
             var elementSerializer = serializer.GetSerializerByType(typeof (DictionaryEntry));
 
             ObjectReader reader = (stream, session) =>
             {
+                var instance = Activator.CreateInstance(type);
+                if (preserveObjectReferences)
+                {
+                    session.TrackDeserializedObject(instance);
+                }
                 var count = stream.ReadInt32(session);
                 var entries = new DictionaryEntry[count];
                 for (var i = 0; i < count; i++)
@@ -39,11 +45,16 @@ namespace Wire.SerializerFactories
                     var entry = (DictionaryEntry) stream.ReadObject(session);
                     entries[i] = entry;
                 }
-                return null;
+                //TODO: populate dictionary
+                return instance;
             };
 
             ObjectWriter writer = (stream, obj, session) =>
             {
+                if (preserveObjectReferences)
+                {
+                    session.TrackSerializedObject(obj);
+                }
                 var dict = obj as IDictionary;
                 // ReSharper disable once PossibleNullReferenceException
                 stream.WriteInt32(dict.Count);

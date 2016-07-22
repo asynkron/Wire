@@ -50,19 +50,28 @@ namespace Wire.SerializerFactories
             var toArray = listModule.GetTypeInfo().GetMethod("ToArray");
             var toArrayConcrete = toArray.MakeGenericMethod(elementType);
             var toArrayCompiled = CompileToDelegate(toArrayConcrete, type);
+            var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
             ObjectWriter writer = (stream, o, session) =>
             {
                 var arr = toArrayCompiled(o);
                 var arrSerializer = serializer.GetSerializerByType(arrType);
                 arrSerializer.WriteValue(stream,arr,session);
+                if (preserveObjectReferences)
+                {
+                    session.TrackSerializedObject(o);
+                }
             };
 
             ObjectReader reader = (stream, session) =>
             {               
                 var arrSerializer = serializer.GetSerializerByType(arrType);
-                var items = (Array)arrSerializer.ReadValue(stream, session);                          
+                var items = (Array)arrSerializer.ReadValue(stream, session);    
                 var res = ofArrayCompiled(items);
+                if (preserveObjectReferences)
+                {
+                    session.TrackDeserializedObject(res);
+                }
                 return res;
             };
             x.Initialize(reader, writer);
