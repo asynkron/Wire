@@ -27,18 +27,27 @@ namespace Wire
             new ISerializableSerializerFactory(), //TODO: this will mess up the indexes in the serializer payload
 #endif
             new EnumerableSerializerFactory(),
-            
         };
 
+        internal readonly bool VersionTolerance;
         internal readonly bool PreserveObjectReferences;
+        internal readonly bool UseDynamicCode;
         internal readonly Surrogate[] Surrogates;
         internal readonly ValueSerializerFactory[] ValueSerializerFactories;
-        internal readonly bool VersionTolerance;
         internal readonly Type[] KnownTypes;
 
-        public SerializerOptions(bool versionTolerance = false, bool preserveObjectReferences = false, IEnumerable<Surrogate> surrogates = null, IEnumerable<ValueSerializerFactory> serializerFactories = null, IEnumerable<Type> knownTypes = null)
+        public SerializerOptions(
+            bool versionTolerance = false,
+            bool preserveObjectReferences = false,
+            bool? useDynamicCode = null,
+            IEnumerable<Surrogate> surrogates = null,
+            IEnumerable<ValueSerializerFactory> serializerFactories = null,
+            IEnumerable<Type> knownTypes = null)
         {
             VersionTolerance = versionTolerance;
+            PreserveObjectReferences = preserveObjectReferences;
+            UseDynamicCode = useDynamicCode ?? GetDefaultUseDynamicCode();
+
             Surrogates = surrogates?.ToArray() ?? EmptySurrogates;
 
             //use the default factories + any user defined
@@ -47,8 +56,12 @@ namespace Wire
                     .ToArray();
 
             KnownTypes = knownTypes?.ToArray() ?? new Type[] {};
+        }
 
-            PreserveObjectReferences = preserveObjectReferences;
+        private static bool GetDefaultUseDynamicCode()
+        {
+            // TODO: check if system supports dynamic code or not. (it should be false on iOS.)
+            return true;
         }
     }
 }
