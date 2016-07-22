@@ -12,6 +12,8 @@ namespace Wire
 
         private static readonly ValueSerializerFactory[] DefaultValueSerializerFactories =
         {
+            new MethodInfoSerializerFactory(), 
+            new DelegateSerializerFactory(), 
             new ToSurrogateSerializerFactory(),
             new FromSurrogateSerializerFactory(),
             new FSharpListSerializerFactory(), 

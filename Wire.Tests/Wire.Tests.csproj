@@ -67,6 +67,7 @@
     <Compile Include="CollectionTests.cs" />
     <Compile Include="CustomObjectTests.cs" />
     <Compile Include="CyclicTests.cs" />
+    <Compile Include="DelegateTests.cs" />
     <Compile Include="FSharpTests.cs" />
     <Compile Include="ImmutableCollectionsTests.cs" />
     <Compile Include="ISerializableTests.cs" />

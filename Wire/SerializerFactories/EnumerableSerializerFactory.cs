@@ -70,35 +70,33 @@ namespace Wire.SerializerFactories
                     session.TrackDeserializedObject(instance);
                 }
 
-
                 var count = stream.ReadInt32(session);
-                var items = Array.CreateInstance(elementType, count);
-
-                for (var i = 0; i < count; i++)
-                {
-                    var value = stream.ReadObject(session);
-                    items.SetValue(value, i);
-                }
-                //HACK: this needs to be fixed, codegenerated or whatever
-
+               
                 if (addRange != null)
                 {
+                    var items = Array.CreateInstance(elementType, count);
+                    for (var i = 0; i < count; i++)
+                    {
+                        var value = stream.ReadObject(session);
+                        items.SetValue(value, i);
+                    }
+                    //HACK: this needs to be fixed, codegenerated or whatever
+
                     addRange.Invoke(instance, new object[] {items});
                     return instance;
                 }
                 if (add != null)
                 {
-                    for (var i = 0; i < items.Length; i++)
+                    for (var i = 0; i < count; i++)
                     {
-                        add.Invoke(instance, new[] {items.GetValue(i)});
+                        var value = stream.ReadObject(session);
+                        add.Invoke(instance, new[] { value });
                     }
                 }
 
 
                 return instance;
             };
-
-
 
             ObjectWriter writer = (stream, o, session) =>
             {

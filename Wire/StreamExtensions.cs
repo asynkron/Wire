@@ -148,7 +148,7 @@ namespace Wire
             }
         }
 
-        public static object ReadString(this Stream stream, DeserializerSession session)
+        public static string ReadString(this Stream stream, DeserializerSession session)
         {
             var length = stream.ReadByte();
             switch (length)
