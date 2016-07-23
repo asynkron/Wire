@@ -23,6 +23,21 @@ namespace Wire.Tests
         }
 
         [TestMethod]
+        public void CanSerializeMemberMethod()
+        {
+            var stream = new MemoryStream();
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
+
+            Func<string> a = 123.ToString;
+            serializer.Serialize(a, stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize<Func<string>>(stream);
+            Assert.IsNotNull(res);
+            var actual = res();
+            Assert.AreEqual("123", actual);
+        }
+
+        [TestMethod]
         public void CanSerializeDelegate()
         {
             var stream = new MemoryStream();
