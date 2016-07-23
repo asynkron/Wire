@@ -84,7 +84,7 @@ namespace Wire
         }
 #endif
 
-        public static bool IsFixedSizeType(Type type)
+        public static bool IsFixedSizeType(this Type type)
         {
             return type == typeof (int) ||
                    type == typeof (long) ||
@@ -94,7 +94,7 @@ namespace Wire
                    type == typeof (ulong);
         }
 
-        public static int GetTypeSize(Type type)
+        public static int GetTypeSize(this Type type)
         {
             if (type == typeof (int))
                 return sizeof (int);

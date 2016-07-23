@@ -58,11 +58,10 @@ namespace Wire.ValueSerializers
 
         private static void WriteValues<T>(T[] array, Stream stream, ValueSerializer elementSerializer, SerializerSession session)
         {
-            
             stream.WriteInt32(array.Length);
-            if (Utils.IsFixedSizeType(typeof(T)))
+            if (typeof(T).IsFixedSizeType())
             {
-                var size = Utils.GetTypeSize(typeof(T));
+                var size = typeof(T).GetTypeSize();
                 var result = new byte[array.Length * size];
                 Buffer.BlockCopy(array, 0, result, 0, result.Length);
                 stream.Write(result);

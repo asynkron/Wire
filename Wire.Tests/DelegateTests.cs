@@ -31,6 +31,7 @@ namespace Wire.Tests
             Func<string> a = 123.ToString;
             serializer.Serialize(a, stream);
             stream.Position = 0;
+           // var bytes = stream.ToArray();
             var res = serializer.Deserialize<Func<string>>(stream);
             Assert.IsNotNull(res);
             var actual = res();
