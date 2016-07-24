@@ -36,7 +36,7 @@ namespace Wire.ValueSerializers
             throw new NotSupportedException();
         }
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
         }
@@ -49,7 +49,7 @@ namespace Wire.ValueSerializers
             }
             var elementType = value.GetType().GetElementType();
             var elementSerializer = session.Serializer.GetSerializerByType(elementType);
-            elementSerializer.WriteManifest(stream, elementType, session); //write array element type
+            elementSerializer.WriteManifest(stream, session); //write array element type
             // ReSharper disable once PossibleNullReferenceException
             WriteValues((dynamic)value, stream,elementSerializer,session);
 

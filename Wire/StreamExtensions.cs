@@ -57,7 +57,7 @@ namespace Wire
         {
             if (value == null) //value is null
             {
-                NullSerializer.Instance.WriteManifest(stream, null, session);
+                NullSerializer.Instance.WriteManifest(stream, session);
             }
             else
             {
@@ -65,7 +65,7 @@ namespace Wire
                 if (session.Serializer.Options.PreserveObjectReferences && session.TryGetObjectId(value, out existingId))
                 {
                     //write the serializer manifest
-                    ObjectReferenceSerializer.Instance.WriteManifest(stream, null, session);
+                    ObjectReferenceSerializer.Instance.WriteManifest(stream, session);
                     //write the object reference id
                     ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
                 }
@@ -73,7 +73,7 @@ namespace Wire
                 {
                     var vType = value.GetType();
                     var s2  = session.Serializer.GetSerializerByType(vType);
-                    s2.WriteManifest(stream, vType, session);
+                    s2.WriteManifest(stream, session);
                     s2.WriteValue(stream, value, session);
                 }
             }
@@ -84,7 +84,7 @@ namespace Wire
         {
             if (value == null) //value is null
             {
-                NullSerializer.Instance.WriteManifest(stream, null, session);
+                NullSerializer.Instance.WriteManifest(stream, session);
             }
             else
             {
@@ -92,7 +92,7 @@ namespace Wire
                 if (preserveObjectReferences && session.TryGetObjectId(value, out existingId))
                 {
                     //write the serializer manifest
-                    ObjectReferenceSerializer.Instance.WriteManifest(stream, null, session);
+                    ObjectReferenceSerializer.Instance.WriteManifest(stream, session);
                     //write the object reference id
                     ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
                 }
@@ -106,7 +106,7 @@ namespace Wire
                         s2 = session.Serializer.GetSerializerByType(vType);
                     }
                     //lookup serializer for subtype
-                    s2.WriteManifest(stream, vType, session);
+                    s2.WriteManifest(stream, session);
                     s2.WriteValue(stream, value, session);
                 }
             }

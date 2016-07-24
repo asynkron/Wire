@@ -91,7 +91,7 @@ namespace Wire
 
             var type = obj.GetType();
             var s = GetSerializerByType(type);
-            s.WriteManifest(stream, type, session);
+            s.WriteManifest(stream, session);
             s.WriteValue(stream, obj, session);
         }
 

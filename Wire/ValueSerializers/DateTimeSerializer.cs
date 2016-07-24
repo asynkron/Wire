@@ -9,7 +9,7 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 5;
         public static readonly DateTimeSerializer Instance = new DateTimeSerializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
         }

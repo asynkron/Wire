@@ -68,8 +68,6 @@ namespace Wire.ValueSerializers
                     .Concat(versionInfo)
                     .ToArray(); //serializer id 255 + assembly qualified name + versionInfo
 
-
-
             //initialize reader and writer with dummy handlers that wait until the serializer is fully initialized
             _writer = (stream, o, session) =>
             {
@@ -86,11 +84,11 @@ namespace Wire.ValueSerializers
 
         public Type Type { get; }
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
-            if (session.ShouldWriteTypeManifest(type))
+            if (session.ShouldWriteTypeManifest(Type))
             {
-                session.TrackSerializedType(type);
+                session.TrackSerializedType(Type);
                 if (session.Serializer.Options.VersionTolerance)
                     stream.Write(_manifestWithVersionInfo);
                 else
@@ -98,7 +96,7 @@ namespace Wire.ValueSerializers
             }
             else
             {
-                var typeIdentifier = session.GetTypeIdentifier(type);
+                var typeIdentifier = session.GetTypeIdentifier(Type);
                 stream.Write(new[] {ManifestIndex});
                 stream.WriteUInt16((ushort) typeIdentifier);
             }

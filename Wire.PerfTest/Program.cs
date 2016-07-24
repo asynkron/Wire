@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Newtonsoft.Json;
-using Orleans.Serialization;
 using ProtoBuf;
 
 namespace Wire.PerfTest
@@ -34,8 +33,6 @@ namespace Wire.PerfTest
             SerializePocoVersionInteolerantPreserveObjects();
 
             SerializePocoProtoBufNet();
-            SerializePocoOrleans();
-            SerializePocoOrleansWithWire();
 
             SerializePocoJsonNet();
             SerializePocoBinaryFormatter();
@@ -47,8 +44,6 @@ namespace Wire.PerfTest
             SerializePocoVersionInteolerantPreserveObjects();
 
             SerializePocoProtoBufNet();
-            SerializePocoOrleans();
-            SerializePocoOrleansWithWire();
 
             SerializePocoJsonNet();
             SerializePocoBinaryFormatter();
@@ -95,38 +90,6 @@ namespace Wire.PerfTest
             Console.WriteLine($"   {"Deseralize".PadRight(30, ' ')} {sw2.ElapsedMilliseconds} ms");
             Console.WriteLine($"   {"Size".PadRight(30,' ')} {size} bytes");
             Console.WriteLine($"   {"Total".PadRight(30, ' ')} {sw.ElapsedMilliseconds + sw2.ElapsedMilliseconds} ms");
-        }
-
-        private static void SerializePocoOrleans()
-        {
-            SerializationManager.InitializeForTesting();
-            var bytes = SerializationManager.SerializeToByteArray(Poco);
-
-            RunTest("Orleans", () =>
-            {
-              //  var stream = new BinaryTokenStreamWriter();
-                SerializationManager.SerializeToByteArray(Poco);
-               // stream.ReleaseBuffers();
-            }, () =>
-            {
-                SerializationManager.DeserializeFromByteArray<Poco>(bytes);
-            }, bytes.Length);
-        }
-
-        private static void SerializePocoOrleansWithWire()
-        {
-            SerializationManager.InitializeForTesting(new List<TypeInfo> { typeof(WireForOrleansSerializer).GetTypeInfo() });
-            var bytes = SerializationManager.SerializeToByteArray(Poco);
-
-            RunTest("Orleans with Wire", () =>
-            {
-                //  var stream = new BinaryTokenStreamWriter();
-                SerializationManager.SerializeToByteArray(Poco);
-                // stream.ReleaseBuffers();
-            }, () =>
-            {
-                SerializationManager.DeserializeFromByteArray<Poco>(bytes);
-            }, bytes.Length);
         }
 
         private static void SerializePocoProtoBufNet()

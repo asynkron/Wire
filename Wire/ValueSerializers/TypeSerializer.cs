@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 
 namespace Wire.ValueSerializers
 {
@@ -9,15 +8,15 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 16;
         public static readonly TypeSerializer Instance = new TypeSerializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
-            if (session.ShouldWriteTypeManifest(type))
+            if (session.ShouldWriteTypeManifest(TypeEx.RuntimeType))
             {
                 stream.WriteByte(Manifest);
             }
             else
             {
-                var typeIdentifier = session.GetTypeIdentifier(type);
+                var typeIdentifier = session.GetTypeIdentifier(TypeEx.RuntimeType);
                 stream.Write(new[] { ObjectSerializer.ManifestIndex });
                 stream.WriteUInt16((ushort) typeIdentifier);
             }
@@ -35,7 +34,7 @@ namespace Wire.ValueSerializers
                 int existingId;
                 if (session.Serializer.Options.PreserveObjectReferences && session.TryGetObjectId(type, out existingId))
                 {
-                    ObjectReferenceSerializer.Instance.WriteManifest(stream, null, session);
+                    ObjectReferenceSerializer.Instance.WriteManifest(stream, session);
                     ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
                 }
                 else

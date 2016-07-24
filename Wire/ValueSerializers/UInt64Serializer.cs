@@ -8,7 +8,7 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 19;
         public static readonly UInt64Serializer Instance = new UInt64Serializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
         }
