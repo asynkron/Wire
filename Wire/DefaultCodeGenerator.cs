@@ -94,7 +94,6 @@ namespace Wire
                     session.TrackDeserializedObject(instance);
                 }
 
-                //do not use foreach here due to perf
                 foreach (var fieldReader in fieldReaders)
                 {
                     fieldReader(stream, instance, session);
