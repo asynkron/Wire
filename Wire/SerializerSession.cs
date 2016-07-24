@@ -60,12 +60,9 @@ namespace Wire
             return _objects.TryGetValue(obj, out objectId);
         }
 
-        public bool ShouldWriteTypeManifest(Type type)
+        public bool ShouldWriteTypeManifest(Type type,out int index)
         {
-            if (_typeToIdentifier.ContainsKey(type))
-                return false;
-
-            return true;
+            return !_typeToIdentifier.TryGetValue(type, out index);
         }
 
         public void TrackSerializedType(Type type)

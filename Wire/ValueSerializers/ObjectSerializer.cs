@@ -86,7 +86,8 @@ namespace Wire.ValueSerializers
 
         public override void WriteManifest(Stream stream, SerializerSession session)
         {
-            if (session.ShouldWriteTypeManifest(Type))
+            int typeIdentifier;
+            if (session.ShouldWriteTypeManifest(Type,out typeIdentifier))
             {
                 session.TrackSerializedType(Type);
                 if (session.Serializer.Options.VersionTolerance)
@@ -96,7 +97,6 @@ namespace Wire.ValueSerializers
             }
             else
             {
-                var typeIdentifier = session.GetTypeIdentifier(Type);
                 stream.Write(new[] {ManifestIndex});
                 stream.WriteUInt16((ushort) typeIdentifier);
             }
