@@ -26,7 +26,7 @@ namespace Wire.ValueSerializers
         {
             if (value == null)
             {
-                stream.WriteInt32(-1);
+                stream.WriteString(null);
             }
             else
             {
@@ -39,29 +39,23 @@ namespace Wire.ValueSerializers
                 }
                 else
                 { 
-                    //type was not written before, add it to the tacked object list
-                    var name = type.GetShortAssemblyQualifiedName();
                     if (session.Serializer.Options.PreserveObjectReferences)
                     {
                         session.TrackSerializedObject(type);
                     }
-                    // ReSharper disable once PossibleNullReferenceException
-                    // ReSharper disable once AssignNullToNotNullAttribute
-                    var bytes = Utils.StringToBytes(name);
-                    stream.WriteLengthEncodedByteArray(bytes);
+                    //type was not written before, add it to the tacked object list
+                    var name = type.GetShortAssemblyQualifiedName();
+                    stream.WriteString(name);
                 }
             }
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
-            var length = (int) Int32Serializer.Instance.ReadValue(stream, session);
-            if (length == -1)
+            var shortname = stream.ReadString(session);
+            if (shortname == null)
                 return null;
 
-            var buffer = session.GetBuffer(length);
-            stream.Read(buffer, 0, length);
-            var shortname = Utils.BytesToString(buffer, 0, length);
             var name = Utils.ToQualifiedAssemblyName(shortname);
             var type = Type.GetType(name);
             //add the deserialized type to lookup

@@ -35,7 +35,7 @@ namespace Wire
             if (length < 8)
                 length = 8;
 
-            if (length > _buffer?.Length)
+            if (_buffer == null || length > _buffer.Length)
             {
                 _buffer = new byte[length];
             }
