@@ -7,15 +7,15 @@ namespace Wire
     {
         private byte[] _buffer;
         private readonly Dictionary<object, int> _objects;
-        private readonly Dictionary<Type, int> _typeToIdentifier;
+        private readonly Dictionary<Type, ushort> _typeToIdentifier;
         public readonly Serializer Serializer;
         private int _nextObjectId;
-        private int _nextTypeId;
+        private ushort _nextTypeId;
 
         public SerializerSession(Serializer serializer)
         {
             Serializer = serializer;
-            _typeToIdentifier = new Dictionary<Type, int>();
+            _typeToIdentifier = new Dictionary<Type, ushort>();
             if (serializer.Options.PreserveObjectReferences)
             {
                 _objects = new Dictionary<object, int>();
@@ -60,7 +60,7 @@ namespace Wire
             return _objects.TryGetValue(obj, out objectId);
         }
 
-        public bool ShouldWriteTypeManifest(Type type,out int index)
+        public bool ShouldWriteTypeManifest(Type type,out ushort index)
         {
             return !_typeToIdentifier.TryGetValue(type, out index);
         }

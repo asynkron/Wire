@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BitConverterEx.cs" />
     <Compile Include="ByteArrayEqualityComparer.cs" />
     <Compile Include="DefaultCodeGenerator.cs" />
     <Compile Include="ReflectionEx.cs" />
