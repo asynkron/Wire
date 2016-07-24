@@ -35,10 +35,13 @@ namespace Wire
             if (length < 8)
                 length = 8;
 
-            if (_buffer == null || length > _buffer.Length)
+            if (_buffer != null && length <= _buffer.Length) return _buffer;
+            if (_buffer != null)
             {
-                _buffer = new byte[length];
+                length = Math.Max(length, _buffer.Length*2);
             }
+
+            _buffer = new byte[length];
 
             return _buffer;
         }
