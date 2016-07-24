@@ -19,13 +19,6 @@ namespace Wire.ValueSerializers
             stream.Write(bytes);
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public static void WriteValue(Stream stream, int value, SerializerSession session)
-        //{
-        //    var bytes = BitConverter.GetBytes(value);
-        //    stream.Write(bytes, 0, bytes.Length);
-        //}
-
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
             const int size = sizeof (int);
@@ -33,14 +26,6 @@ namespace Wire.ValueSerializers
             stream.Read(buffer, 0, size);
             return BitConverter.ToInt32(buffer, 0);
         }
-
-        //public static int ReadValue(Stream stream, SerializerSession session)
-        //{
-        //    var size = sizeof(int);
-        //    var buffer = session.GetBuffer(size);
-        //    stream.Read(buffer, 0, size);
-        //    return BitConverter.ToInt32(buffer, 0);
-        //}
 
         public override Type GetElementType()
         {

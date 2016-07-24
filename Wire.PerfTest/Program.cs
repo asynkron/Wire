@@ -28,22 +28,22 @@ namespace Wire.PerfTest
             Console.WriteLine("Running cold");
 
             SerializePocoPreRegister();
-            ////SerializePocoVersionInteolerant();
+            SerializePocoVersionInteolerant();
             ////SerializePoco();
             ////SerializePocoVersionInteolerantPreserveObjects();
 
-            SerializePocoProtoBufNet();
+            //SerializePocoProtoBufNet();
 
             //SerializePocoJsonNet();
             //SerializePocoBinaryFormatter();
             Console.WriteLine();
             Console.WriteLine("Running hot");
             SerializePocoPreRegister();
-            //SerializePocoVersionInteolerant();
+            SerializePocoVersionInteolerant();
             //SerializePoco();
             //SerializePocoVersionInteolerantPreserveObjects();
 
-            SerializePocoProtoBufNet();
+            ////SerializePocoProtoBufNet();
 
             //SerializePocoJsonNet();
             //SerializePocoBinaryFormatter();

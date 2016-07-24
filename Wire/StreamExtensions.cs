@@ -133,7 +133,7 @@ namespace Wire
             }
             else
             {
-                var bytes = Utils.StringToBytes((string) value);
+                var bytes = ((string) value).ToUtf8Bytes();
                 if (bytes.Length < 254)
                 {
                     stream.WriteByte((byte) (bytes.Length + 1));
@@ -166,7 +166,7 @@ namespace Wire
             var buffer = session.GetBuffer(length);
 
             stream.Read(buffer, 0, length);
-            var res = Utils.BytesToString(buffer, 0, length);
+            var res = StringEx.FromUtf8Bytes(buffer, 0, length);
             return res;
         }
     }

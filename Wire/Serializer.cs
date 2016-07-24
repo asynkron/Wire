@@ -232,17 +232,17 @@ namespace Wire
                     return ConsistentArraySerializer.Instance;
                 case ObjectSerializer.ManifestFull:
                 {
-                    var type = ObjectSerializer.GetTypeFromManifestFull(stream, session);
+                    var type = TypeEx.GetTypeFromManifestFull(stream, session);
                     return GetCustomDeserialzer(type);
                 }
                 case ObjectSerializer.ManifestVersion:
                 {
-                    var type = ObjectSerializer.GetTypeFromManifestVersion(stream, session);
+                    var type = TypeEx.GetTypeFromManifestVersion(stream, session);
                     return GetCustomDeserialzer(type);
                 }
                 case ObjectSerializer.ManifestIndex:
                 {
-                    var type = ObjectSerializer.GetTypeFromManifestIndex(stream, session);
+                    var type = TypeEx.GetTypeFromManifestIndex(stream, session);
                     return GetCustomDeserialzer(type);
                 }
                 default:
