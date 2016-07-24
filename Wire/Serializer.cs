@@ -170,12 +170,8 @@ namespace Wire
 
                 if (type == TypeEx.RuntimeType)
                     return TypeSerializer.Instance;
-            }
 
-            if (type.IsOneDimensionalArray())
-            {
-                var elementType = type.GetElementType();
-                if (elementType.IsWirePrimitive())
+                if (type.IsOneDimensionalPrimitiveArray())
                 {
                     return ConsistentArraySerializer.Instance;
                 }
@@ -185,81 +181,7 @@ namespace Wire
 
             return serializer;
         }
-
-        public ValueSerializer GetDeserializerByType(Type type)
-        {
-            if (ReferenceEquals(type.GetTypeInfo().Assembly, ReflectionEx.CoreAssembly))
-            {
-                //faster than hash lookup you know...
-                if (type == TypeEx.StringType)
-                    return StringSerializer.Instance;
-
-                if (type == TypeEx.UInt32Type)
-                    return UInt32Serializer.Instance;
-
-                if (type == TypeEx.UInt64Type)
-                    return UInt64Serializer.Instance;
-
-                if (type == TypeEx.UInt16Type)
-                    return UInt16Serializer.Instance;
-
-                if (type == TypeEx.Int32Type)
-                    return Int32Serializer.Instance;
-
-                if (type == TypeEx.Int64Type)
-                    return Int64Serializer.Instance;
-
-                if (type == TypeEx.Int16Type)
-                    return Int16Serializer.Instance;
-
-                if (type == TypeEx.ByteType)
-                    return ByteSerializer.Instance;
-
-                if (type == TypeEx.SByteType)
-                    return SByteSerializer.Instance;
-
-                if (type == TypeEx.BoolType)
-                    return BoolSerializer.Instance;
-
-                if (type == TypeEx.DateTimeType)
-                    return DateTimeSerializer.Instance;
-
-                if (type == TypeEx.GuidType)
-                    return GuidSerializer.Instance;
-
-                if (type == TypeEx.FloatType)
-                    return FloatSerializer.Instance;
-
-                if (type == TypeEx.DoubleType)
-                    return DoubleSerializer.Instance;
-
-                if (type == TypeEx.DecimalType)
-                    return DecimalSerializer.Instance;
-
-                if (type == TypeEx.CharType)
-                    return CharSerializer.Instance;
-
-                if (type == TypeEx.ByteArrayType)
-                    return ByteArraySerializer.Instance;
-
-                if (type == TypeEx.TypeType || type == TypeEx.RuntimeType)
-                    return TypeSerializer.Instance;
-            }
-
-            if (type.IsOneDimensionalArray())
-            {
-                var elementType = type.GetElementType();
-                if (elementType.IsWirePrimitive())
-                {
-                    return ConsistentArraySerializer.Instance;
-                }
-            }
-
-            var serializer = GetCustomDeserialzer(type);
-
-            return serializer;
-        }
-
+        
         public ValueSerializer GetDeserializerByManifest(Stream stream, DeserializerSession session)
         {
             var first = stream.ReadByte();

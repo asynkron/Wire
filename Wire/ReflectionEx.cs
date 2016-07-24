@@ -80,6 +80,11 @@ namespace Wire
         {
             return type.IsArray && type.GetArrayRank() == 1;
         }
+
+        public static bool IsOneDimensionalPrimitiveArray(this Type type)
+        {
+            return type.IsArray && type.GetArrayRank() == 1 && type.GetElementType().IsWirePrimitive();
+        }
     }
 
     public static class BindingFlagsEx
