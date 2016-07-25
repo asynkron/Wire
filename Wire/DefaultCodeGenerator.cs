@@ -263,19 +263,41 @@ namespace Wire
             //get the serializer for the type of the field
             var valueSerializer = serializer.GetSerializerByType(field.FieldType);
             //runtime Get a delegate that reads the content of the given field
-            var getFieldValue = GetFieldInfoReader(field);
+
+            var streamExpression = Expression.Parameter(typeof(Stream));
+            var targetExpression = Expression.Parameter(typeof(object));
+            var sessionExpression = Expression.Parameter(typeof(SerializerSession));
+
+            // ReSharper disable once PossibleNullReferenceException
+            Expression castParam = field.DeclaringType.GetTypeInfo().IsValueType
+                // ReSharper disable once AssignNullToNotNullAttribute
+                ? Expression.Unbox(targetExpression, field.DeclaringType)
+                // ReSharper disable once AssignNullToNotNullAttribute
+                : Expression.Convert(targetExpression, field.DeclaringType);
+            Expression readField = Expression.Field(castParam, field);
+            Expression valueExp = Expression.Convert(readField, typeof(object));
+            //   var getFieldValue = Expression.Lambda<FieldInfoReader>(castRes, param).Compile();
 
             //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
             if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
             {
                 //primitive types does not need to write any manifest, if the field type is known
                 //nor can they be null (StringSerializer has it's own null handling)
-                ObjectWriter fieldWriter = (stream, o, session) =>
-                {
-                    var value = getFieldValue(o);
-                    valueSerializer.WriteValue(stream, value, session);
-                };
-                return fieldWriter;
+
+                //get the value from the target
+
+                var valueSerializerConstant = Expression.Constant(valueSerializer);
+
+                //write it to the value serializer
+                var writeValueCall = Expression.Call(valueSerializerConstant,
+                    typeof(ValueSerializer).GetMethod(nameof(ValueSerializer.WriteValue)),streamExpression, valueExp,sessionExpression);
+
+
+                var writeValue =
+                    Expression.Lambda<ObjectWriter>(writeValueCall, streamExpression, targetExpression,
+                        sessionExpression).Compile();
+
+                return writeValue;
             }
             else
             {
@@ -287,49 +309,19 @@ namespace Wire
                     valueSerializer = serializer.GetSerializerByType(nullableType);
                     valueType = nullableType;
                 }
-                var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
+                var valueSerializerConstant = Expression.Constant(valueSerializer);
+                var preserveObjectReferencesExpression = Expression.Constant(serializer.Options.PreserveObjectReferences);
 
-                ObjectWriter fieldWriter = (stream, o, session) =>
-                {
-                    var value = getFieldValue(o);
+                var method = typeof(StreamExtensions).GetMethod(nameof(StreamExtensions.WriteObject));
 
-                    stream.WriteObject(value, valueType, valueSerializer, preserveObjectReferences, session);
-                };
-                return fieldWriter;
+                var writeValueCall = Expression.Call(null, method ,streamExpression, valueExp, Expression.Constant(valueType),valueSerializerConstant,preserveObjectReferencesExpression,sessionExpression);
+
+                var writeValue =
+                    Expression.Lambda<ObjectWriter>(writeValueCall, streamExpression, targetExpression,
+                        sessionExpression).Compile();
+
+                return writeValue;
             }
-        }
-
-        private  FieldInfoReader GetFieldInfoReader(FieldInfo field)
-        {
-            if (field == null)
-                throw new ArgumentNullException(nameof(field));
-
-            var param = Expression.Parameter(typeof(object));
-            // ReSharper disable once PossibleNullReferenceException
-            Expression castParam = field.DeclaringType.GetTypeInfo().IsValueType
-                // ReSharper disable once AssignNullToNotNullAttribute
-                ? Expression.Unbox(param, field.DeclaringType)
-                // ReSharper disable once AssignNullToNotNullAttribute
-                : Expression.Convert(param, field.DeclaringType);
-            Expression readField = Expression.Field(castParam, field);
-            Expression castRes = Expression.Convert(readField, typeof(object));
-            var getFieldValue = Expression.Lambda<FieldInfoReader>(castRes, param).Compile();
-
-            if (Debugger.IsAttached)
-            {
-                return target =>
-                {
-                    try
-                    {
-                        return getFieldValue(target);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception($"Failed to read value of field {field.Name}", ex);
-                    }
-                };
-            }
-            return getFieldValue;
         }
     }
 }
