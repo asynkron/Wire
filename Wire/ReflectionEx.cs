@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 
 namespace Wire
 {
-    internal static class TypeEx
+    public static class TypeEx
     {
         //Why not inline typeof you ask?
         //Because it actually generates calls to get the type.

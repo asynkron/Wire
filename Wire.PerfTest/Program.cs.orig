@@ -35,26 +35,25 @@ namespace Wire.PerfTest
 
             SerializePocoPreRegister();
             SerializePocoPreRegisterManualSerializer();
-            //SerializePocoVersionInteolerant();
-            //SerializePoco();
-            //SerializePocoVersionInteolerantPreserveObjects();
+            SerializePocoVersionInteolerant();
+            SerializePoco();
+            SerializePocoVersionInteolerantPreserveObjects();
 
-            //SerializePocoProtoBufNet();
-            //SerializePocoBond();
-            ////SerializePocoJsonNet();
-            ////SerializePocoBinaryFormatter();
+            SerializePocoProtoBufNet();
+            SerializePocoBond();
+            //SerializePocoJsonNet();
+            //SerializePocoBinaryFormatter();
             Console.WriteLine();
             Console.WriteLine("Running hot");
             SerializePocoPreRegister();
-            SerializePocoPreRegisterManualSerializer();
-            //SerializePocoVersionInteolerant();
-            //SerializePoco();
-            //SerializePocoVersionInteolerantPreserveObjects();
+            SerializePocoVersionInteolerant();
+            SerializePoco();
+            SerializePocoVersionInteolerantPreserveObjects();
 
-            //SerializePocoProtoBufNet();
-            //SerializePocoBond();
-            ////SerializePocoJsonNet();
-            ////SerializePocoBinaryFormatter();
+            SerializePocoProtoBufNet();
+            SerializePocoBond();
+            //SerializePocoJsonNet();
+            //SerializePocoBinaryFormatter();
             Console.ReadLine();
         }
 
@@ -80,20 +79,25 @@ namespace Wire.PerfTest
             Console.WriteLine($"{testName}");
             Console.ForegroundColor = tmp;
             var sw = Stopwatch.StartNew();
-            for (var i = 0; i < 10000000; i++)
+            for (var i = 0; i < 1000000; i++)
             {
                 serialize();
             }
             sw.Stop();
             Console.WriteLine($"   {"Serialize".PadRight(30, ' ')} {sw.ElapsedMilliseconds} ms");
             var sw2 = Stopwatch.StartNew();
-            for (var i = 0; i < 10000000; i++)
+            for (var i = 0; i < 1000000; i++)
             {
                 deserialize();
             }
             sw2.Stop();
-            Console.WriteLine($"   {"Deserialize".PadRight(30, ' ')} {sw2.ElapsedMilliseconds} ms");
+<<<<<<< HEAD
+            Console.WriteLine($"   {"Deseralize".PadRight(30, ' ')} {sw2.ElapsedMilliseconds} ms");
             Console.WriteLine($"   {"Size".PadRight(30, ' ')} {size} bytes");
+=======
+            Console.WriteLine($"   {"Deserialize".PadRight(30, ' ')} {sw2.ElapsedMilliseconds} ms");
+            Console.WriteLine($"   {"Size".PadRight(30,' ')} {size} bytes");
+>>>>>>> upstream/dev
             Console.WriteLine($"   {"Total".PadRight(30, ' ')} {sw.ElapsedMilliseconds + sw2.ElapsedMilliseconds} ms");
         }
 
@@ -196,11 +200,11 @@ namespace Wire.PerfTest
                     s.Initialize(
                         (stream, session) =>
                         {
-                            var poco = new Poco();//  (Poco)typeof(Poco).GetEmptyObject();
-                            poco.StringProp = (string) StringSerializer.Instance.ReadValue(stream, session);
-                            poco.IntProp = (int) Int32Serializer.Instance.ReadValue(stream, session);
-                            poco.GuidProp = (Guid) GuidSerializer.Instance.ReadValue(stream, session);
-                            poco.DateProp = (DateTime) DateTimeSerializer.Instance.ReadValue(stream, session);
+                            var poco = new Poco();
+                            poco.StringProp = (string)StringSerializer.Instance.ReadValue(stream, session);
+                            poco.IntProp = (int)Int32Serializer.Instance.ReadValue(stream, session);
+                            poco.GuidProp = (Guid)GuidSerializer.Instance.ReadValue(stream, session);
+                            poco.DateProp = (DateTime)DateTimeSerializer.Instance.ReadValue(stream, session);
                             return poco;
                         },
                         (stream, obj, session) =>

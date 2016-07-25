@@ -83,25 +83,57 @@ namespace Wire
         private ObjectReader GetVersionIntolerantReader(
             Type type,
             bool preserveObjectReferences,
-            IReadOnlyList<FieldReader> fieldReaders)
+            IEnumerable<FieldReader> fieldReaders)
         {
-            ObjectReader reader = (stream, session) =>
+
+            var expressions = new List<Expression>();
+
+            var newExpression = GetNewExpression(type);
+            var targetObject = Expression.Variable(typeof(object),"target");
+            var assignTarget = Expression.Assign(targetObject, newExpression);
+            var streamParam = Expression.Parameter(typeof(Stream));
+            var sessionParam = Expression.Parameter(typeof(DeserializerSession));
+
+            expressions.Add(assignTarget);
+
+            if (preserveObjectReferences)
             {
-                //create instance without calling constructor
-                var instance = type.GetEmptyObject();
-                if (preserveObjectReferences)
-                {
-                    session.TrackDeserializedObject(instance);
-                }
+                var trackDeserializedObjectMethod =
+                typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                var call = Expression.Call(sessionParam, trackDeserializedObjectMethod, targetObject);
+                expressions.Add(call);
+            }
 
-                foreach (var fieldReader in fieldReaders)
-                {
-                    fieldReader(stream, instance, session);
-                }
+            foreach (var r in fieldReaders)
+            {
+                var c = Expression.Constant(r);
+                var i = Expression.Invoke(c, streamParam, targetObject, sessionParam);
+                expressions.Add(i);
+            }
+            expressions.Add(targetObject);
 
-                return instance;
-            };
-            return reader;
+            var body = Expression.Block(new[] { targetObject }, expressions);
+
+            var readAllFields = Expression
+                .Lambda<ObjectReader>(body, streamParam, sessionParam)
+                .Compile();
+
+            return readAllFields;
+        }
+
+        private static Expression GetNewExpression(Type type)
+        {
+            var defaultCtor = type.GetConstructor(new Type[] { });
+            var il = defaultCtor?.GetMethodBody()?.GetILAsByteArray();
+            var sideEffectFreeCtor = il != null && il.Length <= 8;
+            if (sideEffectFreeCtor)
+            {
+                return Expression.New(defaultCtor);
+            }
+            var emptyObjectMethod = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
+            var emptyObject = Expression.Call(null, emptyObjectMethod, Expression.Constant(type));
+
+            return emptyObject;
         }
 
         private  ObjectReader GetVersionTolerantReader(Type type,
@@ -109,6 +141,7 @@ namespace Wire
             IReadOnlyList<FieldInfo> fields,
             IReadOnlyList<FieldReader> fieldReaders)
         {
+
             ObjectReader reader = (stream, session) =>
             {
                 //create instance without calling constructor
