@@ -92,7 +92,7 @@ namespace Wire.PerfTest
                 deserialize();
             }
             sw2.Stop();
-            Console.WriteLine($"   {"Deseralize".PadRight(30, ' ')} {sw2.ElapsedMilliseconds} ms");
+            Console.WriteLine($"   {"Deserialize".PadRight(30, ' ')} {sw2.ElapsedMilliseconds} ms");
             Console.WriteLine($"   {"Size".PadRight(30,' ')} {size} bytes");
             Console.WriteLine($"   {"Total".PadRight(30, ' ')} {sw.ElapsedMilliseconds + sw2.ElapsedMilliseconds} ms");
         }
