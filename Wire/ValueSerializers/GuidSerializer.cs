@@ -21,7 +21,7 @@ namespace Wire.ValueSerializers
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
-            var buffer = new byte[16];
+            var buffer = session.GetBuffer(16);
             stream.Read(buffer, 0, 16);
             return new Guid(buffer);
         }
