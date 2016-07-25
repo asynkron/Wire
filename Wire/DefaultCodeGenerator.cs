@@ -173,8 +173,7 @@ namespace Wire
 
             foreach (var field in fields)
             {
-                var fieldWriter = GetObjectWriter(serializer, field,streamParam,objectParam,sessionParam);
-//var invoke = Expression.Invoke(Expression.Constant(fieldWriter), streamParam, objectParam, sessionParam);
+                var fieldWriter = GetFieldInfoWriter(serializer, field,streamParam,objectParam,sessionParam);
                 expressions.Add(fieldWriter);
             }
 
@@ -251,7 +250,7 @@ namespace Wire
             }
         }
 
-        private  Expression GetObjectWriter(Serializer serializer, FieldInfo field,Expression streamExpression,Expression targetExpression,Expression sessionExpression)
+        private  Expression GetFieldInfoWriter(Serializer serializer, FieldInfo field,Expression streamExpression,Expression targetExpression,Expression sessionExpression)
         {
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
