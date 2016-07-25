@@ -5,17 +5,16 @@ namespace Wire
 {
     public class SerializerSession
     {
-        private byte[] _buffer;
         private readonly Dictionary<object, int> _objects;
-        private readonly Dictionary<Type, int> _typeToIdentifier;
+        private readonly Dictionary<Type, ushort> _typeToIdentifier;
         public readonly Serializer Serializer;
         private int _nextObjectId;
-        private int _nextTypeId;
+        private ushort _nextTypeId;
 
         public SerializerSession(Serializer serializer)
         {
             Serializer = serializer;
-            _typeToIdentifier = new Dictionary<Type, int>();
+            _typeToIdentifier = new Dictionary<Type, ushort>();
             if (serializer.Options.PreserveObjectReferences)
             {
                 _objects = new Dictionary<object, int>();
@@ -28,19 +27,6 @@ namespace Wire
                     TrackSerializedType(type);
                 }
             }
-        }
-
-        public byte[] GetBuffer(int length)
-        {
-            if (length < 8)
-                length = 8;
-
-            if (length > _buffer?.Length)
-            {
-                _buffer = new byte[length];
-            }
-
-            return _buffer;
         }
 
         public void TrackSerializedObject(object obj)
@@ -60,12 +46,9 @@ namespace Wire
             return _objects.TryGetValue(obj, out objectId);
         }
 
-        public bool ShouldWriteTypeManifest(Type type)
+        public bool ShouldWriteTypeManifest(Type type,out ushort index)
         {
-            if (_typeToIdentifier.ContainsKey(type))
-                return false;
-
-            return true;
+            return !_typeToIdentifier.TryGetValue(type, out index);
         }
 
         public void TrackSerializedType(Type type)

@@ -34,7 +34,9 @@ namespace Wire.SerializerFactories
             ObjectReader reader = (stream, session) =>
             {
                 throw new NotSupportedException("Generic IDictionary<TKey,TValue> are not yet supported");
+#pragma warning disable CS0162 // Unreachable code detected
                 var instance = Activator.CreateInstance(type);
+#pragma warning restore CS0162 // Unreachable code detected
                 if (preserveObjectReferences)
                 {
                     session.TrackDeserializedObject(instance);

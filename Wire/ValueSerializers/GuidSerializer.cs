@@ -8,7 +8,7 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 11;
         public static readonly GuidSerializer Instance = new GuidSerializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
         }

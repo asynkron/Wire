@@ -8,7 +8,7 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 9;
         public static readonly ByteArraySerializer Instance = new ByteArraySerializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
         }

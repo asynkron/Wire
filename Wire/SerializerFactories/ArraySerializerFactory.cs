@@ -12,9 +12,9 @@ namespace Wire.SerializerFactories
 
         public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
-        private static void WriteValues<T>(IReadOnlyList<T> array,Stream stream,Type elementType, ValueSerializer elementSerializer, SerializerSession session)
+        private static void WriteValues<T>(T[] array,Stream stream,Type elementType, ValueSerializer elementSerializer, SerializerSession session)
         {
-            stream.WriteInt32(array.Count);
+            stream.WriteInt32(array.Length);
             var preserveObjectReferences = session.Serializer.Options.PreserveObjectReferences;
             foreach (var value in array)
             {

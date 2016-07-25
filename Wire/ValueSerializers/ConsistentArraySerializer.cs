@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 
 namespace Wire.ValueSerializers
 {
@@ -37,7 +36,7 @@ namespace Wire.ValueSerializers
             throw new NotSupportedException();
         }
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
         }
@@ -50,7 +49,7 @@ namespace Wire.ValueSerializers
             }
             var elementType = value.GetType().GetElementType();
             var elementSerializer = session.Serializer.GetSerializerByType(elementType);
-            elementSerializer.WriteManifest(stream, elementType, session); //write array element type
+            elementSerializer.WriteManifest(stream, session); //write array element type
             // ReSharper disable once PossibleNullReferenceException
             WriteValues((dynamic)value, stream,elementSerializer,session);
 
@@ -58,11 +57,10 @@ namespace Wire.ValueSerializers
 
         private static void WriteValues<T>(T[] array, Stream stream, ValueSerializer elementSerializer, SerializerSession session)
         {
-            
             stream.WriteInt32(array.Length);
-            if (Utils.IsFixedSizeType(typeof(T)))
+            if (typeof(T).IsFixedSizeType())
             {
-                var size = Utils.GetTypeSize(typeof(T));
+                var size = typeof(T).GetTypeSize();
                 var result = new byte[array.Length * size];
                 Buffer.BlockCopy(array, 0, result, 0, result.Length);
                 stream.Write(result);

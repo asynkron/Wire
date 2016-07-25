@@ -16,7 +16,7 @@ namespace Wire.ValueSerializers
             _surrogateSerializer = surrogateSerializer;
         }
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
             //    _surrogateSerializer.WriteManifest(stream, type, session);
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 
 namespace Wire.ValueSerializers
 {
@@ -9,17 +8,17 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 16;
         public static readonly TypeSerializer Instance = new TypeSerializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
-            if (session.ShouldWriteTypeManifest(type))
+            ushort typeIdentifier;
+            if (session.ShouldWriteTypeManifest(TypeEx.RuntimeType,out typeIdentifier))
             {
                 stream.WriteByte(Manifest);
             }
             else
             {
-                var typeIdentifier = session.GetTypeIdentifier(type);
                 stream.Write(new[] { ObjectSerializer.ManifestIndex });
-                stream.WriteUInt16((ushort) typeIdentifier);
+                stream.WriteUInt16(typeIdentifier);
             }
         }
 
@@ -27,7 +26,7 @@ namespace Wire.ValueSerializers
         {
             if (value == null)
             {
-                stream.WriteInt32(-1);
+                stream.WriteString(null);
             }
             else
             {
@@ -35,34 +34,28 @@ namespace Wire.ValueSerializers
                 int existingId;
                 if (session.Serializer.Options.PreserveObjectReferences && session.TryGetObjectId(type, out existingId))
                 {
-                    ObjectReferenceSerializer.Instance.WriteManifest(stream, null, session);
+                    ObjectReferenceSerializer.Instance.WriteManifest(stream, session);
                     ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
                 }
                 else
                 { 
-                    //type was not written before, add it to the tacked object list
-                    var name = type.GetShortAssemblyQualifiedName();
                     if (session.Serializer.Options.PreserveObjectReferences)
                     {
                         session.TrackSerializedObject(type);
                     }
-                    // ReSharper disable once PossibleNullReferenceException
-                    // ReSharper disable once AssignNullToNotNullAttribute
-                    var bytes = Utils.StringToBytes(name);
-                    stream.WriteLengthEncodedByteArray(bytes);
+                    //type was not written before, add it to the tacked object list
+                    var name = type.GetShortAssemblyQualifiedName();
+                    stream.WriteString(name);
                 }
             }
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
-            var length = (int) Int32Serializer.Instance.ReadValue(stream, session);
-            if (length == -1)
+            var shortname = stream.ReadString(session);
+            if (shortname == null)
                 return null;
 
-            var buffer = session.GetBuffer(length);
-            stream.Read(buffer, 0, length);
-            var shortname = Utils.BytesToString(buffer, 0, length);
             var name = Utils.ToQualifiedAssemblyName(shortname);
             var type = Type.GetType(name);
             //add the deserialized type to lookup

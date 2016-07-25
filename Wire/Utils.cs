@@ -1,6 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace Wire
 {
@@ -84,7 +82,7 @@ namespace Wire
         }
 #endif
 
-        public static bool IsFixedSizeType(Type type)
+        internal static bool IsFixedSizeType(this Type type)
         {
             return type == typeof (int) ||
                    type == typeof (long) ||
@@ -94,7 +92,7 @@ namespace Wire
                    type == typeof (ulong);
         }
 
-        public static int GetTypeSize(Type type)
+        internal static int GetTypeSize(this Type type)
         {
             if (type == typeof (int))
                 return sizeof (int);
@@ -110,20 +108,6 @@ namespace Wire
                 return sizeof (ulong);
 
             throw new NotSupportedException();
-        }
-
-        private static readonly UTF8Encoding Utf8 = (UTF8Encoding) Encoding.UTF8;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static byte[] StringToBytes(string str)
-        {
-            return Utf8.GetBytes(str);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static string BytesToString(byte[] bytes,int offset, int count)
-        {
-            return Utf8.GetString(bytes,offset,count);
         }
     }
 }

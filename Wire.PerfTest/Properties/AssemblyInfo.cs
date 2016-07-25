@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
-using Orleans.CodeGeneration;
 using Wire.PerfTest;
 
 // General Information about an assembly is controlled through the following 
@@ -15,7 +14,6 @@ using Wire.PerfTest;
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: GenerateSerializer(typeof(Poco))]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

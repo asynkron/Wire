@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BitConverterEx.cs" />
     <Compile Include="ByteArrayEqualityComparer.cs" />
     <Compile Include="DefaultCodeGenerator.cs" />
     <Compile Include="ReflectionEx.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="DeserializeSession.cs" />
     <Compile Include="SerializerOptions.cs" />
     <Compile Include="StreamExtensions.cs" />
+    <Compile Include="StringEx.cs" />
     <Compile Include="Surrogate.cs" />
     <Compile Include="TrackingExtensions.cs" />
     <Compile Include="Utils.cs" />
