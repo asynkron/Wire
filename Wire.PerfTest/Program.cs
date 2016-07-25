@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -9,6 +10,8 @@ using System.Text;
 using Newtonsoft.Json;
 using Orleans.Serialization;
 using ProtoBuf;
+using Wire.SerializerFactories;
+using Wire.ValueSerializers;
 
 namespace Wire.PerfTest
 {
@@ -29,6 +32,7 @@ namespace Wire.PerfTest
             Console.WriteLine("Running cold");
 
             SerializePocoPreRegister();
+            SerializePocoPreRegisterManualSerializer();
             SerializePocoVersionInteolerant();
             SerializePoco();
             SerializePocoVersionInteolerantPreserveObjects();
@@ -170,6 +174,58 @@ namespace Wire.PerfTest
             serializer.Serialize(Poco, s);
             var bytes = s.ToArray();
             RunTest("Wire - preregister types", () =>
+            {
+                var stream = new MemoryStream();
+                serializer.Serialize(Poco, stream);
+            }, () =>
+            {
+                s.Position = 0;
+                serializer.Deserialize<Poco>(s);
+            }, bytes.Length);
+        }
+
+        private class PocoSerializerFactory : ValueSerializerFactory
+        {
+            public override bool CanSerialize(Serializer serializer, Type type) => type == typeof(Poco);
+            public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
+
+            public override ValueSerializer BuildSerializer(Serializer serializer, Type type, ConcurrentDictionary<Type, ValueSerializer> typeMapping)
+            {
+                var s = new ObjectSerializer(type);
+                if (typeMapping.TryAdd(type, s))
+                {
+                    s.Initialize(
+                        (stream, session) =>
+                        {
+                            var poco = new Poco();
+                            poco.StringProp = (string)StringSerializer.Instance.ReadValue(stream, session);
+                            poco.IntProp = (int)Int32Serializer.Instance.ReadValue(stream, session);
+                            poco.GuidProp = (Guid)GuidSerializer.Instance.ReadValue(stream, session);
+                            poco.DateProp = (DateTime)DateTimeSerializer.Instance.ReadValue(stream, session);
+                            return poco;
+                        },
+                        (stream, obj, session) =>
+                        {
+                            var poco = (Poco)obj;
+                            StringSerializer.Instance.WriteValue(stream, poco.StringProp, session);
+                            Int32Serializer.Instance.WriteValue(stream, poco.IntProp, session);
+                            GuidSerializer.Instance.WriteValue(stream, poco.GuidProp, session);
+                            DateTimeSerializer.Instance.WriteValue(stream, poco.DateProp, session);
+                        });
+                }
+                return s;
+            }
+        }
+
+        private static void SerializePocoPreRegisterManualSerializer()
+        {
+            var serializer = new Serializer(new SerializerOptions(
+                knownTypes: new[] { typeof(Poco) },
+                serializerFactories: new[] { new PocoSerializerFactory() }));
+            var s = new MemoryStream();
+            serializer.Serialize(Poco, s);
+            var bytes = s.ToArray();
+            RunTest("Wire - preregister types (manual serializer)", () =>
             {
                 var stream = new MemoryStream();
                 serializer.Serialize(Poco, stream);
