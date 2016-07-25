@@ -30,16 +30,14 @@ namespace Wire
 
             var fields = ReflectionEx.GetFieldInfosForType(type);
 
-            var fieldWriters = new List<ObjectWriter>();
             var fieldReaders = new List<FieldReader>();
 
             foreach (var field in fields)
             {
-                fieldWriters.Add(GetObjectWriter(serializer, field));
                 fieldReaders.Add(GetFieldReader(serializer, type, field));
             }
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
-            var writer = GetFieldsWriter(fieldWriters,preserveObjectReferences);
+            var writer = GetFieldsWriter(fields, serializer, preserveObjectReferences);
             
             var reader = serializer.Options.VersionTolerance ? 
                 GetVersionTolerantReader(type, preserveObjectReferences, fields, fieldReaders) : 
@@ -155,10 +153,10 @@ namespace Wire
 
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
-        private  ObjectWriter GetFieldsWriter(IReadOnlyList<ObjectWriter> fieldWriters, bool preserveObjectReferences)
+        private  ObjectWriter GetFieldsWriter(FieldInfo[] fields, Serializer serializer, bool preserveObjectReferences)
         {
-            if (fieldWriters == null)
-                throw new ArgumentNullException(nameof(fieldWriters));
+            if (fields == null)
+                throw new ArgumentNullException(nameof(fields));
 
             var streamParam = Expression.Parameter(typeof(Stream));
             var objectParam = Expression.Parameter(typeof(object));
@@ -173,8 +171,9 @@ namespace Wire
                 expressions.Add(call);
             }
 
-            foreach (var fieldWriter in fieldWriters)
+            foreach (var field in fields)
             {
+                var fieldWriter = GetObjectWriter(serializer, field);
                 var invoke = Expression.Invoke(Expression.Constant(fieldWriter), streamParam, objectParam, sessionParam);
                 expressions.Add(invoke);
             }
