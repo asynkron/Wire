@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Wire.ValueSerializers;
+using Wire.ExpressionDSL;
 
 namespace Wire
 {
@@ -16,7 +16,7 @@ namespace Wire
 
     public class DefaultCodeGenerator : ICodeGenerator
     {
-        public  void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer)
+        public void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer)
         {
             var type = objectSerializer.Type;
             if (serializer == null)
@@ -37,12 +37,12 @@ namespace Wire
                 fieldReaders.Add(GetFieldReader(serializer, type, field));
             }
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
-            var writer = GetFieldsWriter(fields, serializer, preserveObjectReferences);
-            
-            var reader = serializer.Options.VersionTolerance ? 
-                GetVersionTolerantReader(type, preserveObjectReferences, fields, fieldReaders) : 
-                GetVersionIntolerantReader(type, preserveObjectReferences, fieldReaders);
-            
+            var writer = GetFieldsWriter(fields, serializer);
+
+            var reader = serializer.Options.VersionTolerance
+                ? GetVersionTolerantReader(type, preserveObjectReferences, fieldReaders)
+                : GetVersionIntolerantReader(type, preserveObjectReferences, fieldReaders);
+
             objectSerializer.Initialize(reader, writer);
         }
 
@@ -51,11 +51,10 @@ namespace Wire
             bool preserveObjectReferences,
             IEnumerable<FieldReader> fieldReaders)
         {
-
             var expressions = new List<Expression>();
 
             var newExpression = GetNewExpression(type);
-            var targetObject = Expression.Variable(typeof(object),"target");
+            var targetObject = Expression.Variable(typeof(object), "target");
             var assignTarget = Expression.Assign(targetObject, newExpression);
             var streamParam = Expression.Parameter(typeof(Stream));
             var sessionParam = Expression.Parameter(typeof(DeserializerSession));
@@ -65,21 +64,21 @@ namespace Wire
             if (preserveObjectReferences)
             {
                 var trackDeserializedObjectMethod =
-                typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                    typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
                 var call = Expression.Call(sessionParam, trackDeserializedObjectMethod, targetObject);
                 expressions.Add(call);
             }
 
             foreach (var r in fieldReaders)
             {
-                var c = Expression.Constant(r);
+                var c = r.ToConstant();
                 var i = Expression.Invoke(c, streamParam, targetObject, sessionParam);
                 expressions.Add(i);
             }
 
             expressions.Add(targetObject);
 
-            var body = Expression.Block(new[] { targetObject }, expressions);
+            var body = expressions.ToBlock(targetObject);
 
             var readAllFields = Expression
                 .Lambda<ObjectReader>(body, streamParam, sessionParam)
@@ -90,7 +89,7 @@ namespace Wire
 
         private static Expression GetNewExpression(Type type)
         {
-            var defaultCtor = type.GetConstructor(new Type[] { });
+            var defaultCtor = type.GetConstructor(new Type[] {});
             var il = defaultCtor?.GetMethodBody()?.GetILAsByteArray();
             var sideEffectFreeCtor = il != null && il.Length <= 8;
             if (sideEffectFreeCtor)
@@ -98,14 +97,13 @@ namespace Wire
                 return Expression.New(defaultCtor);
             }
             var emptyObjectMethod = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
-            var emptyObject = Expression.Call(null, emptyObjectMethod, Expression.Constant(type));
+            var emptyObject = Expression.Call(null, emptyObjectMethod, type.ToConstant());
 
             return emptyObject;
         }
 
-        private  ObjectReader GetVersionTolerantReader(Type type,
+        private ObjectReader GetVersionTolerantReader(Type type,
             bool preserveObjectReferences,
-            IReadOnlyList<FieldInfo> fields,
             IReadOnlyList<FieldReader> fieldReaders)
         {
 
@@ -119,7 +117,7 @@ namespace Wire
                 }
 
                 var versionInfo = session.GetVersionInfo(type);
-                
+
 
                 //for (var i = 0; i < storedFieldCount; i++)
                 //{
@@ -153,10 +151,12 @@ namespace Wire
 
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
-        private  ObjectWriter GetFieldsWriter(FieldInfo[] fields, Serializer serializer, bool preserveObjectReferences)
+        private ObjectWriter GetFieldsWriter(FieldInfo[] fields, Serializer serializer)
         {
             if (fields == null)
                 throw new ArgumentNullException(nameof(fields));
+
+            bool preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
             var streamParam = Expression.Parameter(typeof(Stream));
             var objectParam = Expression.Parameter(typeof(object));
@@ -166,23 +166,19 @@ namespace Wire
 
             if (preserveObjectReferences)
             {
-                var trackDeserializedObjectMethod = typeof(SerializerSession).GetMethod(nameof(SerializerSession.TrackSerializedObject));
-                var call = Expression.Call(sessionParam, trackDeserializedObjectMethod, objectParam);
+                var method =
+                    typeof(SerializerSession).GetMethod(nameof(SerializerSession.TrackSerializedObject));
+                var call = Expression.Call(sessionParam, method, objectParam);
                 expressions.Add(call);
             }
 
             foreach (var field in fields)
             {
-                var fieldWriter = GetFieldInfoWriter(serializer, field,streamParam,objectParam,sessionParam);
+                var fieldWriter = GetFieldInfoWriter(serializer, field, streamParam, objectParam, sessionParam);
                 expressions.Add(fieldWriter);
             }
 
-            if (!expressions.Any())
-            {
-                expressions.Add(Expression.Empty());
-            }
-
-            var body = Expression.Block(expressions);
+            var body = expressions.ToBlock();
             var writeallFields =
                 Expression.Lambda<ObjectWriter>(body, streamParam, objectParam,
                     sessionParam)
@@ -190,9 +186,9 @@ namespace Wire
             return writeallFields;
         }
 
-        private  FieldReader GetFieldReader(
+        private FieldReader GetFieldReader(
             Serializer serializer,
-            Type type, 
+            Type type,
             FieldInfo field)
         {
             if (serializer == null)
@@ -203,8 +199,8 @@ namespace Wire
 
             if (field == null)
                 throw new ArgumentNullException(nameof(field));
-            
-            FieldInfoWriter setter;// = GetSetDelegate(field);
+
+            FieldInfoWriter setter; // = GetSetDelegate(field);
             if (field.IsInitOnly)
             {
                 //TODO: field is readonly, can we set it via IL or only via reflection
@@ -250,7 +246,8 @@ namespace Wire
             }
         }
 
-        private  Expression GetFieldInfoWriter(Serializer serializer, FieldInfo field,Expression streamExpression,Expression targetExpression,Expression sessionExpression)
+        private Expression GetFieldInfoWriter(Serializer serializer, FieldInfo field, Expression streamExpression,
+            Expression targetExpression, Expression sessionExpression)
         {
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
@@ -270,41 +267,35 @@ namespace Wire
                 : Expression.Convert(targetExpression, field.DeclaringType);
             Expression readField = Expression.Field(castParam, field);
             Expression valueExp = Expression.Convert(readField, typeof(object));
-            //   var getFieldValue = Expression.Lambda<FieldInfoReader>(castRes, param).Compile();
 
             //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
             if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
             {
                 //primitive types does not need to write any manifest, if the field type is known
                 //nor can they be null (StringSerializer has it's own null handling)
-
-                //get the value from the target
-
-                var valueSerializerConstant = Expression.Constant(valueSerializer);
-
+                var method = typeof(ValueSerializer).GetMethod(nameof(ValueSerializer.WriteValue));
                 //write it to the value serializer
-                var writeValueCall = Expression.Call(valueSerializerConstant,
-                    typeof(ValueSerializer).GetMethod(nameof(ValueSerializer.WriteValue)),streamExpression, valueExp,sessionExpression);
-
+                var writeValueCall = Expression.Call(valueSerializer.ToConstant(),
+                    method, streamExpression, valueExp,
+                    sessionExpression);
 
                 return writeValueCall;
             }
             else
             {
                 var valueType = field.FieldType;
-                if (field.FieldType.GetTypeInfo().IsGenericType &&
-                    field.FieldType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                if (field.FieldType.IsNullable())
                 {
-                    var nullableType = field.FieldType.GetTypeInfo().GetGenericArguments()[0];
+                    var nullableType = field.FieldType.GetNullableElement();
                     valueSerializer = serializer.GetSerializerByType(nullableType);
                     valueType = nullableType;
                 }
-                var valueSerializerConstant = Expression.Constant(valueSerializer);
-                var preserveObjectReferencesExpression = Expression.Constant(serializer.Options.PreserveObjectReferences);
 
                 var method = typeof(StreamExtensions).GetMethod(nameof(StreamExtensions.WriteObject));
 
-                var writeValueCall = Expression.Call(null, method ,streamExpression, valueExp, Expression.Constant(valueType),valueSerializerConstant,preserveObjectReferencesExpression,sessionExpression);
+                var writeValueCall = Expression.Call(null, method, streamExpression, valueExp, valueType.ToConstant(),
+                    valueSerializer.ToConstant(), serializer.Options.PreserveObjectReferences.ToConstant(),
+                    sessionExpression);
 
                 return writeValueCall;
             }

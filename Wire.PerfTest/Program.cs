@@ -35,27 +35,27 @@ namespace Wire.PerfTest
 
             SerializePocoPreRegister();
             SerializePocoPreRegisterManualSerializer();
-            //SerializePocoVersionInteolerant();
-            //SerializePoco();
-            //SerializePocoVersionInteolerantPreserveObjects();
+            ////SerializePocoVersionInteolerant();
+            ////SerializePoco();
+            ////SerializePocoVersionInteolerantPreserveObjects();
 
-            SerializePocoProtoBufNet();
+            //SerializePocoProtoBufNet();
             //SerializePocoBond();
-            ////SerializePocoJsonNet();
-            ////SerializePocoBinaryFormatter();
-            Console.WriteLine();
-            Console.WriteLine("Running hot");
-            SerializePocoPreRegister();
-            SerializePocoPreRegisterManualSerializer();
-            //SerializePocoVersionInteolerant();
-            //SerializePoco();
-            //SerializePocoVersionInteolerantPreserveObjects();
+            //////SerializePocoJsonNet();
+            //////SerializePocoBinaryFormatter();
+            //Console.WriteLine();
+            //Console.WriteLine("Running hot");
+            //SerializePocoPreRegister();
+            //SerializePocoPreRegisterManualSerializer();
+            ////SerializePocoVersionInteolerant();
+            ////SerializePoco();
+            ////SerializePocoVersionInteolerantPreserveObjects();
 
-            SerializePocoProtoBufNet();
+            //SerializePocoProtoBufNet();
             //SerializePocoBond();
-            ////SerializePocoJsonNet();
-            ////SerializePocoBinaryFormatter();
-            Console.ReadLine();
+            //////SerializePocoJsonNet();
+            //////SerializePocoBinaryFormatter();
+            //Console.ReadLine();
         }
 
         private static void SerializePocoJsonNet()

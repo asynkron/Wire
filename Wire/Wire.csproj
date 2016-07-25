@@ -45,6 +45,7 @@
     <Compile Include="BitConverterEx.cs" />
     <Compile Include="ByteArrayEqualityComparer.cs" />
     <Compile Include="DefaultCodeGenerator.cs" />
+    <Compile Include="ExpressionDSL\ExpressionEx.cs" />
     <Compile Include="ReflectionEx.cs" />
     <Compile Include="SerializerFactories\ArraySerializerFactory.cs" />
     <Compile Include="SerializerFactories\DefaultDictionarySerializerFactory.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="StringEx.cs" />
     <Compile Include="Surrogate.cs" />
     <Compile Include="TrackingExtensions.cs" />
+    <Compile Include="TypeEx.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ValueSerializers\BoolSerializer.cs" />
     <Compile Include="ValueSerializers\ByteArraySerializer.cs" />
