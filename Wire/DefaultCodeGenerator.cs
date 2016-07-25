@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Wire.ValueSerializers;
+using Wire.ExpressionDSL;
 
 namespace Wire
 {
@@ -16,7 +16,7 @@ namespace Wire
 
     public class DefaultCodeGenerator : ICodeGenerator
     {
-        public  void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer)
+        public void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer)
         {
             var type = objectSerializer.Type;
             if (serializer == null)
@@ -30,85 +30,83 @@ namespace Wire
 
             var fields = ReflectionEx.GetFieldInfosForType(type);
 
-            var fieldWriters = new List<ObjectWriter>();
             var fieldReaders = new List<FieldReader>();
 
             foreach (var field in fields)
             {
-                fieldWriters.Add(GetObjectWriter(serializer, field));
                 fieldReaders.Add(GetFieldReader(serializer, type, field));
             }
-
-            var writeFields = fieldWriters.Any() ? 
-                GetFieldsWriter(fieldWriters) : 
-                ((a, b, c) => { }); //empty writer
-
-            //if the debugger is attached, wrap the fields writer in a try catch block and throw readable exceptions
-            if (Debugger.IsAttached)
-            {
-                var tmp = writeFields;
-                writeFields = (stream, o, session) =>
-                {
-                    try
-                    {
-                        tmp(stream, o, session);
-                    }
-                    catch (Exception x)
-                    {
-                        throw new Exception($"Unable to write all fields of {type.Name}", x);
-                    }
-                };
-            }
-
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
-            ObjectWriter writer = (stream, o, session) =>
-            {
-                if (preserveObjectReferences)
-                {
-                    session.TrackSerializedObject(o);
-                }
+            var writer = GetFieldsWriter(fields, serializer);
 
-                writeFields(stream, o, session);
-            };
+            var reader = serializer.Options.VersionTolerance
+                ? GetVersionTolerantReader(type, preserveObjectReferences, fieldReaders)
+                : GetVersionIntolerantReader(type, preserveObjectReferences, fieldReaders);
 
-            var reader = serializer.Options.VersionTolerance ? 
-                GetVersionTolerantReader(type, preserveObjectReferences, fields, fieldReaders) : 
-                GetVersionIntolerantReader(type, preserveObjectReferences, fieldReaders);
-            
             objectSerializer.Initialize(reader, writer);
         }
-
-
 
         private ObjectReader GetVersionIntolerantReader(
             Type type,
             bool preserveObjectReferences,
-            IReadOnlyList<FieldReader> fieldReaders)
+            IEnumerable<FieldReader> fieldReaders)
         {
-            ObjectReader reader = (stream, session) =>
+            var expressions = new List<Expression>();
+
+            var newExpression = GetNewExpression(type);
+            var targetObject = Expression.Variable(typeof(object), "target");
+            var assignTarget = Expression.Assign(targetObject, newExpression);
+            var streamParam = Expression.Parameter(typeof(Stream));
+            var sessionParam = Expression.Parameter(typeof(DeserializerSession));
+
+            expressions.Add(assignTarget);
+
+            if (preserveObjectReferences)
             {
-                //create instance without calling constructor
-                var instance = type.GetEmptyObject();
-                if (preserveObjectReferences)
-                {
-                    session.TrackDeserializedObject(instance);
-                }
+                var trackDeserializedObjectMethod =
+                    typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                var call = Expression.Call(sessionParam, trackDeserializedObjectMethod, targetObject);
+                expressions.Add(call);
+            }
 
-                foreach (var fieldReader in fieldReaders)
-                {
-                    fieldReader(stream, instance, session);
-                }
+            foreach (var r in fieldReaders)
+            {
+                var c = r.ToConstant();
+                var i = Expression.Invoke(c, streamParam, targetObject, sessionParam);
+                expressions.Add(i);
+            }
 
-                return instance;
-            };
-            return reader;
+            expressions.Add(targetObject);
+
+            var body = expressions.ToBlock(targetObject);
+
+            var readAllFields = Expression
+                .Lambda<ObjectReader>(body, streamParam, sessionParam)
+                .Compile();
+
+            return readAllFields;
         }
 
-        private  ObjectReader GetVersionTolerantReader(Type type,
+        private static Expression GetNewExpression(Type type)
+        {
+            var defaultCtor = type.GetConstructor(new Type[] {});
+            var il = defaultCtor?.GetMethodBody()?.GetILAsByteArray();
+            var sideEffectFreeCtor = il != null && il.Length <= 8;
+            if (sideEffectFreeCtor)
+            {
+                return Expression.New(defaultCtor);
+            }
+            var emptyObjectMethod = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
+            var emptyObject = Expression.Call(null, emptyObjectMethod, type.ToConstant());
+
+            return emptyObject;
+        }
+
+        private ObjectReader GetVersionTolerantReader(Type type,
             bool preserveObjectReferences,
-            IReadOnlyList<FieldInfo> fields,
             IReadOnlyList<FieldReader> fieldReaders)
         {
+
             ObjectReader reader = (stream, session) =>
             {
                 //create instance without calling constructor
@@ -119,7 +117,7 @@ namespace Wire
                 }
 
                 var versionInfo = session.GetVersionInfo(type);
-                
+
 
                 //for (var i = 0; i < storedFieldCount; i++)
                 //{
@@ -153,31 +151,44 @@ namespace Wire
 
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
-        private  FieldsWriter GetFieldsWriter(IReadOnlyList<ObjectWriter> fieldWriters)
+        private ObjectWriter GetFieldsWriter(FieldInfo[] fields, Serializer serializer)
         {
-            if (fieldWriters == null)
-                throw new ArgumentNullException(nameof(fieldWriters));
+            if (fields == null)
+                throw new ArgumentNullException(nameof(fields));
+
+            bool preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
             var streamParam = Expression.Parameter(typeof(Stream));
             var objectParam = Expression.Parameter(typeof(object));
             var sessionParam = Expression.Parameter(typeof(SerializerSession));
-            var xs = fieldWriters
-                .Select(Expression.Constant)
-                .Select(fieldWriterExpression => 
-                    Expression.Invoke(fieldWriterExpression, streamParam, objectParam, sessionParam))
-                .ToList();
 
-            var body = Expression.Block(xs);
+            var expressions = new List<Expression>();
+
+            if (preserveObjectReferences)
+            {
+                var method =
+                    typeof(SerializerSession).GetMethod(nameof(SerializerSession.TrackSerializedObject));
+                var call = Expression.Call(sessionParam, method, objectParam);
+                expressions.Add(call);
+            }
+
+            foreach (var field in fields)
+            {
+                var fieldWriter = GetFieldInfoWriter(serializer, field, streamParam, objectParam, sessionParam);
+                expressions.Add(fieldWriter);
+            }
+
+            var body = expressions.ToBlock();
             var writeallFields =
-                Expression.Lambda<FieldsWriter>(body, streamParam, objectParam,
+                Expression.Lambda<ObjectWriter>(body, streamParam, objectParam,
                     sessionParam)
                     .Compile();
             return writeallFields;
         }
 
-        private  FieldReader GetFieldReader(
+        private FieldReader GetFieldReader(
             Serializer serializer,
-            Type type, 
+            Type type,
             FieldInfo field)
         {
             if (serializer == null)
@@ -188,8 +199,8 @@ namespace Wire
 
             if (field == null)
                 throw new ArgumentNullException(nameof(field));
-            
-            FieldInfoWriter setter;// = GetSetDelegate(field);
+
+            FieldInfoWriter setter; // = GetSetDelegate(field);
             if (field.IsInitOnly)
             {
                 //TODO: field is readonly, can we set it via IL or only via reflection
@@ -235,7 +246,8 @@ namespace Wire
             }
         }
 
-        private  ObjectWriter GetObjectWriter(Serializer serializer, FieldInfo field)
+        private Expression GetFieldInfoWriter(Serializer serializer, FieldInfo field, Expression streamExpression,
+            Expression targetExpression, Expression sessionExpression)
         {
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
@@ -246,73 +258,47 @@ namespace Wire
             //get the serializer for the type of the field
             var valueSerializer = serializer.GetSerializerByType(field.FieldType);
             //runtime Get a delegate that reads the content of the given field
-            var getFieldValue = GetFieldInfoReader(field);
+
+            // ReSharper disable once PossibleNullReferenceException
+            Expression castParam = field.DeclaringType.GetTypeInfo().IsValueType
+                // ReSharper disable once AssignNullToNotNullAttribute
+                ? Expression.Unbox(targetExpression, field.DeclaringType)
+                // ReSharper disable once AssignNullToNotNullAttribute
+                : Expression.Convert(targetExpression, field.DeclaringType);
+            Expression readField = Expression.Field(castParam, field);
+            Expression valueExp = Expression.Convert(readField, typeof(object));
 
             //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
             if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
             {
                 //primitive types does not need to write any manifest, if the field type is known
                 //nor can they be null (StringSerializer has it's own null handling)
-                ObjectWriter fieldWriter = (stream, o, session) =>
-                {
-                    var value = getFieldValue(o);
-                    valueSerializer.WriteValue(stream, value, session);
-                };
-                return fieldWriter;
+                var method = typeof(ValueSerializer).GetMethod(nameof(ValueSerializer.WriteValue));
+                //write it to the value serializer
+                var writeValueCall = Expression.Call(valueSerializer.ToConstant(),
+                    method, streamExpression, valueExp,
+                    sessionExpression);
+
+                return writeValueCall;
             }
             else
             {
                 var valueType = field.FieldType;
-                if (field.FieldType.GetTypeInfo().IsGenericType &&
-                    field.FieldType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                if (field.FieldType.IsNullable())
                 {
-                    var nullableType = field.FieldType.GetTypeInfo().GetGenericArguments()[0];
+                    var nullableType = field.FieldType.GetNullableElement();
                     valueSerializer = serializer.GetSerializerByType(nullableType);
                     valueType = nullableType;
                 }
-                var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
-                ObjectWriter fieldWriter = (stream, o, session) =>
-                {
-                    var value = getFieldValue(o);
+                var method = typeof(StreamExtensions).GetMethod(nameof(StreamExtensions.WriteObject));
 
-                    stream.WriteObject(value, valueType, valueSerializer, preserveObjectReferences, session);
-                };
-                return fieldWriter;
+                var writeValueCall = Expression.Call(null, method, streamExpression, valueExp, valueType.ToConstant(),
+                    valueSerializer.ToConstant(), serializer.Options.PreserveObjectReferences.ToConstant(),
+                    sessionExpression);
+
+                return writeValueCall;
             }
-        }
-
-        private  FieldInfoReader GetFieldInfoReader(FieldInfo field)
-        {
-            if (field == null)
-                throw new ArgumentNullException(nameof(field));
-
-            var param = Expression.Parameter(typeof(object));
-            // ReSharper disable once PossibleNullReferenceException
-            Expression castParam = field.DeclaringType.GetTypeInfo().IsValueType
-                // ReSharper disable once AssignNullToNotNullAttribute
-                ? Expression.Unbox(param, field.DeclaringType)
-                // ReSharper disable once AssignNullToNotNullAttribute
-                : Expression.Convert(param, field.DeclaringType);
-            Expression readField = Expression.Field(castParam, field);
-            Expression castRes = Expression.Convert(readField, typeof(object));
-            var getFieldValue = Expression.Lambda<FieldInfoReader>(castRes, param).Compile();
-
-            if (Debugger.IsAttached)
-            {
-                return target =>
-                {
-                    try
-                    {
-                        return getFieldValue(target);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception($"Failed to read value of field {field.Name}", ex);
-                    }
-                };
-            }
-            return getFieldValue;
         }
     }
 }
