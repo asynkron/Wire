@@ -39,7 +39,7 @@ namespace Wire.PerfTest
             //SerializePoco();
             //SerializePocoVersionInteolerantPreserveObjects();
 
-            //SerializePocoProtoBufNet();
+            SerializePocoProtoBufNet();
             //SerializePocoBond();
             ////SerializePocoJsonNet();
             ////SerializePocoBinaryFormatter();
@@ -51,7 +51,7 @@ namespace Wire.PerfTest
             //SerializePoco();
             //SerializePocoVersionInteolerantPreserveObjects();
 
-            //SerializePocoProtoBufNet();
+            SerializePocoProtoBufNet();
             //SerializePocoBond();
             ////SerializePocoJsonNet();
             ////SerializePocoBinaryFormatter();
@@ -80,14 +80,14 @@ namespace Wire.PerfTest
             Console.WriteLine($"{testName}");
             Console.ForegroundColor = tmp;
             var sw = Stopwatch.StartNew();
-            for (var i = 0; i < 10000000; i++)
+            for (var i = 0; i < 1000000; i++)
             {
                 serialize();
             }
             sw.Stop();
             Console.WriteLine($"   {"Serialize".PadRight(30, ' ')} {sw.ElapsedMilliseconds} ms");
             var sw2 = Stopwatch.StartNew();
-            for (var i = 0; i < 10000000; i++)
+            for (var i = 0; i < 1000000; i++)
             {
                 deserialize();
             }

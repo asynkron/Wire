@@ -38,47 +38,15 @@ namespace Wire
                 fieldWriters.Add(GetObjectWriter(serializer, field));
                 fieldReaders.Add(GetFieldReader(serializer, type, field));
             }
-
-            var writeFields = fieldWriters.Any() ? 
-                GetFieldsWriter(fieldWriters) : 
-                ((a, b, c) => { }); //empty writer
-
-            //if the debugger is attached, wrap the fields writer in a try catch block and throw readable exceptions
-            if (Debugger.IsAttached)
-            {
-                var tmp = writeFields;
-                writeFields = (stream, o, session) =>
-                {
-                    try
-                    {
-                        tmp(stream, o, session);
-                    }
-                    catch (Exception x)
-                    {
-                        throw new Exception($"Unable to write all fields of {type.Name}", x);
-                    }
-                };
-            }
-
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
-            ObjectWriter writer = (stream, o, session) =>
-            {
-                if (preserveObjectReferences)
-                {
-                    session.TrackSerializedObject(o);
-                }
-
-                writeFields(stream, o, session);
-            };
-
+            var writer = GetFieldsWriter(fieldWriters,preserveObjectReferences);
+            
             var reader = serializer.Options.VersionTolerance ? 
                 GetVersionTolerantReader(type, preserveObjectReferences, fields, fieldReaders) : 
                 GetVersionIntolerantReader(type, preserveObjectReferences, fieldReaders);
             
             objectSerializer.Initialize(reader, writer);
         }
-
-
 
         private ObjectReader GetVersionIntolerantReader(
             Type type,
@@ -110,6 +78,7 @@ namespace Wire
                 var i = Expression.Invoke(c, streamParam, targetObject, sessionParam);
                 expressions.Add(i);
             }
+
             expressions.Add(targetObject);
 
             var body = Expression.Block(new[] { targetObject }, expressions);
@@ -186,7 +155,7 @@ namespace Wire
 
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
-        private  FieldsWriter GetFieldsWriter(IReadOnlyList<ObjectWriter> fieldWriters)
+        private  ObjectWriter GetFieldsWriter(IReadOnlyList<ObjectWriter> fieldWriters, bool preserveObjectReferences)
         {
             if (fieldWriters == null)
                 throw new ArgumentNullException(nameof(fieldWriters));
@@ -194,15 +163,30 @@ namespace Wire
             var streamParam = Expression.Parameter(typeof(Stream));
             var objectParam = Expression.Parameter(typeof(object));
             var sessionParam = Expression.Parameter(typeof(SerializerSession));
-            var xs = fieldWriters
-                .Select(Expression.Constant)
-                .Select(fieldWriterExpression => 
-                    Expression.Invoke(fieldWriterExpression, streamParam, objectParam, sessionParam))
-                .ToList();
 
-            var body = Expression.Block(xs);
+            var expressions = new List<Expression>();
+
+            if (preserveObjectReferences)
+            {
+                var trackDeserializedObjectMethod = typeof(SerializerSession).GetMethod(nameof(SerializerSession.TrackSerializedObject));
+                var call = Expression.Call(sessionParam, trackDeserializedObjectMethod, objectParam);
+                expressions.Add(call);
+            }
+
+            foreach (var fieldWriter in fieldWriters)
+            {
+                var invoke = Expression.Invoke(Expression.Constant(fieldWriter), streamParam, objectParam, sessionParam);
+                expressions.Add(invoke);
+            }
+
+            if (!expressions.Any())
+            {
+                expressions.Add(Expression.Empty());
+            }
+
+            var body = Expression.Block(expressions);
             var writeallFields =
-                Expression.Lambda<FieldsWriter>(body, streamParam, objectParam,
+                Expression.Lambda<ObjectWriter>(body, streamParam, objectParam,
                     sessionParam)
                     .Compile();
             return writeallFields;
