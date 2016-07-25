@@ -173,9 +173,9 @@ namespace Wire
 
             foreach (var field in fields)
             {
-                var fieldWriter = GetObjectWriter(serializer, field);
-                var invoke = Expression.Invoke(Expression.Constant(fieldWriter), streamParam, objectParam, sessionParam);
-                expressions.Add(invoke);
+                var fieldWriter = GetObjectWriter(serializer, field,streamParam,objectParam,sessionParam);
+//var invoke = Expression.Invoke(Expression.Constant(fieldWriter), streamParam, objectParam, sessionParam);
+                expressions.Add(fieldWriter);
             }
 
             if (!expressions.Any())
@@ -251,7 +251,7 @@ namespace Wire
             }
         }
 
-        private  ObjectWriter GetObjectWriter(Serializer serializer, FieldInfo field)
+        private  Expression GetObjectWriter(Serializer serializer, FieldInfo field,Expression streamExpression,Expression targetExpression,Expression sessionExpression)
         {
             if (serializer == null)
                 throw new ArgumentNullException(nameof(serializer));
@@ -262,10 +262,6 @@ namespace Wire
             //get the serializer for the type of the field
             var valueSerializer = serializer.GetSerializerByType(field.FieldType);
             //runtime Get a delegate that reads the content of the given field
-
-            var streamExpression = Expression.Parameter(typeof(Stream));
-            var targetExpression = Expression.Parameter(typeof(object));
-            var sessionExpression = Expression.Parameter(typeof(SerializerSession));
 
             // ReSharper disable once PossibleNullReferenceException
             Expression castParam = field.DeclaringType.GetTypeInfo().IsValueType
@@ -292,11 +288,7 @@ namespace Wire
                     typeof(ValueSerializer).GetMethod(nameof(ValueSerializer.WriteValue)),streamExpression, valueExp,sessionExpression);
 
 
-                var writeValue =
-                    Expression.Lambda<ObjectWriter>(writeValueCall, streamExpression, targetExpression,
-                        sessionExpression).Compile();
-
-                return writeValue;
+                return writeValueCall;
             }
             else
             {
@@ -315,11 +307,7 @@ namespace Wire
 
                 var writeValueCall = Expression.Call(null, method ,streamExpression, valueExp, Expression.Constant(valueType),valueSerializerConstant,preserveObjectReferencesExpression,sessionExpression);
 
-                var writeValue =
-                    Expression.Lambda<ObjectWriter>(writeValueCall, streamExpression, targetExpression,
-                        sessionExpression).Compile();
-
-                return writeValue;
+                return writeValueCall;
             }
         }
     }
