@@ -10,7 +10,7 @@ namespace Wire.Tests
         [TestMethod]
         public void CanSerializeTypeObject()
         {
-            var expected = typeof (ArgumentException);
+            var expected = typeof(ArgumentException);
             Serialize(expected);
             Reset();
             var actual = Deserialize<Type>();
@@ -44,6 +44,7 @@ namespace Wire.Tests
             Assert.AreEqual(expected.StackTrace, actual.StackTrace);
             Assert.AreEqual(expected.Message, actual.Message);
         }
+
         [TestMethod]
         public void CanSerializePolymorphicObject()
         {
@@ -126,7 +127,7 @@ namespace Wire.Tests
             Serialize(expected);
             Reset();
             var actual = Deserialize<Tuple<string>>();
-            Assert.AreEqual(expected,actual);
+            Assert.AreEqual(expected, actual);
         }
     }
 }

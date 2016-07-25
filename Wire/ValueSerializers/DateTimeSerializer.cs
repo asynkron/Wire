@@ -7,6 +7,7 @@ namespace Wire.ValueSerializers
     public class DateTimeSerializer : ValueSerializer
     {
         public const byte Manifest = 5;
+        public const int Size = sizeof(long);
         public static readonly DateTimeSerializer Instance = new DateTimeSerializer();
 
         public override void WriteManifest(Stream stream, SerializerSession session)
@@ -16,27 +17,26 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
-            var dateTime = (DateTime)value;
-            var bytes = BitConverter.GetBytes(dateTime.Ticks);
-            stream.Write(bytes);
-            var kindByte = (byte)dateTime.Kind;
+            var dateTime = (DateTime) value;
+            var bytes = NoAllocBitConverter.GetBytes(dateTime.Ticks, session);
+            stream.Write(bytes, 0, Size);
+            var kindByte = (byte) dateTime.Kind;
             stream.WriteByte(kindByte);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
-            const int size = sizeof(long);
-            var buffer = session.GetBuffer(size);
-            stream.Read(buffer, 0, size);
+            var buffer = session.GetBuffer(Size);
+            stream.Read(buffer, 0, Size);
             var ticks = BitConverter.ToInt64(buffer, 0);
-            var kind = (DateTimeKind)stream.ReadByte();
+            var kind = (DateTimeKind) stream.ReadByte();
             var dateTime = new DateTime(ticks, kind);
             return dateTime;
         }
 
         public override Type GetElementType()
         {
-            return typeof (DateTime);
+            return typeof(DateTime);
         }
     }
 }

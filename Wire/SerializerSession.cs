@@ -5,6 +5,8 @@ namespace Wire
 {
     public class SerializerSession
     {
+        public const int MinBufferSize = 8;
+        private byte [] _buffer = new byte[MinBufferSize];
         private readonly Dictionary<object, int> _objects;
         private readonly Dictionary<Type, ushort> _typeToIdentifier;
         public readonly Serializer Serializer;
@@ -46,7 +48,7 @@ namespace Wire
             return _objects.TryGetValue(obj, out objectId);
         }
 
-        public bool ShouldWriteTypeManifest(Type type,out ushort index)
+        public bool ShouldWriteTypeManifest(Type type, out ushort index)
         {
             return !_typeToIdentifier.TryGetValue(type, out index);
         }
@@ -60,6 +62,21 @@ namespace Wire
         public int GetTypeIdentifier(Type type)
         {
             return _typeToIdentifier[type];
+        }
+
+        public byte[] GetBuffer(int length)
+        {
+            if (_buffer != null && length <= _buffer.Length) return _buffer;
+            if (_buffer != null)
+            {
+                length = Math.Max(length, _buffer.Length*2);
+            }
+
+            Array.Resize(ref _buffer, length);
+
+            // _buffer = new byte[length];
+
+            return _buffer;
         }
     }
 }
