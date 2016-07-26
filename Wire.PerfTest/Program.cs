@@ -35,27 +35,27 @@ namespace Wire.PerfTest
 
             SerializePocoPreRegister();
             SerializePocoPreRegisterManualSerializer();
-            ////SerializePocoVersionInteolerant();
-            ////SerializePoco();
+            SerializePocoVersionInteolerant();
+            //SerializePoco();
             ////SerializePocoVersionInteolerantPreserveObjects();
 
             //SerializePocoProtoBufNet();
             //SerializePocoBond();
-            //////SerializePocoJsonNet();
-            //////SerializePocoBinaryFormatter();
-            //Console.WriteLine();
-            //Console.WriteLine("Running hot");
-            SerializePocoPreRegister();
-            SerializePocoPreRegisterManualSerializer();
-            ////SerializePocoVersionInteolerant();
+            ////////SerializePocoJsonNet();
+            ////////SerializePocoBinaryFormatter();
+            ////Console.WriteLine();
+            ////Console.WriteLine("Running hot");
+            //SerializePocoPreRegister();
+            //SerializePocoPreRegisterManualSerializer();
+            //SerializePocoVersionInteolerant();
             ////SerializePoco();
-            ////SerializePocoVersionInteolerantPreserveObjects();
+            //////SerializePocoVersionInteolerantPreserveObjects();
 
             //SerializePocoProtoBufNet();
             //SerializePocoBond();
-            //////SerializePocoJsonNet();
-            //////SerializePocoBinaryFormatter();
-            Console.ReadLine();
+            ////////SerializePocoJsonNet();
+            ////////SerializePocoBinaryFormatter();
+            //Console.ReadLine();
         }
 
         private static void SerializePocoJsonNet()
@@ -193,10 +193,10 @@ namespace Wire.PerfTest
                 var s = new ObjectSerializer(type);
                 if (typeMapping.TryAdd(type, s))
                 {
-                    ValueSerializer stringS = StringSerializer.Instance;
-                    ValueSerializer intS = Int32Serializer.Instance;
-                    ValueSerializer guidS = GuidSerializer.Instance;
-                    ValueSerializer dateS = DateTimeSerializer.Instance;
+                    var stringS = StringSerializer.Instance;
+                    var intS = Int32Serializer.Instance;
+                    var guidS = GuidSerializer.Instance;
+                    var dateS = DateTimeSerializer.Instance;
 
                     s.Initialize(
                         (stream, session) =>
