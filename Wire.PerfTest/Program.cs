@@ -34,7 +34,7 @@ namespace Wire.PerfTest
             Console.WriteLine("Running cold");
 
             SerializePocoPreRegister();
-            //SerializePocoPreRegisterManualSerializer();
+            SerializePocoPreRegisterManualSerializer();
             //SerializePocoVersionInteolerant();
             //SerializePoco();
             ////SerializePocoVersionInteolerantPreserveObjects();
@@ -46,7 +46,7 @@ namespace Wire.PerfTest
             ////Console.WriteLine();
             ////Console.WriteLine("Running hot");
             SerializePocoPreRegister();
-            //SerializePocoPreRegisterManualSerializer();
+            SerializePocoPreRegisterManualSerializer();
             //SerializePocoVersionInteolerant();
             ////SerializePoco();
             //////SerializePocoVersionInteolerantPreserveObjects();

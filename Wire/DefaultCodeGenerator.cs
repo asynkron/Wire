@@ -31,16 +31,11 @@ namespace Wire
 
             var fields = ReflectionEx.GetFieldInfosForType(type);
 
-            var fieldReaders = new List<FieldReader>();
-
-            foreach (var field in fields)
-            {
-                fieldReaders.Add(GetFieldReader(serializer, type, field));
-            }
+   
             var writer = GetFieldsWriter(fields, serializer);
 
             var reader = serializer.Options.VersionTolerance
-                ? GetVersionTolerantReader(type, serializer.Options.PreserveObjectReferences, fieldReaders)
+                ? GetVersionTolerantReader(type, serializer, fields)
                 : GetVersionIntolerantReader(type, serializer, fields);
 
             objectSerializer.Initialize(reader, writer);
@@ -85,68 +80,68 @@ namespace Wire
             return readAllFields;
         }
 
-        private static Expression GetNewExpression(Type type)
+        private ObjectReader GetVersionTolerantReader(
+            Type type,
+           Serializer serializer,
+            IEnumerable<FieldInfo> fields)
         {
-            var defaultCtor = type.GetConstructor(new Type[] {});
-            var il = defaultCtor?.GetMethodBody()?.GetILAsByteArray();
-            var sideEffectFreeCtor = il != null && il.Length <= 8; //this is the size of an empty ctor
-            if (sideEffectFreeCtor)
+            var expressions = Expressions();
+
+            var streamParam = Parameter<Stream>("stream");
+            var sessionParam = Parameter<DeserializerSession>("session");
+            var newExpression = GetNewExpression(type);
+            var targetVar = Variable<object>("target");
+            var assignNewObjectToTarget = Assign(targetVar, newExpression);
+
+
+            expressions.Add(assignNewObjectToTarget);
+
+            if (serializer.Options.PreserveObjectReferences)
             {
-                //the ctor exists and the size is empty. lets use the New operator
-                return New(defaultCtor);
+                var trackDeserializedObjectMethod = typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                var call = Call(sessionParam, trackDeserializedObjectMethod, targetVar);
+                expressions.Add(call);
             }
-            var emptyObjectMethod = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
-            var emptyObject = Call(null, emptyObjectMethod, type.ToConstant());
 
-            return emptyObject;
-        }
+            //for (var i = 0; i < storedFieldCount; i++)
+            //{
+            //    var fieldName = stream.ReadLengthEncodedByteArray(session);
+            //    if (!Utils.UnsafeCompare(fieldName, fieldNames[i]))
+            //    {
+            //        //TODO: field name mismatch
+            //        //this should really be a compare less equal or greater
+            //        //to know if the field is added or removed
 
-        private ObjectReader GetVersionTolerantReader(Type type,
-            bool preserveObjectReferences,
-            IReadOnlyList<FieldReader> fieldReaders)
-        {
+            //        //1) if names are equal, read the value and assign the field
 
-            ObjectReader reader = (stream, session) =>
+            //        //2) if the field is less than the expected field, then this field is an unknown new field
+            //        //we need to read this object and just ignore its content.
+
+            //        //3) if the field is greater than the expected, we need to check the next expected until
+            //        //the current is less or equal, then goto 1)
+            //    }
+            //}
+
+            //this should be moved up in the version tolerant loop
+
+            foreach (var field in fields)
             {
-                //create instance without calling constructor
-                var instance = type.GetEmptyObject();
-                if (preserveObjectReferences)
-                {
-                    session.TrackDeserializedObject(instance);
-                }
+                var fr = GetFieldReader2(serializer, type, field, targetVar, streamParam, sessionParam);
+                expressions.Add(fr);
+            }
 
-                var versionInfo = session.GetVersionInfo(type);
+            expressions.Add(targetVar);
 
+            var body = expressions.ToBlock(targetVar);
 
-                //for (var i = 0; i < storedFieldCount; i++)
-                //{
-                //    var fieldName = stream.ReadLengthEncodedByteArray(session);
-                //    if (!Utils.UnsafeCompare(fieldName, fieldNames[i]))
-                //    {
-                //        //TODO: field name mismatch
-                //        //this should really be a compare less equal or greater
-                //        //to know if the field is added or removed
+            var readAllFields = Lambda<ObjectReader>(body, streamParam, sessionParam)
+                .Compile();
 
-                //        //1) if names are equal, read the value and assign the field
-
-                //        //2) if the field is less than the expected field, then this field is an unknown new field
-                //        //we need to read this object and just ignore its content.
-
-                //        //3) if the field is greater than the expected, we need to check the next expected until
-                //        //the current is less or equal, then goto 1)
-                //    }
-                //}
-
-                //this should be moved up in the version tolerant loop
-                foreach (var fieldReader in fieldReaders)
-                {
-                    fieldReader(stream, instance, session);
-                }
-
-                return instance;
-            };
-            return reader;
+            return readAllFields;
         }
+
+
+
 
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
@@ -209,11 +204,9 @@ namespace Wire
                 var valueExp = Parameter<object>("value");
 
                 // ReSharper disable once PossibleNullReferenceException
-                var castTartgetExp = field.DeclaringType.GetTypeInfo().IsValueType
-                    ? Unbox(targetExp, type)
-                    : targetExp.ConvertTo(type);
+                var castTartgetExp = targetExp.CastOrUnbox(type);
                 
-                var fieldExp = field.ReadFrom(castTartgetExp);
+                var fieldExp = field.AccessFrom(castTartgetExp);
                 var castValueExp = valueExp.ConvertTo(field.FieldType);
                 var assignExp = Assign(fieldExp, castValueExp);
                 setter = Lambda<FieldInfoWriter>(assignExp, targetExp, valueExp).Compile();
@@ -276,29 +269,18 @@ namespace Wire
                 var method = typeof(StreamExtensions).GetMethod(nameof(StreamExtensions.ReadObject));
                 read = Call(null, method, stream, session);
             }
-
+            var castTartgetExp = targetExp.CastOrUnbox(type);
             Expression setter; 
             if (field.IsInitOnly)
             {
                 //TODO: field is readonly, can we set it via IL or only via reflection
-
-                var castTartgetExp = field.DeclaringType.GetTypeInfo().IsValueType
-                    ? Unbox(targetExp, type)
-                    : targetExp.ConvertTo(type);
-
                 var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue),
                     new[] {typeof(object), typeof(object)});
                 setter = Call(field.ToConstant(), method, castTartgetExp, read);
             }
             else
             {
-
-                // ReSharper disable once PossibleNullReferenceException
-                var castTartgetExp = field.DeclaringType.GetTypeInfo().IsValueType
-                    ? Unbox(targetExp, type)
-                    : targetExp.ConvertTo(type);
-
-                var fieldExp = field.ReadFrom(castTartgetExp);
+                var fieldExp = field.AccessFrom(castTartgetExp);
                 var castValueExp = read.ConvertTo(field.FieldType);
                 var assignExp = Assign(fieldExp, castValueExp);
                 setter = assignExp;
@@ -321,12 +303,8 @@ namespace Wire
             //runtime Get a delegate that reads the content of the given field
 
             // ReSharper disable once PossibleNullReferenceException
-            var castParam = field.DeclaringType.GetTypeInfo().IsValueType
-                // ReSharper disable once AssignNullToNotNullAttribute
-                ? Unbox(targetExpression, field.DeclaringType)
-                // ReSharper disable once AssignNullToNotNullAttribute
-                : targetExpression.ConvertTo(field.DeclaringType);
-            var readField = field.ReadFrom(castParam);
+            var castParam = targetExpression.CastOrUnbox(field.DeclaringType);
+            var readField = field.AccessFrom(castParam);
             var fieldValue = readField.ConvertTo<object>();
 
             //if the type is one of our special primitives, ignore manifest as the content will always only be of this type

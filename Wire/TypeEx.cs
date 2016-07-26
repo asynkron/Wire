@@ -71,7 +71,6 @@ namespace Wire
             return getUninitializedObjectDelegate(type);
         }
 #else
-        [SecuritySafeCritical]
         public static object GetEmptyObject(this Type type)
         {
             return FormatterServices.GetUninitializedObject(type);
