@@ -23,6 +23,16 @@ namespace Wire.ExpressionDSL
             return Expression.Block(variables,expressions);
         }
 
+        public static ParameterExpression Variable<T>(string name)
+        {
+            return Expression.Variable(typeof(T), name);
+        }
+
+        public static ParameterExpression Variable<T>()
+        {
+            return Expression.Variable(typeof(T));
+        }
+
         public static ParameterExpression Parameter<T>(string name)
         {
             return Expression.Parameter(typeof(T),name);

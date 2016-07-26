@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using Wire.ValueSerializers;
 using Wire.ExpressionDSL;
 using static System.Linq.Expressions.Expression;
@@ -52,10 +53,10 @@ namespace Wire
         {
             var expressions = Expressions();
 
-            var streamParam = Parameter<Stream>();
-            var sessionParam = Parameter<DeserializerSession>();
+            var streamParam = Parameter<Stream>("stream");
+            var sessionParam = Parameter<DeserializerSession>("session");
             var newExpression = GetNewExpression(type);
-            var targetVar = Variable(typeof(object), "target");
+            var targetVar = Variable<object>("target");
             var assignNewObjectToTarget = Assign(targetVar, newExpression);
 
 
@@ -154,9 +155,9 @@ namespace Wire
             if (fields == null)
                 throw new ArgumentNullException(nameof(fields));
 
-            var streamParam = Parameter<Stream>();
-            var objectParam = Parameter<object>();
-            var sessionParam = Parameter<SerializerSession>();
+            var streamParam = Parameter<Stream>("stream");
+            var objectParam = Parameter<object>("target");
+            var sessionParam = Parameter<SerializerSession>("session");
 
             var expressions = Expressions();
 
@@ -276,16 +277,17 @@ namespace Wire
                 read = Call(null, method, stream, session);
             }
 
-            Expression setter; // = GetSetDelegate(field);
+            Expression setter; 
             if (field.IsInitOnly)
             {
                 //TODO: field is readonly, can we set it via IL or only via reflection
 
                 var castTartgetExp = field.DeclaringType.GetTypeInfo().IsValueType
-    ? Unbox(targetExp, type)
-    : targetExp.ConvertTo(type);
+                    ? Unbox(targetExp, type)
+                    : targetExp.ConvertTo(type);
 
-                var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue),new[] {typeof(object),typeof(object)});
+                var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue),
+                    new[] {typeof(object), typeof(object)});
                 setter = Call(field.ToConstant(), method, castTartgetExp, read);
             }
             else
@@ -303,8 +305,6 @@ namespace Wire
             }
 
             return setter;
-
-           
         }
 
         private Expression GetFieldInfoWriter(Serializer serializer, FieldInfo field, Expression stream,
