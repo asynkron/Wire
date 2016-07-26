@@ -85,7 +85,7 @@ namespace Wire.ExpressionDSL
 
         public Expression ToBlock()
         {
-            return Expression.Block(_variables, _content);
+            return _content.ToBlock(_variables.ToArray());
         }
 
         public T Compile<T>()

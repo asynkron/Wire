@@ -127,7 +127,6 @@ namespace Wire
                 var valueSerializer = serializer.GetSerializerByType(field.FieldType);
                 //runtime Get a delegate that reads the content of the given field
                 
-                //TODO: unique names
                 var cast = c.CastOrUnbox(target, field.DeclaringType);
                 var readField = c.ReadField(field,cast);
                 var converted = c.ConvertTo<object>(readField);
