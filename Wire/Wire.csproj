@@ -46,6 +46,7 @@
     <Compile Include="ByteArrayEqualityComparer.cs" />
     <Compile Include="DefaultCodeGenerator.cs" />
     <Compile Include="ExpressionDSL\ExpressionEx.cs" />
+    <Compile Include="ICodeGenerator.cs" />
     <Compile Include="ReflectionEx.cs" />
     <Compile Include="SerializerFactories\ArraySerializerFactory.cs" />
     <Compile Include="SerializerFactories\DefaultDictionarySerializerFactory.cs" />

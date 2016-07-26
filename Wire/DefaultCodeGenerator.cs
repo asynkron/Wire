@@ -9,26 +9,13 @@ using static System.Linq.Expressions.Expression;
 using static Wire.ExpressionDSL.ExpressionEx;
 namespace Wire
 {
-    public interface ICodeGenerator
-    {
-        void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer);
-    }
-
     public class DefaultCodeGenerator : ICodeGenerator
     {
         public void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer)
         {
             var type = objectSerializer.Type;
-            if (serializer == null)
-                throw new ArgumentNullException(nameof(serializer));
 
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            if (objectSerializer == null)
-                throw new ArgumentNullException(nameof(objectSerializer));
-
-            var fields = ReflectionEx.GetFieldInfosForType(type);
+            var fields = type.GetFieldInfosForType();
 
             var writer = GetFieldsWriter(serializer, fields);
 
@@ -45,7 +32,6 @@ namespace Wire
             var newExpression = GetNewExpression(type);
             var targetVar = Variable<object>("target");
             var assignNewObjectToTarget = Assign(targetVar, newExpression);
-
 
             expressions.Add(assignNewObjectToTarget);
 
@@ -77,7 +63,7 @@ namespace Wire
 
             foreach (var field in fields)
             {
-                var fr = GetFieldReader2(serializer, type, field,targetVar,streamParam,sessionParam);
+                var fr = GetFieldInfoReader(serializer, type, field,targetVar,streamParam,sessionParam);
                 expressions.Add(fr);
             }
 
@@ -95,9 +81,6 @@ namespace Wire
         //no loops involved
         private ObjectWriter GetFieldsWriter(Serializer serializer, FieldInfo[] fields)
         {
-            if (fields == null)
-                throw new ArgumentNullException(nameof(fields));
-
             var streamParam = Parameter<Stream>("stream");
             var objectParam = Parameter<object>("target");
             var sessionParam = Parameter<SerializerSession>("session");
@@ -126,20 +109,11 @@ namespace Wire
             return writeallFields;
         }
 
-        private Expression GetFieldReader2(
+        private Expression GetFieldInfoReader(
             Serializer serializer,
             Type type,
-            FieldInfo field, Expression targetExp, ParameterExpression stream, ParameterExpression session)
+            FieldInfo field, Expression targetExp, Expression stream, Expression session)
         {
-            if (serializer == null)
-                throw new ArgumentNullException(nameof(serializer));
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            if (field == null)
-                throw new ArgumentNullException(nameof(field));
-
             var s = serializer.GetSerializerByType(field.FieldType);
 
             Expression read;
@@ -163,8 +137,7 @@ namespace Wire
             if (field.IsInitOnly)
             {
                 //TODO: field is readonly, can we set it via IL or only via reflection
-                var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue),
-                    new[] {typeof(object), typeof(object)});
+                var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue), new[] {typeof(object), typeof(object)});
                 setter = Call(field.ToConstant(), method, castTartgetExp, read);
             }
             else
