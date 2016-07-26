@@ -107,30 +107,30 @@ namespace Wire
         //no loops involved
         private ObjectWriter GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields)
         {
-            var streamParam = ExpressionEx.Parameter<Stream>("stream");
-            var objectParam = ExpressionEx.Parameter<object>("target");
-            var sessionParam = ExpressionEx.Parameter<SerializerSession>("session");
-
-            var expressions = ExpressionEx.Expressions();
+            var c = new Compiler();
+            
+            var stream = c.Parameter<Stream>("stream");
+            var target = c.Parameter<object>("target");
+            var session = c.Parameter<SerializerSession>("session");
+            var preserveReferences = c.Constant(serializer.Options.PreserveObjectReferences);
 
             if (serializer.Options.PreserveObjectReferences)
             {
-                var method =
-                    typeof(SerializerSession).GetMethod(nameof(SerializerSession.TrackSerializedObject));
-                var call = Expression.Call(sessionParam, method, objectParam);
-                expressions.Add(call);
+                var method = typeof(SerializerSession).GetMethod(nameof(SerializerSession.TrackSerializedObject));
+
+                c.EmitCall(method,session,target);
             }
 
             foreach (var field in fields)
             {
-                Expression writer;
                 //get the serializer for the type of the field
                 var valueSerializer = serializer.GetSerializerByType(field.FieldType);
                 //runtime Get a delegate that reads the content of the given field
-
-                // ReSharper disable once PossibleNullReferenceException
-                var castParam = objectParam.CastOrUnbox(field.DeclaringType);
-                var fieldValue = field.Read(castParam).ConvertTo<object>();
+                
+                //TODO: unique names
+                var cast = c.CastOrUnbox(target, field.DeclaringType);
+                var readField = c.ReadField(field,cast);
+                var converted = c.ConvertTo<object>(readField);
 
                 //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
                 if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
@@ -139,14 +139,8 @@ namespace Wire
                     //nor can they be null (StringSerializer has it's own null handling)
                     var method = typeof(ValueSerializer).GetMethod(nameof(ValueSerializer.WriteValue));
                     //write it to the value serializer
-                    var writeValueCall = Expression.Call(
-                        valueSerializer.ToConstant(),
-                        method, 
-                        streamParam, 
-                        fieldValue,
-                        sessionParam);
-
-                    writer = writeValueCall;
+                    var vs = c.Constant( valueSerializer);
+                    c.EmitCall(method, vs, stream, converted, session);
                 }
                 else
                 {
@@ -158,28 +152,16 @@ namespace Wire
                         valueType = nullableType;
                     }
 
+                    var vs = c.Constant(valueSerializer);
+                    var vt = c.Constant(valueType);
+
                     var method = typeof(StreamExtensions).GetMethod(nameof(StreamExtensions.WriteObject));
 
-                    var writeValueCall = Expression.Call(
-                        null, 
-                        method, 
-                        streamParam, 
-                        fieldValue,
-                        valueType.ToConstant(),
-                        valueSerializer.ToConstant(), 
-                        serializer.Options.PreserveObjectReferences.ToConstant(),
-                        sessionParam);
-
-                    writer = writeValueCall;
+                    c.EmitStaticCall(method,stream, converted,vt,vs,preserveReferences,session);
                 }
-                expressions.Add(writer);
             }
 
-            var body = expressions.ToBlock();
-            var writeallFields = Expression.Lambda<ObjectWriter>(body, streamParam, objectParam,
-                sessionParam)
-                .Compile();
-            return writeallFields;
+            return c.Compile<ObjectWriter>(); ;
         }
     }
 }

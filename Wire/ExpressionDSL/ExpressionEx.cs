@@ -8,73 +8,99 @@ namespace Wire.ExpressionDSL
 {
     public class Compiler
     {
-        private readonly Dictionary<string,Expression> _namedValues = new Dictionary<string, Expression>();
+        private readonly List<Expression> _expressions = new List<Expression>();
         private readonly List<Expression> _content = new List<Expression>();
         private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
+        private readonly List<ParameterExpression> _parameters = new List<ParameterExpression>();
 
-        public void NewObject(Type type,string name)
+        public int NewObject(Type type)
         {
             var exp = ExpressionEx.GetNewExpression(type);
-            _namedValues.Add(name,exp);
+            _expressions.Add(exp);
+            return _expressions.Count - 1;
         }
 
-        public void Parameter<T>(string name)
+        public int Parameter<T>(string name)
         {
             var exp = ExpressionEx.Parameter<T>(name);
-            _namedValues.Add(name, exp);
+            _parameters.Add(exp);
+            _expressions.Add(exp);
+            return _expressions.Count - 1;
         }
 
-        public void Variable<T>(string name)
+        public int Variable<T>(string name)
         {
             var exp = ExpressionEx.Variable<T>(name);
             _variables.Add(exp);
-            _namedValues.Add(name, exp);
+            _expressions.Add(exp);
+            return _expressions.Count - 1;
         }
 
-        public void Constant(object value,string name)
+        public int Constant(object value)
         {
             var constant = value.ToConstant();
-            _namedValues.Add(name,constant);
+            _expressions.Add(constant);
+            return _expressions.Count - 1;
         }
 
-        public void CastOrUnbox(string name, Type type)
+        public int CastOrUnbox(int value, Type type)
         {
-            var exp = _namedValues[name].CastOrUnbox(type);
-            _namedValues.Add(name,exp);
+            var exp = _expressions[value].CastOrUnbox(type);
+            _expressions.Add(exp);
+            return _expressions.Count - 1;
         }
-
-        public void Call(string name, MethodInfo method, string target, params string[] arguments)
+        
+        public void EmitCall(MethodInfo method, int target, params int[] arguments)
         {
-            var targetExp = _namedValues[target];
-            var argumentsExp = arguments.Select(n => _namedValues[n]).ToArray();
+            var targetExp = _expressions[target];
+            var argumentsExp = arguments.Select(n => _expressions[n]).ToArray();
             var call = Expression.Call(targetExp, method, argumentsExp);
-            _namedValues.Add(name,call);
+            _content.Add(call);
         }
 
-        public void ReadField(string name, FieldInfo field, string target)
+        public void EmitStaticCall(MethodInfo method, params int[] arguments)
         {
-            var targetExp = _namedValues[target];
+            var argumentsExp = arguments.Select(n => _expressions[n]).ToArray();
+            var call = Expression.Call(null, method, argumentsExp);
+            _content.Add(call);
+        }
+
+        public int ReadField(FieldInfo field, int target)
+        {
+            var targetExp = _expressions[target];
             var accessExp = Expression.Field(targetExp, field);
-            _namedValues.Add(name,accessExp);
+            _expressions.Add(accessExp);
+            return _expressions.Count - 1;
         }
 
-        public void WriteField(string name, FieldInfo field, string target,string value)
+        public int WriteField(FieldInfo field, int target,int value)
         {
-            var targetExp = _namedValues[target];
-            var valueExp = _namedValues[value];
+            var targetExp = _expressions[target];
+            var valueExp = _expressions[value];
             var accessExp = Expression.Field(targetExp, field);
             var writeExp = Expression.Assign(accessExp, valueExp);
-            _namedValues.Add(name, writeExp);
-        }
-
-        public void Emit(string name)
-        {
-            _content.Add(_namedValues[name]);
+            _expressions.Add(writeExp);
+            return _expressions.Count - 1;
         }
 
         public Expression ToBlock()
         {
             return Expression.Block(_variables, _content);
+        }
+
+        public T Compile<T>()
+        {
+            var body = ToBlock();
+            var parameters = _parameters.ToArray();
+            var res = Expression.Lambda<T>(body, parameters).Compile();
+            return res;
+        }
+        public int ConvertTo<T>(int value)
+        {
+            var valueExp = _expressions[value];
+            var con = valueExp.ConvertTo<T>();
+            _expressions.Add(con);
+            return _expressions.Count - 1;
         }
     }
     public static class ExpressionEx
