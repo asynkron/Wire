@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Security;
 
 namespace Wire
 {
@@ -70,6 +71,7 @@ namespace Wire
             return getUninitializedObjectDelegate(type);
         }
 #else
+        [SecuritySafeCritical]
         public static object GetEmptyObject(this Type type)
         {
             return FormatterServices.GetUninitializedObject(type);

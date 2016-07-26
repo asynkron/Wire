@@ -41,4 +41,4 @@ using System.Security;
 
 [assembly: AllowPartiallyTrustedCallers]
 [assembly: SecurityTransparent]
-[assembly: SecurityRules(SecurityRuleSet.Level2, SkipVerificationInFullTrust = true)]
+[assembly: SecurityRules(SecurityRuleSet.Level1, SkipVerificationInFullTrust = true)]
