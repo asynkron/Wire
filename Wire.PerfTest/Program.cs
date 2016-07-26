@@ -45,9 +45,9 @@ namespace Wire.PerfTest
             ////////SerializePocoBinaryFormatter();
             ////Console.WriteLine();
             ////Console.WriteLine("Running hot");
-            //SerializePocoPreRegister();
-            //SerializePocoPreRegisterManualSerializer();
-            //SerializePocoVersionInteolerant();
+            SerializePocoPreRegister();
+            SerializePocoPreRegisterManualSerializer();
+            SerializePocoVersionInteolerant();
             ////SerializePoco();
             //////SerializePocoVersionInteolerantPreserveObjects();
 

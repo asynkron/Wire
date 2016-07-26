@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Wire.ValueSerializers;
@@ -37,22 +36,21 @@ namespace Wire
             {
                 fieldReaders.Add(GetFieldReader(serializer, type, field));
             }
-            var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             var writer = GetFieldsWriter(fields, serializer);
 
             var reader = serializer.Options.VersionTolerance
-                ? GetVersionTolerantReader(type, preserveObjectReferences, fieldReaders)
-                : GetVersionIntolerantReader(type, preserveObjectReferences, fieldReaders);
+                ? GetVersionTolerantReader(type, serializer.Options.PreserveObjectReferences, fieldReaders)
+                : GetVersionIntolerantReader(type, serializer, fields);
 
             objectSerializer.Initialize(reader, writer);
         }
 
         private ObjectReader GetVersionIntolerantReader(
             Type type,
-            bool preserveObjectReferences,
-            IEnumerable<FieldReader> fieldReaders)
+           Serializer serializer,
+            IEnumerable<FieldInfo> fields)
         {
-            var expressions = new List<Expression>();
+            var expressions = Expressions();
 
             var streamParam = Parameter<Stream>();
             var sessionParam = Parameter<DeserializerSession>();
@@ -63,19 +61,17 @@ namespace Wire
 
             expressions.Add(assignNewObjectToTarget);
 
-            if (preserveObjectReferences)
+            if (serializer.Options.PreserveObjectReferences)
             {
-                var trackDeserializedObjectMethod =
-                    typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                var trackDeserializedObjectMethod = typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
                 var call = Call(sessionParam, trackDeserializedObjectMethod, targetVar);
                 expressions.Add(call);
             }
 
-            foreach (var r in fieldReaders)
+            foreach (var field in fields)
             {
-                var c = r.ToConstant();
-                var i = Invoke(c, streamParam, targetVar, sessionParam);
-                expressions.Add(i);
+                var fr = GetFieldReader2(serializer, type, field,targetVar,streamParam,sessionParam);
+                expressions.Add(fr);
             }
 
             expressions.Add(targetVar);
@@ -92,9 +88,10 @@ namespace Wire
         {
             var defaultCtor = type.GetConstructor(new Type[] {});
             var il = defaultCtor?.GetMethodBody()?.GetILAsByteArray();
-            var sideEffectFreeCtor = il != null && il.Length <= 8;
+            var sideEffectFreeCtor = il != null && il.Length <= 8; //this is the size of an empty ctor
             if (sideEffectFreeCtor)
             {
+                //the ctor exists and the size is empty. lets use the New operator
                 return New(defaultCtor);
             }
             var emptyObjectMethod = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
@@ -244,6 +241,70 @@ namespace Wire
                 };
                 return fieldReader;
             }
+        }
+
+        private Expression GetFieldReader2(
+            Serializer serializer,
+            Type type,
+            FieldInfo field, Expression targetExp, ParameterExpression stream, ParameterExpression session)
+        {
+            if (serializer == null)
+                throw new ArgumentNullException(nameof(serializer));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            if (field == null)
+                throw new ArgumentNullException(nameof(field));
+
+            var s = serializer.GetSerializerByType(field.FieldType);
+
+            Expression read;
+            if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
+            {
+                //Only optimize if property names are not included.
+                //if they are included, we need to be able to skip past unknown property data
+                //e.g. if sender have added a new property that the receiveing end does not yet know about
+                //which we cannot do w/o a manifest
+                var method = typeof(ValueSerializer).GetMethod(nameof(ValueSerializer.ReadValue));
+                read = Call(s.ToConstant(), method, stream, session);
+
+            }
+            else
+            {
+                var method = typeof(StreamExtensions).GetMethod(nameof(StreamExtensions.ReadObject));
+                read = Call(null, method, stream, session);
+            }
+
+            Expression setter; // = GetSetDelegate(field);
+            if (field.IsInitOnly)
+            {
+                //TODO: field is readonly, can we set it via IL or only via reflection
+
+                var castTartgetExp = field.DeclaringType.GetTypeInfo().IsValueType
+    ? Unbox(targetExp, type)
+    : targetExp.ConvertTo(type);
+
+                var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue),new[] {typeof(object),typeof(object)});
+                setter = Call(field.ToConstant(), method, castTartgetExp, read);
+            }
+            else
+            {
+
+                // ReSharper disable once PossibleNullReferenceException
+                var castTartgetExp = field.DeclaringType.GetTypeInfo().IsValueType
+                    ? Unbox(targetExp, type)
+                    : targetExp.ConvertTo(type);
+
+                var fieldExp = field.ReadFrom(castTartgetExp);
+                var castValueExp = read.ConvertTo(field.FieldType);
+                var assignExp = Assign(fieldExp, castValueExp);
+                setter = assignExp;
+            }
+
+            return setter;
+
+           
         }
 
         private Expression GetFieldInfoWriter(Serializer serializer, FieldInfo field, Expression stream,
