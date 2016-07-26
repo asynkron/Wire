@@ -58,9 +58,15 @@ namespace Wire.ExpressionDSL
             return Expression.Convert(expression, typeof(T));
         }
 
-        public static Expression AccessFrom(this FieldInfo field,Expression target)
+        public static Expression Read(this FieldInfo field,Expression target)
         {
             return Expression.Field(target, field);
+        }
+
+        public static Expression Assign(this FieldInfo field, Expression target,Expression value)
+        {
+            var access = Expression.Field(target, field);
+            return Expression.Assign(access, value);
         }
 
         public static Expression CastOrUnbox(this Expression expression, Type type)
