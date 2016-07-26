@@ -144,6 +144,7 @@ namespace Wire.Tests
             Reset();
             var res = Deserialize<object>();
             Assert.AreEqual(expected, res);
+            AssertMemoryStreamConsumed();
         }
     }
 }
