@@ -65,6 +65,23 @@ namespace Wire.ExpressionDSL
             _content.Add(call);
         }
 
+        public int Call(MethodInfo method, int target, params int[] arguments)
+        {
+            var targetExp = _expressions[target];
+            var argumentsExp = arguments.Select(n => _expressions[n]).ToArray();
+            var call = Expression.Call(targetExp, method, argumentsExp);
+            _expressions.Add(call);
+            return _expressions.Count - 1;
+        }
+
+        public int StaticCall(MethodInfo method, params int[] arguments)
+        {
+            var argumentsExp = arguments.Select(n => _expressions[n]).ToArray();
+            var call = Expression.Call(null, method, argumentsExp);
+            _expressions.Add(call);
+            return _expressions.Count - 1;
+        }
+
         public int ReadField(FieldInfo field, int target)
         {
             var targetExp = _expressions[target];
@@ -100,6 +117,29 @@ namespace Wire.ExpressionDSL
             var valueExp = _expressions[value];
             var con = valueExp.ConvertTo<T>();
             _expressions.Add(con);
+            return _expressions.Count - 1;
+        }
+
+        public int WriteVar(int variable, int value)
+        {
+            var varExp = _expressions[variable];
+            var valueExp = _expressions[value];
+            var assign = Expression.Assign(varExp, valueExp);
+            _expressions.Add(assign);
+            return _expressions.Count - 1;
+        }
+
+        public void Emit(int value)
+        {
+            var exp = _expressions[value];
+            _content.Add(exp);
+        }
+
+        public int Convert(int value, Type type)
+        {
+            var valueExp = _expressions[value];
+            var conv = valueExp.ConvertTo(type);
+            _expressions.Add(conv);
             return _expressions.Count - 1;
         }
     }

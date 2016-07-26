@@ -22,21 +22,21 @@ namespace Wire
 
         private ObjectReader GetFieldsReader(Serializer serializer, IEnumerable<FieldInfo> fields, Type type)
         {
-            var expressions = ExpressionEx.Expressions();
-            var streamParam = ExpressionEx.Parameter<Stream>("stream");
-            var sessionParam = ExpressionEx.Parameter<DeserializerSession>("session");
-            var newExpression = ExpressionEx.GetNewExpression(type);
-            var targetVar = ExpressionEx.Variable<object>("target");
-            var assignNewObjectToTarget = targetVar.Assign(newExpression);
+            var c = new Compiler();
+            var stream = c.Parameter<Stream>("stream");
+            var session = c.Parameter<DeserializerSession>("session");
+            var newExpression = c.NewObject(type);
+            var target = c.Variable<object>("target");
+            var assignNewObjectToTarget = c.WriteVar(target,newExpression);
 
-            expressions.Add(assignNewObjectToTarget);
+            c.Emit(assignNewObjectToTarget);
 
             if (serializer.Options.PreserveObjectReferences)
             {
                 var trackDeserializedObjectMethod =
                     typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
-                var call = Expression.Call(sessionParam, trackDeserializedObjectMethod, targetVar);
-                expressions.Add(call);
+
+                c.EmitCall(trackDeserializedObjectMethod,session,target);
             }
 
             //for (var i = 0; i < storedFieldCount; i++)
@@ -62,7 +62,7 @@ namespace Wire
             {
                 var s = serializer.GetSerializerByType(field.FieldType);
 
-                Expression read;
+                int read;
                 if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
                 {
                     //Only optimize if property names are not included.
@@ -70,36 +70,33 @@ namespace Wire
                     //e.g. if sender have added a new property that the receiveing end does not yet know about
                     //which we cannot do w/o a manifest
                     var method = typeof(ValueSerializer).GetMethod(nameof(ValueSerializer.ReadValue));
-                    read = Expression.Call(s.ToConstant(), method, streamParam, sessionParam);
+                    var ss = c.Constant(s);
+                    read = c.Call(method,ss,stream,session);
                 }
                 else
                 {
                     var method = typeof(StreamExtensions).GetMethod(nameof(StreamExtensions.ReadObject));
-                    read = Expression.Call(null, method, streamParam, sessionParam);
+                    read = c.StaticCall(method,stream,session);
                 }
-                var castTartgetExp = targetVar.CastOrUnbox(type);
-                Expression setter;
+
+                var typedTarget = c.CastOrUnbox(target,type);
                 if (field.IsInitOnly)
                 {
                     //TODO: field is readonly, can we set it via IL or only via reflection
-                    var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue),
-                        new[] {typeof(object), typeof(object)});
-                    setter = Expression.Call(field.ToConstant(), method, castTartgetExp, read);
+                    var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue), new[] {typeof(object), typeof(object)});
+                    var fld = c.Constant(field);
+                    c.EmitCall(method, fld, typedTarget, read);
                 }
                 else
                 {
-                    setter = field.Assign(castTartgetExp, read.ConvertTo(field.FieldType));
+                    var typedRead = c.Convert(read, field.FieldType);
+                    var assign = c.WriteField(field, typedTarget, typedRead);
+                    c.Emit(assign);
                 }
-                expressions.Add(setter);
             }
+            c.Emit(target);
 
-            expressions.Add(targetVar);
-
-            var body = expressions.ToBlock(targetVar);
-
-            var readAllFields = Expression.Lambda<ObjectReader>(body, streamParam, sessionParam)
-                .Compile();
-
+            var readAllFields = c.Compile<ObjectReader>();
             return readAllFields;
         }
 
