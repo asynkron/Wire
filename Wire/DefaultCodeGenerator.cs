@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
 using Wire.ValueSerializers;
 using Wire.ExpressionDSL;
 using static System.Linq.Expressions.Expression;
@@ -31,59 +30,13 @@ namespace Wire
 
             var fields = ReflectionEx.GetFieldInfosForType(type);
 
-   
-            var writer = GetFieldsWriter(fields, serializer);
+            var writer = GetFieldsWriter(serializer, fields);
 
-            var reader = serializer.Options.VersionTolerance
-                ? GetVersionTolerantReader(type, serializer, fields)
-                : GetVersionIntolerantReader(type, serializer, fields);
-
+            var reader = GetFieldsReader(serializer, fields, type);
             objectSerializer.Initialize(reader, writer);
         }
 
-        private ObjectReader GetVersionIntolerantReader(
-            Type type,
-           Serializer serializer,
-            IEnumerable<FieldInfo> fields)
-        {
-            var expressions = Expressions();
-
-            var streamParam = Parameter<Stream>("stream");
-            var sessionParam = Parameter<DeserializerSession>("session");
-            var newExpression = GetNewExpression(type);
-            var targetVar = Variable<object>("target");
-            var assignNewObjectToTarget = Assign(targetVar, newExpression);
-
-
-            expressions.Add(assignNewObjectToTarget);
-
-            if (serializer.Options.PreserveObjectReferences)
-            {
-                var trackDeserializedObjectMethod = typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
-                var call = Call(sessionParam, trackDeserializedObjectMethod, targetVar);
-                expressions.Add(call);
-            }
-
-            foreach (var field in fields)
-            {
-                var fr = GetFieldReader2(serializer, type, field,targetVar,streamParam,sessionParam);
-                expressions.Add(fr);
-            }
-
-            expressions.Add(targetVar);
-
-            var body = expressions.ToBlock(targetVar);
-
-            var readAllFields = Lambda<ObjectReader>(body, streamParam, sessionParam)
-                .Compile();
-
-            return readAllFields;
-        }
-
-        private ObjectReader GetVersionTolerantReader(
-            Type type,
-           Serializer serializer,
-            IEnumerable<FieldInfo> fields)
+        private ObjectReader GetFieldsReader(Serializer serializer, IEnumerable<FieldInfo> fields, Type type)
         {
             var expressions = Expressions();
 
@@ -122,11 +75,9 @@ namespace Wire
             //    }
             //}
 
-            //this should be moved up in the version tolerant loop
-
             foreach (var field in fields)
             {
-                var fr = GetFieldReader2(serializer, type, field, targetVar, streamParam, sessionParam);
+                var fr = GetFieldReader2(serializer, type, field,targetVar,streamParam,sessionParam);
                 expressions.Add(fr);
             }
 
@@ -140,12 +91,9 @@ namespace Wire
             return readAllFields;
         }
 
-
-
-
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
-        private ObjectWriter GetFieldsWriter(FieldInfo[] fields, Serializer serializer)
+        private ObjectWriter GetFieldsWriter(Serializer serializer, FieldInfo[] fields)
         {
             if (fields == null)
                 throw new ArgumentNullException(nameof(fields));
@@ -176,65 +124,6 @@ namespace Wire
                     sessionParam)
                     .Compile();
             return writeallFields;
-        }
-
-        private FieldReader GetFieldReader(
-            Serializer serializer,
-            Type type,
-            FieldInfo field)
-        {
-            if (serializer == null)
-                throw new ArgumentNullException(nameof(serializer));
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            if (field == null)
-                throw new ArgumentNullException(nameof(field));
-
-            FieldInfoWriter setter; // = GetSetDelegate(field);
-            if (field.IsInitOnly)
-            {
-                //TODO: field is readonly, can we set it via IL or only via reflection
-                setter = field.SetValue;
-            }
-            else
-            {
-                var targetExp = Parameter<object>("target");
-                var valueExp = Parameter<object>("value");
-
-                // ReSharper disable once PossibleNullReferenceException
-                var castTartgetExp = targetExp.CastOrUnbox(type);
-                
-                var fieldExp = field.AccessFrom(castTartgetExp);
-                var castValueExp = valueExp.ConvertTo(field.FieldType);
-                var assignExp = Assign(fieldExp, castValueExp);
-                setter = Lambda<FieldInfoWriter>(assignExp, targetExp, valueExp).Compile();
-            }
-
-            var s = serializer.GetSerializerByType(field.FieldType);
-            if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
-            {
-                //Only optimize if property names are not included.
-                //if they are included, we need to be able to skip past unknown property data
-                //e.g. if sender have added a new property that the receiveing end does not yet know about
-                //which we cannot do w/o a manifest
-                FieldReader fieldReader = (stream, o, session) =>
-                {
-                    var value = s.ReadValue(stream, session);
-                    setter(o, value);
-                };
-                return fieldReader;
-            }
-            else
-            {
-                FieldReader fieldReader = (stream, o, session) =>
-                {
-                    var value = stream.ReadObject(session);
-                    setter(o, value);
-                };
-                return fieldReader;
-            }
         }
 
         private Expression GetFieldReader2(
