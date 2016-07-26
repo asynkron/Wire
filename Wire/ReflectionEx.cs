@@ -17,7 +17,7 @@ namespace Wire
     {
         public static readonly Assembly CoreAssembly = typeof(int).GetTypeInfo().Assembly;
 
-        public static FieldInfo[] GetFieldInfosForType(Type type)
+        public static FieldInfo[] GetFieldInfosForType(this Type type)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
