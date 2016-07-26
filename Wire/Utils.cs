@@ -81,33 +81,5 @@ namespace Wire
             return false;
         }
 #endif
-
-        internal static bool IsFixedSizeType(this Type type)
-        {
-            return type == typeof (int) ||
-                   type == typeof (long) ||
-                   type == typeof (bool) ||
-                   type == typeof (ushort) ||
-                   type == typeof (uint) ||
-                   type == typeof (ulong);
-        }
-
-        internal static int GetTypeSize(this Type type)
-        {
-            if (type == typeof (int))
-                return sizeof (int);
-            if (type == typeof(long))
-                return sizeof (long);
-            if (type == typeof (bool))
-                return sizeof (bool);
-            if (type == typeof (ushort))
-                return sizeof (ushort);
-            if (type == typeof (uint))
-                return sizeof (uint);
-            if (type == typeof (ulong))
-                return sizeof (ulong);
-
-            throw new NotSupportedException();
-        }
     }
 }

@@ -10,6 +10,7 @@ namespace Wire
     }
     public class DeserializerSession
     {
+        public const int MinBufferSize = 8;
         private byte[] _buffer;
         private readonly IntToTypeLookup _identifierToType;
         private readonly IntToObjectLookup _objectById;
@@ -19,7 +20,7 @@ namespace Wire
         public DeserializerSession(Serializer serializer)
         {
             Serializer = serializer;
-            _buffer = new byte[8];
+            _buffer = new byte[MinBufferSize];
             _identifierToType = new IntToTypeLookup();
             if (serializer.Options.PreserveObjectReferences)
             {

@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using Wire.ValueSerializers;
 using Wire.ExpressionDSL;
-
+using static System.Linq.Expressions.Expression;
+using static Wire.ExpressionDSL.ExpressionEx;
 namespace Wire
 {
     public interface ICodeGenerator
@@ -36,52 +37,49 @@ namespace Wire
             {
                 fieldReaders.Add(GetFieldReader(serializer, type, field));
             }
-            var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             var writer = GetFieldsWriter(fields, serializer);
 
             var reader = serializer.Options.VersionTolerance
-                ? GetVersionTolerantReader(type, preserveObjectReferences, fieldReaders)
-                : GetVersionIntolerantReader(type, preserveObjectReferences, fieldReaders);
+                ? GetVersionTolerantReader(type, serializer.Options.PreserveObjectReferences, fieldReaders)
+                : GetVersionIntolerantReader(type, serializer, fields);
 
             objectSerializer.Initialize(reader, writer);
         }
 
         private ObjectReader GetVersionIntolerantReader(
             Type type,
-            bool preserveObjectReferences,
-            IEnumerable<FieldReader> fieldReaders)
+           Serializer serializer,
+            IEnumerable<FieldInfo> fields)
         {
-            var expressions = new List<Expression>();
+            var expressions = Expressions();
 
+            var streamParam = Parameter<Stream>("stream");
+            var sessionParam = Parameter<DeserializerSession>("session");
             var newExpression = GetNewExpression(type);
-            var targetObject = Expression.Variable(typeof(object), "target");
-            var assignTarget = Expression.Assign(targetObject, newExpression);
-            var streamParam = Expression.Parameter(typeof(Stream));
-            var sessionParam = Expression.Parameter(typeof(DeserializerSession));
+            var targetVar = Variable<object>("target");
+            var assignNewObjectToTarget = Assign(targetVar, newExpression);
 
-            expressions.Add(assignTarget);
 
-            if (preserveObjectReferences)
+            expressions.Add(assignNewObjectToTarget);
+
+            if (serializer.Options.PreserveObjectReferences)
             {
-                var trackDeserializedObjectMethod =
-                    typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
-                var call = Expression.Call(sessionParam, trackDeserializedObjectMethod, targetObject);
+                var trackDeserializedObjectMethod = typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                var call = Call(sessionParam, trackDeserializedObjectMethod, targetVar);
                 expressions.Add(call);
             }
 
-            foreach (var r in fieldReaders)
+            foreach (var field in fields)
             {
-                var c = r.ToConstant();
-                var i = Expression.Invoke(c, streamParam, targetObject, sessionParam);
-                expressions.Add(i);
+                var fr = GetFieldReader2(serializer, type, field,targetVar,streamParam,sessionParam);
+                expressions.Add(fr);
             }
 
-            expressions.Add(targetObject);
+            expressions.Add(targetVar);
 
-            var body = expressions.ToBlock(targetObject);
+            var body = expressions.ToBlock(targetVar);
 
-            var readAllFields = Expression
-                .Lambda<ObjectReader>(body, streamParam, sessionParam)
+            var readAllFields = Lambda<ObjectReader>(body, streamParam, sessionParam)
                 .Compile();
 
             return readAllFields;
@@ -91,13 +89,14 @@ namespace Wire
         {
             var defaultCtor = type.GetConstructor(new Type[] {});
             var il = defaultCtor?.GetMethodBody()?.GetILAsByteArray();
-            var sideEffectFreeCtor = il != null && il.Length <= 8;
+            var sideEffectFreeCtor = il != null && il.Length <= 8; //this is the size of an empty ctor
             if (sideEffectFreeCtor)
             {
-                return Expression.New(defaultCtor);
+                //the ctor exists and the size is empty. lets use the New operator
+                return New(defaultCtor);
             }
             var emptyObjectMethod = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
-            var emptyObject = Expression.Call(null, emptyObjectMethod, type.ToConstant());
+            var emptyObject = Call(null, emptyObjectMethod, type.ToConstant());
 
             return emptyObject;
         }
@@ -156,19 +155,17 @@ namespace Wire
             if (fields == null)
                 throw new ArgumentNullException(nameof(fields));
 
-            bool preserveObjectReferences = serializer.Options.PreserveObjectReferences;
+            var streamParam = Parameter<Stream>("stream");
+            var objectParam = Parameter<object>("target");
+            var sessionParam = Parameter<SerializerSession>("session");
 
-            var streamParam = Expression.Parameter(typeof(Stream));
-            var objectParam = Expression.Parameter(typeof(object));
-            var sessionParam = Expression.Parameter(typeof(SerializerSession));
+            var expressions = Expressions();
 
-            var expressions = new List<Expression>();
-
-            if (preserveObjectReferences)
+            if (serializer.Options.PreserveObjectReferences)
             {
                 var method =
                     typeof(SerializerSession).GetMethod(nameof(SerializerSession.TrackSerializedObject));
-                var call = Expression.Call(sessionParam, method, objectParam);
+                var call = Call(sessionParam, method, objectParam);
                 expressions.Add(call);
             }
 
@@ -180,7 +177,7 @@ namespace Wire
 
             var body = expressions.ToBlock();
             var writeallFields =
-                Expression.Lambda<ObjectWriter>(body, streamParam, objectParam,
+                Lambda<ObjectWriter>(body, streamParam, objectParam,
                     sessionParam)
                     .Compile();
             return writeallFields;
@@ -208,17 +205,18 @@ namespace Wire
             }
             else
             {
-                var targetExp = Expression.Parameter(typeof(object), "target");
-                var valueExp = Expression.Parameter(typeof(object), "value");
+                var targetExp = Parameter<object>("target");
+                var valueExp = Parameter<object>("value");
 
                 // ReSharper disable once PossibleNullReferenceException
-                Expression castTartgetExp = field.DeclaringType.GetTypeInfo().IsValueType
-                    ? Expression.Unbox(targetExp, type)
-                    : Expression.Convert(targetExp, type);
-                Expression castValueExp = Expression.Convert(valueExp, field.FieldType);
-                var fieldExp = Expression.Field(castTartgetExp, field);
-                var assignExp = Expression.Assign(fieldExp, castValueExp);
-                setter = Expression.Lambda<FieldInfoWriter>(assignExp, targetExp, valueExp).Compile();
+                var castTartgetExp = field.DeclaringType.GetTypeInfo().IsValueType
+                    ? Unbox(targetExp, type)
+                    : targetExp.ConvertTo(type);
+                
+                var fieldExp = field.ReadFrom(castTartgetExp);
+                var castValueExp = valueExp.ConvertTo(field.FieldType);
+                var assignExp = Assign(fieldExp, castValueExp);
+                setter = Lambda<FieldInfoWriter>(assignExp, targetExp, valueExp).Compile();
             }
 
             var s = serializer.GetSerializerByType(field.FieldType);
@@ -246,7 +244,70 @@ namespace Wire
             }
         }
 
-        private Expression GetFieldInfoWriter(Serializer serializer, FieldInfo field, Expression streamExpression,
+        private Expression GetFieldReader2(
+            Serializer serializer,
+            Type type,
+            FieldInfo field, Expression targetExp, ParameterExpression stream, ParameterExpression session)
+        {
+            if (serializer == null)
+                throw new ArgumentNullException(nameof(serializer));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            if (field == null)
+                throw new ArgumentNullException(nameof(field));
+
+            var s = serializer.GetSerializerByType(field.FieldType);
+
+            Expression read;
+            if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
+            {
+                //Only optimize if property names are not included.
+                //if they are included, we need to be able to skip past unknown property data
+                //e.g. if sender have added a new property that the receiveing end does not yet know about
+                //which we cannot do w/o a manifest
+                var method = typeof(ValueSerializer).GetMethod(nameof(ValueSerializer.ReadValue));
+                read = Call(s.ToConstant(), method, stream, session);
+
+            }
+            else
+            {
+                var method = typeof(StreamExtensions).GetMethod(nameof(StreamExtensions.ReadObject));
+                read = Call(null, method, stream, session);
+            }
+
+            Expression setter; 
+            if (field.IsInitOnly)
+            {
+                //TODO: field is readonly, can we set it via IL or only via reflection
+
+                var castTartgetExp = field.DeclaringType.GetTypeInfo().IsValueType
+                    ? Unbox(targetExp, type)
+                    : targetExp.ConvertTo(type);
+
+                var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue),
+                    new[] {typeof(object), typeof(object)});
+                setter = Call(field.ToConstant(), method, castTartgetExp, read);
+            }
+            else
+            {
+
+                // ReSharper disable once PossibleNullReferenceException
+                var castTartgetExp = field.DeclaringType.GetTypeInfo().IsValueType
+                    ? Unbox(targetExp, type)
+                    : targetExp.ConvertTo(type);
+
+                var fieldExp = field.ReadFrom(castTartgetExp);
+                var castValueExp = read.ConvertTo(field.FieldType);
+                var assignExp = Assign(fieldExp, castValueExp);
+                setter = assignExp;
+            }
+
+            return setter;
+        }
+
+        private Expression GetFieldInfoWriter(Serializer serializer, FieldInfo field, Expression stream,
             Expression targetExpression, Expression sessionExpression)
         {
             if (serializer == null)
@@ -260,13 +321,13 @@ namespace Wire
             //runtime Get a delegate that reads the content of the given field
 
             // ReSharper disable once PossibleNullReferenceException
-            Expression castParam = field.DeclaringType.GetTypeInfo().IsValueType
+            var castParam = field.DeclaringType.GetTypeInfo().IsValueType
                 // ReSharper disable once AssignNullToNotNullAttribute
-                ? Expression.Unbox(targetExpression, field.DeclaringType)
+                ? Unbox(targetExpression, field.DeclaringType)
                 // ReSharper disable once AssignNullToNotNullAttribute
-                : Expression.Convert(targetExpression, field.DeclaringType);
-            Expression readField = Expression.Field(castParam, field);
-            Expression valueExp = Expression.Convert(readField, typeof(object));
+                : targetExpression.ConvertTo(field.DeclaringType);
+            var readField = field.ReadFrom(castParam);
+            var fieldValue = readField.ConvertTo<object>();
 
             //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
             if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
@@ -275,8 +336,8 @@ namespace Wire
                 //nor can they be null (StringSerializer has it's own null handling)
                 var method = typeof(ValueSerializer).GetMethod(nameof(ValueSerializer.WriteValue));
                 //write it to the value serializer
-                var writeValueCall = Expression.Call(valueSerializer.ToConstant(),
-                    method, streamExpression, valueExp,
+                var writeValueCall = Call(valueSerializer.ToConstant(),
+                    method, stream, fieldValue,
                     sessionExpression);
 
                 return writeValueCall;
@@ -293,7 +354,7 @@ namespace Wire
 
                 var method = typeof(StreamExtensions).GetMethod(nameof(StreamExtensions.WriteObject));
 
-                var writeValueCall = Expression.Call(null, method, streamExpression, valueExp, valueType.ToConstant(),
+                var writeValueCall = Call(null, method, stream, fieldValue, valueType.ToConstant(),
                     valueSerializer.ToConstant(), serializer.Options.PreserveObjectReferences.ToConstant(),
                     sessionExpression);
 

@@ -35,26 +35,26 @@ namespace Wire.PerfTest
 
             SerializePocoPreRegister();
             SerializePocoPreRegisterManualSerializer();
-            ////SerializePocoVersionInteolerant();
-            ////SerializePoco();
+            SerializePocoVersionInteolerant();
+            //SerializePoco();
             ////SerializePocoVersionInteolerantPreserveObjects();
 
             //SerializePocoProtoBufNet();
             //SerializePocoBond();
-            //////SerializePocoJsonNet();
-            //////SerializePocoBinaryFormatter();
-            //Console.WriteLine();
-            //Console.WriteLine("Running hot");
-            //SerializePocoPreRegister();
-            //SerializePocoPreRegisterManualSerializer();
-            ////SerializePocoVersionInteolerant();
+            ////////SerializePocoJsonNet();
+            ////////SerializePocoBinaryFormatter();
+            ////Console.WriteLine();
+            ////Console.WriteLine("Running hot");
+            SerializePocoPreRegister();
+            SerializePocoPreRegisterManualSerializer();
+            SerializePocoVersionInteolerant();
             ////SerializePoco();
-            ////SerializePocoVersionInteolerantPreserveObjects();
+            //////SerializePocoVersionInteolerantPreserveObjects();
 
             //SerializePocoProtoBufNet();
             //SerializePocoBond();
-            //////SerializePocoJsonNet();
-            //////SerializePocoBinaryFormatter();
+            ////////SerializePocoJsonNet();
+            ////////SerializePocoBinaryFormatter();
             //Console.ReadLine();
         }
 
@@ -193,23 +193,28 @@ namespace Wire.PerfTest
                 var s = new ObjectSerializer(type);
                 if (typeMapping.TryAdd(type, s))
                 {
+                    var stringS = StringSerializer.Instance;
+                    var intS = Int32Serializer.Instance;
+                    var guidS = GuidSerializer.Instance;
+                    var dateS = DateTimeSerializer.Instance;
+
                     s.Initialize(
                         (stream, session) =>
                         {
                             var poco = new Poco();//  (Poco)typeof(Poco).GetEmptyObject();
-                            poco.StringProp = (string) StringSerializer.Instance.ReadValue(stream, session);
-                            poco.IntProp = (int) Int32Serializer.Instance.ReadValue(stream, session);
-                            poco.GuidProp = (Guid) GuidSerializer.Instance.ReadValue(stream, session);
-                            poco.DateProp = (DateTime) DateTimeSerializer.Instance.ReadValue(stream, session);
+                            poco.StringProp = (string) stringS.ReadValue(stream, session);
+                            poco.IntProp = (int) intS.ReadValue(stream, session);
+                            poco.GuidProp = (Guid) guidS.ReadValue(stream, session);
+                            poco.DateProp = (DateTime) dateS.ReadValue(stream, session);
                             return poco;
                         },
                         (stream, obj, session) =>
                         {
                             var poco = (Poco)obj;
-                            StringSerializer.Instance.WriteValue(stream, poco.StringProp, session);
-                            Int32Serializer.Instance.WriteValue(stream, poco.IntProp, session);
-                            GuidSerializer.Instance.WriteValue(stream, poco.GuidProp, session);
-                            DateTimeSerializer.Instance.WriteValue(stream, poco.DateProp, session);
+                            stringS.WriteValue(stream, poco.StringProp, session);
+                            intS.WriteValue(stream, poco.IntProp, session);
+                            guidS.WriteValue(stream, poco.GuidProp, session);
+                            dateS.WriteValue(stream, poco.DateProp, session);
                         });
                 }
                 return s;
