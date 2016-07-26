@@ -261,7 +261,7 @@ namespace Wire.PerformanceTests
 
         private void Test(object value)
         {
-            Serializer wireSerializer = new Serializer(new SerializerOptions(false,true,null, null));
+            Serializer wireSerializer = new Serializer(new SerializerOptions(preserveObjectReferences: true));
             var pickler = FsPickler.CreateBinarySerializer();
 
             double wireTs;

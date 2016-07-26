@@ -221,6 +221,16 @@ namespace Wire.Tests
             Reset();
             var actual = Deserialize<DateTime[]>();
             CollectionAssert.AreEqual(expected, actual);
-        }        
+        }
+
+        [TestMethod]
+        public void CanSerializePrimitiveArray2()
+        {
+            var expected = new[] { 1, 2, 3, 4 };
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<int[]>();
+            CollectionAssert.AreEqual(expected, actual);
+        }
     }
 }
