@@ -22,7 +22,7 @@ namespace Wire.ExpressionDSL
 
         public int Parameter<T>(string name)
         {
-            var exp = ExpressionEx.Parameter<T>(name);
+            var exp = Expression.Parameter(typeof(T),name);
             _parameters.Add(exp);
             _expressions.Add(exp);
             return _expressions.Count - 1;
@@ -30,7 +30,7 @@ namespace Wire.ExpressionDSL
 
         public int Variable<T>(string name)
         {
-            var exp = ExpressionEx.Variable<T>(name);
+            var exp = Expression.Variable(typeof(T), name);
             _variables.Add(exp);
             _expressions.Add(exp);
             return _expressions.Count - 1;
@@ -45,7 +45,13 @@ namespace Wire.ExpressionDSL
 
         public int CastOrUnbox(int value, Type type)
         {
-            var exp = _expressions[value].CastOrUnbox(type);
+            Expression tempQualifier = _expressions[value];
+            var cast = type.GetTypeInfo().IsValueType
+                // ReSharper disable once AssignNullToNotNullAttribute
+                ? Expression.Unbox(tempQualifier, type)
+                // ReSharper disable once AssignNullToNotNullAttribute
+                : Expression.Convert(tempQualifier, type);
+            var exp = (Expression) cast;
             _expressions.Add(exp);
             return _expressions.Count - 1;
         }
@@ -102,7 +108,12 @@ namespace Wire.ExpressionDSL
 
         public Expression ToBlock()
         {
-            return _content.ToBlock(_variables.ToArray());
+            if (!_content.Any())
+            {
+                _content.Add(Expression.Empty());
+            }
+
+            return Expression.Block(_variables.ToArray(),_content);
         }
 
         public T Compile<T>()
@@ -115,7 +126,7 @@ namespace Wire.ExpressionDSL
         public int ConvertTo<T>(int value)
         {
             var valueExp = _expressions[value];
-            var con = valueExp.ConvertTo<T>();
+            var con = (Expression) Expression.Convert(valueExp, typeof(T));
             _expressions.Add(con);
             return _expressions.Count - 1;
         }
@@ -138,7 +149,7 @@ namespace Wire.ExpressionDSL
         public int Convert(int value, Type type)
         {
             var valueExp = _expressions[value];
-            var conv = valueExp.ConvertTo(type);
+            var conv = (Expression) Expression.Convert(valueExp, type);
             _expressions.Add(conv);
             return _expressions.Count - 1;
         }
@@ -150,76 +161,6 @@ namespace Wire.ExpressionDSL
             return Expression.Constant(self);
         }
 
-        public static BlockExpression ToBlock(this List<Expression> expressions, params ParameterExpression[] variables)
-        {
-            if (!expressions.Any())
-            {
-                expressions.Add(Expression.Empty());
-            }
-
-            return Expression.Block(variables,expressions);
-        }
-
-        public static ParameterExpression Variable<T>(string name)
-        {
-            return Expression.Variable(typeof(T), name);
-        }
-
-        public static ParameterExpression Variable<T>()
-        {
-            return Expression.Variable(typeof(T));
-        }
-
-        public static ParameterExpression Parameter<T>(string name)
-        {
-            return Expression.Parameter(typeof(T),name);
-        }
-
-        public static ParameterExpression Parameter<T>()
-        {
-            return Expression.Parameter(typeof(T));
-        }
-
-        public static List<Expression> Expressions()
-        {
-            return new List<Expression>();
-        }
-
-        public static Expression ConvertTo(this Expression expression, Type type)
-        {
-            return Expression.Convert(expression, type);
-        }
-
-        public static Expression ConvertTo<T>(this Expression expression)
-        {
-            return Expression.Convert(expression, typeof(T));
-        }
-
-        public static Expression Read(this FieldInfo field,Expression target)
-        {
-            return Expression.Field(target, field);
-        }
-
-        public static Expression Assign(this FieldInfo field, Expression target,Expression value)
-        {
-            var access = Expression.Field(target, field);
-            return Expression.Assign(access, value);
-        }
-
-        public static Expression Assign(this ParameterExpression target, Expression value)
-        {
-            return Expression.Assign(target, value);
-        }
-
-        public static Expression CastOrUnbox(this Expression expression, Type type)
-        {
-            var cast = type.GetTypeInfo().IsValueType
-                // ReSharper disable once AssignNullToNotNullAttribute
-                ? Expression.Unbox(expression, type)
-                // ReSharper disable once AssignNullToNotNullAttribute
-                : Expression.Convert(expression, type);
-            return cast;
-        }
 
         public static Expression GetNewExpression(Type type)
         {
