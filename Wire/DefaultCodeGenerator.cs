@@ -32,8 +32,7 @@ namespace Wire
 
             if (serializer.Options.PreserveObjectReferences)
             {
-                var trackDeserializedObjectMethod =
-                    typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                var trackDeserializedObjectMethod = typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
 
                 c.EmitCall(trackDeserializedObjectMethod,session,target);
             }
@@ -79,19 +78,11 @@ namespace Wire
                 }
 
                 var typedTarget = c.CastOrUnbox(target,type);
-                if (field.IsInitOnly)
-                {
-                    //TODO: field is readonly, can we set it via IL or only via reflection
-                    var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue), new[] {typeof(object), typeof(object)});
-                    var fld = c.Constant(field);
-                    c.EmitCall(method, fld, typedTarget, read);
-                }
-                else
-                {
-                    var typedRead = c.Convert(read, field.FieldType);
-                    var assign = c.WriteField(field, typedTarget, typedRead);
-                    c.Emit(assign);
-                }
+
+                var typedRead = c.Convert(read, field.FieldType);
+                var assign = c.WriteField(field, typedTarget, typedRead);
+                c.Emit(assign);
+
             }
             c.Emit(target);
 

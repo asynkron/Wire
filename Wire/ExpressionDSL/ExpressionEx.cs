@@ -98,6 +98,14 @@ namespace Wire.ExpressionDSL
 
         public int WriteField(FieldInfo field, int target,int value)
         {
+            if (field.IsInitOnly)
+            {
+                //TODO: field is readonly, can we set it via IL or only via reflection
+                var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue), new[] { typeof(object), typeof(object) });
+                var fld = Constant(field);
+                var valueToObject = ConvertTo<object>(value);
+                return Call(method, fld, target, valueToObject);
+            }
             var targetExp = _expressions[target];
             var valueExp = _expressions[value];
             var accessExp = Expression.Field(targetExp, field);
