@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BitConverterEx.cs" />
+    <Compile Include="ByteArray.cs" />
     <Compile Include="ByteArrayEqualityComparer.cs" />
     <Compile Include="DefaultCodeGenerator.cs" />
     <Compile Include="ExpressionDSL\ExpressionEx.cs" />
