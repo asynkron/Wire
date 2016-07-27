@@ -21,7 +21,7 @@ namespace Wire
 
         private ObjectReader GetFieldsReader(Serializer serializer, IEnumerable<FieldInfo> fields, Type type)
         {
-            var c = new Compiler();
+            var c = new Compiler<ObjectReader>();
             var stream = c.Parameter<Stream>("stream");
             var session = c.Parameter<DeserializerSession>("session");
             var newExpression = c.NewObject(type);
@@ -32,8 +32,7 @@ namespace Wire
 
             if (serializer.Options.PreserveObjectReferences)
             {
-                var trackDeserializedObjectMethod =
-                    typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                var trackDeserializedObjectMethod = typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
 
                 c.EmitCall(trackDeserializedObjectMethod,session,target);
             }
@@ -79,23 +78,15 @@ namespace Wire
                 }
 
                 var typedTarget = c.CastOrUnbox(target,type);
-                if (field.IsInitOnly)
-                {
-                    //TODO: field is readonly, can we set it via IL or only via reflection
-                    var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue), new[] {typeof(object), typeof(object)});
-                    var fld = c.Constant(field);
-                    c.EmitCall(method, fld, typedTarget, read);
-                }
-                else
-                {
-                    var typedRead = c.Convert(read, field.FieldType);
-                    var assign = c.WriteField(field, typedTarget, typedRead);
-                    c.Emit(assign);
-                }
+
+                var typedRead = c.Convert(read, field.FieldType);
+                var assign = c.WriteField(field, typedTarget, typedRead);
+                c.Emit(assign);
+
             }
             c.Emit(target);
 
-            var readAllFields = c.Compile<ObjectReader>();
+            var readAllFields = c.Compile();
             return readAllFields;
         }
 
@@ -103,7 +94,7 @@ namespace Wire
         //no loops involved
         private ObjectWriter GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields)
         {
-            var c = new Compiler();
+            var c = new Compiler<ObjectWriter>();
             
             var stream = c.Parameter<Stream>("stream");
             var target = c.Parameter<object>("target");
@@ -156,7 +147,7 @@ namespace Wire
                 }
             }
 
-            return c.Compile<ObjectWriter>(); ;
+            return c.Compile(); ;
         }
     }
 }
