@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Wire.ExpressionDSL;
+using Wire.Compilation;
 using Wire.ValueSerializers;
 
 namespace Wire
