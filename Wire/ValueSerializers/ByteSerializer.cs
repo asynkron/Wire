@@ -15,8 +15,7 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
-            var bytes = BitConverter.GetBytes((byte) value);
-            stream.Write(bytes);
+            stream.WriteByte((byte) value);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
@@ -26,7 +25,7 @@ namespace Wire.ValueSerializers
 
         public override Type GetElementType()
         {
-            return typeof (byte);
+            return typeof(byte);
         }
     }
 }

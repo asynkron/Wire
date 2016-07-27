@@ -13,20 +13,21 @@ namespace Wire.ValueSerializers
             stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public override unsafe void WriteValue(Stream stream, object value, SerializerSession session)
         {
-            var bytes = BitConverter.GetBytes((sbyte) value);
-            stream.Write(bytes);
+            var @sbyte = (sbyte) value;
+            stream.WriteByte(*(byte*) &@sbyte);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public override unsafe object ReadValue(Stream stream, DeserializerSession session)
         {
-            return (sbyte) stream.ReadByte();
+            var @byte = (byte) stream.ReadByte();
+            return *(sbyte*) &@byte;
         }
 
         public override Type GetElementType()
         {
-            return typeof (sbyte);
+            return typeof(sbyte);
         }
     }
 }
