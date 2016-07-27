@@ -31,11 +31,14 @@ namespace Wire.Compilation
             var delegateType = typeof(TDel);
             var invoke = delegateType.GetMethod("Invoke");
             var returnType = invoke.ReturnType;
+            
             var parameterTypes = invoke.GetParameters().Select(a => a.ParameterType).ToArray();
 
             _method = new DynamicMethod("foo", returnType, parameterTypes);
             _il = _method.GetILGenerator();
             _context = new IlCompilerContext(_il);
+            if (returnType != typeof(void))
+                _context.StackDepth --;
         }
         public int NewObject(Type type)
         {
@@ -129,6 +132,7 @@ namespace Wire.Compilation
 
         public TDel Compile()
         {
+
 
 
             while (_context.StackDepth-- > 0)
