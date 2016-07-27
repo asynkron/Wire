@@ -21,7 +21,7 @@ namespace Wire
 
         private ObjectReader GetFieldsReader(Serializer serializer, IEnumerable<FieldInfo> fields, Type type)
         {
-            var c = new Compiler();
+            var c = new Compiler<ObjectReader>();
             var stream = c.Parameter<Stream>("stream");
             var session = c.Parameter<DeserializerSession>("session");
             var newExpression = c.NewObject(type);
@@ -86,7 +86,7 @@ namespace Wire
             }
             c.Emit(target);
 
-            var readAllFields = c.Compile<ObjectReader>();
+            var readAllFields = c.Compile();
             return readAllFields;
         }
 
@@ -94,7 +94,7 @@ namespace Wire
         //no loops involved
         private ObjectWriter GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields)
         {
-            var c = new Compiler();
+            var c = new Compiler<ObjectWriter>();
             
             var stream = c.Parameter<Stream>("stream");
             var target = c.Parameter<object>("target");
@@ -147,7 +147,7 @@ namespace Wire
                 }
             }
 
-            return c.Compile<ObjectWriter>(); ;
+            return c.Compile(); ;
         }
     }
 }

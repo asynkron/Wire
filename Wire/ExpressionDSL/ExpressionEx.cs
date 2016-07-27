@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Wire.ExpressionDSL
 {
-    public class Compiler
+    public class Compiler<TDel>
     {
         private readonly List<Expression> _expressions = new List<Expression>();
         private readonly List<Expression> _content = new List<Expression>();
@@ -124,11 +124,11 @@ namespace Wire.ExpressionDSL
             return Expression.Block(_variables.ToArray(),_content);
         }
 
-        public T Compile<T>()
+        public TDel Compile()
         {
             var body = ToBlock();
             var parameters = _parameters.ToArray();
-            var res = Expression.Lambda<T>(body, parameters).Compile();
+            var res = Expression.Lambda<TDel>(body, parameters).Compile();
             return res;
         }
         public int ConvertTo<T>(int value)
