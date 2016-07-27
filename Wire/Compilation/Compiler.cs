@@ -104,7 +104,7 @@ namespace Wire.Compilation
                 var method = typeof(FieldInfo).GetTypeInfo()
                     .GetMethod(nameof(FieldInfo.SetValue), new[] {typeof(object), typeof(object)});
                 var fld = Constant(field);
-                var valueToObject = ConvertTo<object>(value);
+                var valueToObject = CastOrBox<object>(value);
                 return Call(method, fld, target, valueToObject);
             }
             var targetExp = _expressions[target];
@@ -133,7 +133,7 @@ namespace Wire.Compilation
             return res;
         }
 
-        public int ConvertTo<T>(int value)
+        public int CastOrBox<T>(int value)
         {
             var valueExp = _expressions[value];
             var con = (Expression) Expression.Convert(valueExp, typeof(T));
@@ -156,7 +156,7 @@ namespace Wire.Compilation
             _content.Add(exp);
         }
 
-        public int Convert(int value, Type type)
+        public int CastOrBox(int value, Type type)
         {
             var valueExp = _expressions[value];
             var conv = (Expression) Expression.Convert(valueExp, type);

@@ -28,7 +28,12 @@ namespace Wire.Compilation
 
         public IlCompiler()
         {
-            _method = new DynamicMethod("foo", null, null);
+            var delegateType = typeof(TDel);
+            var invoke = delegateType.GetMethod("Invoke");
+            var returnType = invoke.ReturnType;
+            var parameterTypes = invoke.GetParameters().Select(a => a.ParameterType).ToArray();
+
+            _method = new DynamicMethod("foo", returnType, parameterTypes);
             _il = _method.GetILGenerator();
             _context = new IlCompilerContext(_il);
         }
@@ -73,7 +78,12 @@ namespace Wire.Compilation
 
         public int CastOrUnbox(int value, Type type)
         {
-            throw new NotImplementedException();
+            var valueExp = _expressions[value];
+            if (type.IsValueType)
+                _expressions.Add(new IlUnbox(type, valueExp));
+            else
+                _expressions.Add(new IlCastClass(type, valueExp));
+            return _expressions.Count - 1;
         }
 
         public void EmitCall(MethodInfo method, int target, params int[] arguments)
@@ -119,6 +129,8 @@ namespace Wire.Compilation
 
         public TDel Compile()
         {
+
+
             while (_context.StackDepth-- > 0)
             {
                 _context.Il.Emit(OpCodes.Pop);
@@ -126,11 +138,6 @@ namespace Wire.Compilation
             _il.Emit(OpCodes.Ret);
             var del = (TDel)(object)_method.CreateDelegate(typeof(TDel));
             return del;
-        }
-
-        public int ConvertTo<T>(int value)
-        {
-            throw new NotImplementedException();
         }
 
         public int WriteVar(int variable, int value)
@@ -148,9 +155,19 @@ namespace Wire.Compilation
             exp.Emit(_context);
         }
 
-        public int Convert(int value, Type type)
+        public int CastOrBox<T>(int value)
         {
-            throw new NotImplementedException();
+            return CastOrBox(value, typeof(T));
+        }
+
+        public int CastOrBox(int value, Type type)
+        {
+            var valueExp = _expressions[value];
+            if (valueExp.Type().IsValueType)
+                _expressions.Add(new IlBox(valueExp.Type(), valueExp));
+            else
+                _expressions.Add(new IlCastClass(type, valueExp));
+            return _expressions.Count - 1;
         }
     }
 }

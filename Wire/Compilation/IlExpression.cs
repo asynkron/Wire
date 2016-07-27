@@ -8,6 +8,7 @@ namespace Wire.Compilation
     public abstract class IlExpression
     {
         public abstract void Emit(IlCompilerContext ctx);
+        public abstract Type Type();
     }
 
     public class IlBool : IlExpression
@@ -24,6 +25,8 @@ namespace Wire.Compilation
             ctx.Il.Emit(_value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
             ctx.StackDepth++;
         }
+
+        public override Type Type() => typeof(bool);
     }
 
     public class IlReadField : IlExpression
@@ -43,6 +46,8 @@ namespace Wire.Compilation
             ctx.Il.Emit(OpCodes.Ldfld,_field);
             ctx.StackDepth++;
         }
+
+        public override Type Type() => _field.FieldType;
     }
 
     public class IlWriteVariable : IlExpression
@@ -61,6 +66,11 @@ namespace Wire.Compilation
             _value.Emit(ctx);
             ctx.Il.Emit(OpCodes.Stloc, _variable.VariableIndex);
             ctx.StackDepth--;
+        }
+
+        public override Type Type()
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -84,6 +94,11 @@ namespace Wire.Compilation
             ctx.Il.Emit(OpCodes.Stfld, _field);
             ctx.StackDepth-=2;
         }
+
+        public override Type Type()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class IlNew : IlExpression
@@ -101,6 +116,8 @@ namespace Wire.Compilation
             ctx.Il.Emit(OpCodes.Newobj,ctor);
             ctx.StackDepth++;
         }
+
+        public override Type Type() => _type;
     }
 
     public class IlParameter : IlExpression
@@ -119,6 +136,8 @@ namespace Wire.Compilation
             ctx.Il.Emit(OpCodes.Ldarg, _parameterIndex);
             ctx.StackDepth++;
         }
+
+        public override Type Type() => _type;
     }
 
     public class IlVariable : IlExpression
@@ -137,6 +156,8 @@ namespace Wire.Compilation
             ctx.Il.Emit(OpCodes.Ldloc, VariableIndex);
             ctx.StackDepth++;
         }
+
+        public override Type Type() => _type;
     }
 
     public class IlCastClass : IlExpression
@@ -155,6 +176,28 @@ namespace Wire.Compilation
             _expression.Emit(ctx);
             ctx.Il.Emit(OpCodes.Castclass, _type);
         }
+
+        public override Type Type() => _type;
+    }
+
+    public class IlBox : IlExpression
+    {
+        private readonly Type _type;
+        private readonly IlExpression _expression;
+
+        public IlBox(Type type, IlExpression expression)
+        {
+            _type = type;
+            _expression = expression;
+        }
+
+        public override void Emit(IlCompilerContext ctx)
+        {
+            _expression.Emit(ctx);
+            ctx.Il.Emit(OpCodes.Box, _type);
+        }
+
+        public override Type Type() => typeof(object);
     }
 
     public class IlUnbox : IlExpression
@@ -171,8 +214,10 @@ namespace Wire.Compilation
         public override void Emit(IlCompilerContext ctx)
         {
             _expression.Emit(ctx);
-            ctx.Il.Emit(OpCodes.Unbox, _type);
+            ctx.Il.Emit(OpCodes.Unbox_Any, _type);
         }
+
+        public override Type Type() => _type;
     }
 
     public class IlCall : IlExpression
@@ -202,6 +247,8 @@ namespace Wire.Compilation
             }
             ctx.Il.EmitCall(OpCodes.Call, _method, null);
         }
+
+        public override Type Type() => _method.ReturnType;
     }
 
     public class IlCallStatic : IlExpression
@@ -227,6 +274,8 @@ namespace Wire.Compilation
             }
             ctx.Il.EmitCall(OpCodes.Call, _method, null);
         }
+
+        public override Type Type() => _method.ReturnType;
     }
 
     public static class ExpressionEx

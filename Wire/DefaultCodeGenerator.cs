@@ -79,7 +79,7 @@ namespace Wire
 
                 var typedTarget = c.CastOrUnbox(target,type);
 
-                var typedRead = c.Convert(read, field.FieldType);
+                var typedRead = c.CastOrBox(read, field.FieldType);
                 var assign = c.WriteField(field, typedTarget, typedRead);
                 c.Emit(assign);
 
@@ -116,7 +116,7 @@ namespace Wire
                 
                 var cast = c.CastOrUnbox(target, field.DeclaringType);
                 var readField = c.ReadField(field,cast);
-                var converted = c.ConvertTo<object>(readField);
+                var converted = c.CastOrBox<object>(readField);
 
                 //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
                 if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
