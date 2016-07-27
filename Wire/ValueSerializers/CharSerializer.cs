@@ -9,13 +9,8 @@ namespace Wire.ValueSerializers
         public const int Size = sizeof(char);
         public static readonly CharSerializer Instance = new CharSerializer();
 
-        public CharSerializer() : base(() => WriteValueImpl)
+        public CharSerializer() : base(Manifest, () => WriteValueImpl)
         {
-        }
-
-        public override void WriteManifest(Stream stream, SerializerSession session)
-        {
-            stream.WriteByte(Manifest);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)

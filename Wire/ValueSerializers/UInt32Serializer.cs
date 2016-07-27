@@ -9,13 +9,8 @@ namespace Wire.ValueSerializers
         public const int Size = sizeof(uint);
         public static readonly UInt32Serializer Instance = new UInt32Serializer();
 
-        public UInt32Serializer() : base(() => WriteValueImpl)
+        public UInt32Serializer() : base(Manifest, () => WriteValueImpl)
         {
-        }
-
-        public override void WriteManifest(Stream stream, SerializerSession session)
-        {
-            stream.WriteByte(Manifest);
         }
 
         public static void WriteValueImpl(Stream stream, uint u, SerializerSession session)

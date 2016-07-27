@@ -9,13 +9,8 @@ namespace Wire.ValueSerializers
         public const int Size = sizeof(long);
         public static readonly Int64Serializer Instance = new Int64Serializer();
 
-        public Int64Serializer() : base(()=>WriteValueImpl)
+        public Int64Serializer() : base(Manifest, () => WriteValueImpl)
         {
-        }
-
-        public override void WriteManifest(Stream stream, SerializerSession session)
-        {
-            stream.WriteByte(Manifest);
         }
 
         public static void WriteValueImpl(Stream stream, long l, SerializerSession session)

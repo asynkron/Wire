@@ -9,13 +9,8 @@ namespace Wire.ValueSerializers
         const int Size = sizeof(double);
         public static readonly DoubleSerializer Instance = new DoubleSerializer();
 
-        public DoubleSerializer() : base(() => WriteValueImpl)
+        public DoubleSerializer() : base(Manifest, () => WriteValueImpl)
         {
-        }
-
-        public override void WriteManifest(Stream stream, SerializerSession session)
-        {
-            stream.WriteByte(Manifest);
         }
 
         public static void WriteValueImpl(Stream stream, double d, SerializerSession session)

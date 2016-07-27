@@ -8,12 +8,14 @@ namespace Wire.ValueSerializers
 {
     public abstract class SessionAwareValueSerializer<TElementType> : ValueSerializer
     {
+        private readonly byte _manifest;
         private readonly MethodInfo _write;
         private readonly Action<Stream, object, SerializerSession> _writeCompiled;
 
-        protected SessionAwareValueSerializer(
+        protected SessionAwareValueSerializer(byte manifest,
             Expression<Func<Action<Stream, TElementType, SerializerSession>>> writeStaticMethod)
         {
+            _manifest = manifest;
             _write = GetStaticVoid(writeStaticMethod);
 
             var stream = Expression.Parameter(typeof(Stream));
@@ -23,6 +25,11 @@ namespace Wire.ValueSerializers
             _writeCompiled = Expression.Lambda<Action<Stream, object, SerializerSession>>(
                 Expression.Call(_write, stream, Expression.Convert(value, typeof(TElementType)), session), stream, value,
                 session).Compile();
+        }
+
+        public sealed override void WriteManifest(Stream stream, SerializerSession session)
+        {
+            stream.WriteByte(_manifest);
         }
 
         public sealed override void WriteValue(Stream stream, object value, SerializerSession session)

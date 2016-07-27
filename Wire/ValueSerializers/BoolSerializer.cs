@@ -8,13 +8,8 @@ namespace Wire.ValueSerializers
         public static readonly BoolSerializer Instance = new BoolSerializer();
 
         public BoolSerializer() : 
-            base(() => WriteValueImpl)
+            base(Manifest, () => WriteValueImpl)
         {
-        }
-
-        public override void WriteManifest(Stream stream, SerializerSession session)
-        {
-            stream.WriteByte(Manifest);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)

@@ -7,13 +7,8 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 20;
         public static readonly SByteSerializer Instance = new SByteSerializer();
 
-        public SByteSerializer() : base(() => WriteValueImpl)
+        public SByteSerializer() : base(Manifest, () => WriteValueImpl)
         {
-        }
-
-        public override void WriteManifest(Stream stream, SerializerSession session)
-        {
-            stream.WriteByte(Manifest);
         }
 
         public static unsafe void WriteValueImpl(Stream stream, sbyte @sbyte)

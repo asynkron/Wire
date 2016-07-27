@@ -9,13 +9,8 @@ namespace Wire.ValueSerializers
         public const int Size = sizeof(long);
         public static readonly DateTimeSerializer Instance = new DateTimeSerializer();
 
-        public DateTimeSerializer() : base(() => WriteValueImpl)
+        public DateTimeSerializer() : base(Manifest, () => WriteValueImpl)
         {
-        }
-
-        public override void WriteManifest(Stream stream, SerializerSession session)
-        {
-            stream.WriteByte(Manifest);
         }
 
         static void WriteValueImpl(Stream stream, DateTime dateTime, SerializerSession session)

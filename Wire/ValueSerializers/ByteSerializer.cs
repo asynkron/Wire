@@ -7,13 +7,8 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 4;
         public static readonly ByteSerializer Instance = new ByteSerializer();
 
-        public ByteSerializer() : base(() => WriteValueImpl)
+        public ByteSerializer() : base(Manifest, () => WriteValueImpl)
         {
-        }
-
-        public override void WriteManifest(Stream stream, SerializerSession session)
-        {
-            stream.WriteByte(Manifest);
         }
 
         public static void WriteValueImpl(Stream stream, byte b)

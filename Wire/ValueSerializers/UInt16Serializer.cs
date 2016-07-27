@@ -9,13 +9,8 @@ namespace Wire.ValueSerializers
         public const int Size = sizeof(ushort);
         public static readonly UInt16Serializer Instance = new UInt16Serializer();
 
-        public UInt16Serializer() : base(() => WriteValueImpl)
+        public UInt16Serializer() : base(Manifest, () => WriteValueImpl)
         {
-        }
-
-        public override void WriteManifest(Stream stream, SerializerSession session)
-        {
-            stream.WriteByte(Manifest);
         }
 
         public static void WriteValueImpl(Stream stream, ushort u, SerializerSession session)

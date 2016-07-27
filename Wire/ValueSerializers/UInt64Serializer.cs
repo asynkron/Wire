@@ -9,13 +9,8 @@ namespace Wire.ValueSerializers
         public const int Size = sizeof(ulong);
         public static readonly UInt64Serializer Instance = new UInt64Serializer();
 
-        public UInt64Serializer() : base(() => WriteValueImpl)
+        public UInt64Serializer() : base(Manifest, () => WriteValueImpl)
         {
-        }
-
-        public override void WriteManifest(Stream stream, SerializerSession session)
-        {
-            stream.WriteByte(Manifest);
         }
 
         public static void WriteValueImpl(Stream stream, ulong ul, SerializerSession session)

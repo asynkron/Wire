@@ -10,13 +10,8 @@ namespace Wire.ValueSerializers
         public static readonly Int32Serializer Instance = new Int32Serializer();
 
         public Int32Serializer()
-            : base(() => WriteValueImpl)
+            : base(Manifest, () => WriteValueImpl)
         {
-        }
-
-        public override void WriteManifest(Stream stream, SerializerSession session)
-        {
-            stream.WriteByte(Manifest);
         }
 
         public static void WriteValueImpl(Stream stream, int i, SerializerSession session)
