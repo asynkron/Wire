@@ -1,29 +1,19 @@
-﻿using System;
-using System.IO;
-using Wire.ExpressionDSL;
+﻿using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class SByteSerializer : ValueSerializer
+    public class SByteSerializer : SessionIgnorantValueSerializer<sbyte>
     {
         public const byte Manifest = 20;
         public static readonly SByteSerializer Instance = new SByteSerializer();
 
+        public SByteSerializer() : base(() => WriteValueImpl)
+        {
+        }
+
         public override void WriteManifest(Stream stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
-        }
-
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
-        {
-            var @sbyte = (sbyte) value;
-            WriteValueImpl(stream, @sbyte);
-        }
-
-        public override void EmitWriteValue(Compiler<ObjectWriter> c, int stream, int fieldValue, int session)
-        {
-            var method = GetType().GetMethod(nameof(WriteValueImpl));
-            c.EmitStaticCall(method, stream, fieldValue);
         }
 
         public static unsafe void WriteValueImpl(Stream stream, sbyte @sbyte)
@@ -35,11 +25,6 @@ namespace Wire.ValueSerializers
         {
             var @byte = (byte) stream.ReadByte();
             return *(sbyte*) &@byte;
-        }
-
-        public override Type GetElementType()
-        {
-            return typeof(sbyte);
         }
     }
 }
