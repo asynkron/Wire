@@ -10,7 +10,7 @@ namespace Wire.SerializerFactories
     {
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            return type.IsSubclassOf(typeof(MethodInfo));
+            return type.GetTypeInfo().IsSubclassOf(typeof(MethodInfo));
         }
 
         public override bool CanDeserialize(Serializer serializer, Type type)

@@ -101,7 +101,7 @@ namespace Wire.ExpressionDSL
             if (field.IsInitOnly)
             {
                 //TODO: field is readonly, can we set it via IL or only via reflection
-                var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue), new[] { typeof(object), typeof(object) });
+                var method = typeof(FieldInfo).GetTypeInfo().GetMethod(nameof(FieldInfo.SetValue), new[] { typeof(object), typeof(object) });
                 var fld = Constant(field);
                 var valueToObject = ConvertTo<object>(value);
                 return Call(method, fld, target, valueToObject);
@@ -172,7 +172,8 @@ namespace Wire.ExpressionDSL
 
         public static Expression GetNewExpression(Type type)
         {
-            var defaultCtor = type.GetConstructor(new Type[] {});
+#if SERIALIZATION
+            var defaultCtor = type.GetTypeInfo().GetConstructor(new Type[] {});
             var il = defaultCtor?.GetMethodBody()?.GetILAsByteArray();
             var sideEffectFreeCtor = il != null && il.Length <= 8; //this is the size of an empty ctor
             if (sideEffectFreeCtor)
@@ -180,7 +181,8 @@ namespace Wire.ExpressionDSL
                 //the ctor exists and the size is empty. lets use the New operator
                 return Expression.New(defaultCtor);
             }
-            var emptyObjectMethod = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
+#endif
+            var emptyObjectMethod = typeof(TypeEx).GetTypeInfo().GetMethod(nameof(TypeEx.GetEmptyObject));
             var emptyObject = Expression.Call(null, emptyObjectMethod, type.ToConstant());
 
             return emptyObject;

@@ -32,7 +32,7 @@ namespace Wire
 
             if (serializer.Options.PreserveObjectReferences)
             {
-                var trackDeserializedObjectMethod = typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                var trackDeserializedObjectMethod = typeof(DeserializerSession).GetTypeInfo().GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
 
                 c.EmitCall(trackDeserializedObjectMethod,session,target);
             }
@@ -67,13 +67,13 @@ namespace Wire
                     //if they are included, we need to be able to skip past unknown property data
                     //e.g. if sender have added a new property that the receiveing end does not yet know about
                     //which we cannot do w/o a manifest
-                    var method = typeof(ValueSerializer).GetMethod(nameof(ValueSerializer.ReadValue));
+                    var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(ValueSerializer.ReadValue));
                     var ss = c.Constant(s);
                     read = c.Call(method,ss,stream,session);
                 }
                 else
                 {
-                    var method = typeof(StreamExtensions).GetMethod(nameof(StreamExtensions.ReadObject));
+                    var method = typeof(StreamExtensions).GetTypeInfo().GetMethod(nameof(StreamExtensions.ReadObject));
                     read = c.StaticCall(method,stream,session);
                 }
 
@@ -103,7 +103,7 @@ namespace Wire
 
             if (serializer.Options.PreserveObjectReferences)
             {
-                var method = typeof(SerializerSession).GetMethod(nameof(SerializerSession.TrackSerializedObject));
+                var method = typeof(SerializerSession).GetTypeInfo().GetMethod(nameof(SerializerSession.TrackSerializedObject));
 
                 c.EmitCall(method,session,target);
             }
@@ -123,7 +123,7 @@ namespace Wire
                 {
                     //primitive types does not need to write any manifest, if the field type is known
                     //nor can they be null (StringSerializer has it's own null handling)
-                    var method = typeof(ValueSerializer).GetMethod(nameof(ValueSerializer.WriteValue));
+                    var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(ValueSerializer.WriteValue));
                     //write it to the value serializer
                     var vs = c.Constant( valueSerializer);
                     c.EmitCall(method, vs, stream, converted, session);
@@ -141,7 +141,7 @@ namespace Wire
                     var vs = c.Constant(valueSerializer);
                     var vt = c.Constant(valueType);
 
-                    var method = typeof(StreamExtensions).GetMethod(nameof(StreamExtensions.WriteObject));
+                    var method = typeof(StreamExtensions).GetTypeInfo().GetMethod(nameof(StreamExtensions.WriteObject));
 
                     c.EmitStaticCall(method,stream, converted,vt,vs,preserveReferences,session);
                 }

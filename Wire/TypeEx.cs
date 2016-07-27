@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+#if SERIALIZATION
 using System.Runtime.Serialization;
-using System.Security;
+#endif
 
 namespace Wire
 {
