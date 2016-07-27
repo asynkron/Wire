@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Wire.ExpressionDSL;
 
 namespace Wire.ValueSerializers
 {
@@ -16,7 +17,7 @@ namespace Wire.ValueSerializers
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var b = (bool) value;
-            stream.WriteByte((byte) (b ? 1 : 0));
+            WriteValueImpl(stream, b);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
@@ -25,9 +26,20 @@ namespace Wire.ValueSerializers
             return b != 0;
         }
 
+        public override void EmitWriteValue(Compiler<ObjectWriter> c, int stream, int fieldValue, int session)
+        {
+            var method = GetType().GetMethod(nameof(WriteValueImpl));
+            c.EmitStaticCall(method, stream, fieldValue);
+        }
+
+        public static void WriteValueImpl(Stream stream, bool b)
+        {
+            stream.WriteByte((byte) (b ? 1 : 0));
+        }
+
         public override Type GetElementType()
         {
-            return typeof (bool);
+            return typeof(bool);
         }
     }
 }

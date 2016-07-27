@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Wire.ExpressionDSL;
 
 namespace Wire.ValueSerializers
 {
@@ -16,7 +17,19 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
-            var bytes = NoAllocBitConverter.GetBytes((uint) value, session);
+            var u = (uint) value;
+            WriteValueImpl(stream, session, u);
+        }
+
+        public override void EmitWriteValue(Compiler<ObjectWriter> c, int stream, int fieldValue, int session)
+        {
+            var method = GetType().GetMethod(nameof(WriteValueImpl));
+            c.EmitStaticCall(method, stream, session, fieldValue);
+        }
+
+        public static void WriteValueImpl(Stream stream, SerializerSession session, uint u)
+        {
+            var bytes = NoAllocBitConverter.GetBytes(u, session);
             stream.Write(bytes, 0, Size);
         }
 
