@@ -22,17 +22,15 @@ namespace Wire.ValueSerializers
             _write = GetStatic(writeStaticMethod, typeof(void));
             _read = GetStatic(readStaticMethod, typeof(TElementType));
 
-            var c = new Compiler<Action<Stream, object>>();
+            var stream = Expression.Parameter(typeof(Stream));
+            var value = Expression.Parameter(typeof(object));
 
-            var stream = c.Parameter<Stream>("stream");
-            var value = c.Parameter<object>("value");
-            var valueTyped = c.CastOrUnbox(value, typeof(TElementType));
+            _writeCompiled = Expression.Lambda<Action<Stream, object>>(
+                Expression.Call(_write, stream, Expression.Convert(value, typeof(TElementType))), stream, value)
+                .Compile();
 
             _readCompiled = Expression.Lambda<Func<Stream, TElementType>>(
                 Expression.Call(_read, stream), stream).Compile();
-            c.EmitStaticCall(_write,stream, valueTyped);
-
-            _writeCompiled = c.Compile();
         }
 
         public sealed override void WriteManifest(Stream stream, SerializerSession session)

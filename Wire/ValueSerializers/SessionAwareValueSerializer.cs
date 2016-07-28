@@ -10,7 +10,7 @@ namespace Wire.ValueSerializers
     {
         private readonly byte _manifest;
         private readonly MethodInfo _write;
-        private readonly ObjectWriter _writeCompiled;
+        private readonly Action<Stream, object, SerializerSession> _writeCompiled;
         private readonly MethodInfo _read;
         private readonly Func<Stream, DeserializerSession, TElementType> _readCompiled;
 
@@ -22,11 +22,13 @@ namespace Wire.ValueSerializers
             _write = GetStatic(writeStaticMethod, typeof(void));
             _read = GetStatic(readStaticMethod, typeof(TElementType));
 
-            var c = new Compiler<ObjectWriter>();
+            var stream = Expression.Parameter(typeof(Stream));
+            var value = Expression.Parameter(typeof(object));
+            var session = Expression.Parameter(typeof(SerializerSession));
 
-            var stream = c.Parameter<Stream>("stream");
-            var value = c.Parameter<object>("value");
-            var session = c.Parameter<SerializerSession>("session");
+            _writeCompiled = Expression.Lambda<Action<Stream, object, SerializerSession>>(
+                Expression.Call(_write, stream, Expression.Convert(value, typeof(TElementType)), session), stream, value,
+                session).Compile();
 
             session = Expression.Parameter(typeof(DeserializerSession));
             _readCompiled = Expression.Lambda<Func<Stream, DeserializerSession, TElementType>>(
