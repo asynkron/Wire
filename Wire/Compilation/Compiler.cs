@@ -1,17 +1,17 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Wire.ExpressionDSL
+namespace Wire.Compilation
 {
-    public class Compiler<TDel>
+    public class Compiler<TDel> : ICompiler<TDel>
     {
-        private readonly List<Expression> _expressions = new List<Expression>();
         private readonly List<Expression> _content = new List<Expression>();
-        private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
+        private readonly List<Expression> _expressions = new List<Expression>();
         private readonly List<ParameterExpression> _parameters = new List<ParameterExpression>();
+        private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
 
         public int NewObject(Type type)
         {
@@ -22,7 +22,7 @@ namespace Wire.ExpressionDSL
 
         public int Parameter<T>(string name)
         {
-            var exp = Expression.Parameter(typeof(T),name);
+            var exp = Expression.Parameter(typeof(T), name);
             _parameters.Add(exp);
             _expressions.Add(exp);
             return _expressions.Count - 1;
@@ -45,7 +45,7 @@ namespace Wire.ExpressionDSL
 
         public int CastOrUnbox(int value, Type type)
         {
-            Expression tempQualifier = _expressions[value];
+            var tempQualifier = _expressions[value];
             var cast = type.GetTypeInfo().IsValueType
                 // ReSharper disable once AssignNullToNotNullAttribute
                 ? Expression.Unbox(tempQualifier, type)
@@ -55,7 +55,7 @@ namespace Wire.ExpressionDSL
             _expressions.Add(exp);
             return _expressions.Count - 1;
         }
-        
+
         public void EmitCall(MethodInfo method, int target, params int[] arguments)
         {
             var targetExp = _expressions[target];
@@ -96,14 +96,15 @@ namespace Wire.ExpressionDSL
             return _expressions.Count - 1;
         }
 
-        public int WriteField(FieldInfo field, int target,int value)
+        public int WriteField(FieldInfo field, int target, int value)
         {
             if (field.IsInitOnly)
             {
                 //TODO: field is readonly, can we set it via IL or only via reflection
-                var method = typeof(FieldInfo).GetMethod(nameof(FieldInfo.SetValue), new[] { typeof(object), typeof(object) });
+                var method = typeof(FieldInfo).GetTypeInfo()
+                    .GetMethod(nameof(FieldInfo.SetValue), new[] {typeof(object), typeof(object)});
                 var fld = Constant(field);
-                var valueToObject = ConvertTo<object>(value);
+                var valueToObject = CastOrBox<object>(value);
                 return Call(method, fld, target, valueToObject);
             }
             var targetExp = _expressions[target];
@@ -121,7 +122,7 @@ namespace Wire.ExpressionDSL
                 _content.Add(Expression.Empty());
             }
 
-            return Expression.Block(_variables.ToArray(),_content);
+            return Expression.Block(_variables.ToArray(), _content);
         }
 
         public TDel Compile()
@@ -131,7 +132,8 @@ namespace Wire.ExpressionDSL
             var res = Expression.Lambda<TDel>(body, parameters).Compile();
             return res;
         }
-        public int ConvertTo<T>(int value)
+
+        public int CastOrBox<T>(int value)
         {
             var valueExp = _expressions[value];
             var con = (Expression) Expression.Convert(valueExp, typeof(T));
@@ -154,36 +156,12 @@ namespace Wire.ExpressionDSL
             _content.Add(exp);
         }
 
-        public int Convert(int value, Type type)
+        public int CastOrBox(int value, Type type)
         {
             var valueExp = _expressions[value];
             var conv = (Expression) Expression.Convert(valueExp, type);
             _expressions.Add(conv);
             return _expressions.Count - 1;
-        }
-    }
-    public static class ExpressionEx
-    {
-        public static ConstantExpression ToConstant(this object self)
-        {
-            return Expression.Constant(self);
-        }
-
-
-        public static Expression GetNewExpression(Type type)
-        {
-            var defaultCtor = type.GetConstructor(new Type[] {});
-            var il = defaultCtor?.GetMethodBody()?.GetILAsByteArray();
-            var sideEffectFreeCtor = il != null && il.Length <= 8; //this is the size of an empty ctor
-            if (sideEffectFreeCtor)
-            {
-                //the ctor exists and the size is empty. lets use the New operator
-                return Expression.New(defaultCtor);
-            }
-            var emptyObjectMethod = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
-            var emptyObject = Expression.Call(null, emptyObjectMethod, type.ToConstant());
-
-            return emptyObject;
         }
     }
 }

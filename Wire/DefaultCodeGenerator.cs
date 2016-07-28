@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Wire.ExpressionDSL;
+using Wire.Compilation;
 using Wire.ValueSerializers;
 
 namespace Wire
@@ -68,19 +68,19 @@ namespace Wire
                     //if they are included, we need to be able to skip past unknown property data
                     //e.g. if sender have added a new property that the receiveing end does not yet know about
                     //which we cannot do w/o a manifest
-                    var method = typeof(ValueSerializer).GetMethod(nameof(ValueSerializer.ReadValue));
+                    var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(ValueSerializer.ReadValue));
                     var ss = c.Constant(s);
                     read = c.Call(method, ss, stream, session);
                 }
                 else
                 {
-                    var method = typeof(StreamExtensions).GetMethod(nameof(StreamExtensions.ReadObject));
+                    var method = typeof(StreamExtensions).GetTypeInfo().GetMethod(nameof(StreamExtensions.ReadObject));
                     read = c.StaticCall(method, stream, session);
                 }
 
                 var typedTarget = c.CastOrUnbox(target, type);
 
-                var typedRead = c.Convert(read, field.FieldType);
+                var typedRead = c.CastOrBox(read, field.FieldType);
                 var assign = c.WriteField(field, typedTarget, typedRead);
                 c.Emit(assign);
             }
@@ -103,7 +103,7 @@ namespace Wire
 
             if (serializer.Options.PreserveObjectReferences)
             {
-                var method = typeof(SerializerSession).GetMethod(nameof(SerializerSession.TrackSerializedObject));
+                var method = typeof(SerializerSession).GetTypeInfo().GetMethod(nameof(SerializerSession.TrackSerializedObject));
 
                 c.EmitCall(method, session, target);
             }
@@ -125,7 +125,7 @@ namespace Wire
                 }
                 else
                 {
-                    var converted = c.ConvertTo<object>(readField);
+                    var converted = c.CastOrBox<object>(readField);
                     var valueType = field.FieldType;
                     if (field.FieldType.IsNullable())
                     {
@@ -137,7 +137,7 @@ namespace Wire
                     var vs = c.Constant(valueSerializer);
                     var vt = c.Constant(valueType);
 
-                    var method = typeof(StreamExtensions).GetMethod(nameof(StreamExtensions.WriteObject));
+                    var method = typeof(StreamExtensions).GetTypeInfo().GetMethod(nameof(StreamExtensions.WriteObject));
 
                     c.EmitStaticCall(method, stream, converted, vt, vs, preserveReferences, session);
                 }

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
-using Wire.ExpressionDSL;
+using Wire.Compilation;
 
 namespace Wire.ValueSerializers
 {
@@ -15,7 +15,7 @@ namespace Wire.ValueSerializers
 
         public virtual void EmitWriteValue(Compiler<ObjectWriter> c, int stream, int fieldValue, int session)
         {
-            var converted = c.ConvertTo<object>(fieldValue);
+            var converted = c.CastOrBox<object>(fieldValue);
             var method = typeof(ValueSerializer).GetMethod(nameof(WriteValue));
 
             //write it to the value serializer

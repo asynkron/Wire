@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
-using Wire.ExpressionDSL;
+using Wire.Compilation;
 
 namespace Wire.ValueSerializers
 {

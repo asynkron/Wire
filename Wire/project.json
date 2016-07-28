@@ -28,5 +28,8 @@
       "imports": "dotnet5.4",
       "dependencies": {}
     }
+  },
+  "compilationOptions": {
+    "allowUnsafe":true
   }
 }
