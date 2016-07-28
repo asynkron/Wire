@@ -23,10 +23,10 @@ namespace Wire.ValueSerializers
 
         public static DateTime ReadValueImpl(Stream stream, DeserializerSession session)
         {
-            var buffer = session.GetBuffer(Size);
-            stream.Read(buffer, 0, Size);
+            var buffer = session.GetBuffer(Size+1);
+            stream.Read(buffer, 0, Size+1);
             var ticks = BitConverter.ToInt64(buffer, 0);
-            var kind = (DateTimeKind) stream.ReadByte();
+            var kind = (DateTimeKind) buffer[Size]; //avoid reading a single byte from the stream
             var dateTime = new DateTime(ticks, kind);
             return dateTime;
         }
