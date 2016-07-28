@@ -46,6 +46,8 @@
     <Compile Include="ByteArray.cs" />
     <Compile Include="ByteArrayEqualityComparer.cs" />
     <Compile Include="Compilation\IlCompiler.cs" />
+    <Compile Include="Compilation\IlBuilder.cs" />
+    <Compile Include="Compilation\IlCompilerContext.cs" />
     <Compile Include="DefaultCodeGenerator.cs" />
     <Compile Include="Compilation\Compiler.cs" />
     <Compile Include="Compilation\IlExpression.cs" />

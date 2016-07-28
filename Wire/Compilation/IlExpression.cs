@@ -126,10 +126,12 @@ namespace Wire.Compilation
     public class IlNew : IlExpression
     {
         private readonly Type _type;
+        private readonly IlExpression _typeExpression;
 
-        public IlNew(Type type)
+        public IlNew(Type type, IlExpression typeExpression)
         {
             _type = type;
+            _typeExpression = typeExpression;
         }
 
         public override void Emit(IlCompilerContext ctx)
@@ -144,8 +146,7 @@ namespace Wire.Compilation
             else
             {
                 var method = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
-                var typeExp = new IlRuntimeConstant(_type,0);
-                var call = new IlCallStatic(method,typeExp);
+                var call = new IlCallStatic(method, _typeExpression);
                 call.Emit(ctx);
             }
             
