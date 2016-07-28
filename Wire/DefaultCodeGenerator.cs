@@ -56,7 +56,7 @@ namespace Wire
             //        //the current is less or equal, then goto 1)
             //    }
             //}
-
+            var typedTarget = c.CastOrUnbox(target, type);
             foreach (var field in fields)
             {
                 var s = serializer.GetSerializerByType(field.FieldType);
@@ -77,9 +77,9 @@ namespace Wire
                     read = c.CastOrBox(read, field.FieldType);
                 }
 
-                var typedTarget = c.CastOrUnbox(target, type);
-                var assign = c.WriteField(field, typedTarget, read);
-                c.Emit(assign);
+                
+                var assignReadToField = c.WriteField(field, typedTarget, read);
+                c.Emit(assignReadToField);
             }
             c.Emit(target);
 

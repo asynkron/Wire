@@ -67,6 +67,8 @@ namespace Wire.Compilation
             if (!Constants.Any())
                 return null;
 
+            //TODO: a tuple will not be enough, we need arbitary many constants.
+            //just emit the state object instead.
             var tupleTypes = Constants.Select(c => c.GetType()).ToArray();
             var genericTupleFactory =
                 typeof(Tuple)

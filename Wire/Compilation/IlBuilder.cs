@@ -16,6 +16,7 @@ namespace Wire.Compilation
         public int NewObject(Type type)
         {
             var ctor = type.GetConstructor(new Type[] { });
+            // ReSharper disable once PossibleNullReferenceException
             if (ctor != null && ctor.GetMethodBody().GetILAsByteArray().Length <= 8)
             {
                 var @new = new IlNew(type);

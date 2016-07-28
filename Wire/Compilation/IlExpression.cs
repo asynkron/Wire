@@ -134,6 +134,7 @@ namespace Wire.Compilation
         public override void Emit(IlCompilerContext ctx)
         {           
             var ctor = _type.GetConstructor(new Type[] {});
+            // ReSharper disable once AssignNullToNotNullAttribute
             ctx.Il.Emit(OpCodes.Newobj, ctor);
             ctx.StackDepth++;
         }
