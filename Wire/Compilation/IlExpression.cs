@@ -282,6 +282,8 @@ namespace Wire.Compilation
                 ctx.StackDepth--;
             }
             ctx.Il.EmitCall(OpCodes.Call, _method, null);
+            if (_method.ReturnType != typeof(void))
+                ctx.StackDepth++;
         }
 
         public override Type Type() => _method.ReturnType;
@@ -309,6 +311,8 @@ namespace Wire.Compilation
                 ctx.StackDepth--;
             }
             ctx.Il.EmitCall(OpCodes.Call, _method, null);
+            if (_method.ReturnType != typeof(void))
+                ctx.StackDepth++;
         }
 
         public override Type Type() => _method.ReturnType;

@@ -30,7 +30,7 @@ namespace Wire.ValueSerializers
             // ReSharper disable once AssignNullToNotNullAttribute
             var typeNameBytes = typeName.ToUtf8Bytes();
 
-            var fields = ReflectionEx.GetFieldInfosForType(type);
+            var fields = type.GetFieldInfosForType();
             var fieldNames = fields.Select(field => field.Name.ToUtf8Bytes()).ToList();
             var versionInfo = TypeEx.GetTypeManifest(fieldNames);
 
@@ -84,20 +84,11 @@ namespace Wire.ValueSerializers
             }
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
-        {
-            _writer(stream, value, session);
-        }
+        public override void WriteValue(Stream stream, object value, SerializerSession session) => _writer(stream, value, session);
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
-        {
-            return _reader(stream, session);
-        }
+        public override object ReadValue(Stream stream, DeserializerSession session) => _reader(stream, session);
 
-        public override Type GetElementType()
-        {
-            return Type;
-        }
+        public override Type GetElementType() => Type;
 
         public void Initialize(ObjectReader reader, ObjectWriter writer)
         {
