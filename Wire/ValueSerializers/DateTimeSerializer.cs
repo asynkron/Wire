@@ -1,23 +1,20 @@
 using System;
-using System.ComponentModel;
 using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class DateTimeSerializer : ValueSerializer
+    public class DateTimeSerializer : SessionAwareValueSerializer<DateTime>
     {
         public const byte Manifest = 5;
         public const int Size = sizeof(long);
         public static readonly DateTimeSerializer Instance = new DateTimeSerializer();
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public DateTimeSerializer() : base(Manifest, () => WriteValueImpl)
         {
-            stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        static void WriteValueImpl(Stream stream, DateTime dateTime, SerializerSession session)
         {
-            var dateTime = (DateTime) value;
             var bytes = NoAllocBitConverter.GetBytes(dateTime.Ticks, session);
             stream.Write(bytes, 0, Size);
             var kindByte = (byte) dateTime.Kind;
@@ -32,11 +29,6 @@ namespace Wire.ValueSerializers
             var kind = (DateTimeKind) stream.ReadByte();
             var dateTime = new DateTime(ticks, kind);
             return dateTime;
-        }
-
-        public override Type GetElementType()
-        {
-            return typeof(DateTime);
         }
     }
 }

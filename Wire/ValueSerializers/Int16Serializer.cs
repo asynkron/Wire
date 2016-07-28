@@ -3,20 +3,19 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class Int16Serializer : ValueSerializer
+    public class Int16Serializer : SessionAwareValueSerializer<short>
     {
         public const byte Manifest = 3;
         public const int Size = sizeof(short);
         public static readonly Int16Serializer Instance = new Int16Serializer();
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public Int16Serializer() : base(Manifest, () => WriteValueImpl)
         {
-            stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public static void WriteValueImpl(Stream stream, short sh, SerializerSession session)
         {
-            var bytes = NoAllocBitConverter.GetBytes((short) value, session);
+            var bytes = NoAllocBitConverter.GetBytes(sh, session);
             stream.Write(bytes, 0, Size);
         }
 
@@ -25,11 +24,6 @@ namespace Wire.ValueSerializers
             var buffer = session.GetBuffer(Size);
             stream.Read(buffer, 0, Size);
             return BitConverter.ToInt16(buffer, 0);
-        }
-
-        public override Type GetElementType()
-        {
-            return typeof(short);
         }
     }
 }

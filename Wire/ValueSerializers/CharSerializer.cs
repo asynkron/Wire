@@ -3,21 +3,14 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class CharSerializer : ValueSerializer
+    public class CharSerializer : SessionAwareValueSerializer<char>
     {
         public const byte Manifest = 15;
         public const int Size = sizeof(char);
         public static readonly CharSerializer Instance = new CharSerializer();
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public CharSerializer() : base(Manifest, () => WriteValueImpl)
         {
-            stream.WriteByte(Manifest);
-        }
-
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
-        {
-            var bytes = NoAllocBitConverter.GetBytes((char) value, session);
-            stream.Write(bytes, 0, Size);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
@@ -27,9 +20,10 @@ namespace Wire.ValueSerializers
             return BitConverter.ToSingle(buffer, 0);
         }
 
-        public override Type GetElementType()
+        public static void WriteValueImpl(Stream stream, char ch, SerializerSession session)
         {
-            return typeof(char);
+            var bytes = NoAllocBitConverter.GetBytes(ch, session);
+            stream.Write(bytes, 0, Size);
         }
     }
 }

@@ -26,15 +26,16 @@ namespace Wire
             var session = c.Parameter<DeserializerSession>("session");
             var newExpression = c.NewObject(type);
             var target = c.Variable<object>("target");
-            var assignNewObjectToTarget = c.WriteVar(target,newExpression);
+            var assignNewObjectToTarget = c.WriteVar(target, newExpression);
 
             c.Emit(assignNewObjectToTarget);
 
             if (serializer.Options.PreserveObjectReferences)
             {
-                var trackDeserializedObjectMethod = typeof(DeserializerSession).GetTypeInfo().GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                var trackDeserializedObjectMethod =
+                    typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
 
-                c.EmitCall(trackDeserializedObjectMethod,session,target);
+                c.EmitCall(trackDeserializedObjectMethod, session, target);
             }
 
             //for (var i = 0; i < storedFieldCount; i++)
@@ -69,20 +70,19 @@ namespace Wire
                     //which we cannot do w/o a manifest
                     var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(ValueSerializer.ReadValue));
                     var ss = c.Constant(s);
-                    read = c.Call(method,ss,stream,session);
+                    read = c.Call(method, ss, stream, session);
                 }
                 else
                 {
                     var method = typeof(StreamExtensions).GetTypeInfo().GetMethod(nameof(StreamExtensions.ReadObject));
-                    read = c.StaticCall(method,stream,session);
+                    read = c.StaticCall(method, stream, session);
                 }
 
-                var typedTarget = c.CastOrUnbox(target,type);
+                var typedTarget = c.CastOrUnbox(target, type);
 
                 var typedRead = c.CastOrBox(read, field.FieldType);
                 var assign = c.WriteField(field, typedTarget, typedRead);
                 c.Emit(assign);
-
             }
             c.Emit(target);
 
@@ -95,7 +95,7 @@ namespace Wire
         private ObjectWriter GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields)
         {
             var c = new Compiler<ObjectWriter>();
-            
+
             var stream = c.Parameter<Stream>("stream");
             var target = c.Parameter<object>("target");
             var session = c.Parameter<SerializerSession>("session");
@@ -105,7 +105,7 @@ namespace Wire
             {
                 var method = typeof(SerializerSession).GetTypeInfo().GetMethod(nameof(SerializerSession.TrackSerializedObject));
 
-                c.EmitCall(method,session,target);
+                c.EmitCall(method, session, target);
             }
 
             foreach (var field in fields)
@@ -113,23 +113,19 @@ namespace Wire
                 //get the serializer for the type of the field
                 var valueSerializer = serializer.GetSerializerByType(field.FieldType);
                 //runtime Get a delegate that reads the content of the given field
-                
+
                 var cast = c.CastOrUnbox(target, field.DeclaringType);
-                var readField = c.ReadField(field,cast);
-                var converted = c.CastOrBox<object>(readField);
+                var readField = c.ReadField(field, cast);
 
                 //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
                 if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
                 {
                     //primitive types does not need to write any manifest, if the field type is known
-                    //nor can they be null (StringSerializer has it's own null handling)
-                    var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(ValueSerializer.WriteValue));
-                    //write it to the value serializer
-                    var vs = c.Constant( valueSerializer);
-                    c.EmitCall(method, vs, stream, converted, session);
+                    valueSerializer.EmitWriteValue(c, stream, readField, session);
                 }
                 else
                 {
+                    var converted = c.CastOrBox<object>(readField);
                     var valueType = field.FieldType;
                     if (field.FieldType.IsNullable())
                     {
@@ -143,11 +139,12 @@ namespace Wire
 
                     var method = typeof(StreamExtensions).GetTypeInfo().GetMethod(nameof(StreamExtensions.WriteObject));
 
-                    c.EmitStaticCall(method,stream, converted,vt,vs,preserveReferences,session);
+                    c.EmitStaticCall(method, stream, converted, vt, vs, preserveReferences, session);
                 }
             }
 
-            return c.Compile(); ;
+            return c.Compile();
+            ;
         }
     }
 }

@@ -30,5 +30,10 @@ namespace Wire.Tests
         {
             return serializer.Deserialize<T>(stream);
         }
+
+        public void AssertMemoryStreamConsumed()
+        {
+            Assert.AreEqual(stream.Length, stream.Position);
+        }
     }
 }

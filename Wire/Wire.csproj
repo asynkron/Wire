@@ -96,6 +96,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializerSession.cs" />
     <Compile Include="ValueSerializers\SByteSerializer.cs" />
+    <Compile Include="ValueSerializers\SessionAwareValueSerializer.cs" />
+    <Compile Include="ValueSerializers\SessionIgnorantValueSerializer.cs" />
     <Compile Include="ValueSerializers\StringSerializer.cs" />
     <Compile Include="ValueSerializers\ToSurrogateSerializer.cs" />
     <Compile Include="ValueSerializers\TypeSerializer.cs" />

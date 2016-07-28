@@ -3,19 +3,18 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class GuidSerializer : ValueSerializer
+    public class GuidSerializer : SessionIgnorantValueSerializer<Guid>
     {
         public const byte Manifest = 11;
         public static readonly GuidSerializer Instance = new GuidSerializer();
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public GuidSerializer() : base(Manifest, () => WriteValueImpl)
         {
-            stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public static void WriteValueImpl(Stream stream, Guid g)
         {
-            var bytes = ((Guid) value).ToByteArray();
+            var bytes = g.ToByteArray();
             stream.Write(bytes);
         }
 
@@ -24,11 +23,6 @@ namespace Wire.ValueSerializers
             var buffer = new byte[16];
             stream.Read(buffer, 0, 16);
             return new Guid(buffer);
-        }
-
-        public override Type GetElementType()
-        {
-            return typeof (Guid);
         }
     }
 }
