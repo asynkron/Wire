@@ -7,7 +7,7 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 20;
         public static readonly SByteSerializer Instance = new SByteSerializer();
 
-        public SByteSerializer() : base(Manifest, () => WriteValueImpl)
+        public SByteSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
 
@@ -16,7 +16,7 @@ namespace Wire.ValueSerializers
             stream.WriteByte(*(byte*) &@sbyte);
         }
 
-        public override unsafe object ReadValue(Stream stream, DeserializerSession session)
+        public static unsafe sbyte ReadValueImpl(Stream stream)
         {
             var @byte = (byte) stream.ReadByte();
             return *(sbyte*) &@byte;

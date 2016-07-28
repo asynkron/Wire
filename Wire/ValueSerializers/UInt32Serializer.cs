@@ -9,7 +9,7 @@ namespace Wire.ValueSerializers
         public const int Size = sizeof(uint);
         public static readonly UInt32Serializer Instance = new UInt32Serializer();
 
-        public UInt32Serializer() : base(Manifest, () => WriteValueImpl)
+        public UInt32Serializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
 
@@ -19,7 +19,7 @@ namespace Wire.ValueSerializers
             stream.Write(bytes, 0, Size);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public static uint ReadValueImpl(Stream stream, DeserializerSession session)
         {
             var buffer = session.GetBuffer(Size);
             stream.Read(buffer, 0, Size);

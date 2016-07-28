@@ -68,20 +68,17 @@ namespace Wire
                     //if they are included, we need to be able to skip past unknown property data
                     //e.g. if sender have added a new property that the receiveing end does not yet know about
                     //which we cannot do w/o a manifest
-                    var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(ValueSerializer.ReadValue));
-                    var ss = c.Constant(s);
-                    read = c.Call(method, ss, stream, session);
+                    read = s.EmitReadValue(c, stream, session, field);
                 }
                 else
                 {
                     var method = typeof(StreamExtensions).GetTypeInfo().GetMethod(nameof(StreamExtensions.ReadObject));
                     read = c.StaticCall(method, stream, session);
+                    read = c.CastOrBox(read, field.FieldType);
                 }
 
                 var typedTarget = c.CastOrUnbox(target, type);
-
-                var typedRead = c.CastOrBox(read, field.FieldType);
-                var assign = c.WriteField(field, typedTarget, typedRead);
+                var assign = c.WriteField(field, typedTarget, read);
                 c.Emit(assign);
             }
             c.Emit(target);
@@ -103,7 +100,8 @@ namespace Wire
 
             if (serializer.Options.PreserveObjectReferences)
             {
-                var method = typeof(SerializerSession).GetTypeInfo().GetMethod(nameof(SerializerSession.TrackSerializedObject));
+                var method =
+                    typeof(SerializerSession).GetTypeInfo().GetMethod(nameof(SerializerSession.TrackSerializedObject));
 
                 c.EmitCall(method, session, target);
             }

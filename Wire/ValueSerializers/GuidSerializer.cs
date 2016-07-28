@@ -8,7 +8,7 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 11;
         public static readonly GuidSerializer Instance = new GuidSerializer();
 
-        public GuidSerializer() : base(Manifest, () => WriteValueImpl)
+        public GuidSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
 
@@ -18,7 +18,7 @@ namespace Wire.ValueSerializers
             stream.Write(bytes);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public static Guid ReadValueImpl(Stream stream)
         {
             var buffer = new byte[16];
             stream.Read(buffer, 0, 16);

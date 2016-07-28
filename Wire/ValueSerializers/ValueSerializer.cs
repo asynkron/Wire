@@ -23,7 +23,16 @@ namespace Wire.ValueSerializers
             c.EmitCall(method, vs, stream, converted, session);
         }
 
-        public static MethodInfo GetStaticVoid(LambdaExpression expression)
+        public virtual int EmitReadValue(Compiler<ObjectReader> c, int stream, int session, FieldInfo field)
+        {
+            var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(ReadValue));
+            var ss = c.Constant(this);
+            var read = c.Call(method, ss, stream, session);
+            read = c.CastOrBox(read, field.FieldType);
+            return read;
+        }
+
+        public static MethodInfo GetStatic(LambdaExpression expression, Type expectedReturnType)
         {
             var unaryExpression = (UnaryExpression) expression.Body;
             var methodCallExpression = (MethodCallExpression) unaryExpression.Operand;
@@ -35,9 +44,9 @@ namespace Wire.ValueSerializers
                 throw new ArgumentException($"Method {method.Name} should be static.");
             }
 
-            if (method.ReturnType != typeof(void))
+            if (method.ReturnType != expectedReturnType)
             {
-                throw new ArgumentException($"Method {method.Name} should return void.");
+                throw new ArgumentException($"Method {method.Name} should return {expectedReturnType.Name}.");
             }
 
             return method;
