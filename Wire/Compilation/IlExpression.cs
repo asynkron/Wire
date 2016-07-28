@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -126,30 +125,17 @@ namespace Wire.Compilation
     public class IlNew : IlExpression
     {
         private readonly Type _type;
-        private readonly IlExpression _typeExpression;
 
-        public IlNew(Type type, IlExpression typeExpression)
+        public IlNew(Type type)
         {
             _type = type;
-            _typeExpression = typeExpression;
         }
 
         public override void Emit(IlCompilerContext ctx)
-        {
-            
+        {           
             var ctor = _type.GetConstructor(new Type[] {});
-            if (ctor != null && ctor.GetMethodBody().GetILAsByteArray().Length <= 8)
-            {
-                ctx.Il.Emit(OpCodes.Newobj, ctor);
-                ctx.StackDepth++;
-            }
-            else
-            {
-                var method = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
-                var call = new IlCallStatic(method, _typeExpression);
-                call.Emit(ctx);
-            }
-            
+            ctx.Il.Emit(OpCodes.Newobj, ctor);
+            ctx.StackDepth++;
         }
 
         public override Type Type() => _type;
@@ -317,32 +303,5 @@ namespace Wire.Compilation
         }
 
         public override Type Type() => _method.ReturnType;
-    }
-
-    public static class ExpressionEx
-    {
-        public static ConstantExpression ToConstant(this object self)
-        {
-            return Expression.Constant(self);
-        }
-
-
-        public static Expression GetNewExpression(Type type)
-        {
-#if SERIALIZATION
-            var defaultCtor = type.GetTypeInfo().GetConstructor(new Type[] {});
-            var il = defaultCtor?.GetMethodBody()?.GetILAsByteArray();
-            var sideEffectFreeCtor = il != null && il.Length <= 8; //this is the size of an empty ctor
-            if (sideEffectFreeCtor)
-            {
-                //the ctor exists and the size is empty. lets use the New operator
-                return Expression.New(defaultCtor);
-            }
-#endif
-            var emptyObjectMethod = typeof(TypeEx).GetTypeInfo().GetMethod(nameof(TypeEx.GetEmptyObject));
-            var emptyObject = Expression.Call(null, emptyObjectMethod, type.ToConstant());
-
-            return emptyObject;
-        }
     }
 }

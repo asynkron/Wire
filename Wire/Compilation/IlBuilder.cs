@@ -15,10 +15,20 @@ namespace Wire.Compilation
 
         public int NewObject(Type type)
         {
-            var typeExp = Constant(type);
-            var t = _expressions[typeExp];
-            var exp = new IlNew(type,t);
-            _expressions.Add(exp);
+            var ctor = type.GetConstructor(new Type[] { });
+            if (ctor != null && ctor.GetMethodBody().GetILAsByteArray().Length <= 8)
+            {
+                var @new = new IlNew(type);
+                _expressions.Add(@new);                                
+            }
+            else
+            {
+                var typeExp = Constant(type);
+                var t = _expressions[typeExp]; //we need the type as a constant so we can load it in IlNew
+                var method = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
+                var call = new IlCallStatic(method, t);
+                _expressions.Add(call);
+            }
 
             return _expressions.Count - 1;
         }
@@ -46,6 +56,7 @@ namespace Wire.Compilation
         {
             if (value is bool)
             {
+                //doing this is faster than storing this as state
                 _expressions.Add(new IlBool((bool)value));
                 return _expressions.Count - 1;
             }
@@ -116,12 +127,11 @@ namespace Wire.Compilation
 
         public void Emit(int value)
         {
-            Action<IlCompilerContext> action = ctx =>
+            LazyEmits.Add(ctx =>
             {
                 var exp = _expressions[value];
                 exp.Emit(ctx);
-            };
-            LazyEmits.Add(action);
+            });
         }
 
         public int CastOrBox<T>(int value)
