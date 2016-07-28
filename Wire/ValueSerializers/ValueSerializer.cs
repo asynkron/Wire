@@ -23,7 +23,7 @@ namespace Wire.ValueSerializers
             c.EmitCall(method, vs, stream, converted, session);
         }
 
-        public virtual int EmitReadValue(Compiler<ObjectReader> c, int stream, int session, FieldInfo field)
+        public virtual int EmitReadValue(ICompiler<ObjectReader> c, int stream, int session, FieldInfo field)
         {
             var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(ReadValue));
             var ss = c.Constant(this);

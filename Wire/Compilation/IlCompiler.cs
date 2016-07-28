@@ -8,6 +8,8 @@ namespace Wire.Compilation
 {
     public class IlCompilerContext
     {
+        private int _stackDepth;
+
         public IlCompilerContext(ILGenerator il, Type selfType)
         {
             Il = il;
@@ -15,7 +17,21 @@ namespace Wire.Compilation
         }
 
         public ILGenerator Il { get; }
-        public int StackDepth { get; set; }
+
+
+        public int StackDepth
+        {
+            get { return _stackDepth; }
+            set
+            {
+                _stackDepth = value;
+                if (value < 0)
+                {
+                    throw new NotSupportedException("Stack depth can not be less than 0");
+                }
+            }
+        }
+
         public Type SelfType { get; }
     }
     public class IlCompiler<TDel> :ICompiler<TDel>
@@ -26,11 +42,6 @@ namespace Wire.Compilation
         private readonly List<object> _constants = new List<object>();
         private readonly List<Action<IlCompilerContext>> _lazyEmits = new List<Action<IlCompilerContext>>();
 
-
-        public IlCompiler()
-        {
-
-        }
         public int NewObject(Type type)
         {
             var exp = new IlNew(type);
@@ -65,8 +76,9 @@ namespace Wire.Compilation
                 _expressions.Add(new IlBool((bool)value));
                 return _expressions.Count - 1;
             }
+            
+            _expressions.Add(new IlRuntimeConstant(value, _constants.Count));
             _constants.Add(value);
-            _expressions.Add(new IlRuntimeConstant(value, _expressions.Count));
             return _expressions.Count - 1;
         }
 
@@ -136,18 +148,17 @@ namespace Wire.Compilation
                         .First(m => m.Name == "Create" && m.GetParameters().Length == tupleTypes.Length);
                 var tupleFactory = genericTupleFactory.MakeGenericMethod(tupleTypes);
 
-                self = tupleFactory.Invoke(null, _constants.ToArray());                               
+                self = tupleFactory.Invoke(null, _constants.ToArray());
             }
             var selfType = self?.GetType() ?? typeof(object);
             var parameterTypes = invoke.GetParameters().Select(a => a.ParameterType).ToArray();
-            var parametersWithSelf = new[] { selfType }.Concat(parameterTypes).ToArray();
+            var parametersWithSelf = new[] {selfType}.Concat(parameterTypes).ToArray();
             var returnType = invoke.ReturnType;
-            var method = new DynamicMethod("foo", returnType, parametersWithSelf,true);
+            var method = new DynamicMethod("foo", returnType, parametersWithSelf, true);
 
             var il = method.GetILGenerator();
-            var context = new IlCompilerContext(il,selfType);
-            if (returnType != typeof(void))
-                context.StackDepth--;
+            var context = new IlCompilerContext(il, selfType);
+
 
             foreach (var variable in _variables)
             {
@@ -159,15 +170,20 @@ namespace Wire.Compilation
                 method.DefineParameter(p.ParameterIndex, ParameterAttributes.None, p.Name);
             }
 
-            _lazyEmits.ForEach(e => e(context));
+            _lazyEmits.ForEach(e => {
+                                        e(context);
+            });
 
             il.Emit(OpCodes.Ret);
+
+            if (returnType != typeof(void))
+                context.StackDepth--;
 
             if (context.StackDepth != 0)
                 throw new NotSupportedException("Stack error");
 
             method.DefineParameter(0, ParameterAttributes.None, "this");
-    
+
             var del = (TDel) (object) method.CreateDelegate(typeof(TDel), self);
             return del;
 

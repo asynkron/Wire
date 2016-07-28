@@ -58,7 +58,7 @@ namespace Wire.ValueSerializers
             return _readCompiled(stream);
         }
 
-        public sealed override int EmitReadValue(Compiler<ObjectReader> c, int stream, int session, FieldInfo field)
+        public sealed override int EmitReadValue(ICompiler<ObjectReader> c, int stream, int session, FieldInfo field)
         {
             return c.StaticCall(_read, stream);
         }
