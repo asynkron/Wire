@@ -22,7 +22,7 @@ namespace Wire.ValueSerializers
             _write = GetStatic(writeStaticMethod, typeof(void));
             _read = GetStatic(readStaticMethod, typeof(TElementType));
 
-            var c = new Compiler<Action<Stream, object, SerializerSession>>();
+            var c = new IlCompiler<Action<Stream, object, SerializerSession>>();
 
             var stream = c.Parameter<Stream>("stream");
             var value = c.Parameter<object>("value");
@@ -32,7 +32,7 @@ namespace Wire.ValueSerializers
 
             _writeCompiled = c.Compile();
 
-            var c2 = new Compiler<Func<Stream, DeserializerSession, TElementType>>();
+            var c2 = new IlCompiler<Func<Stream, DeserializerSession, TElementType>>();
             var stream2 = c2.Parameter<Stream>("stream");
             var session2 = c2.Parameter<DeserializerSession>("session");
             c2.EmitStaticCall(_read,stream2,session2);

@@ -142,7 +142,6 @@ namespace Wire
             }
 
             return c.Compile();
-            ;
         }
     }
 }
