@@ -16,6 +16,19 @@ namespace Wire.Tests
         private static readonly FieldInfo BoolField = typeof(Dummy).GetField(nameof(Dummy.BoolField));
 
         [TestMethod]
+        public void CanModifyParameter()
+        {
+            var c = new IlCompiler<Action<Dummy>>();
+            var param = c.Parameter<Dummy>("dummy");
+            var write = c.WriteField(BoolField, param, c.Constant(true));
+            c.Emit(write);
+            var a = c.Compile();
+            var dummy = new Dummy();
+            a(dummy);
+            Assert.AreEqual(true,dummy.BoolField);
+        }
+
+        [TestMethod]
         public void CanCreateEmptyMethodWithArguments()
         {
             var c = new IlCompiler<Action<bool>>();
@@ -30,7 +43,8 @@ namespace Wire.Tests
             var b = c.Constant(true);
             c.Emit(b);
             var a = c.Compile();
-            a();
+            var res = a();
+            Assert.AreEqual(true,res);
         }
 
         [TestMethod]
