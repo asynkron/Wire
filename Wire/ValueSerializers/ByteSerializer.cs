@@ -1,31 +1,24 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class ByteSerializer : ValueSerializer
+    public class ByteSerializer : SessionIgnorantValueSerializer<byte>
     {
         public const byte Manifest = 4;
         public static readonly ByteSerializer Instance = new ByteSerializer();
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public ByteSerializer() : base(Manifest, () => WriteValueImpl)
         {
-            stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public static void WriteValueImpl(Stream stream, byte b)
         {
-            stream.WriteByte((byte) value);
+            stream.WriteByte(b);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
             return (byte) stream.ReadByte();
-        }
-
-        public override Type GetElementType()
-        {
-            return typeof(byte);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Wire.Tests
         [TestMethod]
         public void CanSerializeTuple2()
         {
-            SerializeAndAssert(Tuple.Create(1,123));
+            SerializeAndAssert(Tuple.Create(1, 123));
         }
 
         [TestMethod]

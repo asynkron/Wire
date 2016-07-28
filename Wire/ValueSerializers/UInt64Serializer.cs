@@ -3,20 +3,19 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class UInt64Serializer : ValueSerializer
+    public class UInt64Serializer : SessionAwareValueSerializer<ulong>
     {
         public const byte Manifest = 19;
         public const int Size = sizeof(ulong);
         public static readonly UInt64Serializer Instance = new UInt64Serializer();
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public UInt64Serializer() : base(Manifest, () => WriteValueImpl)
         {
-            stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public static void WriteValueImpl(Stream stream, ulong ul, SerializerSession session)
         {
-            var bytes = NoAllocBitConverter.GetBytes((ulong) value, session);
+            var bytes = NoAllocBitConverter.GetBytes(ul, session);
             stream.Write(bytes, 0, Size);
         }
 
@@ -25,11 +24,6 @@ namespace Wire.ValueSerializers
             var buffer = session.GetBuffer(Size);
             stream.Read(buffer, 0, Size);
             return BitConverter.ToUInt64(buffer, 0);
-        }
-
-        public override Type GetElementType()
-        {
-            return typeof(ulong);
         }
     }
 }
