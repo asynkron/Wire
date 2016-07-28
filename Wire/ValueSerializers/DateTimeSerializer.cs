@@ -9,7 +9,7 @@ namespace Wire.ValueSerializers
         public const int Size = sizeof(long);
         public static readonly DateTimeSerializer Instance = new DateTimeSerializer();
 
-        public DateTimeSerializer() : base(Manifest, () => WriteValueImpl)
+        public DateTimeSerializer() : base(Manifest, () => WriteValueImpl, ()=> ReadValueImpl)
         {
         }
 
@@ -21,7 +21,7 @@ namespace Wire.ValueSerializers
             stream.WriteByte(kindByte);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public static DateTime ReadValueImpl(Stream stream, DeserializerSession session)
         {
             var buffer = session.GetBuffer(Size+1);
             stream.Read(buffer, 0, Size+1);
