@@ -29,6 +29,28 @@ namespace Wire.Compilation
         public override Type Type() => typeof(bool);
     }
 
+    public class IlRuntimeConstant : IlExpression
+    {
+        private readonly object _object;
+        public int Index { get; }
+
+        public IlRuntimeConstant(object value, int index)
+        {
+            _object = value;
+            Index = index;
+        }
+
+        public override void Emit(IlCompilerContext ctx)
+        {
+            var field = ctx.SelfType.GetFields(BindingFlagsEx.All)[Index];
+            ctx.Il.Emit(OpCodes.Ldarg_0);
+            ctx.Il.Emit(OpCodes.Ldfld,field);
+            ctx.StackDepth++;
+        }
+
+        public override Type Type() => _object.GetType();
+    }
+
     public class IlReadField : IlExpression
     {
         private readonly FieldInfo _field;
@@ -44,7 +66,7 @@ namespace Wire.Compilation
         {
             _target.Emit(ctx);
             ctx.Il.Emit(OpCodes.Ldfld,_field);
-            ctx.StackDepth++;
+            //we are still at the same stacksize as we consumed the target
         }
 
         public override Type Type() => _field.FieldType;
@@ -112,9 +134,21 @@ namespace Wire.Compilation
 
         public override void Emit(IlCompilerContext ctx)
         {
+            
             var ctor = _type.GetConstructor(new Type[] {});
-            ctx.Il.Emit(OpCodes.Newobj,ctor);
-            ctx.StackDepth++;
+            if (ctor != null && ctor.GetMethodBody().GetILAsByteArray().Length <= 8)
+            {
+                ctx.Il.Emit(OpCodes.Newobj, ctor);
+                ctx.StackDepth++;
+            }
+            else
+            {
+                var method = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
+                var typeExp = new IlRuntimeConstant(_type,0);
+                var call = new IlCallStatic(method,typeExp);
+                call.Emit(ctx);
+            }
+            
         }
 
         public override Type Type() => _type;
@@ -122,18 +156,20 @@ namespace Wire.Compilation
 
     public class IlParameter : IlExpression
     {
-        private readonly int _parameterIndex;
+        public string Name { get; }
+        public int ParameterIndex { get; }
         private readonly Type _type;
 
-        public IlParameter(int parameterIndex,Type type)
+        public IlParameter(int parameterIndex,Type type,string name)
         {
-            _parameterIndex = parameterIndex;
+            Name = name;
+            ParameterIndex = parameterIndex;
             _type = type;
         }
 
         public override void Emit(IlCompilerContext ctx)
         {
-            ctx.Il.Emit(OpCodes.Ldarg, _parameterIndex);
+            ctx.Il.Emit(OpCodes.Ldarg, ParameterIndex);
             ctx.StackDepth++;
         }
 
