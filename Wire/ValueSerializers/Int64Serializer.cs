@@ -9,7 +9,7 @@ namespace Wire.ValueSerializers
         public const int Size = sizeof(long);
         public static readonly Int64Serializer Instance = new Int64Serializer();
 
-        public Int64Serializer() : base(Manifest, () => WriteValueImpl)
+        public Int64Serializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
 
@@ -19,7 +19,7 @@ namespace Wire.ValueSerializers
             stream.Write(bytes, 0, Size);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public static long ReadValueImpl(Stream stream, DeserializerSession session)
         {
             var buffer = session.GetBuffer(Size);
             stream.Read(buffer, 0, Size);

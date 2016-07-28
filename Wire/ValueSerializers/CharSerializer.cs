@@ -9,15 +9,15 @@ namespace Wire.ValueSerializers
         public const int Size = sizeof(char);
         public static readonly CharSerializer Instance = new CharSerializer();
 
-        public CharSerializer() : base(Manifest, () => WriteValueImpl)
+        public CharSerializer() : base(Manifest, () => WriteValueImpl, ()=>ReadValueImpl)
         {
         }
-
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        
+        public static char ReadValueImpl(Stream stream, DeserializerSession session)
         {
             var buffer = session.GetBuffer(Size);
             stream.Read(buffer, 0, Size);
-            return BitConverter.ToSingle(buffer, 0);
+            return (char) BitConverter.ToSingle(buffer, 0);
         }
 
         public static void WriteValueImpl(Stream stream, char ch, SerializerSession session)

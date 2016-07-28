@@ -9,7 +9,7 @@ namespace Wire.ValueSerializers
         public const int Size = sizeof(float);
         public static readonly FloatSerializer Instance = new FloatSerializer();
 
-        public FloatSerializer() : base(Manifest, () => WriteValueImpl)
+        public FloatSerializer() : base(Manifest, () => WriteValueImpl, ()=>ReadValueImpl)
         {
         }
 
@@ -18,8 +18,8 @@ namespace Wire.ValueSerializers
             var bytes = NoAllocBitConverter.GetBytes(f, session);
             stream.Write(bytes, 0, Size);
         }
-
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        
+        public static float ReadValueImpl(Stream stream, DeserializerSession session)
         {
             var buffer = session.GetBuffer(Size);
             stream.Read(buffer, 0, Size);

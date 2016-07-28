@@ -10,7 +10,7 @@ namespace Wire.ValueSerializers
         public static readonly Int32Serializer Instance = new Int32Serializer();
 
         public Int32Serializer()
-            : base(Manifest, () => WriteValueImpl)
+            : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
 
@@ -20,7 +20,7 @@ namespace Wire.ValueSerializers
             stream.Write(bytes, 0, Size);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public static int ReadValueImpl(Stream stream, DeserializerSession session)
         {
             var buffer = session.GetBuffer(Size);
             stream.Read(buffer, 0, Size);

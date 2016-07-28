@@ -9,7 +9,7 @@ namespace Wire.ValueSerializers
         const int Size = sizeof(double);
         public static readonly DoubleSerializer Instance = new DoubleSerializer();
 
-        public DoubleSerializer() : base(Manifest, () => WriteValueImpl)
+        public DoubleSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
 
@@ -19,7 +19,7 @@ namespace Wire.ValueSerializers
             stream.Write(bytes, 0, Size);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public static double ReadValueImpl(Stream stream, DeserializerSession session)
         {
             var buffer = session.GetBuffer(Size);
             stream.Read(buffer, 0, Size);
