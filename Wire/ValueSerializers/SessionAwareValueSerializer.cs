@@ -10,7 +10,7 @@ namespace Wire.ValueSerializers
     {
         private readonly byte _manifest;
         private readonly MethodInfo _write;
-        private readonly Action<Stream, object, SerializerSession> _writeCompiled;
+        private readonly ObjectWriter _writeCompiled;
 
         protected SessionAwareValueSerializer(byte manifest,
             Expression<Func<Action<Stream, TElementType, SerializerSession>>> writeStaticMethod)
@@ -18,13 +18,15 @@ namespace Wire.ValueSerializers
             _manifest = manifest;
             _write = GetStaticVoid(writeStaticMethod);
 
-            var stream = Expression.Parameter(typeof(Stream));
-            var value = Expression.Parameter(typeof(object));
-            var session = Expression.Parameter(typeof(SerializerSession));
+            var c = new Compiler<ObjectWriter>();
 
-            _writeCompiled = Expression.Lambda<Action<Stream, object, SerializerSession>>(
-                Expression.Call(_write, stream, Expression.Convert(value, typeof(TElementType)), session), stream, value,
-                session).Compile();
+            var stream = c.Parameter<Stream>("stream");
+            var value = c.Parameter<object>("value");
+            var session = c.Parameter<SerializerSession>("session");
+            var valueTyped = c.CastOrUnbox(value, typeof(TElementType));
+            c.EmitStaticCall(_write,stream,valueTyped,session);
+
+            _writeCompiled = c.Compile();
         }
 
         public sealed override void WriteManifest(Stream stream, SerializerSession session)

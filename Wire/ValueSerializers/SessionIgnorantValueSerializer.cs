@@ -18,12 +18,14 @@ namespace Wire.ValueSerializers
             _manifest = manifest;
             _write = GetStaticVoid(writeStaticMethod);
 
-            var stream = Expression.Parameter(typeof(Stream));
-            var value = Expression.Parameter(typeof(object));
+            var c = new Compiler<Action<Stream, object>>();
 
-            _writeCompiled = Expression.Lambda<Action<Stream, object>>(
-                Expression.Call(_write, stream, Expression.Convert(value, typeof(TElementType))), stream, value)
-                .Compile();
+            var stream = c.Parameter<Stream>("stream");
+            var value = c.Parameter<object>("value");
+            var valueTyped = c.CastOrUnbox(value, typeof(TElementType));
+            c.EmitStaticCall(_write,stream, valueTyped);
+
+            _writeCompiled = c.Compile();
         }
 
         public override void WriteManifest(Stream stream, SerializerSession session)
