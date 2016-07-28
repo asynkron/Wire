@@ -22,18 +22,22 @@ namespace Wire.ValueSerializers
             _write = GetStatic(writeStaticMethod, typeof(void));
             _read = GetStatic(readStaticMethod, typeof(TElementType));
 
-            var stream = Expression.Parameter(typeof(Stream));
-            var value = Expression.Parameter(typeof(object));
-            var session = Expression.Parameter(typeof(SerializerSession));
+            var c = new Compiler<Action<Stream, object, SerializerSession>>();
 
-            _writeCompiled = Expression.Lambda<Action<Stream, object, SerializerSession>>(
-                Expression.Call(_write, stream, Expression.Convert(value, typeof(TElementType)), session), stream, value,
-                session).Compile();
+            var stream = c.Parameter<Stream>("stream");
+            var value = c.Parameter<object>("value");
+            var session = c.Parameter<SerializerSession>("session");
+            var valueTyped = c.CastOrUnbox(value, typeof(TElementType));
+            c.EmitStaticCall(_write, stream, valueTyped, session);
 
-            session = Expression.Parameter(typeof(DeserializerSession));
-            _readCompiled = Expression.Lambda<Func<Stream, DeserializerSession, TElementType>>(
-                Expression.Call(_read, stream, session), stream,
-                session).Compile();
+            _writeCompiled = c.Compile();
+
+            var c2 = new Compiler<Func<Stream, DeserializerSession, TElementType>>();
+            var stream2 = c2.Parameter<Stream>("stream");
+            var session2 = c2.Parameter<DeserializerSession>("session");
+            c2.EmitStaticCall(_read,stream2,session2);
+
+            _readCompiled = c2.Compile();
         }
 
         public sealed override void WriteManifest(Stream stream, SerializerSession session)

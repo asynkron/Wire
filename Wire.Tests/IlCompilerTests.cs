@@ -48,6 +48,17 @@ namespace Wire.Tests
         }
 
         [TestMethod]
+        public void CanReturnConstantString()
+        {
+            var c = new IlCompiler<Func<string>>();
+            var b = c.Constant("hello");
+            c.Emit(b);
+            var a = c.Compile();
+            var res = a();
+            Assert.AreEqual("hello", res);
+        }
+
+        [TestMethod]
         public void CanCreateEmptyMethod()
         {
             var c = new IlCompiler<Action>();
@@ -58,7 +69,7 @@ namespace Wire.Tests
         [TestMethod]
         public void CanCreateObject()
         {
-            var c = new IlCompiler<Action>();
+            var c = new IlCompiler<Func<Dummy>>();
             var obj = c.NewObject(typeof(Dummy));
             c.Emit(obj);
             var a = c.Compile();
