@@ -50,7 +50,7 @@ namespace Wire.ValueSerializers
             _writeCompiled(stream, value, session);
         }
 
-        public sealed override void EmitWriteValue(Compiler<ObjectWriter> c, int stream, int fieldValue, int session)
+        public sealed override void EmitWriteValue(ICompiler<ObjectWriter> c, int stream, int fieldValue, int session)
         {
             c.EmitStaticCall(_write, stream, fieldValue, session);
         }

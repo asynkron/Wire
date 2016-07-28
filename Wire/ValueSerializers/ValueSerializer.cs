@@ -13,7 +13,7 @@ namespace Wire.ValueSerializers
         public abstract object ReadValue(Stream stream, DeserializerSession session);
         public abstract Type GetElementType();
 
-        public virtual void EmitWriteValue(Compiler<ObjectWriter> c, int stream, int fieldValue, int session)
+        public virtual void EmitWriteValue(ICompiler<ObjectWriter> c, int stream, int fieldValue, int session)
         {
             var converted = c.CastOrBox<object>(fieldValue);
             var method = typeof(ValueSerializer).GetMethod(nameof(WriteValue));
