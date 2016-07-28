@@ -8,12 +8,49 @@ namespace Wire.Tests
     public class Dummy
     {
         public bool BoolField;
+
+        public void SetBool()
+        {
+            BoolField = true;
+        }
+
+        public static void SetStatic(Dummy d)
+        {
+            d.BoolField = true;
+        }
     }
 
     [TestClass]
     public class IlCompilerTests
     {
         private static readonly FieldInfo BoolField = typeof(Dummy).GetField(nameof(Dummy.BoolField));
+        private static readonly MethodInfo SetBool = typeof(Dummy).GetMethod(nameof(Dummy.SetBool));
+        private static readonly MethodInfo SetStatic = typeof(Dummy).GetMethod(nameof(Dummy.SetStatic));
+
+        [TestMethod]
+        public void CanCallStaticMethodUsingParameter()
+        {
+            var c = new IlCompiler<Action<Dummy>>();
+            var param = c.Parameter<Dummy>("dummy");
+            c.EmitStaticCall(SetStatic, param);
+            var a = c.Compile();
+            var dummy = new Dummy();
+            a(dummy);
+            Assert.AreEqual(true, dummy.BoolField);
+        }
+
+        [TestMethod]
+        public void CanCallInstanceMethodOnParameter()
+        {
+            var c = new IlCompiler<Action<Dummy>>();
+            var param = c.Parameter<Dummy>("dummy");
+            c.EmitCall(SetBool, param);            
+            var a = c.Compile();
+            var dummy = new Dummy();
+            a(dummy);
+            Assert.AreEqual(true, dummy.BoolField);
+        }
+
 
         [TestMethod]
         public void CanModifyParameter()
