@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Microsoft.FSharp.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Wire.Compilation;
 
@@ -30,6 +31,16 @@ namespace Wire.Tests
         }
     }
 
+    public class FakeTupleString
+    {
+        public string Item1 { get; }
+
+        public FakeTupleString(string item1)
+        {
+            Item1 = item1;
+        }
+    }
+
     [TestClass]
     public class IlCompilerTests
     {
@@ -40,7 +51,7 @@ namespace Wire.Tests
         [TestMethod]
         public void CanCallStaticMethodUsingParameter()
         {
-            var c = new IlCompiler<Action<Dummy>>();
+            var c = new IlCompiler<Action<Dummy>>(typeof(Dummy));
             var param = c.Parameter<Dummy>("dummy");
             c.EmitStaticCall(SetStatic, param);
             var a = c.Compile();
@@ -52,7 +63,7 @@ namespace Wire.Tests
         [TestMethod]
         public void CanCallInstanceMethodOnParameter()
         {
-            var c = new IlCompiler<Action<Dummy>>();
+            var c = new IlCompiler<Action<Dummy>>(typeof(Dummy));
             var param = c.Parameter<Dummy>("dummy");
             c.EmitCall(SetBool, param);            
             var a = c.Compile();
@@ -65,7 +76,7 @@ namespace Wire.Tests
         [TestMethod]
         public void CanModifyParameter()
         {
-            var c = new IlCompiler<Action<Dummy>>();
+            var c = new IlCompiler<Action<Dummy>>(typeof(Dummy));
             var param = c.Parameter<Dummy>("dummy");
             var write = c.WriteField(BoolField, param, c.Constant(true));
             c.Emit(write);
@@ -163,6 +174,67 @@ namespace Wire.Tests
             a();
         }
 
+
+        [TestMethod]
+        public void ReadSimulationFakeTupleString()
+        {
+            var value = new FakeTupleString("Hello");
+            var type = value.GetType();
+            var serializer = new Serializer(new SerializerOptions(knownTypes: new List<Type>() { type }));
+            var session = new DeserializerSession(serializer);
+            var stream = new MemoryStream();
+
+            serializer.Serialize(value, stream);
+            var bytes = stream.ToArray();
+            stream.Position = 3; //skip forward to payload
+            var fields = type.GetFieldInfosForType();
+
+            var readAllFields = GetDelegate(type, fields, serializer);
+
+            var x = (FakeTupleString)readAllFields(stream, session);
+            Assert.AreEqual(value.Item1, x.Item1);
+        }
+
+
+        [TestMethod]
+        public void ReadSimulationOptionString()
+        {
+            var value = FSharpOption<string>.Some("abc");
+            var type = value.GetType();
+            var serializer = new Serializer(new SerializerOptions(knownTypes: new List<Type>() { type }));
+            var session = new DeserializerSession(serializer);
+            var stream = new MemoryStream();
+
+            serializer.Serialize(value, stream);
+            stream.Position = 3; //skip forward to payload
+            var fields = type.GetFieldInfosForType();
+
+            var readAllFields = GetDelegate(type, fields, serializer);
+
+            var x = (FSharpOption<string>)readAllFields(stream, session);
+            Assert.AreEqual(value.Value, x.Value);
+        }
+
+        [TestMethod]
+        public void ReadSimulationTupleString()
+        {
+            var value = Tuple.Create("Hello");
+            var type = value.GetType();
+            var serializer = new Serializer(new SerializerOptions(knownTypes: new List<Type>() { type }));
+            var session = new DeserializerSession(serializer);
+            var stream = new MemoryStream();
+
+            serializer.Serialize(value, stream);
+            var bytes = stream.ToArray();
+            stream.Position = 3; //skip forward to payload
+            var fields = type.GetFieldInfosForType();
+
+            var readAllFields = GetDelegate(type, fields, serializer);
+
+            var x = (Tuple<string>)readAllFields(stream, session);
+            Assert.AreEqual(value.Item1, x.Item1);
+        }
+
         [TestMethod]
         public void ReadSimulation()
         {
@@ -193,7 +265,7 @@ namespace Wire.Tests
 
         private static ObjectReader GetDelegate(Type type, FieldInfo[] fields, Serializer serializer)
         {
-            var c = new IlCompiler<ObjectReader>();
+            var c = new IlCompiler<ObjectReader>(type);
             var stream = c.Parameter<Stream>("stream");
             var session = c.Parameter<DeserializerSession>("session");
             var newExpression = c.NewObject(type);

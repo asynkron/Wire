@@ -21,7 +21,7 @@ namespace Wire
 
         private ObjectReader GetFieldsReader(Serializer serializer, IEnumerable<FieldInfo> fields, Type type)
         {
-            var c = new Compiler<ObjectReader>();
+            var c = new IlCompiler<ObjectReader>(type);
             var stream = c.Parameter<Stream>("stream");
             var session = c.Parameter<DeserializerSession>("session");
             var newExpression = c.NewObject(type);

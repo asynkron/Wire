@@ -22,6 +22,7 @@ namespace Wire.Tests
         {
             var expected = new Something
             {
+
                 Else = null
             };
             Serialize(expected);
