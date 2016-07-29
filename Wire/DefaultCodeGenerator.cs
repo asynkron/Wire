@@ -74,7 +74,7 @@ namespace Wire
                 {
                     var method = typeof(StreamExtensions).GetTypeInfo().GetMethod(nameof(StreamExtensions.ReadObject));
                     read = c.StaticCall(method, stream, session);
-                    read = c.CastOrBox(read, field.FieldType);
+                    read = c.Convert(read, field.FieldType);
                 }
 
                 
@@ -123,7 +123,7 @@ namespace Wire
                 }
                 else
                 {
-                    var converted = c.CastOrBox<object>(readField);
+                    var converted = c.Convert<object>(readField);
                     var valueType = field.FieldType;
                     if (field.FieldType.IsNullable())
                     {

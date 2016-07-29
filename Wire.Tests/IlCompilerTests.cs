@@ -1,10 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Wire.Compilation;
 
 namespace Wire.Tests
 {
+    public class Poco
+    {
+        public string StringProp { get; set; }
+        public int IntProp { get; set; }
+        public Guid GuidProp { get; set; }
+        public DateTime DateProp { get; set; }
+    }
+
     public class Dummy
     {
         public bool BoolField;
@@ -131,7 +141,7 @@ namespace Wire.Tests
             var c = new IlCompiler<Action>();
             
             var True = c.Constant(true);
-            var boxedBool = c.CastOrBox(True,typeof(object));
+            var boxedBool = c.Convert(True,typeof(object));
             var unboxedBool = c.CastOrUnbox(boxedBool, typeof(bool));
 
             var obj = c.NewObject(typeof(Dummy));
@@ -151,6 +161,60 @@ namespace Wire.Tests
             c.Emit(assign);
             var a = c.Compile();
             a();
+        }
+
+        [TestMethod]
+        public void ReadSimulation()
+        {
+            var serializer = new Serializer(new SerializerOptions(knownTypes:new List<Type>() {typeof(Poco)}));
+            var session = new DeserializerSession(serializer);
+            var stream = new MemoryStream();
+            var poco = new Poco()
+            {
+                StringProp = "hello",
+                GuidProp = Guid.NewGuid(),
+                IntProp = 123,
+                DateProp = DateTime.Now,
+            };
+            serializer.Serialize(poco,stream);
+            stream.Position = 3; //skip forward to payload
+
+            var type = typeof(Poco);
+            var fields = type.GetFieldInfosForType();
+
+            var readAllFields = GetDelegate(type, fields, serializer);
+
+            var x = (Poco)readAllFields(stream, session);
+            Assert.AreEqual(poco.DateProp, x.DateProp);
+            Assert.AreEqual(poco.GuidProp, x.GuidProp);
+            Assert.AreEqual(poco.IntProp, x.IntProp);
+            Assert.AreEqual(poco.StringProp, x.StringProp);
+        }
+
+        private static ObjectReader GetDelegate(Type type, FieldInfo[] fields, Serializer serializer)
+        {
+            var c = new IlCompiler<ObjectReader>();
+            var stream = c.Parameter<Stream>("stream");
+            var session = c.Parameter<DeserializerSession>("session");
+            var newExpression = c.NewObject(type);
+            var target = c.Variable<object>("target");
+            var assignNewObjectToTarget = c.WriteVar(target, newExpression);
+
+            c.Emit(assignNewObjectToTarget);
+
+            var typedTarget = c.CastOrUnbox(target, type);
+            foreach (var field in fields)
+            {
+                var s = serializer.GetSerializerByType(field.FieldType);
+                var read = s.EmitReadValue(c, stream, session, field);
+                
+                var assignReadToField = c.WriteField(field, typedTarget, read);
+                c.Emit(assignReadToField);
+            }
+            c.Emit(target);
+
+            var readAllFields = c.Compile();
+            return readAllFields;
         }
     }
 }

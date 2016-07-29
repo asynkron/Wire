@@ -12,7 +12,7 @@ namespace Wire.Compilation
             var delegateType = typeof(TDel);
             var invoke = delegateType.GetMethod("Invoke");
 
-            var self = BuildSelf(); ;
+            var self = BuildSelf();
             var selfType = self?.GetType() ?? typeof(object);
             var parametersWithSelf = GetParameterTypesWithSelf(invoke, selfType);
             var returnType = invoke.ReturnType;
@@ -51,6 +51,7 @@ namespace Wire.Compilation
                 throw new NotSupportedException("Stack error");
 
             var del = (TDel) (object) method.CreateDelegate(typeof(TDel), self);
+            
             return del;
 
         }

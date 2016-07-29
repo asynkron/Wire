@@ -135,12 +135,12 @@ namespace Wire.Compilation
             });
         }
 
-        public int CastOrBox<T>(int value)
+        public int Convert<T>(int value)
         {
-            return CastOrBox(value, typeof(T));
+            return Convert(value, typeof(T));
         }
 
-        public int CastOrBox(int value, Type type)
+        public int Convert(int value, Type type)
         {
             var valueExp = _expressions[value];
             if (valueExp.Type().IsValueType)

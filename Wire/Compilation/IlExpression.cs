@@ -198,7 +198,9 @@ namespace Wire.Compilation
         public override void Emit(IlCompilerContext ctx)
         {
             _expression.Emit(ctx);
+            ctx.StackDepth--;
             ctx.Il.Emit(OpCodes.Castclass, _type);
+            ctx.StackDepth++;
         }
 
         public override Type Type() => _type;
@@ -269,7 +271,10 @@ namespace Wire.Compilation
                 arg.Emit(ctx);
                 ctx.StackDepth--;
             }
-            ctx.Il.EmitCall(OpCodes.Call, _method, null);
+            if (_method.IsVirtual)
+                ctx.Il.EmitCall(OpCodes.Callvirt, _method, null);
+            else
+                ctx.Il.EmitCall(OpCodes.Call, _method, null);
             if (_method.ReturnType != typeof(void))
                 ctx.StackDepth++;
         }

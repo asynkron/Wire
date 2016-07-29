@@ -15,7 +15,7 @@ namespace Wire.ValueSerializers
 
         public virtual void EmitWriteValue(ICompiler<ObjectWriter> c, int stream, int fieldValue, int session)
         {
-            var converted = c.CastOrBox<object>(fieldValue);
+            var converted = c.Convert<object>(fieldValue);
             var method = typeof(ValueSerializer).GetMethod(nameof(WriteValue));
 
             //write it to the value serializer
@@ -28,7 +28,7 @@ namespace Wire.ValueSerializers
             var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(ReadValue));
             var ss = c.Constant(this);
             var read = c.Call(method, ss, stream, session);
-            read = c.CastOrBox(read, field.FieldType);
+            read = c.Convert(read, field.FieldType);
             return read;
         }
 
