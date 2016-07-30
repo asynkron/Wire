@@ -86,8 +86,8 @@ namespace Wire.Extensions
             return type.IsArray && type.GetArrayRank() == 1 && type.GetElementType().IsWirePrimitive();
         }
 
-        private static readonly ConcurrentDictionary<ByteArray, Type> TypeNameLookup =
-            new ConcurrentDictionary<ByteArray, Type>();
+        private static readonly ConcurrentDictionary<ByteArrayKey, Type> TypeNameLookup =
+            new ConcurrentDictionary<ByteArrayKey, Type>();
 
         public static byte[] GetTypeManifest(IReadOnlyCollection<byte[]> fieldNames)
         {
@@ -105,7 +105,7 @@ namespace Wire.Extensions
         private static Type GetTypeFromManifestName(Stream stream, DeserializerSession session)
         {
             var bytes = stream.ReadLengthEncodedByteArray(session);
-            var byteArr = ByteArray.Create(bytes);
+            var byteArr = ByteArrayKey.Create(bytes);
             return TypeNameLookup.GetOrAdd(byteArr, b =>
             {
                 var shortName = StringEx.FromUtf8Bytes(b.Bytes, 0, b.Bytes.Length);

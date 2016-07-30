@@ -21,14 +21,14 @@ namespace Wire
         {
         }
 
-        public Serializer([NotNull]SerializerOptions options)
+        public Serializer([NotNull] SerializerOptions options)
         {
             Options = options;
         }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private ValueSerializer GetCustomSerialzer([NotNull]Type type)
+        private ValueSerializer GetCustomSerialzer([NotNull] Type type)
         {
             ValueSerializer serializer;
 
@@ -50,13 +50,13 @@ namespace Wire
             //add it to the serializer lookup incase of recursive serialization
             if (!_serializers.TryAdd(type, serializer)) return _serializers[type];
             //build the serializer IL code
-            CodeGenerator.BuildSerializer(this, (ObjectSerializer)serializer);
+            CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
             //just ignore if this fails, another thread have already added an identical serialzer
             return serializer;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private ValueSerializer GetCustomDeserialzer([NotNull]Type type)
+        private ValueSerializer GetCustomDeserialzer([NotNull] Type type)
         {
             ValueSerializer serializer;
 
@@ -78,13 +78,13 @@ namespace Wire
             //add it to the serializer lookup incase of recursive serialization
             if (!_deserializers.TryAdd(type, serializer)) return _deserializers[type];
             //build the serializer IL code
-            CodeGenerator.BuildSerializer(this, (ObjectSerializer)serializer);
+            CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
             return serializer;
         }
 
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
 
-        public void Serialize(object obj, [NotNull]Stream stream)
+        public void Serialize(object obj, [NotNull] Stream stream)
         {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
@@ -97,21 +97,21 @@ namespace Wire
             s.WriteValue(stream, obj, session);
         }
 
-        public T Deserialize<T>([NotNull]Stream stream)
+        public T Deserialize<T>([NotNull] Stream stream)
         {
             var session = new DeserializerSession(this);
             var s = GetDeserializerByManifest(stream, session);
             return (T) s.ReadValue(stream, session);
         }
 
-        public object Deserialize([NotNull]Stream stream)
+        public object Deserialize([NotNull] Stream stream)
         {
             var session = new DeserializerSession(this);
             var s = GetDeserializerByManifest(stream, session);
             return s.ReadValue(stream, session);
         }
 
-        public ValueSerializer GetSerializerByType([NotNull]Type type)
+        public ValueSerializer GetSerializerByType([NotNull] Type type)
         {
             if (ReferenceEquals(type.GetTypeInfo().Assembly, ReflectionEx.CoreAssembly))
             {
@@ -183,8 +183,8 @@ namespace Wire
 
             return serializer;
         }
-        
-        public ValueSerializer GetDeserializerByManifest([NotNull]Stream stream, [NotNull]DeserializerSession session)
+
+        public ValueSerializer GetDeserializerByManifest([NotNull] Stream stream, [NotNull] DeserializerSession session)
         {
             var first = stream.ReadByte();
             switch (first)

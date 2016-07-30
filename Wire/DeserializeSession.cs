@@ -56,7 +56,7 @@ namespace Wire
             return _buffer;
         }
 
-        public void TrackDeserializedObject(object obj)
+        public void TrackDeserializedObject([NotNull]object obj)
         {
             _objectById.Add(obj);
         }
@@ -66,7 +66,7 @@ namespace Wire
             return _objectById[id];
         }
 
-        public void TrackDeserializedType(Type type)
+        public void TrackDeserializedType([NotNull]Type type)
         {
             _identifierToType.Add(type);
         }
@@ -82,7 +82,7 @@ namespace Wire
             _versionInfoByType.Add(type, versionInfo);
         }
 
-        public TypeVersionInfo GetVersionInfo(Type type)
+        public TypeVersionInfo GetVersionInfo([NotNull]Type type)
         {
             return _versionInfoByType[type];
         }
