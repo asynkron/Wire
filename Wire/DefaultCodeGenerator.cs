@@ -2,14 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using JetBrains.Annotations;
 using Wire.Compilation;
+using Wire.Extensions;
 using Wire.ValueSerializers;
 
 namespace Wire
 {
     public class DefaultCodeGenerator : ICodeGenerator
     {
-        public void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer)
+        public void BuildSerializer([NotNull]Serializer serializer, [NotNull] ObjectSerializer objectSerializer)
         {
             var type = objectSerializer.Type;
             var fields = type.GetFieldInfosForType();
@@ -19,7 +21,7 @@ namespace Wire
             objectSerializer.Initialize(reader, writer);
         }
 
-        private ObjectReader GetFieldsReader(Serializer serializer, IEnumerable<FieldInfo> fields, Type type)
+        private ObjectReader GetFieldsReader([NotNull]Serializer serializer, [NotNull] IEnumerable<FieldInfo> fields, [NotNull] Type type)
         {
             var c = new Compiler<ObjectReader>();
             var stream = c.Parameter<Stream>("stream");
@@ -41,7 +43,7 @@ namespace Wire
             //for (var i = 0; i < storedFieldCount; i++)
             //{
             //    var fieldName = stream.ReadLengthEncodedByteArray(session);
-            //    if (!Utils.UnsafeCompare(fieldName, fieldNames[i]))
+            //    if (!Utils.Compare(fieldName, fieldNames[i]))
             //    {
             //        //TODO: field name mismatch
             //        //this should really be a compare less equal or greater
@@ -56,7 +58,7 @@ namespace Wire
             //        //the current is less or equal, then goto 1)
             //    }
             //}
-
+            var typedTarget = c.CastOrUnbox(target, type);
             foreach (var field in fields)
             {
                 var s = serializer.GetSerializerByType(field.FieldType);
@@ -72,14 +74,14 @@ namespace Wire
                 }
                 else
                 {
-                    var method = typeof(StreamExtensions).GetTypeInfo().GetMethod(nameof(StreamExtensions.ReadObject));
+                    var method = typeof(StreamEx).GetTypeInfo().GetMethod(nameof(StreamEx.ReadObject));
                     read = c.StaticCall(method, stream, session);
-                    read = c.CastOrBox(read, field.FieldType);
+                    read = c.Convert(read, field.FieldType);
                 }
 
-                var typedTarget = c.CastOrUnbox(target, type);
-                var assign = c.WriteField(field, typedTarget, read);
-                c.Emit(assign);
+                
+                var assignReadToField = c.WriteField(field, typedTarget, read);
+                c.Emit(assignReadToField);
             }
             c.Emit(target);
 
@@ -89,7 +91,7 @@ namespace Wire
 
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
-        private ObjectWriter GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields)
+        private ObjectWriter GetFieldsWriter([NotNull]Serializer serializer,[NotNull] IEnumerable<FieldInfo> fields)
         {
             var c = new Compiler<ObjectWriter>();
 
@@ -123,7 +125,7 @@ namespace Wire
                 }
                 else
                 {
-                    var converted = c.CastOrBox<object>(readField);
+                    var converted = c.Convert<object>(readField);
                     var valueType = field.FieldType;
                     if (field.FieldType.IsNullable())
                     {
@@ -135,7 +137,7 @@ namespace Wire
                     var vs = c.Constant(valueSerializer);
                     var vt = c.Constant(valueType);
 
-                    var method = typeof(StreamExtensions).GetTypeInfo().GetMethod(nameof(StreamExtensions.WriteObject));
+                    var method = typeof(StreamEx).GetTypeInfo().GetMethod(nameof(StreamEx.WriteObject));
 
                     c.EmitStaticCall(method, stream, converted, vt, vs, preserveReferences, session);
                 }

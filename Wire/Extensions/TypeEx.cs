@@ -4,38 +4,36 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-#if SERIALIZATION
 using System.Runtime.Serialization;
-#endif
 
-namespace Wire
+namespace Wire.Extensions
 {
     public static class TypeEx
     {
         //Why not inline typeof you ask?
         //Because it actually generates calls to get the type.
         //We prefetch all primitives here
-        internal static readonly Type Int32Type = typeof(int);
-        internal static readonly Type Int64Type = typeof(long);
-        internal static readonly Type Int16Type = typeof(short);
-        internal static readonly Type UInt32Type = typeof(uint);
-        internal static readonly Type UInt64Type = typeof(ulong);
-        internal static readonly Type UInt16Type = typeof(ushort);
-        internal static readonly Type ByteType = typeof(byte);
-        internal static readonly Type SByteType = typeof(sbyte);
-        internal static readonly Type BoolType = typeof(bool);
-        internal static readonly Type DateTimeType = typeof(DateTime);
-        internal static readonly Type StringType = typeof(string);
-        internal static readonly Type GuidType = typeof(Guid);
-        internal static readonly Type FloatType = typeof(float);
-        internal static readonly Type DoubleType = typeof(double);
-        internal static readonly Type DecimalType = typeof(decimal);
-        internal static readonly Type CharType = typeof(char);
-        internal static readonly Type ByteArrayType = typeof(byte[]);
-        internal static readonly Type TypeType = typeof(Type);
-        internal static readonly Type RuntimeType = Type.GetType("System.RuntimeType");
+        public static readonly Type Int32Type = typeof(int);
+        public static readonly Type Int64Type = typeof(long);
+        public static readonly Type Int16Type = typeof(short);
+        public static readonly Type UInt32Type = typeof(uint);
+        public static readonly Type UInt64Type = typeof(ulong);
+        public static readonly Type UInt16Type = typeof(ushort);
+        public static readonly Type ByteType = typeof(byte);
+        public static readonly Type SByteType = typeof(sbyte);
+        public static readonly Type BoolType = typeof(bool);
+        public static readonly Type DateTimeType = typeof(DateTime);
+        public static readonly Type StringType = typeof(string);
+        public static readonly Type GuidType = typeof(Guid);
+        public static readonly Type FloatType = typeof(float);
+        public static readonly Type DoubleType = typeof(double);
+        public static readonly Type DecimalType = typeof(decimal);
+        public static readonly Type CharType = typeof(char);
+        public static readonly Type ByteArrayType = typeof(byte[]);
+        public static readonly Type TypeType = typeof(Type);
+        public static readonly Type RuntimeType = Type.GetType("System.RuntimeType");
 
-        internal static bool IsWirePrimitive(this Type type)
+        public static bool IsWirePrimitive(this Type type)
         {
             return type == Int32Type ||
                    type == Int64Type ||
@@ -111,7 +109,7 @@ namespace Wire
             return TypeNameLookup.GetOrAdd(byteArr, b =>
             {
                 var shortName = StringEx.FromUtf8Bytes(b.Bytes, 0, b.Bytes.Length);
-                var typename = Utils.ToQualifiedAssemblyName(shortName);
+                var typename = ToQualifiedAssemblyName(shortName);
                 return Type.GetType(typename, true);
             });
         }
@@ -155,7 +153,7 @@ namespace Wire
             return type.GetTypeInfo().GetGenericArguments()[0];
         }
 
-        internal static bool IsFixedSizeType(this Type type)
+        public static bool IsFixedSizeType(this Type type)
         {
             return type == typeof (int) ||
                    type == typeof (long) ||
@@ -165,7 +163,7 @@ namespace Wire
                    type == typeof (ulong);
         }
 
-        internal static int GetTypeSize(this Type type)
+        public static int GetTypeSize(this Type type)
         {
             if (type == typeof (int))
                 return sizeof (int);
@@ -181,6 +179,31 @@ namespace Wire
                 return sizeof (ulong);
 
             throw new NotSupportedException();
+        }
+
+        private static readonly string CoreAssemblyName = GetCoreAssemblyName();
+
+        private static string GetCoreAssemblyName()
+        {
+            var name = 1.GetType().AssemblyQualifiedName;
+            var part = name.Substring( name.IndexOf(", Version", StringComparison.Ordinal));
+            return part;
+        }
+
+        public static string GetShortAssemblyQualifiedName(this Type self)
+        {
+            var name = self.AssemblyQualifiedName;
+            name = name.Replace(CoreAssemblyName, ",%core%");
+            name = name.Replace(", Culture=neutral", "");
+            name = name.Replace(", PublicKeyToken=null", "");
+            name = name.Replace(", Version=1.0.0.0", ""); //TODO: regex or whatever...
+            return name;
+        }
+
+        public static string ToQualifiedAssemblyName(string shortName)
+        {
+            var res = shortName.Replace(",%core%", CoreAssemblyName);
+            return res;
         }
     }
 }

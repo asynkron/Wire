@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 using IntToObjectLookup = System.Collections.Generic.List<object>;
 using IntToTypeLookup = System.Collections.Generic.List<System.Type>;
 using TypeToVersionInfoLookup = System.Collections.Generic.Dictionary<System.Type, Wire.TypeVersionInfo>;
@@ -17,7 +18,7 @@ namespace Wire
         private readonly TypeToVersionInfoLookup _versionInfoByType;
         public readonly Serializer Serializer;
 
-        public DeserializerSession(Serializer serializer)
+        public DeserializerSession([NotNull] Serializer serializer)
         {
             Serializer = serializer;
             _buffer = new byte[MinBufferSize];
@@ -75,7 +76,7 @@ namespace Wire
             return _identifierToType[typeId];
         }
 
-        public void TrackDeserializedTypeWithVersion(Type type, TypeVersionInfo versionInfo)
+        public void TrackDeserializedTypeWithVersion([NotNull]Type type, [NotNull] TypeVersionInfo versionInfo)
         {
             TrackDeserializedType(type);
             _versionInfoByType.Add(type, versionInfo);

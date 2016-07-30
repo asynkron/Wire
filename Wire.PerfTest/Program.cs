@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading;
 using Bond;
 using Bond.IO.Unsafe;
 using Bond.Protocols;
@@ -29,36 +30,45 @@ namespace Wire.PerfTest
 
         private static void Main(string[] args)
         {
-            Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
-            Console.WriteLine();
-            Console.WriteLine("Running cold");
-
-            SerializePocoPreRegister();
-            SerializePocoPreRegisterManualSerializer();
-            SerializePocoVersionInteolerant();
-            //SerializePoco();
-            ////SerializePocoVersionInteolerantPreserveObjects();
-
-            SerializePocoProtoBufNet();
-            SerializePocoBond();
-            ////////SerializePocoJsonNet();
-            ////////SerializePocoBinaryFormatter();
-            ////Console.WriteLine();
-            ////Console.WriteLine("Running hot");
-            SerializePocoPreRegister();
-            SerializePocoPreRegisterManualSerializer();
-            SerializePocoVersionInteolerant();
-            ////SerializePoco();
-            //////SerializePocoVersionInteolerantPreserveObjects();
-
-            SerializePocoProtoBufNet();
-            SerializePocoBond();
-            ////////SerializePocoJsonNet();
-            ////////SerializePocoBinaryFormatter();
-            //Console.ReadLine();
+            Run();
         }
 
-        private static void SerializePocoJsonNet()
+       private static void Run()
+       {
+           Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
+           Console.WriteLine();
+           Console.WriteLine("Running cold");
+
+           for (int i = 0; i < 20; i++)
+           {
+               SerializePocoPreRegister();
+           }
+
+           //SerializePocoPreRegisterManualSerializer();
+           //SerializePocoVersionInteolerant();
+           ////SerializePoco();
+           //////SerializePocoVersionInteolerantPreserveObjects();
+
+           //SerializePocoProtoBufNet();
+           //SerializePocoBond();
+           //SerializePocoJsonNet();
+           //SerializePocoBinaryFormatter();
+           //Console.WriteLine();
+           //Console.WriteLine("Running hot");
+           //SerializePocoPreRegister();
+           //SerializePocoPreRegisterManualSerializer();
+           //SerializePocoVersionInteolerant();
+           //SerializePoco();
+           ////SerializePocoVersionInteolerantPreserveObjects();
+
+           //SerializePocoProtoBufNet();
+           //SerializePocoBond();
+           //SerializePocoJsonNet();
+           //SerializePocoBinaryFormatter();
+           //Console.ReadLine();
+       }
+
+       private static void SerializePocoJsonNet()
         {
             var settings = new JsonSerializerSettings
             {
@@ -201,11 +211,13 @@ namespace Wire.PerfTest
                     s.Initialize(
                         (stream, session) =>
                         {
-                            var poco = new Poco();//  (Poco)typeof(Poco).GetEmptyObject();
-                            poco.StringProp = (string) stringS.ReadValue(stream, session);
-                            poco.IntProp = (int) intS.ReadValue(stream, session);
-                            poco.GuidProp = (Guid) guidS.ReadValue(stream, session);
-                            poco.DateProp = (DateTime) dateS.ReadValue(stream, session);
+                            var poco = new Poco
+                            {
+                                StringProp = (string) stringS.ReadValue(stream, session),
+                                IntProp = (int) intS.ReadValue(stream, session),
+                                GuidProp = (Guid) guidS.ReadValue(stream, session),
+                                DateProp = (DateTime) dateS.ReadValue(stream, session)
+                            }; 
                             return poco;
                         },
                         (stream, obj, session) =>
@@ -302,22 +314,17 @@ namespace Wire.PerfTest
 
     [ProtoContract]
     [Serializable]
-    [Schema]
     public class Poco
     {
-        [Id(0), Required]
         [ProtoMember(1)]
         public string StringProp { get; set; }
 
-        [Id(1), Required]
         [ProtoMember(2)]
         public int IntProp { get; set; }
 
-        [Id(2), Required]
         [ProtoMember(3)]
         public Guid GuidProp { get; set; }
 
-        [Id(3), Required]
         [ProtoMember(4)]
         public DateTime DateProp { get; set; }
     }

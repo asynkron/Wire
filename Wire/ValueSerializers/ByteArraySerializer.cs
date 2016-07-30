@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {

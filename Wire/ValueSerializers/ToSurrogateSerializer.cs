@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
@@ -18,7 +19,7 @@ namespace Wire.ValueSerializers
 
         public override void WriteManifest(Stream stream, SerializerSession session)
         {
-            //    _surrogateSerializer.WriteManifest(stream, type, session);
+            //intentionally left blank
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)

@@ -42,16 +42,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BitConverterEx.cs" />
+    <Compile Include="Annotations.cs" />
     <Compile Include="ByteArray.cs" />
-    <Compile Include="ByteArrayEqualityComparer.cs" />
+    <Compile Include="Compilation\ExpressionEx.cs" />
     <Compile Include="Compilation\IlCompiler.cs" />
+    <Compile Include="Compilation\IlBuilder.cs" />
+    <Compile Include="Compilation\IlCompilerContext.cs" />
     <Compile Include="DefaultCodeGenerator.cs" />
     <Compile Include="Compilation\Compiler.cs" />
     <Compile Include="Compilation\IlExpression.cs" />
     <Compile Include="Compilation\ICompiler.cs" />
     <Compile Include="ICodeGenerator.cs" />
-    <Compile Include="ReflectionEx.cs" />
+    <Compile Include="Extensions\ReflectionEx.cs" />
     <Compile Include="SerializerFactories\ArraySerializerFactory.cs" />
     <Compile Include="SerializerFactories\DefaultDictionarySerializerFactory.cs" />
     <Compile Include="SerializerFactories\DelegateSerializerFactory.cs" />
@@ -68,12 +70,10 @@
     <Compile Include="Delegates.cs" />
     <Compile Include="DeserializeSession.cs" />
     <Compile Include="SerializerOptions.cs" />
-    <Compile Include="StreamExtensions.cs" />
-    <Compile Include="StringEx.cs" />
+    <Compile Include="Extensions\StreamEx.cs" />
+    <Compile Include="Extensions\StringEx.cs" />
     <Compile Include="Surrogate.cs" />
-    <Compile Include="TrackingExtensions.cs" />
-    <Compile Include="TypeEx.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="Extensions\TypeEx.cs" />
     <Compile Include="ValueSerializers\BoolSerializer.cs" />
     <Compile Include="ValueSerializers\ByteArraySerializer.cs" />
     <Compile Include="ValueSerializers\ByteSerializer.cs" />
@@ -88,7 +88,7 @@
     <Compile Include="ValueSerializers\Int16Serializer.cs" />
     <Compile Include="ValueSerializers\Int32Serializer.cs" />
     <Compile Include="ValueSerializers\Int64Serializer.cs" />
-    <Compile Include="ValueSerializers\NoAllocBitConverter.cs" />
+    <Compile Include="NoAllocBitConverter.cs" />
     <Compile Include="ValueSerializers\NullSerializer.cs" />
     <Compile Include="ValueSerializers\ObjectReferenceSerializer.cs" />
     <Compile Include="ValueSerializers\ObjectSerializer.cs" />

@@ -2,9 +2,9 @@
 using System.IO;
 using Wire.ValueSerializers;
 
-namespace Wire
+namespace Wire.Extensions
 {
-    public static class StreamExtensions
+    public static class StreamEx
     {
         public static int ReadUInt16(this Stream self, DeserializerSession session)
         {

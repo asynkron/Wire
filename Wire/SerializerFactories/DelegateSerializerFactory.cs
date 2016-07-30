@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Reflection;
+using Wire.Extensions;
 using Wire.ValueSerializers;
 
 namespace Wire.SerializerFactories

@@ -13,7 +13,7 @@ namespace Wire.ValueSerializers
         {
         }
 
-        static void WriteValueImpl(Stream stream, DateTime dateTime, SerializerSession session)
+        private static void WriteValueImpl(Stream stream, DateTime dateTime, SerializerSession session)
         {
             var bytes = NoAllocBitConverter.GetBytes(dateTime.Ticks, session);
             stream.Write(bytes, 0, Size);

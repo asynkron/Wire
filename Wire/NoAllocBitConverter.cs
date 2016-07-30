@@ -1,4 +1,4 @@
-﻿namespace Wire.ValueSerializers
+﻿namespace Wire
 {
     /// <summary>
     /// Provides methods not allocating the byte buffer but using <see cref="SerializerSession.GetBuffer"/> to lease a buffer.

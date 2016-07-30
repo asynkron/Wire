@@ -17,9 +17,9 @@ namespace Wire.Compilation
         int ReadField(FieldInfo field, int target);
         int WriteField(FieldInfo field, int target, int value);
         TDel Compile();
-        int CastOrBox<T>(int value);
+        int Convert<T>(int value);
         int WriteVar(int variable, int value);
         void Emit(int value);
-        int CastOrBox(int value, Type type);
+        int Convert(int value, Type type);
     }
 }

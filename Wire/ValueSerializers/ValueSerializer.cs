@@ -2,20 +2,21 @@
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Wire.Compilation;
 
 namespace Wire.ValueSerializers
 {
     public abstract class ValueSerializer
     {
-        public abstract void WriteManifest(Stream stream, SerializerSession session);
-        public abstract void WriteValue(Stream stream, object value, SerializerSession session);
-        public abstract object ReadValue(Stream stream, DeserializerSession session);
+        public abstract void WriteManifest([NotNull] Stream stream, [NotNull] SerializerSession session);
+        public abstract void WriteValue([NotNull] Stream stream, object value, [NotNull] SerializerSession session);
+        public abstract object ReadValue([NotNull] Stream stream, [NotNull] DeserializerSession session);
         public abstract Type GetElementType();
 
         public virtual void EmitWriteValue(ICompiler<ObjectWriter> c, int stream, int fieldValue, int session)
         {
-            var converted = c.CastOrBox<object>(fieldValue);
+            var converted = c.Convert<object>(fieldValue);
             var method = typeof(ValueSerializer).GetMethod(nameof(WriteValue));
 
             //write it to the value serializer
@@ -23,16 +24,17 @@ namespace Wire.ValueSerializers
             c.EmitCall(method, vs, stream, converted, session);
         }
 
-        public virtual int EmitReadValue(ICompiler<ObjectReader> c, int stream, int session, FieldInfo field)
+        public virtual int EmitReadValue([NotNull] ICompiler<ObjectReader> c, int stream, int session,
+            [NotNull] FieldInfo field)
         {
             var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(ReadValue));
             var ss = c.Constant(this);
             var read = c.Call(method, ss, stream, session);
-            read = c.CastOrBox(read, field.FieldType);
+            read = c.Convert(read, field.FieldType);
             return read;
         }
 
-        public static MethodInfo GetStatic(LambdaExpression expression, Type expectedReturnType)
+        public static MethodInfo GetStatic([NotNull] LambdaExpression expression, [NotNull] Type expectedReturnType)
         {
             var unaryExpression = (UnaryExpression) expression.Body;
             var methodCallExpression = (MethodCallExpression) unaryExpression.Operand;
