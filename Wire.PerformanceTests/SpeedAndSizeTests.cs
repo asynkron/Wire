@@ -77,7 +77,6 @@ namespace Wire.PerformanceTests
             Test(arr);
         }
 
-        //fails as we are slower than FsPickler when serializing the integer array, we have slightly smaller payload though
         [TestMethod]
         public void TestIntArray()
         {
@@ -164,7 +163,6 @@ namespace Wire.PerformanceTests
             Test(Guid.NewGuid());
         }
 
-        //fails as we are slower than FsPickler when serializing the integer array, we have slightly smaller payload though
         [TestMethod]
         public void TestBoolArray()
         {
@@ -184,7 +182,7 @@ namespace Wire.PerformanceTests
             Test(Tuple.Create(123,456));
         }
 
-        [TestMethod,Ignore,Description("Works but is slower than FS Pickler")]
+        [TestMethod]
         public void TestTupleArray()
         {
             var arr = new Tuple<int,int>[100];
@@ -250,18 +248,21 @@ namespace Wire.PerformanceTests
             Test(dict);
         }
 
-        //TODO: F# lists are recursive cons lists, wire currently write those objects
-        //we could optimize to convert to array and write it all in one go
         [TestMethod]
         public void TestFSharpList()
         {
-            var list = ListModule.OfArray(new[] { 1, 2, 3, 4,5,6,7,8,9,0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
+            var list =
+                ListModule.OfArray(new[]
+                {
+                    1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5,
+                    6, 7, 8, 9, 0
+                });
             Test(list);
         }
 
-        private void Test(object value)
+        private static void Test(object value)
         {
-            Serializer wireSerializer = new Serializer(new SerializerOptions(false,true,null, null));
+            var wireSerializer = new Serializer(new SerializerOptions(false,true,null, null));
             var pickler = FsPickler.CreateBinarySerializer();
 
             double wireTs;

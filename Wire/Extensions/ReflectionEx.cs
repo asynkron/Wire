@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
 #if SERIALIZATION
 
 #endif
 
-namespace Wire
+namespace Wire.Extensions
 {
     public static class BindingFlagsEx
     {

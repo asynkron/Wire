@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using Wire.Extensions;
 
 namespace Wire.Compilation
 {

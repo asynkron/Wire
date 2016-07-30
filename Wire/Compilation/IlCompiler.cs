@@ -7,14 +7,6 @@ namespace Wire.Compilation
 {
     public class IlCompiler<TDel> : IlBuilder, ICompiler<TDel>
     {
-        private readonly Type _ownerType;
-        public IlCompiler(Type ownerType)
-        {
-            _ownerType = ownerType;
-        }
-
-        public IlCompiler() : this(typeof(string)) {}
-
         public TDel Compile()
         {
             var delegateType = typeof(TDel);
@@ -24,7 +16,8 @@ namespace Wire.Compilation
             var selfType = self?.GetType() ?? typeof(object);
             var parametersWithSelf = GetParameterTypesWithSelf(invoke, selfType);
             var returnType = invoke.ReturnType;
-            var method = new DynamicMethod("foo",MethodAttributes.Public | MethodAttributes.Static,CallingConventions.Standard, returnType, parametersWithSelf,typeof(string).Module, true);
+            var method = new DynamicMethod("foo", MethodAttributes.Public | MethodAttributes.Static,
+                CallingConventions.Standard, returnType, parametersWithSelf, typeof(string).Module, true);
 
             var il = method.GetILGenerator();
             var context = new IlCompilerContext(il, selfType);
@@ -37,7 +30,7 @@ namespace Wire.Compilation
 
             //declare "this"
             method.DefineParameter(0, ParameterAttributes.None, "this");
-            
+
             //decare custom parameters
             foreach (var parameter in Parameters)
             {
@@ -50,7 +43,7 @@ namespace Wire.Compilation
             //we need to return
             context.Il.Emit(OpCodes.Ret);
 
-            Console.WriteLine(context.Il.ToString());
+            //   Console.WriteLine(context.Il.ToString());
 
             //if we have a return type, it's OK that there is one item on the stack
             if (returnType != typeof(void))
@@ -61,7 +54,7 @@ namespace Wire.Compilation
                 throw new NotSupportedException("Stack error");
 
             var del = (TDel) (object) method.CreateDelegate(typeof(TDel), self);
-            
+
             return del;
         }
 

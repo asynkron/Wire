@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Wire
+namespace Wire.Extensions
 {
     internal static class StringEx
     {

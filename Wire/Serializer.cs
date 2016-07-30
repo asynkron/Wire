@@ -2,6 +2,8 @@
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
+using Wire.Extensions;
 using Wire.ValueSerializers;
 using TypeSerializerLookup =
     System.Collections.Concurrent.ConcurrentDictionary<System.Type, Wire.ValueSerializers.ValueSerializer>;
@@ -19,14 +21,14 @@ namespace Wire
         {
         }
 
-        public Serializer(SerializerOptions options)
+        public Serializer([NotNull]SerializerOptions options)
         {
             Options = options;
         }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private ValueSerializer GetCustomSerialzer(Type type)
+        private ValueSerializer GetCustomSerialzer([NotNull]Type type)
         {
             ValueSerializer serializer;
 
@@ -54,7 +56,7 @@ namespace Wire
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private ValueSerializer GetCustomDeserialzer(Type type)
+        private ValueSerializer GetCustomDeserialzer([NotNull]Type type)
         {
             ValueSerializer serializer;
 
@@ -82,7 +84,7 @@ namespace Wire
 
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
 
-        public void Serialize(object obj, Stream stream)
+        public void Serialize(object obj, [NotNull]Stream stream)
         {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
@@ -95,21 +97,21 @@ namespace Wire
             s.WriteValue(stream, obj, session);
         }
 
-        public T Deserialize<T>(Stream stream)
+        public T Deserialize<T>([NotNull]Stream stream)
         {
             var session = new DeserializerSession(this);
             var s = GetDeserializerByManifest(stream, session);
             return (T) s.ReadValue(stream, session);
         }
 
-        public object Deserialize(Stream stream)
+        public object Deserialize([NotNull]Stream stream)
         {
             var session = new DeserializerSession(this);
             var s = GetDeserializerByManifest(stream, session);
             return s.ReadValue(stream, session);
         }
 
-        public ValueSerializer GetSerializerByType(Type type)
+        public ValueSerializer GetSerializerByType([NotNull]Type type)
         {
             if (ReferenceEquals(type.GetTypeInfo().Assembly, ReflectionEx.CoreAssembly))
             {
@@ -182,7 +184,7 @@ namespace Wire
             return serializer;
         }
         
-        public ValueSerializer GetDeserializerByManifest(Stream stream, DeserializerSession session)
+        public ValueSerializer GetDeserializerByManifest([NotNull]Stream stream, [NotNull]DeserializerSession session)
         {
             var first = stream.ReadByte();
             switch (first)

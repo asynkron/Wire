@@ -5,6 +5,7 @@ using System.Reflection;
 using Microsoft.FSharp.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Wire.Compilation;
+using Wire.Extensions;
 
 namespace Wire.Tests
 {
@@ -51,7 +52,7 @@ namespace Wire.Tests
         [TestMethod]
         public void CanCallStaticMethodUsingParameter()
         {
-            var c = new IlCompiler<Action<Dummy>>(typeof(Dummy));
+            var c = new IlCompiler<Action<Dummy>>();
             var param = c.Parameter<Dummy>("dummy");
             c.EmitStaticCall(SetStatic, param);
             var a = c.Compile();
@@ -63,7 +64,7 @@ namespace Wire.Tests
         [TestMethod]
         public void CanCallInstanceMethodOnParameter()
         {
-            var c = new IlCompiler<Action<Dummy>>(typeof(Dummy));
+            var c = new IlCompiler<Action<Dummy>>();
             var param = c.Parameter<Dummy>("dummy");
             c.EmitCall(SetBool, param);            
             var a = c.Compile();
@@ -76,7 +77,7 @@ namespace Wire.Tests
         [TestMethod]
         public void CanModifyParameter()
         {
-            var c = new IlCompiler<Action<Dummy>>(typeof(Dummy));
+            var c = new IlCompiler<Action<Dummy>>();
             var param = c.Parameter<Dummy>("dummy");
             var write = c.WriteField(BoolField, param, c.Constant(true));
             c.Emit(write);
@@ -207,7 +208,7 @@ namespace Wire.Tests
 
             serializer.Serialize(value, stream);
             stream.Position = 3; //skip forward to payload
-            var fields = type.GetFieldInfosForType();
+            var fields = ReflectionEx.GetFieldInfosForType(type);
 
             var readAllFields = GetDelegate(type, fields, serializer);
 
@@ -265,7 +266,7 @@ namespace Wire.Tests
 
         private static ObjectReader GetDelegate(Type type, FieldInfo[] fields, Serializer serializer)
         {
-            var c = new IlCompiler<ObjectReader>(type);
+            var c = new IlCompiler<ObjectReader>();
             var stream = c.Parameter<Stream>("stream");
             var session = c.Parameter<DeserializerSession>("session");
             var newExpression = c.NewObject(type);

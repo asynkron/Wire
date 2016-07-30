@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
@@ -56,7 +57,7 @@ namespace Wire.ValueSerializers
             if (shortname == null)
                 return null;
 
-            var name = Utils.ToQualifiedAssemblyName(shortname);
+            var name = TypeEx.ToQualifiedAssemblyName(shortname);
             var type = Type.GetType(name);
             //add the deserialized type to lookup
             if (session.Serializer.Options.PreserveObjectReferences)
