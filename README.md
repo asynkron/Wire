@@ -129,5 +129,5 @@ public class Poco
 }
 ```
 
-> Big disclaimer: The above results change drastically depending on what your contracts, e.g. using smaller messages favor both NetSerializer and Jil.
+> Big disclaimer: The above results change drastically depending on your contracts, e.g. using smaller messages favor both NetSerializer and Jil.
 There is no "best" or "fastest" serializer, it all depends on context and requirements.
