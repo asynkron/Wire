@@ -2,14 +2,14 @@ using JetBrains.Annotations;
 
 namespace Wire
 {
-    public struct ByteArray
+    public struct ByteArrayKey
     {
         public readonly byte[] Bytes;
         private readonly int _hashCode;
 
         public override bool Equals(object obj)
         {
-            var other = (ByteArray) obj;
+            var other = (ByteArrayKey) obj;
             return Compare(Bytes, other.Bytes);
         }
 
@@ -18,25 +18,25 @@ namespace Wire
             return _hashCode;
         }
 
-        private static int GetHashCode([NotNull]byte[] bytes)
+        private static int GetHashCode([NotNull] byte[] bytes)
         {
             var hash = 17;
             for (var i = 0; i < bytes.Length; i += 5)
             {
-                hash = hash * 23 + bytes[i];
+                hash = hash*23 + bytes[i];
             }
             return hash;
         }
 
-        public ByteArray(byte[] bytes)
+        public ByteArrayKey(byte[] bytes)
         {
             Bytes = bytes;
             _hashCode = GetHashCode(bytes);
         }
 
-        public static ByteArray Create(byte[] bytes)
+        public static ByteArrayKey Create(byte[] bytes)
         {
-            return new ByteArray(bytes);
+            return new ByteArrayKey(bytes);
         }
 
 #if UNSAFE
@@ -48,17 +48,17 @@ namespace Wire
             {
                 byte* x1 = p1, x2 = p2;
                 var l = a1.Length;
-                for (var i = 0; i < l / 8; i++, x1 += 8, x2 += 8)
-                    if (*(long*)x1 != *(long*)x2) return false;
+                for (var i = 0; i < l/8; i++, x1 += 8, x2 += 8)
+                    if (*(long*) x1 != *(long*) x2) return false;
                 if ((l & 4) != 0)
                 {
-                    if (*(int*)x1 != *(int*)x2) return false;
+                    if (*(int*) x1 != *(int*) x2) return false;
                     x1 += 4;
                     x2 += 4;
                 }
                 if ((l & 2) != 0)
                 {
-                    if (*(short*)x1 != *(short*)x2) return false;
+                    if (*(short*) x1 != *(short*) x2) return false;
                     x1 += 2;
                     x2 += 2;
                 }

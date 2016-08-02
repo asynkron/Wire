@@ -30,7 +30,11 @@ namespace Wire.PerfTest
 
         private static void Main(string[] args)
         {
-            Run();
+            var t = new Thread(Run);
+            t.Priority = ThreadPriority.Highest;
+            t.IsBackground = true;
+            t.Start();
+            Console.ReadLine();
         }
 
        private static void Run()
@@ -39,33 +43,40 @@ namespace Wire.PerfTest
            Console.WriteLine();
            Console.WriteLine("Running cold");
 
-           for (int i = 0; i < 20; i++)
-           {
-               SerializePocoPreRegister();
-           }
+           // for (int i = 0; i < 20; i++)
+           //{
+           //    SerializePocoPreRegister();
+           //}
 
-           //SerializePocoPreRegisterManualSerializer();
-           //SerializePocoVersionInteolerant();
-           ////SerializePoco();
-           //////SerializePocoVersionInteolerantPreserveObjects();
+           SerializePocoPreRegister();
+           SerializePocoPreRegisterManualSerializer();
+           SerializePocoVersionInteolerant();
+           SerializePoco();
+           SerializePocoVersionInteolerantPreserveObjects();
 
-           //SerializePocoProtoBufNet();
-           //SerializePocoBond();
-           //SerializePocoJsonNet();
-           //SerializePocoBinaryFormatter();
-           //Console.WriteLine();
-           //Console.WriteLine("Running hot");
-           //SerializePocoPreRegister();
-           //SerializePocoPreRegisterManualSerializer();
-           //SerializePocoVersionInteolerant();
-           //SerializePoco();
-           ////SerializePocoVersionInteolerantPreserveObjects();
+       //    SerializePocoFsPickler();
+           SerializePocoJil();
+           SerializePocoNetSerializer();
+           SerializePocoProtoBufNet();
+           SerializePocoBond();
+           SerializePocoJsonNet();
+           SerializePocoBinaryFormatter();
+           Console.WriteLine();
+           Console.WriteLine("Running hot");
+           SerializePocoPreRegister();
+           SerializePocoPreRegisterManualSerializer();
+           SerializePocoVersionInteolerant();
+           SerializePoco();
+           SerializePocoVersionInteolerantPreserveObjects();
 
-           //SerializePocoProtoBufNet();
-           //SerializePocoBond();
-           //SerializePocoJsonNet();
-           //SerializePocoBinaryFormatter();
-           //Console.ReadLine();
+       //    SerializePocoFsPickler();
+           SerializePocoJil();
+           SerializePocoNetSerializer();
+           SerializePocoProtoBufNet();
+           SerializePocoBond();
+           SerializePocoJsonNet();
+           SerializePocoBinaryFormatter();
+           Console.ReadLine();
        }
 
        private static void SerializePocoJsonNet()
@@ -158,6 +169,40 @@ namespace Wire.PerfTest
             }, bytes.Length);
         }
 
+        private static void SerializePocoNetSerializer()
+        {
+            var s = new MemoryStream();
+            var serializer = new NetSerializer.Serializer(new Type[] {typeof(Poco)});
+            serializer.Serialize(s, Poco);
+            var bytes = s.ToArray();
+            
+            RunTest("Net Serializer", () =>
+            {
+                var stream = new MemoryStream();
+                serializer.Serialize(stream,Poco);
+            }, () =>
+            {
+                s.Position = 0;
+                serializer.Deserialize(s);
+            }, bytes.Length);
+        }
+
+        private static void SerializePocoJil()
+        {
+            var s = new MemoryStream();
+            var res = Jil.JSON.Serialize(Poco);
+            
+            var bytes = s.ToArray();
+            RunTest("Jil", () =>
+            {
+                var stream = new MemoryStream();
+                Jil.JSON.Serialize(Poco);
+            }, () =>
+            {
+                Jil.JSON.Deserialize(res, typeof(Poco));
+            }, bytes.Length);
+        }
+
         private static void SerializePocoBinaryFormatter()
         {
             var bf = new BinaryFormatter();
@@ -182,9 +227,10 @@ namespace Wire.PerfTest
             var s = new MemoryStream();
             serializer.Serialize(Poco, s);
             var bytes = s.ToArray();
+            var buffer = new byte[100];
             RunTest("Wire - preregister types", () =>
             {
-                var stream = new MemoryStream();
+                var stream = new MemoryStream(buffer);
                 serializer.Serialize(Poco, stream);
             }, () =>
             {
@@ -266,6 +312,23 @@ namespace Wire.PerfTest
             {
                 s.Position = 0;
                 serializer.Deserialize<Poco>(s);
+            }, bytes.Length);
+        }
+
+        private static void SerializePocoFsPickler()
+        {
+            var pickler = MBrace.FsPickler.FsPickler.CreateBinarySerializer();
+            var s = new MemoryStream();
+            pickler.Serialize(s,Poco);
+            var bytes = s.ToArray();
+            RunTest("FsPickler", () =>
+            {
+                var stream = new MemoryStream();
+                pickler.Serialize(stream, Poco);
+            }, () =>
+            {
+                s.Position = 0;
+                pickler.Deserialize<Poco>(s);
             }, bytes.Length);
         }
 

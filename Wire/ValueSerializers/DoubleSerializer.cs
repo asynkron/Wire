@@ -6,7 +6,7 @@ namespace Wire.ValueSerializers
     public class DoubleSerializer : SessionAwareValueSerializer<double>
     {
         public const byte Manifest = 13;
-        const int Size = sizeof(double);
+        public const int Size = sizeof(double);
         public static readonly DoubleSerializer Instance = new DoubleSerializer();
 
         public DoubleSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
