@@ -98,7 +98,7 @@ Protobuf.NET
 Jil
    Serialize                      1448 ms
    Deserialize                    714 ms
-   Size                           0 bytes
+   Size                           123 bytes
    Total                          2162 ms
 Net Serializer
    Serialize                      1289 ms
