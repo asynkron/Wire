@@ -71,25 +71,25 @@ Wire - preregister types
    Size                           38 bytes
    Total                          573 ms
 Wire - no version data
-   Serialize                      381 ms
-   Deserialize                    403 ms
+   Serialize                      327 ms
+   Deserialize                    354 ms
    Size                           73 bytes
-   Total                          784 ms
+   Total                          681 ms
+Wire - preserve object refs
+   Serialize                      400 ms
+   Deserialize                    369 ms
+   Size                           73 bytes
+   Total                          769 ms
 MS Bond
    Serialize                      429 ms
    Deserialize                    404 ms
    Size                           50 bytes
    Total                          833 ms
-Wire - preserve object refs
-   Serialize                      451 ms
-   Deserialize                    537 ms
-   Size                           73 bytes
-   Total                          988 ms
 Wire - version tolerant
-   Serialize                      482 ms
-   Deserialize                    702 ms
+   Serialize                      423 ms
+   Deserialize                    674 ms
    Size                           195 bytes
-   Total                          1184 ms
+   Total                          1097 ms
 Protobuf.NET
    Serialize                      638 ms
    Deserialize                    721 ms
