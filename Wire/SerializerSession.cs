@@ -16,7 +16,7 @@ namespace Wire
         public SerializerSession(Serializer serializer)
         {
             Serializer = serializer;
-            _typeToIdentifier = new Dictionary<Type, ushort>();
+            _typeToIdentifier = new Dictionary<Type, ushort>(capacity:1);
             if (serializer.Options.PreserveObjectReferences)
             {
                 _objects = new Dictionary<object, int>();
