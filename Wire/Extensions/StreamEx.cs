@@ -14,18 +14,6 @@ namespace Wire.Extensions
             return res;
         }
 
-        public static void WriteUInt16(this Stream self, ushort value)
-        {
-            var bytes = BitConverter.GetBytes(value);
-            self.Write(bytes, 0, bytes.Length);
-        }
-
-        public static void WriteInt32(this Stream self, int value)
-        {
-            var bytes = BitConverter.GetBytes(value);
-            self.Write(bytes, 0, bytes.Length);
-        }
-
         public static int ReadInt32(this Stream self, DeserializerSession session)
         {
             var buffer = session.GetBuffer(4);
@@ -42,9 +30,9 @@ namespace Wire.Extensions
             return buffer;
         }
 
-        public static void WriteLengthEncodedByteArray(this Stream self, byte[] bytes)
+        public static void WriteLengthEncodedByteArray(this Stream self, byte[] bytes,SerializerSession session)
         {
-            self.WriteInt32(bytes.Length);
+            Int32Serializer.WriteValueImpl(self,bytes.Length,session);
             self.Write(bytes, 0, bytes.Length);
         }
 
@@ -119,54 +107,41 @@ namespace Wire.Extensions
             return value;
         }
 
-        public static void WriteString(this Stream stream, object value,SerializerSession session)
+        public static void WriteString(this Stream stream, object value, SerializerSession session)
         {
-            //null = 0
-            // [0]
-            //length < 255 gives length + 1 as a single byte + payload
-            // [B length+1] [Payload]
-            //others gives 254 + int32 length + payload
-            // [B 254] [I Length] [Payload]
-            if (value == null)
-            {
-                stream.WriteByte(0);
-            }
-            else
-            {
-                int bytesLength;
-                var bytes = ((string)value).GetBytes(session,out bytesLength);
-                stream.Write(bytes, 0, bytesLength);
-            }
+            int bytesLength;
+            var bytes = ((string) value).GetBytes(session, out bytesLength);
+            stream.Write(bytes, 0, bytesLength);
         }
 
-        public static void WriteString(this Stream stream, object value)
-        {
-            //null = 0
-            // [0]
-            //length < 255 gives length + 1 as a single byte + payload
-            // [B length+1] [Payload]
-            //others gives 254 + int32 length + payload
-            // [B 254] [I Length] [Payload]
-            if (value == null)
-            {
-                stream.WriteByte(0);
-            }
-            else
-            {
-                var bytes = ((string) value).ToUtf8Bytes();
-                if (bytes.Length < 254)
-                {
-                    stream.WriteByte((byte) (bytes.Length + 1));
-                    stream.Write(bytes, 0, bytes.Length);
-                }
-                else
-                {
-                    stream.WriteByte(255);
-                    stream.WriteInt32(bytes.Length);
-                    stream.Write(bytes, 0, bytes.Length);
-                }
-            }
-        }
+        //public static void WriteString(this Stream stream, object value)
+        //{
+        //    //null = 0
+        //    // [0]
+        //    //length < 255 gives length + 1 as a single byte + payload
+        //    // [B length+1] [Payload]
+        //    //others gives 254 + int32 length + payload
+        //    // [B 254] [I Length] [Payload]
+        //    if (value == null)
+        //    {
+        //        stream.WriteByte(0);
+        //    }
+        //    else
+        //    {
+        //        var bytes = ((string) value).ToUtf8Bytes();
+        //        if (bytes.Length < 254)
+        //        {
+        //            stream.WriteByte((byte) (bytes.Length + 1));
+        //            stream.Write(bytes, 0, bytes.Length);
+        //        }
+        //        else
+        //        {
+        //            stream.WriteByte(255);
+        //            stream.WriteInt32(bytes.Length);
+        //            stream.Write(bytes, 0, bytes.Length);
+        //        }
+        //    }
+        //}
 
         public static string ReadString(this Stream stream, DeserializerSession session)
         {

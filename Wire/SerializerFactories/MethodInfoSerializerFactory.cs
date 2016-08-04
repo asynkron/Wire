@@ -46,7 +46,7 @@ namespace Wire.SerializerFactories
                 var owner = method.DeclaringType;
                 var arguments = method.GetParameters().Select(p => p.ParameterType).ToArray();
 
-                stream.WriteString(name);
+                stream.WriteString(name, session);
                 stream.WriteObjectWithManifest(owner, session);
                 stream.WriteObjectWithManifest(arguments, session);
             };

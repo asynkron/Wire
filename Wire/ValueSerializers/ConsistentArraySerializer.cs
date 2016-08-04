@@ -58,7 +58,7 @@ namespace Wire.ValueSerializers
 
         private static void WriteValues<T>(T[] array, Stream stream, ValueSerializer elementSerializer, SerializerSession session)
         {
-            stream.WriteInt32(array.Length);
+            Int32Serializer.WriteValueImpl(stream,array.Length,session);
             if (typeof(T).IsFixedSizeType())
             {
                 var size = typeof(T).GetTypeSize();

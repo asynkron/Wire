@@ -14,7 +14,7 @@ namespace Wire.SerializerFactories
 
         private static void WriteValues<T>(T[] array,Stream stream,Type elementType, ValueSerializer elementSerializer, SerializerSession session)
         {
-            stream.WriteInt32(array.Length);
+            Int32Serializer.WriteValueImpl(stream, array.Length, session);
             var preserveObjectReferences = session.Serializer.Options.PreserveObjectReferences;
             foreach (var value in array)
             {

@@ -54,10 +54,10 @@ namespace Wire.SerializerFactories
                 var remoteStackTraceString = _remoteStackTraceString.GetValue(exception);
                 var stackTraceString = _stackTraceString.GetValue(exception);
                 var innerException = _innerException.GetValue(exception);
-                stream.WriteString(className);
-                stream.WriteString(message);
-                stream.WriteString(remoteStackTraceString);
-                stream.WriteString(stackTraceString);
+                stream.WriteString(className,session);
+                stream.WriteString(message, session);
+                stream.WriteString(remoteStackTraceString, session);
+                stream.WriteString(stackTraceString, session);
                 stream.WriteObjectWithManifest(innerException, session);
             });
             typeMapping.TryAdd(type, exceptionSerializer);

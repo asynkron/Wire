@@ -17,20 +17,20 @@ namespace Wire.ValueSerializers
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var data = decimal.GetBits((decimal) value);
-            stream.WriteInt32(data[0]);
-            stream.WriteInt32(data[1]);
-            stream.WriteInt32(data[2]);
-            stream.WriteInt32(data[3]);
+            Int32Serializer.WriteValueImpl(stream, data[0], session);
+            Int32Serializer.WriteValueImpl(stream, data[1], session);
+            Int32Serializer.WriteValueImpl(stream, data[2], session);
+            Int32Serializer.WriteValueImpl(stream, data[3], session);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
             var parts = new[]
             {
-                (int) Int32Serializer.Instance.ReadValue(stream, session),
-                (int) Int32Serializer.Instance.ReadValue(stream, session),
-                (int) Int32Serializer.Instance.ReadValue(stream, session),
-                (int) Int32Serializer.Instance.ReadValue(stream, session)
+                Int32Serializer.ReadValueImpl(stream,session),
+                Int32Serializer.ReadValueImpl(stream,session),
+                Int32Serializer.ReadValueImpl(stream,session),
+                Int32Serializer.ReadValueImpl(stream,session)
             };
             var sign = (parts[3] & 0x80000000) != 0;
 

@@ -83,7 +83,7 @@ namespace Wire.ValueSerializers
             else
             {
                 stream.Write(new[] {ManifestIndex});
-                stream.WriteUInt16(typeIdentifier);
+                UInt16Serializer.WriteValueImpl(stream,typeIdentifier,session);
             }
         }
 

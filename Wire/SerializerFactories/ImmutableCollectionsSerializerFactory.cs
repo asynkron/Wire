@@ -71,8 +71,7 @@ namespace Wire.SerializerFactories
 
                     enumerable = list;
                 }
-
-                stream.WriteInt32(enumerable.Count);
+                Int32Serializer.WriteValueImpl(stream,enumerable.Count,session);
                 foreach (var value in enumerable)
                 {
                     stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);

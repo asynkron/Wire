@@ -16,7 +16,7 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
-            stream.WriteInt32((int) value);
+            Int32Serializer.WriteValueImpl(stream,(int)value,session);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)

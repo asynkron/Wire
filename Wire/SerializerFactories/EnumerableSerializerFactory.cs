@@ -105,8 +105,7 @@ namespace Wire.SerializerFactories
                 {
                     session.TrackSerializedObject(o);
                 }
-
-                stream.WriteInt32(countGetter(o));
+                Int32Serializer.WriteValueImpl(stream, countGetter(o),session);
                 var enumerable = o as IEnumerable;
                 // ReSharper disable once PossibleNullReferenceException
                 foreach (var value in enumerable)

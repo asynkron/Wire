@@ -71,6 +71,11 @@ namespace Wire
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe byte[] GetBytes(this string str,SerializerSession session,out int byteCount)
         {
+            if (str == null)
+            {
+                byteCount = 1;
+                return new[] {(byte)0};
+            }
             byteCount = Utf8.GetByteCount(str);
             if (byteCount < 254) //short string
             {
