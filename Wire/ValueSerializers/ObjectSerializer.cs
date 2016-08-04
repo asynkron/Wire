@@ -73,10 +73,12 @@ namespace Wire.ValueSerializers
             if (session.ShouldWriteTypeManifest(Type,out typeIdentifier))
             {
                 session.TrackSerializedType(Type);
-                if (session.Serializer.Options.VersionTolerance)
-                    stream.Write(_manifestWithVersionInfo);
-                else
-                    stream.Write(_manifest);
+
+                var manifestToWrite = session.Serializer.Options.VersionTolerance ? 
+                    _manifestWithVersionInfo : 
+                    _manifest;
+
+                stream.Write(manifestToWrite);
             }
             else
             {
