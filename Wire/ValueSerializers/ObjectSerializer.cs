@@ -43,6 +43,9 @@ namespace Wire.ValueSerializers
                     .Concat(typeNameBytes)
                     .ToArray(); //serializer id 255 + assembly qualified name
 
+            //TODO: this should only work this way for standard poco objects
+            //custom object serializers should not emit their inner fields
+
             //this is the same as the above, but including all field names of the type, in alphabetical order
             _manifestWithVersionInfo =
                 new[] { ManifestVersion }

@@ -1,5 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using System.Text;
+using Wire.ValueSerializers;
 
 namespace Wire
 {
@@ -69,7 +71,7 @@ namespace Wire
         internal static readonly UTF8Encoding Utf8 = (UTF8Encoding) Encoding.UTF8;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe byte[] GetBytes(this string str,SerializerSession session,out int byteCount)
+        internal static unsafe byte[] GetBytes(string str,SerializerSession session,out int byteCount)
         {
             if (str == null)
             {
@@ -98,6 +100,16 @@ namespace Wire
 
                 return bytes;
             }
+        }
+
+        public static unsafe byte[] GetBytes(DateTime dateTime, SerializerSession session)
+        {
+            //datetime size is 9 ticks + kind
+            var bytes1 = session.GetBuffer(DateTimeSerializer.Size);
+            fixed (byte* b = bytes1)
+                *((long*) b) = dateTime.Ticks;
+            bytes1[DateTimeSerializer.Size - 1] = (byte) dateTime.Kind;
+            return bytes1;
         }
     }
 }

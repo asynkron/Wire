@@ -27,7 +27,7 @@ namespace Wire.ValueSerializers
         {
             if (value == null)
             {
-                stream.WriteString(null, session);
+                StringSerializer.WriteValueImpl(stream,null,session);
             }
             else
             {
@@ -46,7 +46,7 @@ namespace Wire.ValueSerializers
                     }
                     //type was not written before, add it to the tacked object list
                     var name = type.GetShortAssemblyQualifiedName();
-                    stream.WriteString(name, session);
+                    StringSerializer.WriteValueImpl(stream, name, session);
                 }
             }
         }

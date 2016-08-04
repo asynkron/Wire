@@ -49,15 +49,15 @@ namespace Wire.SerializerFactories
                 return exception;
             }, (stream, exception, session) =>
             {
-                var className = _className.GetValue(exception);
-                var message = _message.GetValue(exception);
-                var remoteStackTraceString = _remoteStackTraceString.GetValue(exception);
-                var stackTraceString = _stackTraceString.GetValue(exception);
+                var className = (string)_className.GetValue(exception);
+                var message = (string)_message.GetValue(exception);
+                var remoteStackTraceString = (string)_remoteStackTraceString.GetValue(exception);
+                var stackTraceString = (string)_stackTraceString.GetValue(exception);
                 var innerException = _innerException.GetValue(exception);
-                stream.WriteString(className,session);
-                stream.WriteString(message, session);
-                stream.WriteString(remoteStackTraceString, session);
-                stream.WriteString(stackTraceString, session);
+                StringSerializer.WriteValueImpl(stream,className,session);
+                StringSerializer.WriteValueImpl(stream, message, session);
+                StringSerializer.WriteValueImpl(stream, remoteStackTraceString, session);
+                StringSerializer.WriteValueImpl(stream, stackTraceString, session);
                 stream.WriteObjectWithManifest(innerException, session);
             });
             typeMapping.TryAdd(type, exceptionSerializer);

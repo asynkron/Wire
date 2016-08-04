@@ -107,42 +107,6 @@ namespace Wire.Extensions
             return value;
         }
 
-        public static void WriteString(this Stream stream, object value, SerializerSession session)
-        {
-            int bytesLength;
-            var bytes = ((string) value).GetBytes(session, out bytesLength);
-            stream.Write(bytes, 0, bytesLength);
-        }
-
-        //public static void WriteString(this Stream stream, object value)
-        //{
-        //    //null = 0
-        //    // [0]
-        //    //length < 255 gives length + 1 as a single byte + payload
-        //    // [B length+1] [Payload]
-        //    //others gives 254 + int32 length + payload
-        //    // [B 254] [I Length] [Payload]
-        //    if (value == null)
-        //    {
-        //        stream.WriteByte(0);
-        //    }
-        //    else
-        //    {
-        //        var bytes = ((string) value).ToUtf8Bytes();
-        //        if (bytes.Length < 254)
-        //        {
-        //            stream.WriteByte((byte) (bytes.Length + 1));
-        //            stream.Write(bytes, 0, bytes.Length);
-        //        }
-        //        else
-        //        {
-        //            stream.WriteByte(255);
-        //            stream.WriteInt32(bytes.Length);
-        //            stream.Write(bytes, 0, bytes.Length);
-        //        }
-        //    }
-        //}
-
         public static string ReadString(this Stream stream, DeserializerSession session)
         {
             var length = stream.ReadByte();
