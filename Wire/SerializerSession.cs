@@ -8,7 +8,7 @@ namespace Wire
         public const int MinBufferSize = 8;
         private byte [] _buffer = new byte[MinBufferSize];
         private readonly Dictionary<object, int> _objects;
-        private readonly Dictionary<Type, ushort> _typeToIdentifier;
+        private readonly FastTypeUShortDictionary _typeToIdentifier;
         public readonly Serializer Serializer;
         private int _nextObjectId;
         private ushort _nextTypeId;
@@ -16,7 +16,7 @@ namespace Wire
         public SerializerSession(Serializer serializer)
         {
             Serializer = serializer;
-            _typeToIdentifier = new Dictionary<Type, ushort>(capacity:1);
+            _typeToIdentifier = new FastTypeUShortDictionary();
             if (serializer.Options.PreserveObjectReferences)
             {
                 _objects = new Dictionary<object, int>();
@@ -59,12 +59,7 @@ namespace Wire
             _nextTypeId++;
         }
 
-        public int GetTypeIdentifier(Type type)
-        {
-            return _typeToIdentifier[type];
-        }
-
-        public byte[] GetBuffer(int length)
+       public byte[] GetBuffer(int length)
         {
             if (_buffer != null && length <= _buffer.Length) return _buffer;
             if (_buffer != null)
