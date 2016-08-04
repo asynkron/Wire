@@ -12,7 +12,7 @@ namespace Wire
     public class 
         DeserializerSession
     {
-        public const int MinBufferSize = 8;
+        public const int MinBufferSize = 9;
         private byte[] _buffer;
         private readonly IntToTypeLookup _identifierToType;
         private readonly IntToObjectLookup _objectById;

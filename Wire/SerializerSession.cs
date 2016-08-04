@@ -5,7 +5,7 @@ namespace Wire
 {
     public class SerializerSession
     {
-        public const int MinBufferSize = 8;
+        public const int MinBufferSize = 9;
         private byte [] _buffer = new byte[MinBufferSize];
         private readonly Dictionary<object, int> _objects;
         private readonly FastTypeUShortDictionary _typeToIdentifier;

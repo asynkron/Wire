@@ -13,18 +13,26 @@ namespace Wire.ValueSerializers
         {
         }
 
-        private static void WriteValueImpl(Stream stream, DateTime dateTime, SerializerSession session)
+        private static unsafe void WriteValueImpl(Stream stream, DateTime dateTime, SerializerSession session)
         {
-            var bytes = NoAllocBitConverter.GetBytes(dateTime.Ticks, session);
-            stream.Write(bytes, 0, Size);
-            var kindByte = (byte) dateTime.Kind;
-            stream.WriteByte(kindByte);
+            var bytes1 = session.GetBuffer(Size+1);
+            fixed (byte* b = bytes1)
+                *((long*) b) = dateTime.Ticks;
+            bytes1[Size] = (byte) dateTime.Kind;
+
+            stream.Write(bytes1, 0, Size+1);
         }
 
         public static DateTime ReadValueImpl(Stream stream, DeserializerSession session)
         {
-            var buffer = session.GetBuffer(Size+1);
-            stream.Read(buffer, 0, Size+1);
+            var dateTime = ReadDateTime(stream, session);
+            return dateTime;
+        }
+
+        private static DateTime ReadDateTime(Stream stream, DeserializerSession session)
+        {
+            var buffer = session.GetBuffer(Size + 1);
+            stream.Read(buffer, 0, Size + 1);
             var ticks = BitConverter.ToInt64(buffer, 0);
             var kind = (DateTimeKind) buffer[Size]; //avoid reading a single byte from the stream
             var dateTime = new DateTime(ticks, kind);
