@@ -5,8 +5,9 @@ namespace Wire
 {
     public class FastTypeUShortDictionary
     {
-        private int _length = 0;
-        private Tuple<Type, ushort> _first;
+        private int _length;
+        private Type _firstType;
+        private ushort _firstValue;
         private Dictionary<Type, ushort> _all;
 
         public bool TryGetValue(Type key, out ushort value)
@@ -17,9 +18,9 @@ namespace Wire
                     value = 0;
                     return false;
                 case 1:
-                    if (key == _first.Item1)
+                    if (key == _firstType)
                     {
-                        value = _first.Item2;
+                        value = _firstValue;
                         return true;
                     }
                     value = 0;
@@ -34,11 +35,12 @@ namespace Wire
             switch (_length)
             {
                 case 0:
-                    _first = Tuple.Create(type, value);
+                    _firstType = type;
+                    _firstValue = value;
                     _length = 1;
                     break;
                 case 1:
-                    _all = new Dictionary<Type, ushort> {{_first.Item1, _first.Item2}, {type, value}};
+                    _all = new Dictionary<Type, ushort> {{_firstType, _firstValue}, {type, value}};
                     _length = 2;
                     break;
                 default:
