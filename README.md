@@ -66,10 +66,10 @@ But even with it's rich featureset, Wire performs extremely well.
 
 ```text
 Wire - preregister types
-   Serialize                      373 ms
-   Deserialize                    330 ms
+   Serialize                      312 ms
+   Deserialize                    261 ms
    Size                           38 bytes
-   Total                          703 ms
+   Total                          573 ms
 Wire - no version data
    Serialize                      381 ms
    Deserialize                    403 ms

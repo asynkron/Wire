@@ -9,9 +9,10 @@ namespace Wire
     {
 
     }
-    public class DeserializerSession
+    public class 
+        DeserializerSession
     {
-        public const int MinBufferSize = 8;
+        public const int MinBufferSize = 9;
         private byte[] _buffer;
         private readonly IntToTypeLookup _identifierToType;
         private readonly IntToObjectLookup _objectById;
@@ -22,10 +23,10 @@ namespace Wire
         {
             Serializer = serializer;
             _buffer = new byte[MinBufferSize];
-            _identifierToType = new IntToTypeLookup();
+            _identifierToType = new IntToTypeLookup(capacity:1);
             if (serializer.Options.PreserveObjectReferences)
             {
-                _objectById = new IntToObjectLookup();
+                _objectById = new IntToObjectLookup(capacity:1);
             }
             if (serializer.Options.VersionTolerance)
             {
@@ -33,7 +34,6 @@ namespace Wire
             }
             else
             {
-                //known types can only be used when version intolerant as we lack type version information
                 foreach (var type in serializer.Options.KnownTypes)
                 {
                     TrackDeserializedType(type);
