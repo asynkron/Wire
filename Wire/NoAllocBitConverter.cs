@@ -71,32 +71,35 @@ namespace Wire
         internal static readonly UTF8Encoding Utf8 = (UTF8Encoding) Encoding.UTF8;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe byte[] GetBytes(string str,SerializerSession session,out int byteCount)
+        internal static unsafe byte[] GetBytes(string str, SerializerSession session, out int byteCount)
         {
+            //if first byte is 0 = null
+            //if first byte is 254 or less, then length is value - 1
+            //if first byte is 255 then the next 4 bytes are an int32 for length
             if (str == null)
             {
                 byteCount = 1;
-                return new[] {(byte)0};
+                return new[] {(byte) 0};
             }
             byteCount = Utf8.GetByteCount(str);
             if (byteCount < 254) //short string
             {
                 byte[] bytes = session.GetBuffer(byteCount + 1);
                 Utf8.GetBytes(str, 0, byteCount, bytes, 1);
-                bytes[0] = (byte) (byteCount+1);
+                bytes[0] = (byte) (byteCount + 1);
                 byteCount += 1;
                 return bytes;
             }
             else //long string
             {
                 byte[] bytes = session.GetBuffer(byteCount + 1 + 4);
-                Utf8.GetBytes(str, 0, byteCount, bytes, 1+4);
+                Utf8.GetBytes(str, 0, byteCount, bytes, 1 + 4);
                 bytes[0] = 255;
-    
-                fixed (byte* b = bytes)
-                    *((int*)b+1) = byteCount;
 
-                byteCount += 1+4;
+                fixed (byte* b = bytes)
+                    *((int*) b + 1) = byteCount;
+
+                byteCount += 1 + 4;
 
                 return bytes;
             }
