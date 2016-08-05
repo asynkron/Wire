@@ -6,17 +6,19 @@ namespace Wire
     public class SerializerSession
     {
         public const int MinBufferSize = 9;
-        private byte [] _buffer = new byte[MinBufferSize];
         private readonly Dictionary<object, int> _objects;
-        private readonly FastTypeUShortDictionary _typeToIdentifier;
         public readonly Serializer Serializer;
+        private Dictionary<Type, ushort> _trackedTypes;
+        private byte[] _buffer = new byte[MinBufferSize];
+        private Type _firstTrackedType;
+
+        private int _length;
         private int _nextObjectId;
         private ushort _nextTypeId;
 
         public SerializerSession(Serializer serializer)
         {
             Serializer = serializer;
-            _typeToIdentifier = new FastTypeUShortDictionary();
             if (serializer.Options.PreserveObjectReferences)
             {
                 _objects = new Dictionary<object, int>();
@@ -50,16 +52,10 @@ namespace Wire
 
         public bool ShouldWriteTypeManifest(Type type, out ushort index)
         {
-            return !_typeToIdentifier.TryGetValue(type, out index);
+            return !TryGetValue(type, out index);
         }
 
-        public void TrackSerializedType(Type type)
-        {
-            _typeToIdentifier.Add(type, _nextTypeId);
-            _nextTypeId++;
-        }
-
-       public byte[] GetBuffer(int length)
+        public byte[] GetBuffer(int length)
         {
             if (length <= _buffer.Length)
                 return _buffer;
@@ -69,6 +65,46 @@ namespace Wire
             Array.Resize(ref _buffer, length);
 
             return _buffer;
+        }
+
+        public bool TryGetValue(Type key, out ushort value)
+        {
+            switch (_length)
+            {
+                case 0:
+                    value = 0;
+                    return false;
+                case 1:
+                    if (key == _firstTrackedType)
+                    {
+                        value = 0;
+                        return true;
+                    }
+                    value = 0;
+                    return false;
+                default:
+                    return _trackedTypes.TryGetValue(key, out value);
+            }
+        }
+
+        public void TrackSerializedType(Type type)
+        {
+            switch (_length)
+            {
+                case 0:
+                    _firstTrackedType = type;
+                    _length = 1;
+                    break;
+                case 1:
+                    _trackedTypes = new Dictionary<Type, ushort> {{_firstTrackedType, 0}, {type, _nextTypeId}};
+                    _length = 2;
+                    break;
+                default:
+                    _trackedTypes.Add(type, _nextTypeId);
+                    _length++;
+                    break;
+            }
+            _nextTypeId++;
         }
     }
 }

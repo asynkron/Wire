@@ -52,7 +52,6 @@
     <Compile Include="Compilation\Compiler.cs" />
     <Compile Include="Compilation\IlExpression.cs" />
     <Compile Include="Compilation\ICompiler.cs" />
-    <Compile Include="FastDictionary.cs" />
     <Compile Include="ICodeGenerator.cs" />
     <Compile Include="Extensions\ReflectionEx.cs" />
     <Compile Include="SerializerFactories\ArraySerializerFactory.cs" />
