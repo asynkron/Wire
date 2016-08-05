@@ -17,7 +17,7 @@ namespace Wire.ValueSerializers
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var bytes = (byte[]) value;
-            stream.WriteLengthEncodedByteArray(bytes);
+            stream.WriteLengthEncodedByteArray(bytes,session);
 
             if (session.Serializer.Options.PreserveObjectReferences)
             {

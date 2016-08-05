@@ -24,11 +24,11 @@ namespace Wire.SerializerFactories
                 .Surrogates
                 .FirstOrDefault(s => s.IsSurrogateFor(type));
             // ReSharper disable once PossibleNullReferenceException
-            ValueSerializer objectSerializer = new ObjectSerializer(surrogate.To);
+            var objectSerializer = new ObjectSerializer(surrogate.To);
             var toSurrogateSerializer = new ToSurrogateSerializer(surrogate.ToSurrogate, surrogate.To, objectSerializer);
             typeMapping.TryAdd(type, toSurrogateSerializer);
 
-            serializer.CodeGenerator.BuildSerializer(serializer, (ObjectSerializer) objectSerializer);
+            serializer.CodeGenerator.BuildSerializer(serializer, objectSerializer);
             return toSurrogateSerializer;
         }
     }

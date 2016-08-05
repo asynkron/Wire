@@ -13,15 +13,10 @@ namespace Wire.ValueSerializers
         {
         }
 
-        private static unsafe void WriteValueImpl(Stream stream, DateTime dateTime, SerializerSession session)
+        private static void WriteValueImpl(Stream stream, DateTime dateTime, SerializerSession session)
         {
-            //datetime size is 9 ticks + kind
-            var bytes1 = session.GetBuffer(Size);
-            fixed (byte* b = bytes1)
-                *((long*) b) = dateTime.Ticks;
-            bytes1[Size-1] = (byte) dateTime.Kind;
-
-            stream.Write(bytes1, 0, Size);
+            var bytes = NoAllocBitConverter.GetBytes(dateTime, session);
+            stream.Write(bytes, 0, Size);
         }
 
         public static DateTime ReadValueImpl(Stream stream, DeserializerSession session)

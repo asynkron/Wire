@@ -7,6 +7,42 @@ namespace Wire.Tests
     [TestClass]
     public class Bugs
     {
+        public class ByteMessage
+        {
+            public DateTime UtcTime { get; }
+            public long LongValue { get; }
+            public byte ByteValue { get; }
+
+            public ByteMessage(DateTime utcTime, byte byteValue, long longValue)
+            {
+                UtcTime = utcTime;
+                ByteValue = byteValue;
+                LongValue = longValue;
+            }
+
+            public override bool Equals(object obj)
+            {
+                var msg = obj as ByteMessage;
+                return msg != null && Equals(msg);
+            }
+
+            public bool Equals(ByteMessage other)
+            {
+                return UtcTime.Equals(other.UtcTime) && LongValue.Equals(other.LongValue) && ByteValue.Equals(other.ByteValue);
+            }
+        }
+
+        [TestMethod]
+        public void CanSerializeMessageWithByte()
+        {
+            var stream = new MemoryStream();
+            var msg = new ByteMessage(DateTime.UtcNow,1,2);
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
+            serializer.Serialize(msg, stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize(stream);
+        }
+
         [TestMethod]
         public void CanSerialieCustomType_bug()
         {

@@ -19,7 +19,7 @@ namespace Wire.ValueSerializers
             else
             {
                 stream.Write(new[] { ObjectSerializer.ManifestIndex });
-                stream.WriteUInt16(typeIdentifier);
+                UInt16Serializer.WriteValueImpl(stream,typeIdentifier,session);
             }
         }
 
@@ -27,7 +27,7 @@ namespace Wire.ValueSerializers
         {
             if (value == null)
             {
-                stream.WriteString(null);
+                StringSerializer.WriteValueImpl(stream,null,session);
             }
             else
             {
@@ -46,7 +46,7 @@ namespace Wire.ValueSerializers
                     }
                     //type was not written before, add it to the tacked object list
                     var name = type.GetShortAssemblyQualifiedName();
-                    stream.WriteString(name);
+                    StringSerializer.WriteValueImpl(stream, name, session);
                 }
             }
         }
