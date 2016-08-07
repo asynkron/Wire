@@ -36,6 +36,17 @@ namespace Wire.Compilation
             return _expressions.Count - 1;
         }
 
+        public int GetVariable<T>(string name)
+        {
+            var existing = _expressions.OfType<ParameterExpression>().First(v => v.Name == name && v.Type == typeof(T));
+            if (existing == null)
+            {
+                throw new Exception("Variable not found.");
+            }
+
+            return _expressions.IndexOf(existing);
+        }
+
         public int Constant(object value)
         {
             var constant = value.ToConstant();

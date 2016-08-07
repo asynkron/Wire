@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class Int16Serializer : SessionAwareValueSerializer<short>
+    public class Int16Serializer : SessionAwareByteArrayRequiringValueSerializer<short>
     {
         public const byte Manifest = 3;
         public const int Size = sizeof(short);
@@ -13,17 +13,18 @@ namespace Wire.ValueSerializers
         {
         }
 
-        public static void WriteValueImpl(Stream stream, short sh, SerializerSession session)
+        public static void WriteValueImpl(Stream stream, short sh, byte[] bytes)
         {
-            var bytes = NoAllocBitConverter.GetBytes(sh, session);
+            NoAllocBitConverter.GetBytes(sh, bytes);
             stream.Write(bytes, 0, Size);
         }
 
-        public static short ReadValueImpl(Stream stream, DeserializerSession session)
+        public static short ReadValueImpl(Stream stream, byte[] bytes)
         {
-            var buffer = session.GetBuffer(Size);
-            stream.Read(buffer, 0, Size);
-            return BitConverter.ToInt16(buffer, 0);
+            stream.Read(bytes, 0, Size);
+            return BitConverter.ToInt16(bytes, 0);
         }
+
+        public override int PreallocatedByteBufferSize => Size;
     }
 }

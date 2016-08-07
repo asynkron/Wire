@@ -8,6 +8,7 @@ namespace Wire.Compilation
         int NewObject(Type type);
         int Parameter<T>(string name);
         int Variable<T>(string name);
+        int GetVariable<T>(string name);
         int Constant(object value);
         int CastOrUnbox(int value, Type type);
         void EmitCall(MethodInfo method, int target, params int[] arguments);
