@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class UInt64Serializer : SessionAwareValueSerializer<ulong>
+    public class UInt64Serializer : SessionAwareByteArrayRequiringValueSerializer<ulong>
     {
         public const byte Manifest = 19;
         public const int Size = sizeof(ulong);
@@ -13,17 +13,18 @@ namespace Wire.ValueSerializers
         {
         }
 
-        public static void WriteValueImpl(Stream stream, ulong ul, SerializerSession session)
+        public static void WriteValueImpl(Stream stream, ulong ul, byte[] bytes)
         {
-            var bytes = NoAllocBitConverter.GetBytes(ul, session);
+            NoAllocBitConverter.GetBytes(ul, bytes);
             stream.Write(bytes, 0, Size);
         }
 
-        public static ulong ReadValueImpl(Stream stream, DeserializerSession session)
+        public static ulong ReadValueImpl(Stream stream, byte[] bytes)
         {
-            var buffer = session.GetBuffer(Size);
-            stream.Read(buffer, 0, Size);
-            return BitConverter.ToUInt64(buffer, 0);
+            stream.Read(bytes, 0, Size);
+            return BitConverter.ToUInt64(bytes, 0);
         }
+
+        public override int PreallocatedByteBufferSize => Size;
     }
 }

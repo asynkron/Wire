@@ -3,27 +3,28 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class CharSerializer : SessionAwareValueSerializer<char>
+    public class CharSerializer : SessionAwareByteArrayRequiringValueSerializer<char>
     {
         public const byte Manifest = 15;
         public const int Size = sizeof(char);
         public static readonly CharSerializer Instance = new CharSerializer();
 
-        public CharSerializer() : base(Manifest, () => WriteValueImpl, ()=>ReadValueImpl)
+        public CharSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
-        }
-        
-        public static char ReadValueImpl(Stream stream, DeserializerSession session)
-        {
-            var buffer = session.GetBuffer(Size);
-            stream.Read(buffer, 0, Size);
-            return (char) BitConverter.ToSingle(buffer, 0);
         }
 
-        public static void WriteValueImpl(Stream stream, char ch, SerializerSession session)
+        public static char ReadValueImpl(Stream stream, byte[] bytes)
         {
-            var bytes = NoAllocBitConverter.GetBytes(ch, session);
+            stream.Read(bytes, 0, Size);
+            return (char) BitConverter.ToSingle(bytes, 0);
+        }
+
+        public static void WriteValueImpl(Stream stream, char ch, byte[] bytes)
+        {
+            NoAllocBitConverter.GetBytes(ch, bytes);
             stream.Write(bytes, 0, Size);
         }
+
+        public override int PreallocatedByteBufferSize => Size;
     }
 }

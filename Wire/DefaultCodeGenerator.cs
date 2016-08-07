@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Wire.Compilation;
@@ -11,17 +12,19 @@ namespace Wire
 {
     public class DefaultCodeGenerator : ICodeGenerator
     {
-        public void BuildSerializer([NotNull]Serializer serializer, [NotNull] ObjectSerializer objectSerializer)
+        public void BuildSerializer([NotNull] Serializer serializer, [NotNull] ObjectSerializer objectSerializer)
         {
             var type = objectSerializer.Type;
             var fields = type.GetFieldInfosForType();
-            var writer = GetFieldsWriter(serializer, fields);
+            int preallocatedBufferSize;
+            var writer = GetFieldsWriter(serializer, fields, out preallocatedBufferSize);
             var reader = GetFieldsReader(serializer, fields, type);
 
-            objectSerializer.Initialize(reader, writer);
+            objectSerializer.Initialize(reader, writer, preallocatedBufferSize);
         }
 
-        private ObjectReader GetFieldsReader([NotNull]Serializer serializer, [NotNull] IEnumerable<FieldInfo> fields, [NotNull] Type type)
+        private ObjectReader GetFieldsReader([NotNull] Serializer serializer, [NotNull] IEnumerable<FieldInfo> fields,
+            [NotNull] Type type)
         {
             var c = new Compiler<ObjectReader>();
             var stream = c.Parameter<Stream>("stream");
@@ -59,9 +62,20 @@ namespace Wire
             //    }
             //}
             var typedTarget = c.CastOrUnbox(target, type);
-            foreach (var field in fields)
+            var fieldsArray = fields.ToArray();
+            var serializers = fieldsArray.Select(field => serializer.GetSerializerByType(field.FieldType)).ToArray();
+
+            var preallocatedBufferSize = serializers.Length != 0 ? serializers.Max(s => s.PreallocatedByteBufferSize) : 0;
+            if (preallocatedBufferSize > 0)
             {
-                var s = serializer.GetSerializerByType(field.FieldType);
+                EmitPreallocatedBuffer(c, preallocatedBufferSize, session,
+                    typeof(DeserializerSession).GetMethod("GetBuffer"));
+            }
+
+            for (var i = 0; i < fieldsArray.Length; i++)
+            {
+                var field = fieldsArray[i];
+                var s = serializers[i];
 
                 int read;
                 if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
@@ -79,7 +93,7 @@ namespace Wire
                     read = c.Convert(read, field.FieldType);
                 }
 
-                
+
                 var assignReadToField = c.WriteField(field, typedTarget, read);
                 c.Emit(assignReadToField);
             }
@@ -89,9 +103,20 @@ namespace Wire
             return readAllFields;
         }
 
+        private static void EmitPreallocatedBuffer<T>(ICompiler<T> c, int preallocatedBufferSize, int session,
+            MethodInfo getBuffer)
+        {
+            var size = c.Constant(preallocatedBufferSize);
+            var buffer = c.Variable<byte[]>(PreallocatedByteBuffer);
+            var bufferValue = c.Call(getBuffer, session, size);
+            var assignBuffer = c.WriteVar(buffer, bufferValue);
+            c.Emit(assignBuffer);
+        }
+
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
-        private ObjectWriter GetFieldsWriter([NotNull]Serializer serializer,[NotNull] IEnumerable<FieldInfo> fields)
+        private ObjectWriter GetFieldsWriter([NotNull] Serializer serializer, [NotNull] IEnumerable<FieldInfo> fields,
+            out int preallocatedBufferSize)
         {
             var c = new Compiler<ObjectWriter>();
 
@@ -108,10 +133,22 @@ namespace Wire
                 c.EmitCall(method, session, target);
             }
 
-            foreach (var field in fields)
+            var fieldsArray = fields.ToArray();
+            var serializers = fieldsArray.Select(field => serializer.GetSerializerByType(field.FieldType)).ToArray();
+
+            preallocatedBufferSize = serializers.Length != 0 ? serializers.Max(s => s.PreallocatedByteBufferSize) : 0;
+
+            if (preallocatedBufferSize > 0)
             {
-                //get the serializer for the type of the field
-                var valueSerializer = serializer.GetSerializerByType(field.FieldType);
+                EmitPreallocatedBuffer(c, preallocatedBufferSize, session,
+                    typeof(SerializerSession).GetMethod("GetBuffer"));
+            }
+
+            for (var i = 0; i < fieldsArray.Length; i++)
+            {
+                var field = fieldsArray[i];
+//get the serializer for the type of the field
+                var valueSerializer = serializers[i];
                 //runtime Get a delegate that reads the content of the given field
 
                 var cast = c.CastOrUnbox(target, field.DeclaringType);
@@ -145,5 +182,7 @@ namespace Wire
 
             return c.Compile();
         }
+
+        public const string PreallocatedByteBuffer = "PreallocatedByteBuffer";
     }
 }

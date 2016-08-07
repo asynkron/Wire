@@ -275,6 +275,12 @@ namespace Wire.Tests
 
             c.Emit(assignNewObjectToTarget);
 
+            var size = c.Constant(16);
+            var buffer = c.Variable<byte[]>(DefaultCodeGenerator.PreallocatedByteBuffer);
+            var bufferValue = c.Call(typeof(DeserializerSession).GetMethod("GetBuffer"), session, size);
+            var assignBuffer = c.WriteVar(buffer, bufferValue);
+            c.Emit(assignBuffer);
+            
             var typedTarget = c.CastOrUnbox(target, type);
             foreach (var field in fields)
             {
