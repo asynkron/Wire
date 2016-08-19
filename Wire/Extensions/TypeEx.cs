@@ -87,7 +87,7 @@ namespace Wire.Extensions
         }
 
         private static readonly ConcurrentDictionary<ByteArrayKey, Type> TypeNameLookup =
-            new ConcurrentDictionary<ByteArrayKey, Type>();
+            new ConcurrentDictionary<ByteArrayKey, Type>(ByteArrayKeyComparer.Instance);
 
         public static byte[] GetTypeManifest(IReadOnlyCollection<byte[]> fieldNames)
         {
