@@ -45,7 +45,7 @@ namespace Wire.Compilation
         {
             var field = ctx.SelfType.GetFields(BindingFlagsEx.All)[Index];
             ctx.Il.Emit(OpCodes.Ldarg_0);
-            ctx.Il.Emit(OpCodes.Ldfld,field);
+            ctx.Il.Emit(OpCodes.Ldfld, field);
             ctx.StackDepth++;
         }
 
@@ -66,7 +66,7 @@ namespace Wire.Compilation
         public override void Emit(IlCompilerContext ctx)
         {
             _target.Emit(ctx);
-            ctx.Il.Emit(OpCodes.Ldfld,_field);
+            ctx.Il.Emit(OpCodes.Ldfld, _field);
             //we are still at the same stacksize as we consumed the target
         }
 
@@ -103,7 +103,7 @@ namespace Wire.Compilation
         private readonly IlExpression _target;
         private readonly IlExpression _value;
 
-        public IlWriteField(FieldInfo field, IlExpression target,IlExpression value)
+        public IlWriteField(FieldInfo field, IlExpression target, IlExpression value)
         {
             _field = field;
             _target = target;
@@ -115,7 +115,7 @@ namespace Wire.Compilation
             _target.Emit(ctx);
             _value.Emit(ctx);
             ctx.Il.Emit(OpCodes.Stfld, _field);
-            ctx.StackDepth-=2;
+            ctx.StackDepth -= 2;
         }
 
         public override Type Type()
@@ -134,7 +134,7 @@ namespace Wire.Compilation
         }
 
         public override void Emit(IlCompilerContext ctx)
-        {           
+        {
             var ctor = _type.GetConstructor(new Type[] {});
             // ReSharper disable once AssignNullToNotNullAttribute
             ctx.Il.Emit(OpCodes.Newobj, ctor);
@@ -150,7 +150,7 @@ namespace Wire.Compilation
         public int ParameterIndex { get; }
         private readonly Type _type;
 
-        public IlParameter(int parameterIndex,Type type,string name)
+        public IlParameter(int parameterIndex, Type type, string name)
         {
             Name = name;
             ParameterIndex = parameterIndex;
@@ -169,12 +169,14 @@ namespace Wire.Compilation
     public class IlVariable : IlExpression
     {
         public int VariableIndex { get; }
-        private readonly Type _type;
+        public string Name { get; }
+        public Type VarType { get; }
 
-        public IlVariable(int variableIndex,Type type)
+        public IlVariable(int variableIndex, Type type, string name)
         {
             VariableIndex = variableIndex;
-            _type = type;
+            Name = name;
+            VarType = type;
         }
 
         public override void Emit(IlCompilerContext ctx)
@@ -183,7 +185,7 @@ namespace Wire.Compilation
             ctx.StackDepth++;
         }
 
-        public override Type Type() => _type;
+        public override Type Type() => VarType;
     }
 
     public class IlCastClass : IlExpression
@@ -257,7 +259,7 @@ namespace Wire.Compilation
         public IlCall(IlExpression target, MethodInfo method, params IlExpression[] args)
         {
             if (args.Length != method.GetParameters().Length)
-                throw new ArgumentException("Parameter count mismatch",nameof(args));
+                throw new ArgumentException("Parameter count mismatch", nameof(args));
 
             _target = target;
             _method = method;

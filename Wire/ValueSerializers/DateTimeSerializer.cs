@@ -3,36 +3,37 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class DateTimeSerializer : SessionAwareValueSerializer<DateTime>
+    public class DateTimeSerializer : SessionAwareByteArrayRequiringValueSerializer<DateTime>
     {
         public const byte Manifest = 5;
         public const int Size = sizeof(long) + sizeof(byte);
         public static readonly DateTimeSerializer Instance = new DateTimeSerializer();
 
-        public DateTimeSerializer() : base(Manifest, () => WriteValueImpl, ()=> ReadValueImpl)
+        public DateTimeSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
 
-        private static void WriteValueImpl(Stream stream, DateTime dateTime, SerializerSession session)
+        private static void WriteValueImpl(Stream stream, DateTime dateTime, byte[] bytes)
         {
-            var bytes = NoAllocBitConverter.GetBytes(dateTime, session);
+            NoAllocBitConverter.GetBytes(dateTime, bytes);
             stream.Write(bytes, 0, Size);
         }
 
-        public static DateTime ReadValueImpl(Stream stream, DeserializerSession session)
+        public static DateTime ReadValueImpl(Stream stream, byte[] bytes)
         {
-            var dateTime = ReadDateTime(stream, session);
+            var dateTime = ReadDateTime(stream, bytes);
             return dateTime;
         }
 
-        private static DateTime ReadDateTime(Stream stream, DeserializerSession session)
+        private static DateTime ReadDateTime(Stream stream, byte[] bytes)
         {
-            var buffer = session.GetBuffer(Size);
-            stream.Read(buffer, 0, Size );
-            var ticks = BitConverter.ToInt64(buffer, 0);
-            var kind = (DateTimeKind) buffer[Size-1]; //avoid reading a single byte from the stream
+            stream.Read(bytes, 0, Size);
+            var ticks = BitConverter.ToInt64(bytes, 0);
+            var kind = (DateTimeKind) bytes[Size - 1]; //avoid reading a single byte from the stream
             var dateTime = new DateTime(ticks, kind);
             return dateTime;
         }
+
+        public override int PreallocatedByteBufferSize => Size;
     }
 }

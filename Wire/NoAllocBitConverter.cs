@@ -10,62 +10,52 @@ namespace Wire
     /// </summary>
     public static class NoAllocBitConverter
     {
-        public static byte[] GetBytes(char value, SerializerSession session)
+        public static void GetBytes(char value, byte[] bytes)
         {
-            return GetBytes((short) value, session);
+            GetBytes((short) value, bytes);
         }
 
-        public static unsafe byte[] GetBytes(short value, SerializerSession session)
+        public static unsafe void GetBytes(short value, byte[] bytes)
         {
-            const int length = 2;
-
-            var bytes = session.GetBuffer(length);
             fixed (byte* b = bytes)
                 *((short*) b) = value;
-            return bytes;
         }
 
-        public static unsafe byte[] GetBytes(int value, SerializerSession session)
+        public static unsafe void GetBytes(int value, byte[] bytes)
         {
-            const int length = 4;
-            var bytes = session.GetBuffer(length);
             fixed (byte* b = bytes)
                 *((int*) b) = value;
-            return bytes;
         }
 
-        public static unsafe byte[] GetBytes(long value, SerializerSession session)
+        public static unsafe void GetBytes(long value, byte[] bytes)
         {
-            const int length = 8;
-            var bytes = session.GetBuffer(length);
             fixed (byte* b = bytes)
                 *((long*) b) = value;
-            return bytes;
         }
 
-        public static byte[] GetBytes(ushort value, SerializerSession session)
+        public static void GetBytes(ushort value, byte[] bytes)
         {
-            return GetBytes((short) value, session);
+            GetBytes((short) value, bytes);
         }
 
-        public static byte[] GetBytes(uint value, SerializerSession session)
+        public static void GetBytes(uint value, byte[] bytes)
         {
-            return GetBytes((int) value, session);
+            GetBytes((int) value, bytes);
         }
 
-        public static byte[] GetBytes(ulong value, SerializerSession session)
+        public static void GetBytes(ulong value, byte[] bytes)
         {
-            return GetBytes((long) value, session);
+            GetBytes((long) value, bytes);
         }
 
-        public static unsafe byte[] GetBytes(float value, SerializerSession session)
+        public static unsafe void GetBytes(float value, byte[] bytes)
         {
-            return GetBytes(*(int*) &value, session);
+            GetBytes(*(int*) &value, bytes);
         }
 
-        public static unsafe byte[] GetBytes(double value, SerializerSession session)
+        public static unsafe void GetBytes(double value, byte[] bytes)
         {
-            return GetBytes(*(long*) &value, session);
+            GetBytes(*(long*) &value, bytes);
         }
 
         internal static readonly UTF8Encoding Utf8 = (UTF8Encoding) Encoding.UTF8;
@@ -105,14 +95,12 @@ namespace Wire
             }
         }
 
-        public static unsafe byte[] GetBytes(DateTime dateTime, SerializerSession session)
+        public static unsafe void GetBytes(DateTime dateTime, byte[] bytes)
         {
             //datetime size is 9 ticks + kind
-            var bytes1 = session.GetBuffer(DateTimeSerializer.Size);
-            fixed (byte* b = bytes1)
+            fixed (byte* b = bytes)
                 *((long*) b) = dateTime.Ticks;
-            bytes1[DateTimeSerializer.Size - 1] = (byte) dateTime.Kind;
-            return bytes1;
+            bytes[DateTimeSerializer.Size - 1] = (byte) dateTime.Kind;
         }
     }
 }

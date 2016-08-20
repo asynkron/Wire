@@ -34,7 +34,12 @@ namespace Wire.ValueSerializers
             return read;
         }
 
-        public static MethodInfo GetStatic([NotNull] LambdaExpression expression, [NotNull] Type expectedReturnType)
+        /// <summary>
+        /// Marks a given <see cref="ValueSerializer"/> as one requiring a preallocated byte buffer to perform its operations. The byte[] value will be accessible in <see cref="ValueSerializer.EmitWriteValue"/> and <see cref="ValueSerializer.EmitReadValue"/> in the <see cref="ICompiler{TDel}"/> with <see cref="ICompiler{TDel}.GetVariable{T}"/> under following name <see cref="DefaultCodeGenerator.PreallocatedByteBuffer"/>.
+        /// </summary>
+        public virtual int PreallocatedByteBufferSize => 0;
+
+        protected static MethodInfo GetStatic([NotNull] LambdaExpression expression, [NotNull] Type expectedReturnType)
         {
             var unaryExpression = (UnaryExpression) expression.Body;
             var methodCallExpression = (MethodCallExpression) unaryExpression.Operand;

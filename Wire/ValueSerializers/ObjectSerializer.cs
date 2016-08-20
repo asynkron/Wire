@@ -18,6 +18,7 @@ namespace Wire.ValueSerializers
         private volatile bool _isInitialized;
         private ObjectReader _reader;
         private ObjectWriter _writer;
+        int _preallocatedBufferSize;
 
         public ObjectSerializer(Type type)
         {
@@ -48,7 +49,7 @@ namespace Wire.ValueSerializers
 
             //this is the same as the above, but including all field names of the type, in alphabetical order
             _manifestWithVersionInfo =
-                new[] { ManifestVersion }
+                new[] {ManifestVersion}
                     .Concat(BitConverter.GetBytes(typeNameBytes.Length))
                     .Concat(typeNameBytes)
                     .Concat(versionInfo)
@@ -73,34 +74,38 @@ namespace Wire.ValueSerializers
         public override void WriteManifest(Stream stream, SerializerSession session)
         {
             ushort typeIdentifier;
-            if (session.ShouldWriteTypeManifest(Type,out typeIdentifier))
+            if (session.ShouldWriteTypeManifest(Type, out typeIdentifier))
             {
                 session.TrackSerializedType(Type);
 
-                var manifestToWrite = session.Serializer.Options.VersionTolerance ? 
-                    _manifestWithVersionInfo : 
-                    _manifest;
+                var manifestToWrite = session.Serializer.Options.VersionTolerance
+                    ? _manifestWithVersionInfo
+                    : _manifest;
 
                 stream.Write(manifestToWrite);
             }
             else
             {
                 stream.Write(new[] {ManifestIndex});
-                UInt16Serializer.WriteValueImpl(stream,typeIdentifier,session);
+                UInt16Serializer.WriteValueImpl(stream, typeIdentifier, session);
             }
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session) => _writer(stream, value, session);
+        public override void WriteValue(Stream stream, object value, SerializerSession session)
+            => _writer(stream, value, session);
 
         public override object ReadValue(Stream stream, DeserializerSession session) => _reader(stream, session);
 
         public override Type GetElementType() => Type;
 
-        public void Initialize(ObjectReader reader, ObjectWriter writer)
+        public void Initialize(ObjectReader reader, ObjectWriter writer, int preallocatedBufferSize = 0)
         {
+            _preallocatedBufferSize = preallocatedBufferSize;
             _reader = reader;
             _writer = writer;
             _isInitialized = true;
         }
+
+        public override int PreallocatedByteBufferSize => _preallocatedBufferSize;
     }
 }

@@ -16,21 +16,25 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
+            var bytes = session.GetBuffer(Int32Serializer.Size);
+
             var data = decimal.GetBits((decimal) value);
-            Int32Serializer.WriteValueImpl(stream, data[0], session);
-            Int32Serializer.WriteValueImpl(stream, data[1], session);
-            Int32Serializer.WriteValueImpl(stream, data[2], session);
-            Int32Serializer.WriteValueImpl(stream, data[3], session);
+            Int32Serializer.WriteValueImpl(stream, data[0], bytes);
+            Int32Serializer.WriteValueImpl(stream, data[1], bytes);
+            Int32Serializer.WriteValueImpl(stream, data[2], bytes);
+            Int32Serializer.WriteValueImpl(stream, data[3], bytes);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
+            var bytes = session.GetBuffer(Int32Serializer.Size);
+
             var parts = new[]
             {
-                Int32Serializer.ReadValueImpl(stream,session),
-                Int32Serializer.ReadValueImpl(stream,session),
-                Int32Serializer.ReadValueImpl(stream,session),
-                Int32Serializer.ReadValueImpl(stream,session)
+                Int32Serializer.ReadValueImpl(stream, bytes),
+                Int32Serializer.ReadValueImpl(stream, bytes),
+                Int32Serializer.ReadValueImpl(stream, bytes),
+                Int32Serializer.ReadValueImpl(stream, bytes)
             };
             var sign = (parts[3] & 0x80000000) != 0;
 
@@ -41,7 +45,7 @@ namespace Wire.ValueSerializers
 
         public override Type GetElementType()
         {
-            return typeof (decimal);
+            return typeof(decimal);
         }
     }
 }

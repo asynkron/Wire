@@ -17,12 +17,12 @@ namespace Wire.Compilation
 
         public int NewObject(Type type)
         {
-            var ctor = type.GetConstructor(new Type[] { });
+            var ctor = type.GetConstructor(new Type[] {});
             // ReSharper disable once PossibleNullReferenceException
             if (ctor != null && ctor.GetMethodBody().GetILAsByteArray().Length <= 8)
             {
                 var @new = new IlNew(type);
-                _expressions.Add(@new);                                
+                _expressions.Add(@new);
             }
             else
             {
@@ -38,8 +38,7 @@ namespace Wire.Compilation
 
         public int Parameter<T>(string name)
         {
-
-            var exp = new IlParameter(Parameters.Count+1,typeof(T),name);
+            var exp = new IlParameter(Parameters.Count + 1, typeof(T), name);
             _expressions.Add(exp);
             Parameters.Add(exp);
 
@@ -48,11 +47,23 @@ namespace Wire.Compilation
 
         public int Variable<T>(string name)
         {
-            var exp = new IlVariable(Variables.Count, typeof(T));
+            var exp = new IlVariable(Variables.Count, typeof(T), name);
             _expressions.Add(exp);
             Variables.Add(exp);
 
             return _expressions.Count - 1;
+        }
+
+        public int GetVariable<T>(string name)
+        {
+            var existing =
+                _expressions.OfType<IlVariable>().FirstOrDefault(v => v.Name == name && v.VarType == typeof(T));
+            if (existing == null)
+            {
+                throw new Exception("Variable not found");
+            }
+
+            return _expressions.IndexOf(existing);
         }
 
         public int Constant(object value)
@@ -60,10 +71,10 @@ namespace Wire.Compilation
             if (value is bool)
             {
                 //doing this is faster than storing this as state
-                _expressions.Add(new IlBool((bool)value));
+                _expressions.Add(new IlBool((bool) value));
                 return _expressions.Count - 1;
             }
-            
+
             _expressions.Add(new IlRuntimeConstant(value, Constants.Count));
             Constants.Add(value);
             return _expressions.Count - 1;
@@ -114,7 +125,7 @@ namespace Wire.Compilation
 
         public int WriteField(FieldInfo field, int target, int value)
         {
-            var exp = new IlWriteField(field, _expressions[target],_expressions[value]);
+            var exp = new IlWriteField(field, _expressions[target], _expressions[value]);
             _expressions.Add(exp);
             return _expressions.Count - 1;
         }
@@ -123,7 +134,7 @@ namespace Wire.Compilation
         {
             var variableExp = _expressions[variable] as IlVariable;
             var valueExp = _expressions[value];
-            var exp = new IlWriteVariable(variableExp,valueExp);
+            var exp = new IlWriteVariable(variableExp, valueExp);
             _expressions.Add(exp);
             return _expressions.Count - 1;
         }
