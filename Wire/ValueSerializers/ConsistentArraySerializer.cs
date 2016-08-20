@@ -22,11 +22,23 @@ namespace Wire.ValueSerializers
                 session.TrackDeserializedObject(array);
             }
 
-            for (var i = 0; i < length; i++)
+            if (elementType.IsFixedSizeType())
             {
-                var value = elementSerializer.ReadValue(stream, session); //read the element value
-                array.SetValue(value, i); //set the element value
+                var size = elementType.GetTypeSize();
+                var totalSize = size*length;
+                var buffer = session.GetBuffer(totalSize);
+                stream.Read(buffer, 0, totalSize);
+                Buffer.BlockCopy(buffer, 0, array, 0, totalSize);
             }
+            else
+            {
+                for (var i = 0; i < length; i++)
+                {
+                    var value = elementSerializer.ReadValue(stream, session); //read the element value
+                    array.SetValue(value, i); //set the element value
+                }
+            }
+            
 
 
             return array;
