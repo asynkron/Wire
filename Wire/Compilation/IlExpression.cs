@@ -5,6 +5,7 @@ using Wire.Extensions;
 
 namespace Wire.Compilation
 {
+#if NET45
     public abstract class IlExpression
     {
         public abstract void Emit(IlCompilerContext ctx);
@@ -311,4 +312,5 @@ namespace Wire.Compilation
 
         public override Type Type() => _method.ReturnType;
     }
+#endif
 }

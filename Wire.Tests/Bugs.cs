@@ -55,7 +55,6 @@ namespace Wire.Tests
             var actual = serializer.Deserialize<Recover>(stream);
         }
 
-
         public class SnapshotSelectionCriteria
         {
             public static SnapshotSelectionCriteria Latest { get; set; } = new SnapshotSelectionCriteria()
@@ -64,6 +63,7 @@ namespace Wire.Tests
             };
             public string Foo { get; set; }
         }
+
         [Serializable]
         public sealed class Recover
         {

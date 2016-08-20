@@ -17,7 +17,7 @@ namespace Wire.ValueSerializers
         public virtual void EmitWriteValue(ICompiler<ObjectWriter> c, int stream, int fieldValue, int session)
         {
             var converted = c.Convert<object>(fieldValue);
-            var method = typeof(ValueSerializer).GetMethod(nameof(WriteValue));
+            var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(WriteValue));
 
             //write it to the value serializer
             var vs = c.Constant(this);

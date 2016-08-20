@@ -35,7 +35,7 @@ namespace Wire
             if (serializer.Options.PreserveObjectReferences)
             {
                 var trackDeserializedObjectMethod =
-                    typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                    typeof(DeserializerSession).GetTypeInfo().GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
 
                 c.EmitCall(trackDeserializedObjectMethod, session, target);
             }

@@ -30,6 +30,7 @@ namespace Wire.SerializerFactories
                 var owner = stream.ReadObject(session) as Type;
                 var arguments = stream.ReadObject(session) as Type[];
 
+#if NET45
                 var method = owner.GetTypeInfo().GetMethod(
                     name,
                     BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, 
@@ -38,6 +39,9 @@ namespace Wire.SerializerFactories
                     arguments,
                     null);
                 return method;
+#else
+                return null;
+#endif
             };
             ObjectWriter writer = (stream, obj, session) =>
             {
