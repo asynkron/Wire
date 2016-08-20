@@ -62,7 +62,7 @@ namespace Wire
 
             length = Math.Max(length, _buffer.Length*2);
 
-            Array.Resize(ref _buffer, length);
+            _buffer = new byte[length];
 
             return _buffer;
         }

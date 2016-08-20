@@ -182,7 +182,30 @@ namespace Wire.PerformanceTests
             Test(Tuple.Create(123,456));
         }
 
-        [TestMethod,Ignore] //this fails due to not being close enough to FsPickler in perf
+        [Serializable]
+        public class FakeTupleIntInt
+        {
+            public int Item1 { get; set; }
+            public int Item2 { get; set; }
+        }
+
+        [TestMethod, Ignore] //this is slow because we can not codegen setters for readonly fields yet (expressions, we need IL compiler first)
+        public void TestTupleLikeArray()
+        {
+            var arr = new FakeTupleIntInt[100];
+            for (var i = 0; i < arr.Length; i++)
+            {
+                arr[i] = new FakeTupleIntInt
+                {
+                    Item2 = i,
+                    Item1 = 999 - i,
+                };
+            }
+
+            Test(arr);
+        }
+
+        [TestMethod]
         public void TestTupleArray()
         {
             var arr = new Tuple<int,int>[100];

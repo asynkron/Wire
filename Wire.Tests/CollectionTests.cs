@@ -118,7 +118,17 @@ namespace Wire.Tests
         }
 
         [TestMethod]
-        public void CanSerializeArray()
+        public void CanSerializeIntArray()
+        {
+            var expected = Enumerable.Range(0, 10000).ToArray();
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<int[]>();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void CanSerializeObjectArray()
         {
             var expected = new[]
             {
