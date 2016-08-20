@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Wire.Compilation
 {
+#if NET45
     public class IlCompilerContext
     {
         private int _stackDepth;
@@ -84,4 +85,5 @@ namespace Wire.Compilation
             _il.EmitCall(opcode, method, optionalTypes);
         }
     }
+#endif
 }

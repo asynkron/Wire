@@ -5,6 +5,7 @@ using System.Reflection.Emit;
 
 namespace Wire.Compilation
 {
+#if NET45
     public class IlCompiler<TDel> : IlBuilder, ICompiler<TDel>
     {
         public TDel Compile()
@@ -83,4 +84,5 @@ namespace Wire.Compilation
             return self;
         }
     }
+#endif
 }

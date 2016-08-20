@@ -43,12 +43,13 @@ namespace Wire.PerfTest
            Console.WriteLine();
            Console.WriteLine("Running cold");
 
-           // for (int i = 0; i < 20; i++)
-           //{
-           //    SerializePocoPreRegister();
-           //}
+            for (int i = 0; i < 20; i++)
+            {
+                SerializePocoPreRegister();
+            }
+           return;
 
-           SerializePocoPreRegister();
+            SerializePocoPreRegister();
            SerializePocoPreRegisterManualSerializer();
            SerializePocoVersionInteolerant();
            SerializePoco();

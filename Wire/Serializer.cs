@@ -26,7 +26,6 @@ namespace Wire
             Options = options;
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ValueSerializer GetCustomSerialzer([NotNull] Type type)
         {
@@ -122,6 +121,12 @@ namespace Wire
                 if (type == TypeEx.Int32Type)
                     return Int32Serializer.Instance;
 
+                if (type == TypeEx.GuidType)
+                    return GuidSerializer.Instance;
+
+                if (type == TypeEx.DateTimeType)
+                    return DateTimeSerializer.Instance;
+
                 if (type == TypeEx.Int64Type)
                     return Int64Serializer.Instance;
 
@@ -146,12 +151,6 @@ namespace Wire
                 if (type == TypeEx.BoolType)
                     return BoolSerializer.Instance;
 
-                if (type == TypeEx.DateTimeType)
-                    return DateTimeSerializer.Instance;
-
-                if (type == TypeEx.GuidType)
-                    return GuidSerializer.Instance;
-
                 if (type == TypeEx.FloatType)
                     return FloatSerializer.Instance;
 
@@ -174,9 +173,7 @@ namespace Wire
                     return TypeSerializer.Instance;
 
                 if (type.IsOneDimensionalPrimitiveArray())
-                {
                     return ConsistentArraySerializer.Instance;
-                }
             }
 
             var serializer = GetCustomSerialzer(type);
@@ -189,9 +186,11 @@ namespace Wire
             var first = stream.ReadByte();
             switch (first)
             {
+                case 1: //these two are not yet used
+                case 10:
+                    throw new NotSupportedException("Unknown manifest value");
                 case NullSerializer.Manifest:
                     return NullSerializer.Instance;
-//TODO: hmm why havent I added 1?
                 case Int64Serializer.Manifest:
                     return Int64Serializer.Instance;
                 case Int16Serializer.Manifest:

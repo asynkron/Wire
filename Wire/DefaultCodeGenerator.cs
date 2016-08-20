@@ -38,7 +38,7 @@ namespace Wire
             if (serializer.Options.PreserveObjectReferences)
             {
                 var trackDeserializedObjectMethod =
-                    typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                    typeof(DeserializerSession).GetTypeInfo().GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
 
                 c.EmitCall(trackDeserializedObjectMethod, session, target);
             }
@@ -69,7 +69,7 @@ namespace Wire
             if (preallocatedBufferSize > 0)
             {
                 EmitPreallocatedBuffer(c, preallocatedBufferSize, session,
-                    typeof(DeserializerSession).GetMethod("GetBuffer"));
+                    typeof(DeserializerSession).GetTypeInfo().GetMethod("GetBuffer"));
             }
 
             for (var i = 0; i < fieldsArray.Length; i++)
@@ -141,7 +141,7 @@ namespace Wire
             if (preallocatedBufferSize > 0)
             {
                 EmitPreallocatedBuffer(c, preallocatedBufferSize, session,
-                    typeof(SerializerSession).GetMethod("GetBuffer"));
+                    typeof(SerializerSession).GetTypeInfo().GetMethod("GetBuffer"));
             }
 
             for (var i = 0; i < fieldsArray.Length; i++)

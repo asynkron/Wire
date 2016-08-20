@@ -6,6 +6,7 @@ using Wire.Extensions;
 
 namespace Wire.Compilation
 {
+#if NET45
     public class IlBuilder
     {
         private readonly List<IlExpression> _expressions = new List<IlExpression>();
@@ -162,4 +163,5 @@ namespace Wire.Compilation
             return _expressions.Count - 1;
         }
     }
+#endif
 }

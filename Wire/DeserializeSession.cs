@@ -43,15 +43,11 @@ namespace Wire
 
         public byte[] GetBuffer(int length)
         {
-            if (_buffer != null && length <= _buffer.Length) return _buffer;
-            if (_buffer != null)
-            {
-                length = Math.Max(length, _buffer.Length * 2);
-            }
-
+            if (length <= _buffer.Length)
+                return _buffer;
+           
+            length = Math.Max(length, _buffer.Length * 2);
             Array.Resize(ref _buffer,length);
-
-           // _buffer = new byte[length];
 
             return _buffer;
         }

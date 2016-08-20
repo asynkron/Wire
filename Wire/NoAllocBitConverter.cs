@@ -63,6 +63,9 @@ namespace Wire
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe byte[] GetBytes(string str, SerializerSession session, out int byteCount)
         {
+            //if first byte is 0 = null
+            //if first byte is 254 or less, then length is value - 1
+            //if first byte is 255 then the next 4 bytes are an int32 for length
             if (str == null)
             {
                 byteCount = 1;
