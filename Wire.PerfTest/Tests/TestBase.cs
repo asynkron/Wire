@@ -59,10 +59,12 @@ namespace Wire.PerfTest.Tests
             SerializeVersionInteolerantPreserveObjects();
             SerializeNFXSlim();
             SerializeNFXSlimPreregister();
+            SerializeSSText();
             // SerializeFsPickler();
             SerializeJil();
             SerializeNetJson();
             SerializeNetSerializer();
+           // SerializeMessageShark(); //broken
             SerializeProtoBufNet();
             SerializeJsonNet();
             SerializeBinaryFormatter();
@@ -77,10 +79,12 @@ namespace Wire.PerfTest.Tests
             SerializeVersionInteolerantPreserveObjects();
             SerializeNFXSlim();
             SerializeNFXSlimPreregister();
+            SerializeSSText();
             //   SerializeFsPickler();
             SerializeJil();
             SerializeNetJson();
             SerializeNetSerializer();
+         //   SerializeMessageShark();
             SerializeProtoBufNet();
             SerializeJsonNet();
             SerializeBinaryFormatter();
@@ -200,6 +204,18 @@ namespace Wire.PerfTest.Tests
             }
         }
 
+        private void SerializeMessageShark()
+        {
+            var bytes = MessageShark.MessageSharkSerializer.Serialize(Value);
+            RunTest("MessageShark", () =>
+            {
+                MessageShark.MessageSharkSerializer.Serialize(Value);
+            }, () =>
+            {
+                MessageShark.MessageSharkSerializer.Deserialize<T>(bytes);
+            }, bytes.Length);
+        }
+
         private void SerializeProtoBufNet()
         {
             var s = new MemoryStream();
@@ -231,6 +247,22 @@ namespace Wire.PerfTest.Tests
             {
                 s.Position = 0;
                 serializer.Deserialize(s);
+            }, bytes.Length);
+        }
+
+        private void SerializeSSText()
+        {
+            var s = new MemoryStream();
+            var serializer = new ServiceStack.Text.TypeSerializer<T>();
+            var text = serializer.SerializeToString(Value);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
+
+            RunTest("NFX Slim Serializer", () =>
+            {
+                serializer.SerializeToString(Value);
+            }, () =>
+            {
+                serializer.DeserializeFromString(text);
             }, bytes.Length);
         }
 
