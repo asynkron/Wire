@@ -11,6 +11,40 @@ namespace Wire.Tests
         public string Prop1 { get; set; }
         public int Prop2 { get; set; }
     }
+
+    public class Empty : IEquatable<Empty>
+    {
+        public bool Equals(Empty other)
+        {
+            if (other == null)
+                return false;
+
+            return true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Empty) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return 1;
+        }
+
+        public static bool operator ==(Empty left, Empty right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Empty left, Empty right)
+        {
+            return !Equals(left, right);
+        }
+    }
     public class Something : IEquatable<Something>
     {
         public bool Equals(Something other)

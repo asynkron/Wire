@@ -87,7 +87,7 @@ namespace Wire.Tests
                 BoolProp = true,
                 Int32Prop = 123,
                 NullableInt32PropHasValue = 888,
-                StringProp = "hello"
+                StringProp = "hello",
             };
 
 
@@ -128,6 +128,17 @@ namespace Wire.Tests
             Serialize(expected);
             Reset();
             var actual = Deserialize<Tuple<string>>();
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void CanEmptyObject()
+        {
+            var expected = new Empty();
+
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<Empty>();
             Assert.AreEqual(expected, actual);
         }
     }
