@@ -115,6 +115,10 @@ namespace Wire
             if (ReferenceEquals(type.GetTypeInfo().Assembly, ReflectionEx.CoreAssembly))
             {
                 //faster than hash lookup you know...
+
+                if (type == TypeEx.SystemObject)
+                    return SystemObjectSerializer.Instance;
+                
                 if (type == TypeEx.StringType)
                     return StringSerializer.Instance;
 
@@ -186,7 +190,8 @@ namespace Wire
             var first = stream.ReadByte();
             switch (first)
             {
-                case 1: //these two are not yet used
+                case 1:
+                    return SystemObjectSerializer.Instance;
                 case 10:
                     throw new NotSupportedException("Unknown manifest value");
                 case NullSerializer.Manifest:

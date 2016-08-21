@@ -15,6 +15,7 @@ namespace Wire.Extensions
         //Why not inline typeof you ask?
         //Because it actually generates calls to get the type.
         //We prefetch all primitives here
+        public static readonly Type SystemObject = typeof(object);
         public static readonly Type Int32Type = typeof(int);
         public static readonly Type Int64Type = typeof(long);
         public static readonly Type Int16Type = typeof(short);
