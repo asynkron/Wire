@@ -7,13 +7,20 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 4;
         public static readonly ByteSerializer Instance = new ByteSerializer();
 
-        public ByteSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
+        public ByteSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl, () => ReadChunkValueImpl)
         {
         }
 
         public static void WriteValueImpl(Stream stream, byte b)
         {
             stream.WriteByte(b);
+        }
+
+        public static unsafe byte ReadChunkValueImpl(ref ByteChunk chunk)
+        {
+            var b = *chunk.Start;
+            chunk.Start += 1;
+            return b;
         }
 
         public static byte ReadValueImpl(Stream stream)

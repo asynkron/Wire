@@ -8,13 +8,20 @@ namespace Wire.ValueSerializers
         public static readonly BoolSerializer Instance = new BoolSerializer();
 
         public BoolSerializer() :
-            base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
+            base(Manifest, () => WriteValueImpl, () => ReadValueImpl, () => ReadChunkValueImpl)
         {
         }
 
         public static bool ReadValueImpl(Stream stream)
         {
             var b = stream.ReadByte();
+            return b != 0;
+        }
+
+        public static unsafe bool ReadChunkValueImpl(ref ByteChunk chunk)
+        {
+            var b = *chunk.Start;
+            chunk.Start += 1;
             return b != 0;
         }
 
