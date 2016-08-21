@@ -148,9 +148,10 @@ namespace Wire.PerfTest.Types
         public int? DesiredFriendCount;
 
 
+        private static int counter;
         public static TypicalPersonData MakeRandom()
         {
-            var rnd = 123;
+            var rnd = counter++;
 
             var data = new TypicalPersonData
             {
@@ -207,17 +208,17 @@ namespace Wire.PerfTest.Types
 
         public static string Generate(int i)
         {
-            return "fskldjflksjfl ksj dlfkjsdfl ksdjklf jsdlkj";
+            return "fskldjflksjfl ksj dlfkjsdfl ksdjklf jsdlkj" + DateTime.Now.Ticks;
         }
 
         public static string GenerateAddressLine()
         {
-            return "fkjdskfjskfjs";
+            return "fkjdskfjskfjs" + DateTime.Now.Ticks;
         }
 
         public static string GenerateFirstName()
         {
-            return "fksjdfkjsdkfjksdfs";
+            return "fksjdfkjsdkfjksdfs" + DateTime.Now.Ticks;
         }
 
         public static string GenerateCityName()
