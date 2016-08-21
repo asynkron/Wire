@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Jil;
@@ -10,6 +12,16 @@ using NFX.Serialization.Slim;
 
 namespace Wire.PerfTest.Tests
 {
+    class TestResult
+    {
+        public string TestName { get; set; }
+        public TimeSpan SerializationTime { get; set; }
+        public TimeSpan DeserializationTime { get; set; }
+        public TimeSpan RoundtripTime => SerializationTime + DeserializationTime;
+        public int PayloadSize { get; set; }
+        public bool Success { get; set; }
+
+    }
     internal abstract class TestBase<T>
     {
         private string _fastestDeserializer;
@@ -26,6 +38,8 @@ namespace Wire.PerfTest.Tests
         private int _smallestPayloadSize = int.MaxValue;
         protected T Value;
 
+        private List<TestResult> _results = new List<TestResult>();
+
         protected abstract T GetValue();
 
         public void Run(int repeat)
@@ -33,8 +47,9 @@ namespace Wire.PerfTest.Tests
             Repeat = repeat;
             Value = GetValue();
             Console.WriteLine();
+            var testName = GetType().Name;
 
-            Console.WriteLine($"# Test {GetType().Name}");
+            Console.WriteLine($"# Test {testName}");
             Console.WriteLine();
             Console.WriteLine("## Running cold");
             Console.WriteLine("```");
@@ -54,6 +69,7 @@ namespace Wire.PerfTest.Tests
             Console.WriteLine("```");
             Console.WriteLine();
             Console.WriteLine("## Running hot");
+            _results.Clear();
             Console.WriteLine("```");
             SerializePreRegister();
             SerializeVersionInteolerant();
@@ -73,6 +89,25 @@ namespace Wire.PerfTest.Tests
             Console.WriteLine($"* **Fastest Deserializer**: {_fastestDeserializer} - {(long)_fastestDeserializerTime.TotalMilliseconds} ms");
             Console.WriteLine($"* **Fastest Roundtrip**: {_fastestRoundtrip} - {(long)_fastestRoundtripTime.TotalMilliseconds} ms");
             Console.WriteLine($"* **Smallest Payload**: {_smallestPayload} - {_smallestPayloadSize} bytes");
+
+            SaveTestResult($"{testName}_roundtrip.txt", _results.OrderBy(r => r.RoundtripTime.TotalMilliseconds));
+            SaveTestResult($"{testName}_serialize.txt", _results.OrderBy(r => r.SerializationTime.TotalMilliseconds));
+            SaveTestResult($"{testName}_deserialize.txt", _results.OrderBy(r => r.DeserializationTime.TotalMilliseconds));
+            SaveTestResult($"{testName}_payload.txt", _results.OrderBy(r => r.PayloadSize));
+        }
+
+        private void SaveTestResult(string file, IEnumerable<TestResult> result )
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("test, roundtrip, serialize, deserialize, size");
+            foreach (var row in result)
+            {
+                sb.AppendLine(
+                    $"{row.TestName}, {(long)row.RoundtripTime.TotalMilliseconds}, {(long) row.SerializationTime.TotalMilliseconds}, {(long) row.DeserializationTime.TotalMilliseconds}, {row.PayloadSize}");
+            }
+
+            File.WriteAllText(file, sb.ToString());
+
         }
 
         private void SerializeNetJson()
@@ -99,7 +134,7 @@ namespace Wire.PerfTest.Tests
             var data = JsonConvert.SerializeObject(Value, settings);
             RunTest("Json.NET", () => { JsonConvert.SerializeObject(Value, settings); }, () =>
             {
-                var o = JsonConvert.DeserializeObject(data, settings);
+                JsonConvert.DeserializeObject(data, settings);
             }, Encoding.UTF8.GetBytes(data).Length);
         }
 
@@ -149,6 +184,15 @@ namespace Wire.PerfTest.Tests
                 Console.WriteLine($"   {"Size".PadRight(30, ' ')} {size} bytes");
                 Console.WriteLine(
                     $"   {"Total".PadRight(30, ' ')} {sw.ElapsedMilliseconds + sw2.ElapsedMilliseconds} ms");
+                var testResult = new TestResult()
+                {
+                    TestName = testName,
+                    DeserializationTime = sw2.Elapsed,
+                    SerializationTime = sw.Elapsed,
+                    PayloadSize = size,
+                    Success = true
+                };
+                _results.Add(testResult);
             }
             catch
             {
@@ -234,9 +278,25 @@ namespace Wire.PerfTest.Tests
             var bytes = s.ToArray();
             RunTest("Jil", () =>
             {
-                var stream = new MemoryStream();
                 JSON.Serialize(Value);
             }, () => { JSON.Deserialize(res, typeof(T)); }, bytes.Length);
+        }
+
+        private void SerializeFsPickler()
+        {
+            var pickler = MBrace.FsPickler.FsPickler.CreateBinarySerializer();
+            var s = new MemoryStream();
+            pickler.Serialize(s, Value);
+            var bytes = s.ToArray();
+            RunTest("FsPickler", () =>
+            {
+                var stream = new MemoryStream();
+                pickler.Serialize(stream, Value);
+            }, () =>
+            {
+                s.Position = 0;
+                pickler.Deserialize<T>(s);
+            }, bytes.Length);
         }
 
         private void SerializeBinaryFormatter()
@@ -288,23 +348,6 @@ namespace Wire.PerfTest.Tests
             {
                 s.Position = 0;
                 serializer.Deserialize<T>(s);
-            }, bytes.Length);
-        }
-
-        private void SerializeFsPickler()
-        {
-            var pickler = MBrace.FsPickler.FsPickler.CreateBinarySerializer();
-            var s = new MemoryStream();
-            pickler.Serialize(s, Value);
-            var bytes = s.ToArray();
-            RunTest("FsPickler", () =>
-            {
-                var stream = new MemoryStream();
-                pickler.Serialize(stream, Value);
-            }, () =>
-            {
-                s.Position = 0;
-                pickler.Deserialize<T>(s);
             }, bytes.Length);
         }
 
