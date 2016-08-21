@@ -5,6 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Jil;
 using Newtonsoft.Json;
+using NFX.IO;
 
 namespace Wire.PerfTest.Tests
 {
@@ -20,8 +21,9 @@ namespace Wire.PerfTest.Tests
         {
             Repeat = repeat;
             Value = GetValue();
-
+            Console.WriteLine();
             Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
+            Console.WriteLine($"Test {this.GetType().Name}");
             Console.WriteLine();
             Console.WriteLine("Running cold");
 
@@ -35,7 +37,9 @@ namespace Wire.PerfTest.Tests
             SerializeVersionInteolerant();
             Serialize();
             SerializeVersionInteolerantPreserveObjects();
-           // SerializeFsPickler();
+            SerializeNFXSlim();
+            SerializeNFXSlimPreregister();
+            // SerializeFsPickler();
             SerializeJil();
             SerializeNetSerializer();
             SerializeProtoBufNet();
@@ -47,8 +51,9 @@ namespace Wire.PerfTest.Tests
             SerializeVersionInteolerant();
             Serialize();
             SerializeVersionInteolerantPreserveObjects();
-
-         //   SerializeFsPickler();
+            SerializeNFXSlim();
+            SerializeNFXSlimPreregister();
+            //   SerializeFsPickler();
             SerializeJil();
             SerializeNetSerializer();
             SerializeProtoBufNet();
@@ -75,6 +80,7 @@ namespace Wire.PerfTest.Tests
         {
             try
             {
+                
                 var tmp = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"{testName}");
@@ -116,6 +122,42 @@ namespace Wire.PerfTest.Tests
             {
                 s.Position = 0;
                 ProtoBuf.Serializer.Deserialize<T>(s);
+            }, bytes.Length);
+        }
+
+        private void SerializeNFXSlimPreregister()
+        {
+            var s = new MemoryStream();
+            var serializer = new NFX.Serialization.Slim.SlimSerializer(SlimFormat.Instance, new[] { typeof(T) });
+            serializer.Serialize(s, Value);
+            var bytes = s.ToArray();
+
+            RunTest("NFX Slim Serializer", () =>
+            {
+                var stream = new MemoryStream();
+                serializer.Serialize(stream, Value);
+            }, () =>
+            {
+                s.Position = 0;
+                serializer.Deserialize(s);
+            }, bytes.Length);
+        }
+
+        private void SerializeNFXSlim()
+        {
+            var s = new MemoryStream();
+            var serializer = new NFX.Serialization.Slim.SlimSerializer(SlimFormat.Instance);
+            serializer.Serialize(s, Value);
+            var bytes = s.ToArray();
+
+            RunTest("NFX Slim Serializer", () =>
+            {
+                var stream = new MemoryStream();
+                serializer.Serialize(stream, Value);
+            }, () =>
+            {
+                s.Position = 0;
+                serializer.Deserialize(s);
             }, bytes.Length);
         }
 
