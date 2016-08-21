@@ -6,33 +6,38 @@ using System.Text;
 using Jil;
 using Newtonsoft.Json;
 using NFX.IO;
+using NFX.Serialization.Slim;
 
 namespace Wire.PerfTest.Tests
 {
     internal abstract class TestBase<T>
     {
+        private string _fastestDeserializer;
+        private TimeSpan _fastestDeserializerTime = TimeSpan.MaxValue;
+
+        private string _fastestSerializer;
+        private TimeSpan _fastestSerializerTime = TimeSpan.MaxValue;
+
+        private string _fastestRoundtrip;
+        private TimeSpan _fastestRoundtripTime = TimeSpan.MaxValue;
+
+        protected int Repeat;
+        private string _smallestPayload;
+        private int _smallestPayloadSize = int.MaxValue;
         protected T Value;
 
         protected abstract T GetValue();
-
-        protected int Repeat;
 
         public void Run(int repeat)
         {
             Repeat = repeat;
             Value = GetValue();
             Console.WriteLine();
-            Console.WriteLine("Run this in Release mode with no debugger attached for correct numbers!!");
-            Console.WriteLine($"Test {this.GetType().Name}");
+
+            Console.WriteLine($"# Test {GetType().Name}");
             Console.WriteLine();
-            Console.WriteLine("Running cold");
-
-            // for (int i = 0; i < 20; i++)
-            // {
-            //     SerializePreRegister();
-            // }
-            //return;
-
+            Console.WriteLine("## Running cold");
+            Console.WriteLine("```");
             SerializePreRegister();
             SerializeVersionInteolerant();
             Serialize();
@@ -45,8 +50,10 @@ namespace Wire.PerfTest.Tests
             SerializeProtoBufNet();
             SerializeJsonNet();
             SerializeBinaryFormatter();
+            Console.WriteLine("```");
             Console.WriteLine();
-            Console.WriteLine("Running hot");
+            Console.WriteLine("## Running hot");
+            Console.WriteLine("```");
             SerializePreRegister();
             SerializeVersionInteolerant();
             Serialize();
@@ -59,13 +66,18 @@ namespace Wire.PerfTest.Tests
             SerializeProtoBufNet();
             SerializeJsonNet();
             SerializeBinaryFormatter();
+            Console.WriteLine("```");
+            Console.WriteLine($"* **Fastest Serializer**: {_fastestSerializer} - {(long)_fastestSerializerTime.TotalMilliseconds} ms");
+            Console.WriteLine($"* **Fastest Deserializer**: {_fastestDeserializer} - {(long)_fastestDeserializerTime.TotalMilliseconds} ms");
+            Console.WriteLine($"* **Fastest Roundtrip**: {_fastestRoundtrip} - {(long)_fastestRoundtripTime.TotalMilliseconds} ms");
+            Console.WriteLine($"* **Smallest Payload**: {_smallestPayload} - {_smallestPayloadSize} bytes");
         }
 
         private void SerializeJsonNet()
         {
             var settings = new JsonSerializerSettings
             {
-                TypeNameHandling = TypeNameHandling.All,
+                TypeNameHandling = TypeNameHandling.All
                 //ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                 //PreserveReferencesHandling = PreserveReferencesHandling.All
             };
@@ -80,7 +92,12 @@ namespace Wire.PerfTest.Tests
         {
             try
             {
-                
+                if (size < _smallestPayloadSize && size > 0)
+                {
+                    _smallestPayloadSize = size;
+                    _smallestPayload = testName;
+                }
+
                 var tmp = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"{testName}");
@@ -91,6 +108,11 @@ namespace Wire.PerfTest.Tests
                     serialize();
                 }
                 sw.Stop();
+                if (sw.Elapsed < _fastestSerializerTime)
+                {
+                    _fastestSerializerTime = sw.Elapsed;
+                    _fastestSerializer = testName;
+                }
                 Console.WriteLine($"   {"Serialize".PadRight(30, ' ')} {sw.ElapsedMilliseconds} ms");
                 var sw2 = Stopwatch.StartNew();
                 for (var i = 0; i < Repeat; i++)
@@ -98,6 +120,16 @@ namespace Wire.PerfTest.Tests
                     deserialize();
                 }
                 sw2.Stop();
+                if (sw2.Elapsed < _fastestDeserializerTime)
+                {
+                    _fastestDeserializerTime = sw2.Elapsed;
+                    _fastestDeserializer = testName;
+                }
+                if (sw2.Elapsed + sw.Elapsed < _fastestRoundtripTime)
+                {
+                    _fastestRoundtripTime = sw2.Elapsed + sw.Elapsed;
+                    _fastestRoundtrip = testName;
+                }
                 Console.WriteLine($"   {"Deserialize".PadRight(30, ' ')} {sw2.ElapsedMilliseconds} ms");
                 Console.WriteLine($"   {"Size".PadRight(30, ' ')} {size} bytes");
                 Console.WriteLine(
@@ -105,7 +137,7 @@ namespace Wire.PerfTest.Tests
             }
             catch
             {
-                Console.WriteLine($"{testName} failed");
+                Console.WriteLine($"    FAILURE");
             }
         }
 
@@ -128,11 +160,11 @@ namespace Wire.PerfTest.Tests
         private void SerializeNFXSlimPreregister()
         {
             var s = new MemoryStream();
-            var serializer = new NFX.Serialization.Slim.SlimSerializer(SlimFormat.Instance, new[] { typeof(T) });
+            var serializer = new SlimSerializer(SlimFormat.Instance, new[] {typeof(T)});
             serializer.Serialize(s, Value);
             var bytes = s.ToArray();
 
-            RunTest("NFX Slim Serializer", () =>
+            RunTest("NFX Slim Serializer - KnownTypes", () =>
             {
                 var stream = new MemoryStream();
                 serializer.Serialize(stream, Value);
@@ -146,7 +178,7 @@ namespace Wire.PerfTest.Tests
         private void SerializeNFXSlim()
         {
             var s = new MemoryStream();
-            var serializer = new NFX.Serialization.Slim.SlimSerializer(SlimFormat.Instance);
+            var serializer = new SlimSerializer(SlimFormat.Instance);
             serializer.Serialize(s, Value);
             var bytes = s.ToArray();
 
@@ -216,7 +248,7 @@ namespace Wire.PerfTest.Tests
             var s = new MemoryStream();
             serializer.Serialize(Value, s);
             var bytes = s.ToArray();
-            RunTest("Wire - preregister types", () =>
+            RunTest("Wire - KnownTypes", () =>
             {
                 var stream = new MemoryStream();
                 serializer.Serialize(Value, stream);
@@ -233,7 +265,7 @@ namespace Wire.PerfTest.Tests
             var s = new MemoryStream();
             serializer.Serialize(Value, s);
             var bytes = s.ToArray();
-            RunTest("Wire - no version data", () =>
+            RunTest("Wire - Default", () =>
             {
                 var stream = new MemoryStream();
                 serializer.Serialize(Value, stream);
@@ -267,7 +299,7 @@ namespace Wire.PerfTest.Tests
             var s = new MemoryStream();
             serializer.Serialize(Value, s);
             var bytes = s.ToArray();
-            RunTest("Wire - preserve object refs", () =>
+            RunTest("Wire - Object Identity", () =>
             {
                 var stream = new MemoryStream();
                 serializer.Serialize(Value, stream);
@@ -284,7 +316,7 @@ namespace Wire.PerfTest.Tests
             var s = new MemoryStream();
             serializer.Serialize(Value, s);
             var bytes = s.ToArray();
-            RunTest("Wire - version tolerant", () =>
+            RunTest("Wire - Version Tolerant", () =>
             {
                 var stream = new MemoryStream();
 
