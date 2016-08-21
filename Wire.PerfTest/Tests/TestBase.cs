@@ -46,6 +46,7 @@ namespace Wire.PerfTest.Tests
             SerializeNFXSlimPreregister();
             // SerializeFsPickler();
             SerializeJil();
+            SerializeNetJson();
             SerializeNetSerializer();
             SerializeProtoBufNet();
             SerializeJsonNet();
@@ -62,6 +63,7 @@ namespace Wire.PerfTest.Tests
             SerializeNFXSlimPreregister();
             //   SerializeFsPickler();
             SerializeJil();
+            SerializeNetJson();
             SerializeNetSerializer();
             SerializeProtoBufNet();
             SerializeJsonNet();
@@ -71,6 +73,19 @@ namespace Wire.PerfTest.Tests
             Console.WriteLine($"* **Fastest Deserializer**: {_fastestDeserializer} - {(long)_fastestDeserializerTime.TotalMilliseconds} ms");
             Console.WriteLine($"* **Fastest Roundtrip**: {_fastestRoundtrip} - {(long)_fastestRoundtripTime.TotalMilliseconds} ms");
             Console.WriteLine($"* **Smallest Payload**: {_smallestPayload} - {_smallestPayloadSize} bytes");
+        }
+
+        private void SerializeNetJson()
+        {
+            var s = new MemoryStream();
+            var res = NetJSON.NetJSON.Serialize(Value);
+            var size = Encoding.UTF8.GetBytes(res).Length;
+
+
+            RunTest("NET-JSON", () =>
+            {
+                NetJSON.NetJSON.Serialize(Value);
+            }, () => { NetJSON.NetJSON.Deserialize<T>(res); }, size);
         }
 
         private void SerializeJsonNet()
