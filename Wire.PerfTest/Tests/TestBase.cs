@@ -73,26 +73,34 @@ namespace Wire.PerfTest.Tests
 
         private void RunTest(string testName, Action serialize, Action deserialize, int size)
         {
-            var tmp = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"{testName}");
-            Console.ForegroundColor = tmp;
-            var sw = Stopwatch.StartNew();
-            for (var i = 0; i < Repeat; i++)
+            try
             {
-                serialize();
+                var tmp = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"{testName}");
+                Console.ForegroundColor = tmp;
+                var sw = Stopwatch.StartNew();
+                for (var i = 0; i < Repeat; i++)
+                {
+                    serialize();
+                }
+                sw.Stop();
+                Console.WriteLine($"   {"Serialize".PadRight(30, ' ')} {sw.ElapsedMilliseconds} ms");
+                var sw2 = Stopwatch.StartNew();
+                for (var i = 0; i < Repeat; i++)
+                {
+                    deserialize();
+                }
+                sw2.Stop();
+                Console.WriteLine($"   {"Deserialize".PadRight(30, ' ')} {sw2.ElapsedMilliseconds} ms");
+                Console.WriteLine($"   {"Size".PadRight(30, ' ')} {size} bytes");
+                Console.WriteLine(
+                    $"   {"Total".PadRight(30, ' ')} {sw.ElapsedMilliseconds + sw2.ElapsedMilliseconds} ms");
             }
-            sw.Stop();
-            Console.WriteLine($"   {"Serialize".PadRight(30, ' ')} {sw.ElapsedMilliseconds} ms");
-            var sw2 = Stopwatch.StartNew();
-            for (var i = 0; i < Repeat; i++)
+            catch
             {
-                deserialize();
+                Console.WriteLine($"{testName} failed");
             }
-            sw2.Stop();
-            Console.WriteLine($"   {"Deserialize".PadRight(30, ' ')} {sw2.ElapsedMilliseconds} ms");
-            Console.WriteLine($"   {"Size".PadRight(30, ' ')} {size} bytes");
-            Console.WriteLine($"   {"Total".PadRight(30, ' ')} {sw.ElapsedMilliseconds + sw2.ElapsedMilliseconds} ms");
         }
 
         private void SerializeProtoBufNet()

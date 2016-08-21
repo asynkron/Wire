@@ -182,6 +182,8 @@
     <Compile Include="Tests\TestBase.cs" />
     <Compile Include="Tests\TypicalMessageArrayTest.cs" />
     <Compile Include="Tests\TypicalMessageTest.cs" />
+    <Compile Include="Tests\TypicalPersonArrayTest.cs" />
+    <Compile Include="Tests\TypicalPersonTest.cs" />
     <Compile Include="Types\TypicalMessage.cs" />
     <Compile Include="Types\TypicalPerson.cs" />
   </ItemGroup>

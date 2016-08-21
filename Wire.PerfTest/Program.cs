@@ -33,13 +33,19 @@ namespace Wire.PerfTest
 
        private static void Run()
        {
-            var typicalMessageArrayTest = new TypicalMessageArrayTest();
-            typicalMessageArrayTest.Run(10000);
+           var typicalPersonArrayTest = new TypicalPersonArrayTest();
+           typicalPersonArrayTest.Run(1000);
 
-            var typicalMessageTest = new TypicalMessageTest();
+           var typicalPersonTest = new TypicalPersonTest();
+           typicalPersonTest.Run(100000);
+
+           var typicalMessageArrayTest = new TypicalMessageArrayTest();
+           typicalMessageArrayTest.Run(10000);
+
+           var typicalMessageTest = new TypicalMessageTest();
            typicalMessageTest.Run(1000000);
+
            Console.ReadLine();
        }
-
     }
 }
