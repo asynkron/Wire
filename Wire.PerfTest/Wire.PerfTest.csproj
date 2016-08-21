@@ -80,12 +80,36 @@
       <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.2.0.0-beta3\lib\net45\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\NFX.3.0.0.3\lib\MySql.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="NetSerializer, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NetSerializer.4.1.0\lib\net45\NetSerializer.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NFX, Version=3.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NFX.3.0.0.3\lib\NFX.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NFX.MySQL, Version=3.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NFX.3.0.0.3\lib\NFX.MySQL.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NFX.Wave, Version=3.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NFX.3.0.0.3\lib\NFX.Wave.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NFX.Web, Version=3.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NFX.3.0.0.3\lib\NFX.Web.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NFX.WinForms, Version=3.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NFX.3.0.0.3\lib\NFX.WinForms.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="protobuf-net, Version=2.1.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
