@@ -215,6 +215,8 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\GuidArrayTest.cs" />
+    <Compile Include="Tests\GuidTest.cs" />
     <Compile Include="Tests\TestBase.cs" />
     <Compile Include="Tests\TypicalMessageArrayTest.cs" />
     <Compile Include="Tests\TypicalMessageTest.cs" />

@@ -27,20 +27,26 @@ namespace Wire.PerfTest
             var t = new Thread(Run);
             t.Priority = ThreadPriority.Highest;
             t.IsBackground = true;
+     
             t.Start();
             Console.ReadLine();
         }
 
        private static void Run()
        {
-           var typicalPersonArrayTest = new TypicalPersonArrayTest();
-           typicalPersonArrayTest.Run(1000);
+            var guidArrayTest = new GuidArrayTest();
+            guidArrayTest.Run(30000);
 
-           var typicalPersonTest = new TypicalPersonTest();
-           typicalPersonTest.Run(100000);
+           var guidTest = new GuidTest();
+            guidTest.Run(1000000);
+           //var typicalPersonArrayTest = new TypicalPersonArrayTest();
+           //typicalPersonArrayTest.Run(1000);
 
-           var typicalMessageArrayTest = new TypicalMessageArrayTest();
-           typicalMessageArrayTest.Run(10000);
+           //var typicalPersonTest = new TypicalPersonTest();
+           //typicalPersonTest.Run(100000);
+
+           //var typicalMessageArrayTest = new TypicalMessageArrayTest();
+           //typicalMessageArrayTest.Run(10000);
 
            var typicalMessageTest = new TypicalMessageTest();
            typicalMessageTest.Run(1000000);
