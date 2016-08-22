@@ -20,12 +20,15 @@ namespace Wire
 
         private static int GetHashCode([NotNull] byte[] bytes)
         {
-            var hash = 17;
-            for (var i = 0; i < bytes.Length; i += 5)
+            unchecked
             {
-                hash = hash*23 + bytes[i];
+                var hash = 17;
+                for (var i = 0; i < bytes.Length; i++)
+                {
+                    hash = hash*23 + bytes[i];
+                }
+                return hash;
             }
-            return hash;
         }
 
         public ByteArrayKey(byte[] bytes)
