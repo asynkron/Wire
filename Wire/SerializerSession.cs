@@ -8,29 +8,22 @@ namespace Wire
         public const int MinBufferSize = 9;
         private readonly Dictionary<object, int> _objects;
         public readonly Serializer Serializer;
-        private Dictionary<Type, ushort> _trackedTypes;
+        private readonly LinkedList<Type> _trackedTypes = new LinkedList<Type>();
         private byte[] _buffer = new byte[MinBufferSize];
-        private Type _firstTrackedType;
 
-        private int _length;
         private int _nextObjectId;
-        private ushort _nextTypeId;
+        private readonly ushort _nextTypeId;
+        private readonly Type[] _knownTypes;
 
         public SerializerSession(Serializer serializer)
         {
+            _knownTypes = serializer.Options.KnownTypes;
             Serializer = serializer;
             if (serializer.Options.PreserveObjectReferences)
             {
                 _objects = new Dictionary<object, int>();
             }
-            if (!serializer.Options.VersionTolerance)
-            {
-                //known types can only be used when version intolerant as we lack type information
-                foreach (var type in serializer.Options.KnownTypes)
-                {
-                    TrackSerializedType(type);
-                }
-            }
+            _nextTypeId = (ushort)(_knownTypes.Length );
         }
 
         public void TrackSerializedObject(object obj)
@@ -69,42 +62,46 @@ namespace Wire
 
         public bool TryGetValue(Type key, out ushort value)
         {
-            switch (_length)
+            for (ushort i = 0; i < _knownTypes.Length; i++)
             {
-                case 0:
-                    value = 0;
-                    return false;
-                case 1:
-                    if (key == _firstTrackedType)
-                    {
-                        value = 0;
-                        return true;
-                    }
-                    value = 0;
-                    return false;
-                default:
-                    return _trackedTypes.TryGetValue(key, out value);
+                var t = _knownTypes[i];
+                if (t != key) continue;
+                value = i;
+                return true;
             }
+
+            if (_trackedTypes.Count == 0)
+            {
+                value = 0;
+                return false;
+            }
+
+            ushort j = _nextTypeId;
+            foreach (var t in _trackedTypes)
+            {
+                if (key == t)
+                {
+                    value = j;
+                    return true;
+                }
+                j++;
+            }
+            //for (ushort i = 0; i < _trackedTypes.Count; i++)
+            //{
+            //    var t = _trackedTypes[i];
+            //    if (t != key) continue;
+            //    value = (ushort)(i + _nextTypeId);
+            //    return true;
+            //}
+
+            value = 0;
+            return false;
         }
 
         public void TrackSerializedType(Type type)
         {
-            switch (_length)
-            {
-                case 0:
-                    _firstTrackedType = type;
-                    _length = 1;
-                    break;
-                case 1:
-                    _trackedTypes = new Dictionary<Type, ushort> {{_firstTrackedType, 0}, {type, _nextTypeId}};
-                    _length = 2;
-                    break;
-                default:
-                    _trackedTypes.Add(type, _nextTypeId);
-                    _length++;
-                    break;
-            }
-            _nextTypeId++;
+            _trackedTypes.AddLast(type);
+           // _trackedTypes.Add(type);
         }
     }
 }

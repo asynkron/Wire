@@ -49,6 +49,11 @@ namespace Wire.PerfTest.Tests
             Console.WriteLine();
             var testName = GetType().Name;
 
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    SerializePreRegister();
+            //}
+
             Console.WriteLine($"# Test {testName}");
             Console.WriteLine();
             Console.WriteLine("## Running cold");
@@ -257,7 +262,7 @@ namespace Wire.PerfTest.Tests
             var text = serializer.SerializeToString(Value);
             var bytes = System.Text.Encoding.UTF8.GetBytes(text);
 
-            RunTest("NFX Slim Serializer", () =>
+            RunTest("ServiceStack.Text", () =>
             {
                 serializer.SerializeToString(Value);
             }, () =>

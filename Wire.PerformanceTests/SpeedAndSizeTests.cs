@@ -189,7 +189,7 @@ namespace Wire.PerformanceTests
             public int Item2 { get; set; }
         }
 
-        [TestMethod, Ignore] //this is slow because we can not codegen setters for readonly fields yet (expressions, we need IL compiler first)
+        [TestMethod]
         public void TestTupleLikeArray()
         {
             var arr = new FakeTupleIntInt[100];
@@ -205,7 +205,7 @@ namespace Wire.PerformanceTests
             Test(arr);
         }
 
-        [TestMethod]
+        [TestMethod, Ignore] //this is slow because we can not codegen setters for readonly fields yet (expressions, we need IL compiler first)
         public void TestTupleArray()
         {
             var arr = new Tuple<int,int>[100];
