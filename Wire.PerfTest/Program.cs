@@ -34,6 +34,9 @@ namespace Wire.PerfTest
 
        private static void Run()
        {
+            var largeStructTest = new LargeStructTest();
+            largeStructTest.Run(1000000);
+
             var guidArrayTest = new GuidArrayTest();
             guidArrayTest.Run(30000);
 
