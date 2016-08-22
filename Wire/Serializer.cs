@@ -27,7 +27,7 @@ namespace Wire
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private ValueSerializer GetCustomSerialzer([NotNull] Type type)
+        private ValueSerializer GetCustomSerializer([NotNull] Type type)
         {
             ValueSerializer serializer;
 
@@ -50,12 +50,12 @@ namespace Wire
             if (!_serializers.TryAdd(type, serializer)) return _serializers[type];
             //build the serializer IL code
             CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
-            //just ignore if this fails, another thread have already added an identical serialzer
+            //just ignore if this fails, another thread have already added an identical serializer
             return serializer;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private ValueSerializer GetCustomDeserialzer([NotNull] Type type)
+        private ValueSerializer GetCustomDeserializer([NotNull] Type type)
         {
             ValueSerializer serializer;
 
@@ -180,7 +180,7 @@ namespace Wire
                     return ConsistentArraySerializer.Instance;
             }
 
-            var serializer = GetCustomSerialzer(type);
+            var serializer = GetCustomSerializer(type);
 
             return serializer;
         }
@@ -239,17 +239,17 @@ namespace Wire
                 case ObjectSerializer.ManifestFull:
                 {
                     var type = TypeEx.GetTypeFromManifestFull(stream, session);
-                    return GetCustomDeserialzer(type);
+                    return GetCustomDeserializer(type);
                 }
                 case ObjectSerializer.ManifestVersion:
                 {
                     var type = TypeEx.GetTypeFromManifestVersion(stream, session);
-                    return GetCustomDeserialzer(type);
+                    return GetCustomDeserializer(type);
                 }
                 case ObjectSerializer.ManifestIndex:
                 {
                     var type = TypeEx.GetTypeFromManifestIndex(stream, session);
-                    return GetCustomDeserialzer(type);
+                    return GetCustomDeserializer(type);
                 }
                 default:
                     throw new NotSupportedException("Unknown manifest value");
