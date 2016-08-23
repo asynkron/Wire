@@ -30,12 +30,12 @@ namespace Wire
             var stream = c.Parameter<Stream>("stream");
             var session = c.Parameter<DeserializerSession>("session");
             var newExpression = c.NewObject(type);
-            var target = c.Variable("target",type);
+            var target = c.Variable<object>("target");
             var assignNewObjectToTarget = c.WriteVar(target, newExpression);
 
             c.Emit(assignNewObjectToTarget);
 
-            if (!type.IsValueType && serializer.Options.PreserveObjectReferences)
+            if (serializer.Options.PreserveObjectReferences)
             {
                 var trackDeserializedObjectMethod =
                     typeof(DeserializerSession).GetTypeInfo().GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
@@ -61,7 +61,7 @@ namespace Wire
             //        //the current is less or equal, then goto 1)
             //    }
             //}
-
+            var typedTarget = c.CastOrUnbox(target, type);
             var fieldsArray = fields.ToArray();
             var serializers = fieldsArray.Select(field => serializer.GetSerializerByType(field.FieldType)).ToArray();
 
@@ -94,11 +94,10 @@ namespace Wire
                 }
 
 
-                var assignReadToField = c.WriteField(field, target, read);
+                var assignReadToField = c.WriteField(field, typedTarget, read);
                 c.Emit(assignReadToField);
             }
-            var untypedTarget = c.Convert<object>(target);
-            c.Emit(untypedTarget);
+            c.Emit(target);
 
             var readAllFields = c.Compile();
             return readAllFields;

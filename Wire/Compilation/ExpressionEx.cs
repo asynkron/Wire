@@ -17,7 +17,9 @@ namespace Wire.Compilation
         {
             if (type.IsValueType)
             {
-                return Expression.Constant(Activator.CreateInstance(type));
+                var x =  Expression.Constant(Activator.CreateInstance(type));
+                var convert = Expression.Convert(x, typeof(object));
+                return convert;
             }
 #if SERIALIZATION
             var defaultCtor = type.GetTypeInfo().GetConstructor(new Type[] {});
@@ -31,7 +33,7 @@ namespace Wire.Compilation
 #endif
             var emptyObjectMethod = typeof(TypeEx).GetTypeInfo().GetMethod(nameof(TypeEx.GetEmptyObject));
             var emptyObject = Expression.Call(null, emptyObjectMethod, type.ToConstant());
-
+            
             return emptyObject;
         }
     }
