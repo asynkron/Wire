@@ -54,6 +54,15 @@ namespace Wire.Compilation
             return _expressions.Count - 1;
         }
 
+        public int Variable(string name,Type type)
+        {
+            var exp = new IlVariable(Variables.Count, type, name);
+            _expressions.Add(exp);
+            Variables.Add(exp);
+
+            return _expressions.Count - 1;
+        }
+
         public int GetVariable<T>(string name)
         {
             var existing =

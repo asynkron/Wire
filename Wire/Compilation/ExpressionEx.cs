@@ -15,6 +15,10 @@ namespace Wire.Compilation
 
         public static Expression GetNewExpression(Type type)
         {
+            if (type.IsValueType)
+            {
+                return Expression.Constant(Activator.CreateInstance(type));
+            }
 #if SERIALIZATION
             var defaultCtor = type.GetTypeInfo().GetConstructor(new Type[] {});
             var il = defaultCtor?.GetMethodBody()?.GetILAsByteArray();

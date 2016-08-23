@@ -36,6 +36,14 @@ namespace Wire.Compilation
             return _expressions.Count - 1;
         }
 
+        public int Variable(string name,Type type)
+        {
+            var exp = Expression.Variable(type, name);
+            _variables.Add(exp);
+            _expressions.Add(exp);
+            return _expressions.Count - 1;
+        }
+
         public int GetVariable<T>(string name)
         {
             var existing = _expressions.OfType<ParameterExpression>().First(v => v.Name == name && v.Type == typeof(T));

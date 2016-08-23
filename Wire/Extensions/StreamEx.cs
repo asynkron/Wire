@@ -6,6 +6,63 @@ namespace Wire.Extensions
 {
     public static class StreamEx
     {
+
+        public static uint ReadVarint32(this Stream stream)
+        {
+            int result = 0;
+            int offset = 0;
+
+            for (; offset < 32; offset += 7)
+            {
+                int b = stream.ReadByte();
+                if (b == -1)
+                    throw new EndOfStreamException();
+
+                result |= (b & 0x7f) << offset;
+
+                if ((b & 0x80) == 0)
+                    return (uint)result;
+            }
+
+            throw new InvalidDataException();
+        }
+
+        public static void WriteVarint32(this Stream stream, uint value)
+        {
+            for (; value >= 0x80u; value >>= 7)
+                stream.WriteByte((byte)(value | 0x80u));
+
+            stream.WriteByte((byte)value);
+        }
+
+        public static ulong ReadVarint64(this Stream stream)
+        {
+            long result = 0;
+            int offset = 0;
+
+            for (; offset < 64; offset += 7)
+            {
+                int b = stream.ReadByte();
+                if (b == -1)
+                    throw new EndOfStreamException();
+
+                result |= ((long)(b & 0x7f)) << offset;
+
+                if ((b & 0x80) == 0)
+                    return (ulong)result;
+            }
+
+            throw new InvalidDataException();
+        }
+
+        public static void WriteVarint64(this Stream stream, ulong value)
+        {
+            for (; value >= 0x80u; value >>= 7)
+                stream.WriteByte((byte)(value | 0x80u));
+
+            stream.WriteByte((byte)value);
+        }
+
         public static int ReadUInt16(this Stream self, DeserializerSession session)
         {
             var buffer = session.GetBuffer(2);
