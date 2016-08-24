@@ -240,18 +240,29 @@ namespace Wire.PerfTest.Tests
         private void SerializeNFXSlimPreregister()
         {
             var s = new MemoryStream();
-            var serializer = new SlimSerializer(SlimFormat.Instance, new[] {typeof(T)});
+            var serializer = new SlimSerializer();
+            serializer.TypeMode = TypeRegistryMode.Batch;
+            serializer.Serialize(s, Value);//Serialize 1st in batch
+
+            var deserializer = new SlimSerializer();
+            deserializer.TypeMode = TypeRegistryMode.Batch;
+            s.Position = 0;  //Deserialize first in batch
+            deserializer.Deserialize(s);
+
+            s = new MemoryStream(); //serialize subsequent in batch
             serializer.Serialize(s, Value);
             var bytes = s.ToArray();
 
+            var stream = new MemoryStream();
+
             RunTest("NFX Slim Serializer - KnownTypes", () =>
             {
-                var stream = new MemoryStream();
+                stream.Position = 0;
                 serializer.Serialize(stream, Value);
             }, () =>
             {
                 s.Position = 0;
-                serializer.Deserialize(s);
+                deserializer.Deserialize(s);
             }, bytes.Length);
         }
 
