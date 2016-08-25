@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Wire.Extensions;
@@ -11,6 +12,7 @@ namespace Wire
 {
     public class Serializer
     {
+        private readonly ValueSerializer[] _knownValueSerializers;
         private readonly TypeSerializerLookup _deserializers = new TypeSerializerLookup();
         private readonly TypeSerializerLookup _serializers = new TypeSerializerLookup();
         private readonly ValueSerializer[] _deserializerLookup = new ValueSerializer[256];
@@ -26,6 +28,7 @@ namespace Wire
             Options = options;
             AddSerializers();
             AddDeserializers();
+            _knownValueSerializers = options.KnownTypes.Select(GetSerializerByType).ToArray();
         }
 
         private void AddDeserializers()
@@ -235,7 +238,12 @@ namespace Wire
                 }
                 case ObjectSerializer.ManifestIndex:
                 {
-                    var type = TypeEx.GetTypeFromManifestIndex(stream, session);
+                    var typeId = (int)stream.ReadUInt16(session);
+                    if (typeId < _knownValueSerializers.Length)
+                    {
+                        return _knownValueSerializers[typeId];
+                    }
+                    var type = TypeEx.GetTypeFromManifestIndex(typeId, session);
                     return GetCustomDeserializer(type);
                 }
                 default:
