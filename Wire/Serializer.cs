@@ -116,64 +116,64 @@ namespace Wire
             {
                 //faster than hash lookup you know...
 
-                if (type == TypeEx.SystemObject)
+                if (ReferenceEquals(type, TypeEx.SystemObject))
                     return SystemObjectSerializer.Instance;
 
-                if (type == TypeEx.StringType)
+                if (ReferenceEquals(type, TypeEx.StringType))
                     return StringSerializer.Instance;
 
-                if (type == TypeEx.Int32Type)
+                if (ReferenceEquals(type, TypeEx.Int32Type))
                     return Int32Serializer.Instance;
 
-                if (type == TypeEx.GuidType)
+                if (ReferenceEquals(type, TypeEx.GuidType))
                     return GuidSerializer.Instance;
 
-                if (type == TypeEx.DateTimeType)
+                if (ReferenceEquals(type, TypeEx.DateTimeType))
                     return DateTimeSerializer.Instance;
 
-                if (type == TypeEx.Int64Type)
+                if (ReferenceEquals(type, TypeEx.Int64Type))
                     return Int64Serializer.Instance;
 
-                if (type == TypeEx.Int16Type)
+                if (ReferenceEquals(type, TypeEx.Int16Type))
                     return Int16Serializer.Instance;
 
-                if (type == TypeEx.UInt32Type)
+                if (ReferenceEquals(type, TypeEx.UInt32Type))
                     return UInt32Serializer.Instance;
 
-                if (type == TypeEx.UInt64Type)
+                if (ReferenceEquals(type, TypeEx.UInt64Type))
                     return UInt64Serializer.Instance;
 
-                if (type == TypeEx.UInt16Type)
+                if (ReferenceEquals(type, TypeEx.UInt16Type))
                     return UInt16Serializer.Instance;
 
-                if (type == TypeEx.ByteType)
+                if (ReferenceEquals(type, TypeEx.ByteType))
                     return ByteSerializer.Instance;
 
-                if (type == TypeEx.SByteType)
+                if (ReferenceEquals(type, TypeEx.SByteType))
                     return SByteSerializer.Instance;
 
-                if (type == TypeEx.BoolType)
+                if (ReferenceEquals(type, TypeEx.BoolType))
                     return BoolSerializer.Instance;
 
-                if (type == TypeEx.FloatType)
+                if (ReferenceEquals(type, TypeEx.FloatType))
                     return FloatSerializer.Instance;
 
-                if (type == TypeEx.DoubleType)
+                if (ReferenceEquals(type, TypeEx.DoubleType))
                     return DoubleSerializer.Instance;
 
-                if (type == TypeEx.DecimalType)
+                if (ReferenceEquals(type, TypeEx.DecimalType))
                     return DecimalSerializer.Instance;
 
-                if (type == TypeEx.CharType)
+                if (ReferenceEquals(type, TypeEx.CharType))
                     return CharSerializer.Instance;
 
-                if (type == TypeEx.ByteArrayType)
+                if (ReferenceEquals(type, TypeEx.ByteArrayType))
                     return ByteArraySerializer.Instance;
 
-                if (type == TypeEx.TypeType)
+                if (ReferenceEquals(type, TypeEx.TypeType))
                     return TypeSerializer.Instance;
 
-                if (type == TypeEx.RuntimeType)
+                if (ReferenceEquals(type, TypeEx.RuntimeType))
                     return TypeSerializer.Instance;
 
                 if (type.IsOneDimensionalPrimitiveArray())
