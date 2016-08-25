@@ -139,9 +139,9 @@ namespace Wire.Extensions
             return type;
         }
 
-        public static Type GetTypeFromManifestIndex(Stream stream, DeserializerSession session)
+        public static Type GetTypeFromManifestIndex(int typeId, DeserializerSession session)
         {
-            var typeId = stream.ReadUInt16(session);
+
             var type = session.GetTypeFromTypeId(typeId);
             return type;
         }

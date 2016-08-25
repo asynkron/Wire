@@ -52,6 +52,7 @@ namespace Wire.PerfTest.Tests
             for (int i = 0; i < 100; i++)
             {
                 SerializeKnownTypes();
+                SerializeNetSerializer();
             }
 
             Console.WriteLine($"# Test {testName}");
@@ -367,7 +368,8 @@ namespace Wire.PerfTest.Tests
 
         private void SerializeKnownTypes()
         {
-            var serializer = new Serializer(new SerializerOptions(knownTypes: new[] {typeof(T)}));
+            var types = typeof(T).Namespace.StartsWith("System")? null: new[] {typeof(T)};
+            var serializer = new Serializer(new SerializerOptions(knownTypes: types));
             var s = new MemoryStream();
             serializer.Serialize(Value, s);
             var bytes = s.ToArray();

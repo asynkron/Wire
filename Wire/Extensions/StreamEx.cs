@@ -63,7 +63,7 @@ namespace Wire.Extensions
             stream.WriteByte((byte)value);
         }
 
-        public static int ReadUInt16(this Stream self, DeserializerSession session)
+        public static uint ReadUInt16(this Stream self, DeserializerSession session)
         {
             var buffer = session.GetBuffer(2);
             self.Read(buffer, 0, 2);
