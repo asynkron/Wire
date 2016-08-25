@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Wire.Extensions;
@@ -11,6 +12,7 @@ namespace Wire
 {
     public class Serializer
     {
+        private readonly ValueSerializer[] _knownValueSerializers;
         private readonly TypeSerializerLookup _deserializers = new TypeSerializerLookup();
         private readonly TypeSerializerLookup _serializers = new TypeSerializerLookup();
         private readonly ValueSerializer[] _deserializerLookup = new ValueSerializer[256];
@@ -26,52 +28,33 @@ namespace Wire
             Options = options;
             AddSerializers();
             AddDeserializers();
+            _knownValueSerializers = options.KnownTypes.Select(GetSerializerByType).ToArray();
         }
 
         private void AddDeserializers()
         {
             _deserializerLookup[NullSerializer.Manifest] = NullSerializer.Instance;
-            _deserializerLookup[SystemObjectSerializer.Manifest] =
-                SystemObjectSerializer.Instance;
-            _deserializerLookup[Int64Serializer.Manifest] =
-                Int64Serializer.Instance;
-            _deserializerLookup[Int16Serializer.Manifest] =
-                Int16Serializer.Instance;
-            _deserializerLookup[ByteSerializer.Manifest] =
-                ByteSerializer.Instance;
-            _deserializerLookup[DateTimeSerializer.Manifest] =
-                DateTimeSerializer.Instance;
-            _deserializerLookup[BoolSerializer.Manifest] =
-                BoolSerializer.Instance;
-            _deserializerLookup[StringSerializer.Manifest] =
-                StringSerializer.Instance;
-            _deserializerLookup[Int32Serializer.Manifest] =
-                Int32Serializer.Instance;
-            _deserializerLookup[ByteArraySerializer.Manifest] =
-                ByteArraySerializer.Instance;
+            _deserializerLookup[SystemObjectSerializer.Manifest] = SystemObjectSerializer.Instance;
+            _deserializerLookup[Int64Serializer.Manifest] = Int64Serializer.Instance;
+            _deserializerLookup[Int16Serializer.Manifest] = Int16Serializer.Instance;
+            _deserializerLookup[ByteSerializer.Manifest] = ByteSerializer.Instance;
+            _deserializerLookup[DateTimeSerializer.Manifest] = DateTimeSerializer.Instance;
+            _deserializerLookup[BoolSerializer.Manifest] = BoolSerializer.Instance;
+            _deserializerLookup[StringSerializer.Manifest] = StringSerializer.Instance;
+            _deserializerLookup[Int32Serializer.Manifest] = Int32Serializer.Instance;
+            _deserializerLookup[ByteArraySerializer.Manifest] = ByteArraySerializer.Instance;
             //10 not yet used
-            _deserializerLookup[GuidSerializer.Manifest] =
-                GuidSerializer.Instance;
-            _deserializerLookup[FloatSerializer.Manifest] =
-                FloatSerializer.Instance;
-            _deserializerLookup[DoubleSerializer.Manifest] =
-                DoubleSerializer.Instance;
-            _deserializerLookup[DecimalSerializer.Manifest] =
-                DecimalSerializer.Instance;
-            _deserializerLookup[CharSerializer.Manifest] =
-                CharSerializer.Instance;
-            _deserializerLookup[TypeSerializer.Manifest] =
-                TypeSerializer.Instance;
-            _deserializerLookup[UInt16Serializer.Manifest] =
-                UInt16Serializer.Instance;
-            _deserializerLookup[UInt32Serializer.Manifest] =
-                UInt32Serializer.Instance;
-            _deserializerLookup[UInt64Serializer.Manifest] =
-                UInt64Serializer.Instance;
-            _deserializerLookup[SByteSerializer.Manifest] =
-                SByteSerializer.Instance;
-            _deserializerLookup[ConsistentArraySerializer.Manifest] =
-                ConsistentArraySerializer.Instance;
+            _deserializerLookup[GuidSerializer.Manifest] = GuidSerializer.Instance;
+            _deserializerLookup[FloatSerializer.Manifest] = FloatSerializer.Instance;
+            _deserializerLookup[DoubleSerializer.Manifest] = DoubleSerializer.Instance;
+            _deserializerLookup[DecimalSerializer.Manifest] = DecimalSerializer.Instance;
+            _deserializerLookup[CharSerializer.Manifest] = CharSerializer.Instance;
+            _deserializerLookup[TypeSerializer.Manifest] = TypeSerializer.Instance;
+            _deserializerLookup[UInt16Serializer.Manifest] = UInt16Serializer.Instance;
+            _deserializerLookup[UInt32Serializer.Manifest] = UInt32Serializer.Instance;
+            _deserializerLookup[UInt64Serializer.Manifest] = UInt64Serializer.Instance;
+            _deserializerLookup[SByteSerializer.Manifest] = SByteSerializer.Instance;
+            _deserializerLookup[ConsistentArraySerializer.Manifest] = ConsistentArraySerializer.Instance;
         }
 
         private void AddSerializers()
@@ -235,7 +218,12 @@ namespace Wire
                 }
                 case ObjectSerializer.ManifestIndex:
                 {
-                    var type = TypeEx.GetTypeFromManifestIndex(stream, session);
+                    var typeId = (int)stream.ReadUInt16(session);
+                    if (typeId < _knownValueSerializers.Length)
+                    {
+                        return _knownValueSerializers[typeId];
+                    }
+                    var type = TypeEx.GetTypeFromManifestIndex(typeId, session);
                     return GetCustomDeserializer(type);
                 }
                 default:
