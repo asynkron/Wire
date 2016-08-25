@@ -18,6 +18,8 @@ namespace Wire
         private readonly IntToObjectLookup _objectById;
         private readonly TypeToVersionInfoLookup _versionInfoByType;
         public readonly Serializer Serializer;
+        private int _offset;
+
 
         public DeserializerSession([NotNull] Serializer serializer)
         {
@@ -32,13 +34,7 @@ namespace Wire
             {
                 _versionInfoByType = new TypeToVersionInfoLookup();
             }
-            else
-            {
-                foreach (var type in serializer.Options.KnownTypes)
-                {
-                    TrackDeserializedType(type);
-                }
-            }
+            _offset = serializer.Options.KnownTypes.Length;
         }
 
         public byte[] GetBuffer(int length)
@@ -70,7 +66,11 @@ namespace Wire
 
         public Type GetTypeFromTypeId(int typeId)
         {
-            return _identifierToType[typeId];
+            if (typeId < _offset)
+            {
+                return Serializer.Options.KnownTypes[typeId];
+            }
+            return _identifierToType[typeId - _offset];
         }
 
         public void TrackDeserializedTypeWithVersion([NotNull]Type type, [NotNull] TypeVersionInfo versionInfo)
