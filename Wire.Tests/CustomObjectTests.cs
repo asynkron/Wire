@@ -141,5 +141,30 @@ namespace Wire.Tests
             var actual = Deserialize<Empty>();
             Assert.AreEqual(expected, actual);
         }
+
+        [TestMethod]
+        public void CanSerializeObjectsKnownTypes()
+        {
+            CustomInit(new Serializer(new SerializerOptions(knownTypes:new[] {typeof(Something)})));
+            var expected1 = new Something
+            {
+                StringProp = "First"
+            };
+            var expected2 = new Something
+            {
+                StringProp = "Second"
+            };
+            var expected3 = new Something
+            {
+                StringProp = "Last"
+            };
+            Serialize(expected1);
+            Serialize(expected2);
+            Serialize(expected3);
+            Reset();
+            Assert.AreEqual(expected1, Deserialize<Something>());
+            Assert.AreEqual(expected2, Deserialize<Something>());
+            Assert.AreEqual(expected3, Deserialize<Something>());
+        }
     }
 }
