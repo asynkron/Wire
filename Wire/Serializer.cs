@@ -171,9 +171,9 @@ namespace Wire
 
             //none of the above, lets create a POCO object serializer
             serializer = new ObjectSerializer(type);
-            if (Options.KnownTypesDict.ContainsKey(type))
+            ushort index;
+            if (Options.KnownTypesDict.TryGetValue(type, out index))
             {
-                var index = Options.KnownTypesDict[type];
                 var wrapper = new KnownTypeObjectSerializer((ObjectSerializer)serializer, index);
                 if (!_serializers.TryAdd(type, wrapper))
                     return _serializers[type];
