@@ -13,17 +13,15 @@ namespace Wire
 
         private int _nextObjectId;
         private readonly ushort _nextTypeId;
-        private readonly Type[] _knownTypes;
 
         public SerializerSession(Serializer serializer)
         {
-            _knownTypes = serializer.Options.KnownTypes;
             Serializer = serializer;
             if (serializer.Options.PreserveObjectReferences)
             {
                 _objects = new Dictionary<object, int>();
             }
-            _nextTypeId = (ushort)(_knownTypes.Length );
+            _nextTypeId = (ushort)(serializer.Options.KnownTypes.Length );
         }
 
         public void TrackSerializedObject(object obj)
@@ -62,14 +60,6 @@ namespace Wire
 
         public bool TryGetValue(Type key, out ushort value)
         {
-            for (ushort i = 0; i < _knownTypes.Length; i++)
-            {
-                var t = _knownTypes[i];
-                if (t != key) continue;
-                value = i;
-                return true;
-            }
-
             if (_trackedTypes.Count == 0)
             {
                 value = 0;
