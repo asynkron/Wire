@@ -49,10 +49,10 @@ namespace Wire.PerfTest.Tests
             Console.WriteLine();
             var testName = GetType().Name;
 
-            //for (int i = 0; i < 100; i++)
-            //{
-            //    SerializePreRegister();
-            //}
+            for (int i = 0; i < 100; i++)
+            {
+                SerializePreRegister();
+            }
 
             Console.WriteLine($"# Test {testName}");
             Console.WriteLine();

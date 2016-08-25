@@ -36,7 +36,7 @@ namespace Wire
         internal readonly ValueSerializerFactory[] ValueSerializerFactories;
         internal readonly bool VersionTolerance;
         internal readonly Type[] KnownTypes;
-        internal readonly Dictionary<Type,uint> KnownTypesDict = new Dictionary<Type, uint>();
+        internal readonly Dictionary<Type, ushort> KnownTypesDict = new Dictionary<Type, ushort>();
 
         public SerializerOptions(bool versionTolerance = false, bool preserveObjectReferences = false, IEnumerable<Surrogate> surrogates = null, IEnumerable<ValueSerializerFactory> serializerFactories = null, IEnumerable<Type> knownTypes = null)
         {
@@ -51,7 +51,7 @@ namespace Wire
             KnownTypes = knownTypes?.ToArray() ?? new Type[] {};
             for (var i = 0; i < KnownTypes.Length; i++)
             {
-                KnownTypesDict.Add(KnownTypes[i],(uint)i);
+                KnownTypesDict.Add(KnownTypes[i],(ushort)i);
             }
 
             PreserveObjectReferences = preserveObjectReferences;
