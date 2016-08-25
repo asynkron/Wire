@@ -70,8 +70,6 @@ namespace Wire
                 UInt64Serializer.Instance;
             _deserializerLookup[SByteSerializer.Manifest] =
                 SByteSerializer.Instance;
-            _deserializerLookup[ObjectReferenceSerializer.Manifest] =
-                ObjectReferenceSerializer.Instance;
             _deserializerLookup[ConsistentArraySerializer.Manifest] =
                 ConsistentArraySerializer.Instance;
         }
@@ -223,6 +221,8 @@ namespace Wire
             if (first <= 250) return _deserializerLookup[first];
             switch (first)
             {
+                case ObjectReferenceSerializer.Manifest:
+                    return ObjectReferenceSerializer.Instance;
                 case ObjectSerializer.ManifestFull:
                 {
                     var type = TypeEx.GetTypeFromManifestFull(stream, session);
