@@ -3,7 +3,7 @@
 namespace Wire
 {
     /// <summary>
-    /// By default ByteArrayKey overrides "public bool Equals(object obj)" to do comparisions.
+    /// By default ByteArrayKey overrides "public bool Equals(object obj)" to do comparisons.
     /// But this causes boxing/allocations, so by having a custom comparer we can prevent that.
     /// </summary>
     public class ByteArrayKeyComparer : IEqualityComparer<ByteArrayKey>
