@@ -49,11 +49,11 @@ namespace Wire.PerfTest.Tests
             Console.WriteLine();
             var testName = GetType().Name;
 
-            for (int i = 0; i < 100; i++)
-            {
-                SerializeKnownTypes();
-                SerializeNetSerializer();
-            }
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    SerializeKnownTypes();
+            //    SerializeNetSerializer();
+            //}
 
             Console.WriteLine($"# Test {testName}");
             Console.WriteLine();
