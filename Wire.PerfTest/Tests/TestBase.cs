@@ -49,19 +49,19 @@ namespace Wire.PerfTest.Tests
             Console.WriteLine();
             var testName = GetType().Name;
 
-            //for (int i = 0; i < 100; i++)
-            //{
-            //    SerializePreRegister();
-            //}
+            for (int i = 0; i < 100; i++)
+            {
+                SerializeKnownTypes();
+            }
 
             Console.WriteLine($"# Test {testName}");
             Console.WriteLine();
             Console.WriteLine("## Running cold");
             Console.WriteLine("```");
-            SerializePreRegister();
-            SerializeVersionInteolerant();
-            Serialize();
-            SerializeVersionInteolerantPreserveObjects();
+            SerializeKnownTypes();
+            SerializeDefault();
+            SerializeVersionTolerant();
+            SerializeVersionPreserveObjects();
             SerializeNFXSlim();
             SerializeNFXSlimPreregister();
             SerializeSSText();
@@ -78,10 +78,10 @@ namespace Wire.PerfTest.Tests
             Console.WriteLine("## Running hot");
             _results.Clear();
             Console.WriteLine("```");
-            SerializePreRegister();
-            SerializeVersionInteolerant();
-            Serialize();
-            SerializeVersionInteolerantPreserveObjects();
+            SerializeKnownTypes();
+            SerializeDefault();
+            SerializeVersionTolerant();
+            SerializeVersionPreserveObjects();
             SerializeNFXSlim();
             SerializeNFXSlimPreregister();
             SerializeSSText();
@@ -365,7 +365,7 @@ namespace Wire.PerfTest.Tests
             }, bytes.Length);
         }
 
-        private void SerializePreRegister()
+        private void SerializeKnownTypes()
         {
             var serializer = new Serializer(new SerializerOptions(knownTypes: new[] {typeof(T)}));
             var s = new MemoryStream();
@@ -382,7 +382,7 @@ namespace Wire.PerfTest.Tests
             }, bytes.Length);
         }
 
-        private void SerializeVersionInteolerant()
+        private void SerializeDefault()
         {
             var serializer = new Serializer(new SerializerOptions(false));
             var s = new MemoryStream();
@@ -399,7 +399,7 @@ namespace Wire.PerfTest.Tests
             }, bytes.Length);
         }
 
-        private void SerializeVersionInteolerantPreserveObjects()
+        private void SerializeVersionPreserveObjects()
         {
             var serializer = new Serializer(new SerializerOptions(false, true));
             var s = new MemoryStream();
@@ -416,12 +416,13 @@ namespace Wire.PerfTest.Tests
             }, bytes.Length);
         }
 
-        private void Serialize()
+        private void SerializeVersionTolerant()
         {
             var serializer = new Serializer(new SerializerOptions(true));
             var s = new MemoryStream();
             serializer.Serialize(Value, s);
             var bytes = s.ToArray();
+            s.Position = 0;
             RunTest("Wire - Version Tolerant", () =>
             {
                 var stream = new MemoryStream();
