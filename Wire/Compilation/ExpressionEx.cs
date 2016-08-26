@@ -15,7 +15,7 @@ namespace Wire.Compilation
 
         public static Expression GetNewExpression(Type type)
         {
-            if (type.IsValueType)
+            if (type.GetTypeInfo().IsValueType)
             {
                 var x =  Expression.Constant(Activator.CreateInstance(type));
                 var convert = Expression.Convert(x, typeof(object));

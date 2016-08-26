@@ -24,8 +24,8 @@ namespace Wire.PerfTest
             //var guidArrayTest = new GuidArrayTest();
             //guidArrayTest.Run(t);
 
-            var guidTest = new GuidTest();
-            guidTest.Run(2000000);
+            //var guidTest = new GuidTest();
+            //guidTest.Run(2000000);
             //var typicalPersonArrayTest = new TypicalPersonArrayTest();
             //typicalPersonArrayTest.Run(1000);
 

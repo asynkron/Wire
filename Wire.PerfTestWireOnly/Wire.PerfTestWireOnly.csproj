@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{35352664-E867-48EC-A0B1-39013CA42FE0}</ProjectGuid>
+    <ProjectGuid>{28E8CBAF-30B7-4A2F-8368-4DB2364612B5}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Wire.PerfTest</RootNamespace>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire", "Wire\Wire.csproj", "{7AF8D2B6-9F1F-4A1C-8673-48E533108385}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Wire.FSharpTestTypes", "Wire.FSharpTestTypes\Wire.FSharpTestTypes.fsproj", "{2D321671-6320-4DD2-B174-2773192D2A5A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire.PerformanceTests", "Wire.PerformanceTests\Wire.PerformanceTests.csproj", "{19E9324E-C3E9-4751-8B8F-5A456CA98E8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire.PerfTestWireOnly", "Wire.PerfTestWireOnly\Wire.PerfTestWireOnly.csproj", "{28E8CBAF-30B7-4A2F-8368-4DB2364612B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{19E9324E-C3E9-4751-8B8F-5A456CA98E8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19E9324E-C3E9-4751-8B8F-5A456CA98E8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19E9324E-C3E9-4751-8B8F-5A456CA98E8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28E8CBAF-30B7-4A2F-8368-4DB2364612B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28E8CBAF-30B7-4A2F-8368-4DB2364612B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28E8CBAF-30B7-4A2F-8368-4DB2364612B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28E8CBAF-30B7-4A2F-8368-4DB2364612B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
