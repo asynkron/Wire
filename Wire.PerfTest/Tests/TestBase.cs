@@ -22,6 +22,9 @@ namespace Wire.PerfTest.Tests
         public bool Success { get; set; }
 
     }
+
+    //Commented out serializers fail in different ways, throw or produce no output
+
     internal abstract class TestBase<T>
     {
         private string _fastestDeserializer;
@@ -49,12 +52,12 @@ namespace Wire.PerfTest.Tests
             Console.WriteLine();
             var testName = GetType().Name;
 
-            for (int i = 0; i < 100; i++)
-            {
-                SerializeKnownTypesReuseSession();
-                SerializeKnownTypes();
-                SerializeNetSerializer();
-            }
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    SerializeKnownTypesReuseSession();
+            //    SerializeKnownTypes();
+            //    SerializeNetSerializer();
+            //}
 
             Console.WriteLine($"# Test {testName}");
             Console.WriteLine();
@@ -68,11 +71,7 @@ namespace Wire.PerfTest.Tests
             SerializeNFXSlim();
             SerializeNFXSlimPreregister();
             SerializeSSText();
-            // SerializeFsPickler();
-            SerializeJil();
-            SerializeNetJson();
             SerializeNetSerializer();
-           // SerializeMessageShark(); //broken
             SerializeProtoBufNet();
             SerializeJsonNet();
             SerializeBinaryFormatter();
@@ -89,11 +88,7 @@ namespace Wire.PerfTest.Tests
             SerializeNFXSlim();
             SerializeNFXSlimPreregister();
             SerializeSSText();
-            //   SerializeFsPickler();
-            SerializeJil();
-            SerializeNetJson();
             SerializeNetSerializer();
-         //   SerializeMessageShark();
             SerializeProtoBufNet();
             SerializeJsonNet();
             SerializeBinaryFormatter();
@@ -123,18 +118,18 @@ namespace Wire.PerfTest.Tests
 
         }
 
-        private void SerializeNetJson()
-        {
-            var s = new MemoryStream();
-            var res = NetJSON.NetJSON.Serialize(Value);
-            var size = Encoding.UTF8.GetBytes(res).Length;
+        //private void SerializeNetJson()
+        //{
+        //    var s = new MemoryStream();
+        //    var res = NetJSON.NetJSON.Serialize(Value);
+        //    var size = Encoding.UTF8.GetBytes(res).Length;
 
 
-            RunTest("NET-JSON", () =>
-            {
-                NetJSON.NetJSON.Serialize(Value);
-            }, () => { NetJSON.NetJSON.Deserialize<T>(res); }, size);
-        }
+        //    RunTest("NET-JSON", () =>
+        //    {
+        //        NetJSON.NetJSON.Serialize(Value);
+        //    }, () => { NetJSON.NetJSON.Deserialize<T>(res); }, size);
+        //}
 
         private void SerializeJsonNet()
         {
@@ -213,17 +208,17 @@ namespace Wire.PerfTest.Tests
             }
         }
 
-        private void SerializeMessageShark()
-        {
-            var bytes = MessageShark.MessageSharkSerializer.Serialize(Value);
-            RunTest("MessageShark", () =>
-            {
-                MessageShark.MessageSharkSerializer.Serialize(Value);
-            }, () =>
-            {
-                MessageShark.MessageSharkSerializer.Deserialize<T>(bytes);
-            }, bytes.Length);
-        }
+        //private void SerializeMessageShark()
+        //{
+        //    var bytes = MessageShark.MessageSharkSerializer.Serialize(Value);
+        //    RunTest("MessageShark", () =>
+        //    {
+        //        MessageShark.MessageSharkSerializer.Serialize(Value);
+        //    }, () =>
+        //    {
+        //        MessageShark.MessageSharkSerializer.Deserialize<T>(bytes);
+        //    }, bytes.Length);
+        //}
 
         private void SerializeProtoBufNet()
         {
@@ -272,10 +267,9 @@ namespace Wire.PerfTest.Tests
 
         private void SerializeSSText()
         {
-            var s = new MemoryStream();
             var serializer = new ServiceStack.Text.TypeSerializer<T>();
             var text = serializer.SerializeToString(Value);
-            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
+            var bytes = Encoding.UTF8.GetBytes(text);
 
             RunTest("ServiceStack.Text", () =>
             {
@@ -322,34 +316,34 @@ namespace Wire.PerfTest.Tests
             }, bytes.Length);
         }
 
-        private void SerializeJil()
-        {
-            var s = new MemoryStream();
-            var res = JSON.Serialize(Value);
+        //private void SerializeJil()
+        //{
+        //    var s = new MemoryStream();
+        //    var res = JSON.Serialize(Value);
 
-            var bytes = s.ToArray();
-            RunTest("Jil", () =>
-            {
-                JSON.Serialize(Value);
-            }, () => { JSON.Deserialize(res, typeof(T)); }, bytes.Length);
-        }
+        //    var bytes = s.ToArray();
+        //    RunTest("Jil", () =>
+        //    {
+        //        JSON.Serialize(Value);
+        //    }, () => { JSON.Deserialize(res, typeof(T)); }, bytes.Length);
+        //}
 
-        private void SerializeFsPickler()
-        {
-            var pickler = MBrace.FsPickler.FsPickler.CreateBinarySerializer();
-            var s = new MemoryStream();
-            pickler.Serialize(s, Value);
-            var bytes = s.ToArray();
-            RunTest("FsPickler", () =>
-            {
-                var stream = new MemoryStream();
-                pickler.Serialize(stream, Value);
-            }, () =>
-            {
-                s.Position = 0;
-                pickler.Deserialize<T>(s);
-            }, bytes.Length);
-        }
+        //private void SerializeFsPickler()
+        //{
+        //    var pickler = MBrace.FsPickler.FsPickler.CreateBinarySerializer();
+        //    var s = new MemoryStream();
+        //    pickler.Serialize(s, Value);
+        //    var bytes = s.ToArray();
+        //    RunTest("FsPickler", () =>
+        //    {
+        //        var stream = new MemoryStream();
+        //        pickler.Serialize(stream, Value);
+        //    }, () =>
+        //    {
+        //        s.Position = 0;
+        //        pickler.Deserialize<T>(s);
+        //    }, bytes.Length);
+        //}
 
         private void SerializeBinaryFormatter()
         {
