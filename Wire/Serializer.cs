@@ -116,7 +116,7 @@ namespace Wire
 
             //none of the above, lets create a POCO object deserializer
             serializer = new ObjectSerializer(type);
-            //add it to the serializer lookup incase of recursive serialization
+            //add it to the serializer lookup in case of recursive serialization
             if (!_deserializers.TryAdd(type, serializer)) return _deserializers[type];
             //build the serializer IL code
             CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
@@ -193,7 +193,7 @@ namespace Wire
                 //just ignore if this fails, another thread have already added an identical serializer
                 return serializer;
             }
-            //add it to the serializer lookup incase of recursive serialization
+            //add it to the serializer lookup in case of recursive serialization
 
         }
 

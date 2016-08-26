@@ -67,7 +67,7 @@ namespace Wire.Compilation
         {
             _target.Emit(ctx);
             ctx.Il.Emit(OpCodes.Ldfld, _field);
-            //we are still at the same stacksize as we consumed the target
+            //we are still at the same stack size as we consumed the target
         }
 
         public override Type Type() => _field.FieldType;
