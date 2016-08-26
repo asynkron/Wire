@@ -86,8 +86,9 @@ namespace Wire
                 Utf8.GetBytes(str, 0, byteCount, bytes, 1 + 4);
                 bytes[0] = 255;
 
+
                 fixed (byte* b = bytes)
-                    *((int*) b + 1) = byteCount;
+                    *((int*) (b+1) ) = byteCount;
 
                 byteCount += 1 + 4;
 

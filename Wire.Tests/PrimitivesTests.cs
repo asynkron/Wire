@@ -133,6 +133,13 @@ namespace Wire.Tests
         }
 
         [TestMethod]
+        public void CanSerializeLongString()
+        {
+            var s = new string('x',1000);
+            SerializeAndAssert(s);
+        }
+
+        [TestMethod]
         public void CanSerializeString()
         {
             SerializeAndAssert("hello");
