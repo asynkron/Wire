@@ -49,16 +49,18 @@ namespace Wire.PerfTest.Tests
             Console.WriteLine();
             var testName = GetType().Name;
 
-            //for (int i = 0; i < 100; i++)
-            //{
-            //    SerializeKnownTypes();
-            //    SerializeNetSerializer();
-            //}
+            for (int i = 0; i < 100; i++)
+            {
+                SerializeKnownTypesReuseSession();
+                SerializeKnownTypes();
+                SerializeNetSerializer();
+            }
 
             Console.WriteLine($"# Test {testName}");
             Console.WriteLine();
             Console.WriteLine("## Running cold");
             Console.WriteLine("```");
+            SerializeKnownTypesReuseSession();
             SerializeKnownTypes();
             SerializeDefault();
             SerializeVersionTolerant();
@@ -79,6 +81,7 @@ namespace Wire.PerfTest.Tests
             Console.WriteLine("## Running hot");
             _results.Clear();
             Console.WriteLine("```");
+            SerializeKnownTypesReuseSession();
             SerializeKnownTypes();
             SerializeDefault();
             SerializeVersionTolerant();
@@ -363,6 +366,26 @@ namespace Wire.PerfTest.Tests
             {
                 s.Position = 0;
                 var o = bf.Deserialize(s);
+            }, bytes.Length);
+        }
+
+        private void SerializeKnownTypesReuseSession()
+        {
+            var types = typeof(T).Namespace.StartsWith("System") ? null : new[] { typeof(T) };
+            var serializer = new Serializer(new SerializerOptions(knownTypes: types));
+            var ss = serializer.GetSerializerSession();
+            var ds = serializer.GetDeserializerSession();
+            var s = new MemoryStream();
+            serializer.Serialize(Value, s,ss);
+            var bytes = s.ToArray();
+            RunTest("Wire - KnownTypes, Reuse Sessions", () =>
+            {
+                var stream = new MemoryStream();
+                serializer.Serialize(Value, stream,ss);
+            }, () =>
+            {
+                s.Position = 0;
+                serializer.Deserialize<T>(s,ds);
             }, bytes.Length);
         }
 

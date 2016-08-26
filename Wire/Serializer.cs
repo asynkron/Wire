@@ -131,12 +131,10 @@ namespace Wire
 
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
 
-        public void Serialize(object obj, [NotNull] Stream stream)
+        public void Serialize(object obj, [NotNull] Stream stream, SerializerSession session)
         {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
-
-            var session = new SerializerSession(this);
 
             var type = obj.GetType();
             var s = GetSerializerByType(type);
@@ -144,16 +142,50 @@ namespace Wire
             s.WriteValue(stream, obj, session);
         }
 
+        public void Serialize(object obj, [NotNull] Stream stream)
+        {
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj));
+            SerializerSession session = GetSerializerSession();
+
+            var type = obj.GetType();
+            var s = GetSerializerByType(type);
+            s.WriteManifest(stream, session);
+            s.WriteValue(stream, obj, session);
+        }
+
+        public SerializerSession GetSerializerSession()
+        {
+            return new SerializerSession(this);
+        }
+
         public T Deserialize<T>([NotNull] Stream stream)
         {
-            var session = new DeserializerSession(this);
+            DeserializerSession session = GetDeserializerSession();
             var s = GetDeserializerByManifest(stream, session);
-            return (T) s.ReadValue(stream, session);
+            return (T)s.ReadValue(stream, session);
+        }
+
+        public DeserializerSession GetDeserializerSession()
+        {
+            return new DeserializerSession(this);
+        }
+
+        public T Deserialize<T>([NotNull] Stream stream, DeserializerSession session)
+        {
+            var s = GetDeserializerByManifest(stream, session);
+            return (T)s.ReadValue(stream, session);
         }
 
         public object Deserialize([NotNull] Stream stream)
         {
             var session = new DeserializerSession(this);
+            var s = GetDeserializerByManifest(stream, session);
+            return s.ReadValue(stream, session);
+        }
+
+        public object Deserialize([NotNull] Stream stream, DeserializerSession session)
+        {
             var s = GetDeserializerByManifest(stream, session);
             return s.ReadValue(stream, session);
         }
