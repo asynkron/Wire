@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using MBrace.FsPickler;
 using Microsoft.FSharp.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Nessos.FsPickler;
 
 namespace Wire.PerformanceTests
 {

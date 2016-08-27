@@ -1,23 +1,28 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Wire.Extensions;
 using Wire.ValueSerializers;
-using TypeSerializerLookup =
-    System.Collections.Concurrent.ConcurrentDictionary<System.Type, Wire.ValueSerializers.ValueSerializer>;
 
 namespace Wire
 {
     public class Serializer
     {
-        private readonly ValueSerializer[] _knownValueSerializers;
-        private readonly TypeSerializerLookup _deserializers = new TypeSerializerLookup();
-        private readonly TypeSerializerLookup _serializers = new TypeSerializerLookup();
         private readonly ValueSerializer[] _deserializerLookup = new ValueSerializer[256];
-        public readonly SerializerOptions Options;
+
+        private readonly ConcurrentDictionary<Type, ValueSerializer> _deserializers =
+            new ConcurrentDictionary<Type, ValueSerializer>();
+
+        private readonly ValueSerializer[] _knownValueSerializers;
+
+        private readonly ConcurrentDictionary<Type, ValueSerializer> _serializers =
+            new ConcurrentDictionary<Type, ValueSerializer>();
+
         public readonly ICodeGenerator CodeGenerator = new DefaultCodeGenerator();
+        public readonly SerializerOptions Options;
 
         public Serializer() : this(new SerializerOptions())
         {
@@ -87,10 +92,11 @@ namespace Wire
             AddValueSerializer(TypeSerializer.Instance, TypeEx.RuntimeType);
         }
 
-        private void AddValueSerializer(ValueSerializer instance,Type type)
+        private void AddValueSerializer(ValueSerializer instance, Type type)
         {
             _serializers.TryAdd(type, instance);
         }
+
         private void AddValueSerializer<T>(ValueSerializer instance)
         {
             _serializers.TryAdd(typeof(T), instance);
@@ -125,12 +131,10 @@ namespace Wire
 
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
 
-        public void Serialize(object obj, [NotNull] Stream stream)
+        public void Serialize(object obj, [NotNull] Stream stream, SerializerSession session)
         {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
-
-            var session = new SerializerSession(this);
 
             var type = obj.GetType();
             var s = GetSerializerByType(type);
@@ -138,16 +142,50 @@ namespace Wire
             s.WriteValue(stream, obj, session);
         }
 
+        public void Serialize(object obj, [NotNull] Stream stream)
+        {
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj));
+            SerializerSession session = GetSerializerSession();
+
+            var type = obj.GetType();
+            var s = GetSerializerByType(type);
+            s.WriteManifest(stream, session);
+            s.WriteValue(stream, obj, session);
+        }
+
+        public SerializerSession GetSerializerSession()
+        {
+            return new SerializerSession(this);
+        }
+
         public T Deserialize<T>([NotNull] Stream stream)
         {
-            var session = new DeserializerSession(this);
+            DeserializerSession session = GetDeserializerSession();
             var s = GetDeserializerByManifest(stream, session);
-            return (T) s.ReadValue(stream, session);
+            return (T)s.ReadValue(stream, session);
+        }
+
+        public DeserializerSession GetDeserializerSession()
+        {
+            return new DeserializerSession(this);
+        }
+
+        public T Deserialize<T>([NotNull] Stream stream, DeserializerSession session)
+        {
+            var s = GetDeserializerByManifest(stream, session);
+            return (T)s.ReadValue(stream, session);
         }
 
         public object Deserialize([NotNull] Stream stream)
         {
             var session = new DeserializerSession(this);
+            var s = GetDeserializerByManifest(stream, session);
+            return s.ReadValue(stream, session);
+        }
+
+        public object Deserialize([NotNull] Stream stream, DeserializerSession session)
+        {
             var s = GetDeserializerByManifest(stream, session);
             return s.ReadValue(stream, session);
         }
@@ -174,27 +212,23 @@ namespace Wire
             ushort index;
             if (Options.KnownTypesDict.TryGetValue(type, out index))
             {
-                var wrapper = new KnownTypeObjectSerializer((ObjectSerializer)serializer, index);
+                var wrapper = new KnownTypeObjectSerializer((ObjectSerializer) serializer, index);
                 if (!_serializers.TryAdd(type, wrapper))
                     return _serializers[type];
 
                 //build the serializer IL code
-                CodeGenerator.BuildSerializer(this, (ObjectSerializer)serializer);
+                CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
                 //just ignore if this fails, another thread have already added an identical serializer
                 return wrapper;
             }
-            else
-            {
-                if (!_serializers.TryAdd(type, serializer))
-                    return _serializers[type];
+            if (!_serializers.TryAdd(type, serializer))
+                return _serializers[type];
 
-                //build the serializer IL code
-                CodeGenerator.BuildSerializer(this, (ObjectSerializer)serializer);
-                //just ignore if this fails, another thread have already added an identical serializer
-                return serializer;
-            }
+            //build the serializer IL code
+            CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
+            //just ignore if this fails, another thread have already added an identical serializer
+            return serializer;
             //add it to the serializer lookup in case of recursive serialization
-
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -218,7 +252,7 @@ namespace Wire
                 }
                 case ObjectSerializer.ManifestIndex:
                 {
-                    var typeId = (int)stream.ReadUInt16(session);
+                    var typeId = (int) stream.ReadUInt16(session);
                     if (typeId < _knownValueSerializers.Length)
                     {
                         return _knownValueSerializers[typeId];

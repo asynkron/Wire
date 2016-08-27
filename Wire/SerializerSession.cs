@@ -8,7 +8,7 @@ namespace Wire
         public const int MinBufferSize = 9;
         private readonly Dictionary<object, int> _objects;
         public readonly Serializer Serializer;
-        private readonly LinkedList<Type> _trackedTypes = new LinkedList<Type>();
+        private LinkedList<Type> _trackedTypes;
         private byte[] _buffer = new byte[MinBufferSize];
 
         private int _nextObjectId;
@@ -60,7 +60,7 @@ namespace Wire
 
         public bool TryGetValue(Type key, out ushort value)
         {
-            if (_trackedTypes.Count == 0)
+            if (_trackedTypes == null || _trackedTypes.Count == 0)
             {
                 value = 0;
                 return false;
@@ -76,13 +76,6 @@ namespace Wire
                 }
                 j++;
             }
-            //for (ushort i = 0; i < _trackedTypes.Count; i++)
-            //{
-            //    var t = _trackedTypes[i];
-            //    if (t != key) continue;
-            //    value = (ushort)(i + _nextTypeId);
-            //    return true;
-            //}
 
             value = 0;
             return false;
@@ -90,8 +83,11 @@ namespace Wire
 
         public void TrackSerializedType(Type type)
         {
+            if (_trackedTypes == null)
+            {
+                _trackedTypes = new LinkedList<Type>();
+            }
             _trackedTypes.AddLast(type);
-           // _trackedTypes.Add(type);
         }
     }
 }
