@@ -5,14 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using Jil;
 using Newtonsoft.Json;
 using NFX.IO;
 using NFX.Serialization.Slim;
 
 namespace Wire.PerfTest.Tests
 {
-    class TestResult
+    internal class TestResult
     {
         public string TestName { get; set; }
         public TimeSpan SerializationTime { get; set; }
