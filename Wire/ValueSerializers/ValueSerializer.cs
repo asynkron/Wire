@@ -12,6 +12,19 @@ namespace Wire.ValueSerializers
         public abstract void WriteManifest([NotNull] Stream stream, [NotNull] SerializerSession session);
         public abstract void WriteValue([NotNull] Stream stream, object value, [NotNull] SerializerSession session);
         public abstract object ReadValue([NotNull] Stream stream, [NotNull] DeserializerSession session);
+
+        public abstract object ReadValue(ref ByteChunk chunk);
+
+        public virtual int EmitReadValueFromChunk([NotNull] ICompiler<ObjectReader> c, int chunk,
+            [NotNull] FieldInfo field)
+        {
+            var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(ReadValue));
+            var ss = c.Constant(this);
+            var read = c.Call(method, ss, chunk);
+            read = c.Convert(read, field.FieldType);
+            return read;
+        }
+
         public abstract Type GetElementType();
 
         public virtual void EmitWriteValue(ICompiler<ObjectWriter> c, int stream, int fieldValue, int session)

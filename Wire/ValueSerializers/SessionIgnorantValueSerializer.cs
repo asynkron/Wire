@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Wire.Compilation;
 
 namespace Wire.ValueSerializers
@@ -13,10 +14,12 @@ namespace Wire.ValueSerializers
         private readonly Action<Stream, object> _writeCompiled;
         private readonly MethodInfo _read;
         private readonly Func<Stream, TElementType> _readCompiled;
+        private readonly ReadChunk<TElementType> _readChunkCompiled;
 
         protected SessionIgnorantValueSerializer(byte manifest,
             Expression<Func<Action<Stream, TElementType>>> writeStaticMethod,
-            Expression<Func<Func<Stream, TElementType>>> readStaticMethod)
+            Expression<Func<Func<Stream, TElementType>>> readStaticMethod,
+            Expression<Func<ReadChunk<TElementType>>> readChunkStaticMethod)
         {
             _manifest = manifest;
             _write = GetStatic(writeStaticMethod, typeof(void));
@@ -42,7 +45,17 @@ namespace Wire.ValueSerializers
 #endif
 
             var stream2 = c2.Parameter<Stream>("stream");
-            c2.EmitStaticCall(_read,stream2);
+            c2.EmitStaticCall(_read, stream2);
+
+            _readCompiled = c2.Compile();
+
+#if NET45
+            var c3 = new IlCompiler<Func<Stream, TElementType>>();
+#else
+            var c3 = new Compiler<Func<Stream, TElementType>>();
+#endif
+
+            c2.EmitStaticCall(_read, stream2);
 
             _readCompiled = c2.Compile();
         }
@@ -65,6 +78,16 @@ namespace Wire.ValueSerializers
         public sealed override object ReadValue(Stream stream, DeserializerSession session)
         {
             return _readCompiled(stream);
+        }
+
+        public sealed override object ReadValue(ref ByteChunk chunk)
+        {
+            return _readChunkCompiled(ref chunk);
+        }
+
+        public sealed override int EmitReadValueFromChunk([NotNull] ICompiler<ObjectReader> c, int chunk,
+            [NotNull] FieldInfo field)
+        {
         }
 
         public sealed override int EmitReadValue(ICompiler<ObjectReader> c, int stream, int session, FieldInfo field)

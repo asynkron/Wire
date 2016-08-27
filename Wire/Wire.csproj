@@ -45,6 +45,7 @@
     <Compile Include="Annotations.cs" />
     <Compile Include="ByteArrayKey.cs" />
     <Compile Include="ByteArrayKeyComparer.cs" />
+    <Compile Include="ByteChunk.cs" />
     <Compile Include="Compilation\ExpressionEx.cs" />
     <Compile Include="Compilation\IlCompiler.cs" />
     <Compile Include="Compilation\IlBuilder.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Serializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializerSession.cs" />
+    <Compile Include="ValueSerializers\ReadChunk.cs" />
     <Compile Include="ValueSerializers\SByteSerializer.cs" />
     <Compile Include="ValueSerializers\SessionAwareByteArrayRequiringValueSerializer.cs" />
     <Compile Include="ValueSerializers\SessionIgnorantValueSerializer.cs" />
