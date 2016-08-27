@@ -29,7 +29,7 @@ namespace Wire.PerfTest.Tests
         protected int Repeat;
         protected T Value;
 
-        private List<TestResult> _results = new List<TestResult>();
+        private readonly List<TestResult> _results = new List<TestResult>();
 
         protected abstract T GetValue();
 
@@ -50,11 +50,15 @@ namespace Wire.PerfTest.Tests
             Console.WriteLine($"# Test {testName}");
             Console.WriteLine();
             Console.WriteLine("## Running cold");
+            Console.WriteLine("```");
             TestAll();
+            Console.WriteLine("```");
             Console.WriteLine();
             Console.WriteLine("## Running hot");
             _results.Clear();
+            Console.WriteLine("```");
             TestAll();
+            Console.WriteLine("```");
 
             var fastestSerializer = _results.OrderBy(r => r.SerializationTime).First();
             var fastestDeserializer = _results.OrderBy(r => r.DeserializationTime).First();
@@ -66,15 +70,14 @@ namespace Wire.PerfTest.Tests
             Console.WriteLine($"* **Fastest Roundtrip**: {fastestRoundtrip.TestName} - {(long)fastestRoundtrip.RoundtripTime.TotalMilliseconds} ms");
             Console.WriteLine($"* **Smallest Payload**: {smallestPayload.TestName} - {smallestPayload.PayloadSize} bytes");
 
-            SaveTestResult($"{testName}_roundtrip.txt", _results.OrderBy(r => r.RoundtripTime.TotalMilliseconds));
-            SaveTestResult($"{testName}_serialize.txt", _results.OrderBy(r => r.SerializationTime.TotalMilliseconds));
-            SaveTestResult($"{testName}_deserialize.txt", _results.OrderBy(r => r.DeserializationTime.TotalMilliseconds));
-            SaveTestResult($"{testName}_payload.txt", _results.OrderBy(r => r.PayloadSize));
+            SaveTestResult($"{testName}_roundtrip", _results.OrderBy(r => r.RoundtripTime.TotalMilliseconds));
+            SaveTestResult($"{testName}_serialize", _results.OrderBy(r => r.SerializationTime.TotalMilliseconds));
+            SaveTestResult($"{testName}_deserialize", _results.OrderBy(r => r.DeserializationTime.TotalMilliseconds));
+            SaveTestResult($"{testName}_payload", _results.OrderBy(r => r.PayloadSize));
         }
 
-        private void TestAll()
+        protected virtual void TestAll()
         {
-            Console.WriteLine("```");
             SerializeKnownTypesReuseSession();
             SerializeKnownTypes();
             SerializeDefault();
@@ -87,19 +90,20 @@ namespace Wire.PerfTest.Tests
             SerializeProtoBufNet();
             SerializeJsonNet();
             SerializeBinaryFormatter();
-            Console.WriteLine("```");
         }
 
-        private void SaveTestResult(string file, IEnumerable<TestResult> result )
+        private void SaveTestResult(string testName, IEnumerable<TestResult> result )
         {
             var sb = new StringBuilder();
-            sb.AppendLine("test, roundtrip, serialize, deserialize, size");
+            sb.AppendLine($"## {testName}");
+            sb.AppendLine("test | roundtrip | serialize | deserialize | size");
+            sb.AppendLine("-----|----------:|----------:|------------:|-----:");
             foreach (var row in result)
             {
                 sb.AppendLine(
-                    $"{row.TestName}, {(long)row.RoundtripTime.TotalMilliseconds}, {(long) row.SerializationTime.TotalMilliseconds}, {(long) row.DeserializationTime.TotalMilliseconds}, {row.PayloadSize}");
+                    $"{row.TestName} | {(long)row.RoundtripTime.TotalMilliseconds} | {(long) row.SerializationTime.TotalMilliseconds} | {(long) row.DeserializationTime.TotalMilliseconds} | {row.PayloadSize}");
             }
-
+            var file = testName + ".txt";
             File.WriteAllText(file, sb.ToString());
 
         }
@@ -132,7 +136,7 @@ namespace Wire.PerfTest.Tests
             }, Encoding.UTF8.GetBytes(data).Length);
         }
 
-        private void RunTest(string testName, Action serialize, Action deserialize, int size)
+        protected void RunTest(string testName, Action serialize, Action deserialize, int size)
         {
             try
             {
@@ -420,5 +424,16 @@ namespace Wire.PerfTest.Tests
                 serializer.Deserialize<T>(s);
             }, bytes.Length);
         }
+    }
+
+    abstract class CustomSerializerTestBase<T> : TestBase<T>
+    {
+        protected override void TestAll()
+        {
+            CustomTest();
+            base.TestAll();
+        }
+
+        protected abstract void CustomTest();
     }
 }
