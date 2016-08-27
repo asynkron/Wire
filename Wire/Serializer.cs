@@ -122,7 +122,7 @@ namespace Wire
 
             //none of the above, lets create a POCO object deserializer
             serializer = new ObjectSerializer(type);
-            //add it to the serializer lookup incase of recursive serialization
+            //add it to the serializer lookup in case of recursive serialization
             if (!_deserializers.TryAdd(type, serializer)) return _deserializers[type];
             //build the serializer IL code
             CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
@@ -209,9 +209,9 @@ namespace Wire
 
             //none of the above, lets create a POCO object serializer
             serializer = new ObjectSerializer(type);
-            if (Options.KnownTypesDict.ContainsKey(type))
+            ushort index;
+            if (Options.KnownTypesDict.TryGetValue(type, out index))
             {
-                var index = Options.KnownTypesDict[type];
                 var wrapper = new KnownTypeObjectSerializer((ObjectSerializer) serializer, index);
                 if (!_serializers.TryAdd(type, wrapper))
                     return _serializers[type];
@@ -228,7 +228,7 @@ namespace Wire
             CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
             //just ignore if this fails, another thread have already added an identical serializer
             return serializer;
-            //add it to the serializer lookup incase of recursive serialization
+            //add it to the serializer lookup in case of recursive serialization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

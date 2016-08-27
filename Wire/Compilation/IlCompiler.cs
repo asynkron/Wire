@@ -32,7 +32,7 @@ namespace Wire.Compilation
             //declare "this"
             method.DefineParameter(0, ParameterAttributes.None, "this");
 
-            //decare custom parameters
+            //declare custom parameters
             foreach (var parameter in Parameters)
             {
                 method.DefineParameter(parameter.ParameterIndex, ParameterAttributes.None, parameter.Name);
@@ -71,7 +71,7 @@ namespace Wire.Compilation
             if (!Constants.Any())
                 return null;
 
-            //TODO: a tuple will not be enough, we need arbitary many constants.
+            //TODO: a tuple will not be enough, we need arbitrary many constants.
             //just emit the state object instead.
             var tupleTypes = Constants.Select(c => c.GetType()).ToArray();
             var genericTupleFactory =
