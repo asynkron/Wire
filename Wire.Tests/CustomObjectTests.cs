@@ -7,6 +7,23 @@ namespace Wire.Tests
     [TestClass]
     public class CustomObjectTests : TestBase
     {
+        private class PrivateType
+        {
+            public int IntProp { get; set; }
+        }
+        [TestMethod]
+        public void CanSerializePrivateType()
+        {
+            var expected = new PrivateType()
+            {
+                IntProp = 123,
+            };
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<PrivateType>();
+            Assert.AreEqual(expected.IntProp, actual.IntProp);
+        }
+
         [TestMethod]
         public void CanSerializeTypeObject()
         {
