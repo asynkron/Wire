@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Wire.SerializerFactories;
+using Wire.ValueSerializers;
 
 namespace Wire
 {
@@ -14,7 +15,10 @@ namespace Wire
         private static readonly ValueSerializerFactory[] DefaultValueSerializerFactories =
         {
             new ConsistentArraySerializerFactory(), 
-            new MethodInfoSerializerFactory(), 
+            new MethodInfoSerializerFactory(),
+            new PropertyInfoSerializerFactory(), 
+            new ConstructorInfoSerializerFactory(),
+            new FieldInfoSerializerFactory(),
             new DelegateSerializerFactory(), 
             new ToSurrogateSerializerFactory(),
             new FromSurrogateSerializerFactory(),
