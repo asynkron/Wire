@@ -158,16 +158,20 @@ namespace Wire.Extensions
 
         public static bool IsFixedSizeType(this Type type)
         {
-            return type == Int32Type ||
+            return type == Int16Type ||
+                   type == Int32Type ||
                    type == Int64Type ||
                    type == BoolType ||
                    type == UInt16Type ||
                    type == UInt32Type ||
-                   type == UInt64Type;
+                   type == UInt64Type ||
+                   type == CharType;
         }
 
         public static int GetTypeSize(this Type type)
         {
+            if (type == Int16Type)
+                return sizeof(short);
             if (type == Int32Type)
                 return sizeof (int);
             if (type == Int64Type)
@@ -180,6 +184,8 @@ namespace Wire.Extensions
                 return sizeof (uint);
             if (type == UInt64Type)
                 return sizeof (ulong);
+            if (type == CharType)
+                return sizeof(char);
 
             throw new NotSupportedException();
         }
