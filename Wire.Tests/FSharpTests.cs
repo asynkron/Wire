@@ -3,6 +3,8 @@ using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Wire.FSharpTestTypes;
+using Microsoft.FSharp.Quotations;
+using Microsoft.FSharp.Control;
 
 namespace Wire.Tests
 {
@@ -80,7 +82,19 @@ namespace Wire.Tests
                 Assert.AreEqual(expected.aref, actual.aref);
                 Assert.AreEqual(expected.name, actual.name);
                 Assert.AreEqual(expected.connections, actual.connections);
-            
+
+        }
+
+        //FIXME: make F# quotations and Async serializable
+        //[TestMethod]
+        public void CanSerializeQuotation()
+        {
+            var expected = TestQuotations.Quotation;
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<FSharpExpr<FSharpFunc<int, FSharpAsync<int>>>>();
+            // Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
     }
 }

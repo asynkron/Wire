@@ -15,7 +15,7 @@ namespace Wire.SerializerFactories
         {
             //TODO: check for constructor with IEnumerable<T> param
 
-            if (type.GetTypeInfo().GetMethod("AddRange") == null && type.GetTypeInfo().GetMethod("Add") == null)
+            if (!type.GetTypeInfo().GetMethods().Any(m => m.Name == "AddRange" || m.Name == "Add"))
                 return false;
 
             if (type.GetTypeInfo().GetProperty("Count") == null)
