@@ -14,6 +14,7 @@ namespace Wire
 
         private static readonly ValueSerializerFactory[] DefaultValueSerializerFactories =
         {
+            new ConsistentArraySerializerFactory(), 
             new MethodInfoSerializerFactory(),
             new PropertyInfoSerializerFactory(), 
             new ConstructorInfoSerializerFactory(),

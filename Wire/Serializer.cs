@@ -59,7 +59,6 @@ namespace Wire
             _deserializerLookup[UInt32Serializer.Manifest] = UInt32Serializer.Instance;
             _deserializerLookup[UInt64Serializer.Manifest] = UInt64Serializer.Instance;
             _deserializerLookup[SByteSerializer.Manifest] = SByteSerializer.Instance;
-            _deserializerLookup[ConsistentArraySerializer.Manifest] = ConsistentArraySerializer.Instance;
         }
 
         private void AddSerializers()
@@ -238,6 +237,8 @@ namespace Wire
             if (first <= 250) return _deserializerLookup[first];
             switch (first)
             {
+                case ConsistentArraySerializer.Manifest:
+                    return ConsistentArraySerializer.Instance;
                 case ObjectReferenceSerializer.Manifest:
                     return ObjectReferenceSerializer.Instance;
                 case ObjectSerializer.ManifestFull:

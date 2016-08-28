@@ -23,7 +23,9 @@ namespace Wire.SerializerFactories
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type, ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            return ConsistentArraySerializer.Instance;
+            var res = ConsistentArraySerializer.Instance;
+            typeMapping.TryAdd(type, res);
+            return res;
         }
     }
 }
