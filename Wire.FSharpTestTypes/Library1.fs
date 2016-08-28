@@ -38,5 +38,11 @@ type User =
             | :? User as y -> compare x.name y.name
             | _ -> invalidArg "yobj" "cannot compare values of different types"
 
-
+module TestQuotations = 
+    let Quotation = <@ fun (x:int) -> 
+        let rec fib n = 
+            match n with
+            | 0 | 1 -> 1
+            | _ -> fib(n-1) + fib(n-2)
+        async { return fib x } @>
 
