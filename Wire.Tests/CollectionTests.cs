@@ -128,6 +128,36 @@ namespace Wire.Tests
         }
 
         [TestMethod]
+        public void CanSerializeDictionaryKeysAndValuesByteString()
+        {
+            var instance = new Dictionary<byte, string> { { 0, "z" }, { 255, "z" }, { 3, null } };
+            Serialize(instance);
+            Reset();
+            var res = Deserialize<Dictionary<byte, string>>();
+            Assert.AreEqual(instance.Count, res.Count);
+            CollectionAssert.AreEquivalent(instance.Keys, res.Keys);
+            foreach (var kvp in instance)
+            {
+                Assert.AreEqual(kvp.Value, res[kvp.Key]);
+            }
+        }
+
+        [TestMethod]
+        public void CanSerializeDictionaryKeysAndValuesByteChar()
+        {
+            var instance = new Dictionary<byte, char> {{0, 'z'}, {255, 'z'}, {3, char.MinValue}};
+            Serialize(instance);
+            Reset();
+            var res = Deserialize<Dictionary<byte, char>>();
+            Assert.AreEqual(instance.Count, res.Count);
+            CollectionAssert.AreEquivalent(instance.Keys, res.Keys);
+            foreach (var kvp in instance)
+            {
+                Assert.AreEqual(kvp.Value, res[kvp.Key]);
+            }
+        }
+
+        [TestMethod]
         public void CanSerializeObjectArray()
         {
             var expected = new[]
