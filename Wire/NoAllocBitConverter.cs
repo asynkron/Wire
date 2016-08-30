@@ -75,7 +75,7 @@ namespace Wire
             if (byteCount < 254) //short string
             {
                 byte[] bytes = session.GetBuffer(byteCount + 1);
-                Utf8.GetBytes(str, 0, byteCount, bytes, 1);
+                Utf8.GetBytes(str, 0, str.Length, bytes, 1);
                 bytes[0] = (byte) (byteCount + 1);
                 byteCount += 1;
                 return bytes;
@@ -83,7 +83,7 @@ namespace Wire
             else //long string
             {
                 byte[] bytes = session.GetBuffer(byteCount + 1 + 4);
-                Utf8.GetBytes(str, 0, byteCount, bytes, 1 + 4);
+                Utf8.GetBytes(str, 0, str.Length, bytes, 1 + 4);
                 bytes[0] = 255;
 
 
