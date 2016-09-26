@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace Wire.Tests
 {
-    [TestClass]
     public class DelegateTests
     {
         public class Dummy
@@ -22,7 +21,7 @@ namespace Wire.Tests
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeMemberMethod()
         {
             var stream = new MemoryStream();
@@ -32,12 +31,12 @@ namespace Wire.Tests
             serializer.Serialize(a, stream);
             stream.Position = 0;
             var res = serializer.Deserialize<Func<string>>(stream);
-            Assert.IsNotNull(res);
+            Assert.NotNull(res);
             var actual = res();
-            Assert.AreEqual("123", actual);
+            Assert.Equal("123", actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeDelegate()
         {
             var stream = new MemoryStream();
@@ -47,11 +46,11 @@ namespace Wire.Tests
             serializer.Serialize(a,stream);
             stream.Position = 0;
             var res = serializer.Deserialize<Action<Dummy>>(stream);
-            Assert.IsNotNull(res);
+            Assert.NotNull(res);
 
             var d = new Dummy {Prop = 0};
             res(d);
-            Assert.AreEqual(1,d.Prop);
+            Assert.Equal(1,d.Prop);
         }
 
         private static int StaticFunc(int a)
@@ -59,7 +58,7 @@ namespace Wire.Tests
             return a + 1;
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeStaticDelegate()
         {
             var stream = new MemoryStream();
@@ -70,13 +69,13 @@ namespace Wire.Tests
             serializer.Serialize(fun, stream);
             stream.Position = 0;
             var res = serializer.Deserialize<Func<int, int>>(stream);
-            Assert.IsNotNull(res);
+            Assert.NotNull(res);
             var actual = res(4);
 
-            Assert.AreEqual(5, actual);
+            Assert.Equal(5, actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeObjectWithClosure()
         {
             var stream = new MemoryStream();
@@ -88,9 +87,9 @@ namespace Wire.Tests
             serializer.Serialize(hasClosure, stream);
             stream.Position = 0;
             var res = serializer.Deserialize<HasClosure>(stream);
-            Assert.IsNotNull(res);
+            Assert.NotNull(res);
             var actual = res.Del();
-            Assert.AreEqual(4,actual);
+            Assert.Equal(4,actual);
         }
     }
 }

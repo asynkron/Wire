@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System.Collections.Immutable;
+
 namespace Wire.Tests
 {
-    [TestClass]
     public class CollectionTests : TestBase
     {
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeImmutableDictionary()
         {
             var map = ImmutableDictionary<string, object>.Empty;
@@ -24,7 +24,7 @@ namespace Wire.Tests
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeSet()
         {
             var expected = new HashSet<Something>
@@ -47,10 +47,10 @@ namespace Wire.Tests
             Serialize(expected);
             Reset();
             var actual = Deserialize<HashSet<Something>>();
-            CollectionAssert.AreEqual(expected.ToList(), actual.ToList());
+            Assert.Equal(expected.ToList(), actual.ToList());
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeStack()
         {
             var expected = new Stack<Something>();
@@ -73,12 +73,12 @@ namespace Wire.Tests
             Serialize(expected);
             Reset();
             var actual = Deserialize<Stack<Something>>();
-            CollectionAssert.AreEqual(expected.ToList(), actual.ToList());
+            Assert.Equal(expected.ToList(), actual.ToList());
         }
 
 
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeDictionary()
         {
             var expected = new Dictionary<string, string>
@@ -90,10 +90,10 @@ namespace Wire.Tests
             Serialize(expected);
             Reset();
             var actual = Deserialize<Dictionary<string, string>>();
-            CollectionAssert.AreEqual(expected.ToList(), actual.ToList());
+            Assert.Equal(expected.ToList(), actual.ToList());
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeList()
         {
             var expected = new[]
@@ -114,50 +114,52 @@ namespace Wire.Tests
             Serialize(expected);
             Reset();
             var actual = Deserialize<List<Something>>();
-            CollectionAssert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeIntArray()
         {
             var expected = Enumerable.Range(0, 10000).ToArray();
             Serialize(expected);
             Reset();
             var actual = Deserialize<int[]>();
-            CollectionAssert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeDictionaryKeysAndValuesByteString()
         {
             var instance = new Dictionary<byte, string> { { 0, "z" }, { 255, "z" }, { 3, null } };
             Serialize(instance);
             Reset();
             var res = Deserialize<Dictionary<byte, string>>();
-            Assert.AreEqual(instance.Count, res.Count);
-            CollectionAssert.AreEquivalent(instance.Keys, res.Keys);
+            Assert.Equal(instance.Count, res.Count);
+
             foreach (var kvp in instance)
             {
-                Assert.AreEqual(kvp.Value, res[kvp.Key]);
+                Assert.True(res.ContainsKey(kvp.Key));
+                Assert.Equal(kvp.Value, res[kvp.Key]);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeDictionaryKeysAndValuesByteChar()
         {
             var instance = new Dictionary<byte, char> {{0, 'z'}, {255, 'z'}, {3, char.MinValue}};
             Serialize(instance);
             Reset();
             var res = Deserialize<Dictionary<byte, char>>();
-            Assert.AreEqual(instance.Count, res.Count);
-            CollectionAssert.AreEquivalent(instance.Keys, res.Keys);
+            Assert.Equal(instance.Count, res.Count);
+           
             foreach (var kvp in instance)
             {
-                Assert.AreEqual(kvp.Value, res[kvp.Key]);
+                Assert.True(res.ContainsKey(kvp.Key));
+                Assert.Equal(kvp.Value, res[kvp.Key]);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeObjectArray()
         {
             var expected = new[]
@@ -178,10 +180,10 @@ namespace Wire.Tests
             Serialize(expected);
             Reset();
             var actual = Deserialize<Something[]>();
-            CollectionAssert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeByteArray()
         {
             var expected = new byte[]
@@ -191,10 +193,10 @@ namespace Wire.Tests
             Serialize(expected);
             Reset();
             var actual = Deserialize<byte[]>();
-            CollectionAssert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void Issue18()
         {
             var msg = new byte[] { 1, 2, 3, 4 };
@@ -213,11 +215,11 @@ namespace Wire.Tests
                 deserialized = serializer.Deserialize<byte[]>(ms);
             }
 
-            Assert.IsTrue(msg.SequenceEqual(deserialized));
+            Assert.True(msg.SequenceEqual(deserialized));
         }
 
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeArrayOfTuples()
         {
             var expected = new[]
@@ -229,11 +231,10 @@ namespace Wire.Tests
             Serialize(expected);
             Reset();
             var actual = Deserialize<Tuple<int,int,int>[]>();
-            CollectionAssert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        //TODO: add support for multi dimentional arrays
-        [TestMethod,Ignore]
+        [Fact(Skip = "add support for multi dimentional arrays")]
         public void CanSerializeMultiDimentionalArray()
         {
             var expected = new double[3, 3, 3];
@@ -250,17 +251,17 @@ namespace Wire.Tests
             Serialize(expected);
             Reset();
             var actual = Deserialize<double[,,]>();
-            CollectionAssert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializePrimitiveArray()
         {
             var expected = new[] {DateTime.MaxValue, DateTime.MinValue, DateTime.Now, DateTime.Today};
             Serialize(expected);
             Reset();
             var actual = Deserialize<DateTime[]>();
-            CollectionAssert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }        
     }
 }
