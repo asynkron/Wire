@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Wire.Compilation;
 using Wire.Extensions;
+using Wire.Internal;
 using Wire.ValueSerializers;
 
 namespace Wire
@@ -61,6 +61,7 @@ namespace Wire
             //        //the current is less or equal, then goto 1)
             //    }
             //}
+
             var typedTarget = c.CastOrUnbox(target, type);
             var fieldsArray = fields.ToArray();
             var serializers = fieldsArray.Select(field => serializer.GetSerializerByType(field.FieldType)).ToArray();
@@ -69,7 +70,7 @@ namespace Wire
             if (preallocatedBufferSize > 0)
             {
                 EmitPreallocatedBuffer(c, preallocatedBufferSize, session,
-                    typeof(DeserializerSession).GetTypeInfo().GetMethod("GetBuffer"));
+                    typeof(DeserializerSession).GetTypeInfo().GetMethod(nameof(DeserializerSession.GetBuffer)));
             }
 
             for (var i = 0; i < fieldsArray.Length; i++)

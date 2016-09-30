@@ -38,8 +38,6 @@ namespace Wire.ValueSerializers
                     array.SetValue(value, i); //set the element value
                 }
             }
-            
-
 
             return array;
         }
@@ -65,7 +63,6 @@ namespace Wire.ValueSerializers
             elementSerializer.WriteManifest(stream, session); //write array element type
             // ReSharper disable once PossibleNullReferenceException
             WriteValues((dynamic)value, stream,elementSerializer,session);
-
         }
 
         private static void WriteValues<T>(T[] array, Stream stream, ValueSerializer elementSerializer, SerializerSession session)
