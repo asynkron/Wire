@@ -26,6 +26,7 @@ namespace Wire
             //order is important, try dictionaries before enumerables as dicts are also enumerable
             new ExceptionSerializerFactory(), 
             new ImmutableCollectionsSerializerFactory(),
+            new ExpandoObjectSerializerFactory(),
             new DefaultDictionarySerializerFactory(),
             new DictionarySerializerFactory(),
             new ArraySerializerFactory(),
