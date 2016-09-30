@@ -261,6 +261,31 @@ namespace Wire.Tests
             Reset();
             var actual = Deserialize<DateTime[]>();
             CollectionAssert.AreEqual(expected, actual);
-        }        
+        }
+
+       
+        [TestMethod]
+        public void CanSerializeExpandoObject()
+        {
+            var obj = new System.Dynamic.ExpandoObject();
+            (obj as IDictionary<string, object>).Add("Test1", "Value1");
+            (obj as IDictionary<string, object>).Add("Test2", 1);
+            (obj as IDictionary<string, object>).Add("Test3", System.DateTime.Now);
+
+            var nestedObj = new System.Dynamic.ExpandoObject();
+            (nestedObj as IDictionary<string, object>).Add("NestedTest1", "Value2");
+            (nestedObj as IDictionary<string, object>).Add("NestedTest2", new string[] { "v1", "v2" });
+
+            (obj as IDictionary<string, object>).Add("Test4", nestedObj);
+
+
+            Serialize(obj);
+            Reset();
+            var actual = Deserialize<System.Dynamic.ExpandoObject>() as IDictionary<string, object>;
+            //TODO: Check values
+            
+        }
+       
+
     }
 }
