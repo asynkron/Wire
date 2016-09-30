@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Annotations.cs" />
+    <Compile Include="Internal\Annotations.cs" />
     <Compile Include="ByteArrayKey.cs" />
     <Compile Include="ByteArrayKeyComparer.cs" />
     <Compile Include="Compilation\ExpressionEx.cs" />

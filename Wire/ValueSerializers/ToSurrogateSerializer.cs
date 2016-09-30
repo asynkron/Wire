@@ -6,15 +6,11 @@ namespace Wire.ValueSerializers
 {
     public class ToSurrogateSerializer : ValueSerializer
     {
-        private readonly ValueSerializer _surrogateSerializer;
         private readonly Func<object, object> _translator;
-        private readonly Type _type;
 
-        public ToSurrogateSerializer(Func<object, object> translator, Type type, ValueSerializer surrogateSerializer)
+        public ToSurrogateSerializer(Func<object, object> translator)
         {
-            _type = type;
             _translator = translator;
-            _surrogateSerializer = surrogateSerializer;
         }
 
         public override void WriteManifest(Stream stream, SerializerSession session)
