@@ -3,8 +3,8 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Wire.Extensions;
+using Wire.Internal;
 using Wire.ValueSerializers;
 
 namespace Wire

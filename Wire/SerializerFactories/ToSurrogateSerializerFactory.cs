@@ -25,7 +25,7 @@ namespace Wire.SerializerFactories
                 .FirstOrDefault(s => s.IsSurrogateFor(type));
             // ReSharper disable once PossibleNullReferenceException
             var objectSerializer = new ObjectSerializer(surrogate.To);
-            var toSurrogateSerializer = new ToSurrogateSerializer(surrogate.ToSurrogate, surrogate.To, objectSerializer);
+            var toSurrogateSerializer = new ToSurrogateSerializer(surrogate.ToSurrogate);
             typeMapping.TryAdd(type, toSurrogateSerializer);
 
             serializer.CodeGenerator.BuildSerializer(serializer, objectSerializer);

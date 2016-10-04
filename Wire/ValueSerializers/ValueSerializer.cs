@@ -2,8 +2,8 @@
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Wire.Compilation;
+using Wire.Internal;
 
 namespace Wire.ValueSerializers
 {

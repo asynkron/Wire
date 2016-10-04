@@ -1,5 +1,5 @@
 ﻿using System;
-using JetBrains.Annotations;
+using Wire.Internal;
 using IntToObjectLookup = System.Collections.Generic.List<object>;
 using IntToTypeLookup = System.Collections.Generic.List<System.Type>;
 using TypeToVersionInfoLookup = System.Collections.Generic.Dictionary<System.Type, Wire.TypeVersionInfo>;
