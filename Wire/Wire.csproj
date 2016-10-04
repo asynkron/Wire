@@ -94,6 +94,7 @@
     <Compile Include="ValueSerializers\Int32Serializer.cs" />
     <Compile Include="ValueSerializers\Int64Serializer.cs" />
     <Compile Include="NoAllocBitConverter.cs" />
+    <Compile Include="ValueSerializers\UnsupportedTypeSerializer.cs" />
     <Compile Include="ValueSerializers\KnownTypeObjectSerializer.cs" />
     <Compile Include="ValueSerializers\NullSerializer.cs" />
     <Compile Include="ValueSerializers\ObjectReferenceSerializer.cs" />
