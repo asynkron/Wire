@@ -5,11 +5,11 @@ using System.IO;
 using System.Text;
 using MBrace.FsPickler;
 using Microsoft.FSharp.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+using Xunit.Sdk;
 
 namespace Wire.PerformanceTests
 {
-    [TestClass]
     public class SpeedAndSizeTests
     {
         [Serializable]
@@ -31,7 +31,7 @@ namespace Wire.PerformanceTests
             public string Name { get; set; }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPocoArray()
         {
             var arr = new Poco[200];
@@ -47,13 +47,13 @@ namespace Wire.PerformanceTests
             Test(arr);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDateTime()
         {
             Test(DateTime.Now);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDateTimeArray()
         {
             var arr = new DateTime[200];
@@ -65,7 +65,7 @@ namespace Wire.PerformanceTests
             Test(arr);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGuidArray()
         {
             var arr = new Guid[200];
@@ -77,7 +77,7 @@ namespace Wire.PerformanceTests
             Test(arr);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIntArray()
         {
             var arr = new int[1000];
@@ -89,14 +89,14 @@ namespace Wire.PerformanceTests
             Test(arr);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestStringShort()
         {
             
             Test("hello");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestStringLong()
         {
             var sb = new StringBuilder();
@@ -111,7 +111,7 @@ namespace Wire.PerformanceTests
 
         //TODO: fails as FsPickler uses 2 bytes for length encoding instead of 4 as Wire does
         //our payload gets bigger
-        [TestMethod]
+        [Fact]
         public void TestStringArray()
         {
             var arr = new string[1000];
@@ -124,7 +124,7 @@ namespace Wire.PerformanceTests
         }
 
 
-        [TestMethod]
+        [Fact]
         public void TestByteArray()
         {
             var arr = new byte[1000];
@@ -136,7 +136,7 @@ namespace Wire.PerformanceTests
             Test(arr);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestType()
         {
             Test(typeof(int));
@@ -145,7 +145,7 @@ namespace Wire.PerformanceTests
 
 
         ///fails big time, we are writing the entire qualified type name for each entry, fs pickler does not.
-        [TestMethod]
+        [Fact]
         public void TestTypeArray()
         {
             var arr = new Type[100];
@@ -157,13 +157,13 @@ namespace Wire.PerformanceTests
             Test(arr);
         }
 
-        [TestMethod]
+        [Fact()]
         public void TestGuid()
         {
             Test(Guid.NewGuid());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBoolArray()
         {
             var arr = new bool[1000];
@@ -176,7 +176,7 @@ namespace Wire.PerformanceTests
         }
 
 
-        [TestMethod]
+        [Fact]
         public void TestTuple()
         {
             Test(Tuple.Create(123,456));
@@ -189,7 +189,7 @@ namespace Wire.PerformanceTests
             public int Item2 { get; set; }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTupleLikeArray()
         {
             var arr = new FakeTupleIntInt[100];
@@ -205,7 +205,7 @@ namespace Wire.PerformanceTests
             Test(arr);
         }
 
-        [TestMethod, Ignore] //this is slow because we can not codegen setters for readonly fields yet (expressions, we need IL compiler first)
+        [Fact(Skip = "Slow test (?)")] //this is slow because we can not codegen setters for readonly fields yet (expressions, we need IL compiler first)
         public void TestTupleArray()
         {
             var arr = new Tuple<int,int>[100];
@@ -217,7 +217,7 @@ namespace Wire.PerformanceTests
             Test(arr);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestList()
         {
             var list = new List<int>()
@@ -231,13 +231,13 @@ namespace Wire.PerformanceTests
             Test(list);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestInt()
         {
             Test(123456);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPocoSmall()
         {
             Test(new Poco()
@@ -247,7 +247,7 @@ namespace Wire.PerformanceTests
             });
         }
 
-        [TestMethod]
+        [Fact]
         //fails as our payload is bigger, probably due to qualified typename, we are faster though
         public void TestCyclic()
         {
@@ -259,7 +259,7 @@ namespace Wire.PerformanceTests
             Test(a);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIntDictionary()
         {
             var dict = new Dictionary<int,int>()
@@ -271,7 +271,7 @@ namespace Wire.PerformanceTests
             Test(dict);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestFSharpList()
         {
             var list =
@@ -334,8 +334,8 @@ namespace Wire.PerformanceTests
             Console.WriteLine($"Wire is {picklerSize / (double)wireSize:n2} times smaller than FsPickler");
 
             //assert that we are in a 10% margin of FsPickler
-            Assert.IsTrue(wireTs <= picklerTs * 1.1, "Wire was slower than FsPickler");
-            Assert.IsTrue(wireSize <= picklerSize * 1.1, "Wire payload was larger than FsPickler");
+            Assert.True(wireTs <= picklerTs * 1.1, "Wire was slower than FsPickler");
+            Assert.True(wireSize <= picklerSize * 1.1, "Wire payload was larger than FsPickler");
         }
 
         private static void WireSerialize(object value, Serializer wireSerializer, MemoryStream wireStream)
