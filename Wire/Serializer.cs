@@ -215,16 +215,42 @@ namespace Wire
                 if (!_serializers.TryAdd(type, wrapper))
                     return _serializers[type];
 
-                //build the serializer IL code
-                CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
+
+                
+
+                try
+                {
+                    //build the serializer IL code
+                    CodeGenerator.BuildSerializer(this, (ObjectSerializer)serializer);
+                }
+                catch (Exception exp)
+                {
+                    var invalidSerializer = new UnsupportedTypeSerializer(type,exp.Message);
+                    _serializers[type] = invalidSerializer;
+                    return invalidSerializer;
+                }
                 //just ignore if this fails, another thread have already added an identical serializer
                 return wrapper;
             }
             if (!_serializers.TryAdd(type, serializer))
                 return _serializers[type];
 
-            //build the serializer IL code
-            CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
+
+
+            try
+            {
+                //build the serializer IL code
+                CodeGenerator.BuildSerializer(this, (ObjectSerializer)serializer);
+
+            }
+            catch(Exception exp)
+            {
+                var invalidSerializer = new UnsupportedTypeSerializer(type,exp.Message);
+                _serializers[type] = invalidSerializer;
+                return invalidSerializer;
+            }
+
+
             //just ignore if this fails, another thread have already added an identical serializer
             return serializer;
             //add it to the serializer lookup in case of recursive serialization
