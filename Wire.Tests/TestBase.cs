@@ -6,7 +6,7 @@ namespace Wire.Tests
     public abstract class TestBase
     {
         private Serializer _serializer;
-        private MemoryStream _stream;
+        private readonly MemoryStream _stream;
 
         protected TestBase()
         {
