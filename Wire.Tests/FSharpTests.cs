@@ -1,4 +1,5 @@
-﻿using Akka.Actor;
+﻿using System.IO;
+using Akka.Actor;
 using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
 using Wire.FSharpTestTypes;
@@ -10,7 +11,16 @@ namespace Wire.Tests
 {
     public class FSharpTests : TestBase
     {
-      
+
+        [Fact]
+        public void CanSerializeFSharpMap()
+        {
+            var expected = FSharpTestTypes.TestQuotations.createRecordWithMap;
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<object>();
+            Assert.Equal(expected, actual);
+        }
 
 
         [Fact]

@@ -7,6 +7,7 @@ namespace Wire.Tests
     
     public class Bugs
     {
+
         public class ByteMessage
         {
             public DateTime UtcTime { get; }
