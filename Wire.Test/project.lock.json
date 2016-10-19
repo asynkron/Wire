@@ -2480,10 +2480,11 @@
           "lib/netstandard1.1/xunit.runner.utility.dotnet.dll": {}
         }
       },
-      "Wire/0.6.2": {
+      "Wire/0.8.1": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
+          "Microsoft.CSharp": "4.0.1",
           "NETStandard.Library": "1.6.0"
         }
       }
@@ -7365,7 +7366,7 @@
         "xunit.runner.utility.nuspec"
       ]
     },
-    "Wire/0.6.2": {
+    "Wire/0.8.1": {
       "type": "project",
       "path": "../Wire/project.json"
     }

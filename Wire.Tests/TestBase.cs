@@ -1,16 +1,14 @@
 ﻿using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace Wire.Tests
 {
-    [TestClass]
     public abstract class TestBase
     {
         private Serializer _serializer;
-        private MemoryStream _stream;
+        private readonly MemoryStream _stream;
 
-        [TestInitialize]
-        public void Setup()
+        protected TestBase()
         {
             _serializer = new Serializer();
             _stream = new MemoryStream();
@@ -39,7 +37,7 @@ namespace Wire.Tests
 
         public void AssertMemoryStreamConsumed()
         {
-            Assert.AreEqual(_stream.Length, _stream.Position);
+            Assert.Equal(_stream.Length, _stream.Position);
         }
     }
 }

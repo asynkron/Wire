@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace Wire.Tests
 {
-    [TestClass]
+    
     public class Bugs
     {
+
         public class ByteMessage
         {
             public DateTime UtcTime { get; }
@@ -32,7 +33,7 @@ namespace Wire.Tests
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeMessageWithByte()
         {
             var stream = new MemoryStream();
@@ -43,7 +44,7 @@ namespace Wire.Tests
             var res = serializer.Deserialize(stream);
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerialieCustomType_bug()
         {
             var stream = new MemoryStream();

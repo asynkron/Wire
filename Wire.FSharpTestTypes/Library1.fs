@@ -2,6 +2,8 @@
 
 open Akka.Actor
 
+
+
 type DU1 = 
 | A of int
 | B of string * int
@@ -45,4 +47,8 @@ module TestQuotations =
             | 0 | 1 -> 1
             | _ -> fib(n-1) + fib(n-2)
         async { return fib x } @>
+
+    type RecordWithString = {Name:string}
+    type RecordWithMap = {SomeMap: Map<int,string>}
+    let createRecordWithMap = {SomeMap = Map.empty }
 
