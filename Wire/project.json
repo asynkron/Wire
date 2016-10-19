@@ -16,7 +16,7 @@
   },
   "dependencies": {
   },
-  "runtimes": {"win": {} },
+
   "frameworks": {
     "netstandard1.6": {
       "imports": "dnxcore50",
