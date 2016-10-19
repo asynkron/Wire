@@ -3,33 +3,28 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class Int64Serializer : ValueSerializer
+    public class Int64Serializer : SessionAwareByteArrayRequiringValueSerializer<long>
     {
-        public static readonly Int64Serializer Instance = new Int64Serializer();
         public const byte Manifest = 2;
+        public const int Size = sizeof(long);
+        public static readonly Int64Serializer Instance = new Int64Serializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public Int64Serializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
-            stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public static void WriteValueImpl(Stream stream, long l, byte[] bytes)
         {
-            var bytes = BitConverter.GetBytes((long) value);
-            stream.Write(bytes);
+            NoAllocBitConverter.GetBytes(l, bytes);
+            stream.Write(bytes, 0, Size);
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public static long ReadValueImpl(Stream stream, byte[] bytes)
         {
-            var size = sizeof (long);
-            var buffer = session.GetBuffer(size);
-            stream.Read(buffer, 0, size);
-            return BitConverter.ToInt64(buffer, 0);
+            stream.Read(bytes, 0, Size);
+            return BitConverter.ToInt64(bytes, 0);
         }
 
-        public override Type GetElementType()
-        {
-            return typeof (long);
-        }
+        public override int PreallocatedByteBufferSize => Size;
     }
 }

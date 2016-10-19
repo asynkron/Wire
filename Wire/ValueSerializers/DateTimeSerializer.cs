@@ -3,34 +3,37 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class DateTimeSerializer : ValueSerializer
+    public class DateTimeSerializer : SessionAwareByteArrayRequiringValueSerializer<DateTime>
     {
-        public static readonly DateTimeSerializer Instance = new DateTimeSerializer();
         public const byte Manifest = 5;
+        public const int Size = sizeof(long) + sizeof(byte);
+        public static readonly DateTimeSerializer Instance = new DateTimeSerializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public DateTimeSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
-            stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        private static void WriteValueImpl(Stream stream, DateTime dateTime, byte[] bytes)
         {
-            var bytes = BitConverter.GetBytes(((DateTime) value).Ticks);
-            stream.Write(bytes);
+            NoAllocBitConverter.GetBytes(dateTime, bytes);
+            stream.Write(bytes, 0, Size);
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public static DateTime ReadValueImpl(Stream stream, byte[] bytes)
         {
-            var size = sizeof (long);
-            var buffer = session.GetBuffer(size);
-            stream.Read(buffer, 0, size);
-            var ticks = BitConverter.ToInt64(buffer, 0);
-            return new DateTime(ticks);
+            var dateTime = ReadDateTime(stream, bytes);
+            return dateTime;
         }
 
-        public override Type GetElementType()
+        private static DateTime ReadDateTime(Stream stream, byte[] bytes)
         {
-            return typeof (DateTime);
+            stream.Read(bytes, 0, Size);
+            var ticks = BitConverter.ToInt64(bytes, 0);
+            var kind = (DateTimeKind) bytes[Size - 1]; //avoid reading a single byte from the stream
+            var dateTime = new DateTime(ticks, kind);
+            return dateTime;
         }
+
+        public override int PreallocatedByteBufferSize => Size;
     }
 }

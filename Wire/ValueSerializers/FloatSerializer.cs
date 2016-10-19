@@ -3,33 +3,28 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class FloatSerializer : ValueSerializer
+    public class FloatSerializer : SessionAwareByteArrayRequiringValueSerializer<float>
     {
-        public static readonly FloatSerializer Instance = new FloatSerializer();
         public const byte Manifest = 12;
+        public const int Size = sizeof(float);
+        public static readonly FloatSerializer Instance = new FloatSerializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public FloatSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
-            stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public static void WriteValueImpl(Stream stream, float f, byte[] bytes)
         {
-            var bytes = BitConverter.GetBytes((float) value);
-            stream.Write(bytes);
+            NoAllocBitConverter.GetBytes(f, bytes);
+            stream.Write(bytes, 0, Size);
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public static float ReadValueImpl(Stream stream, byte[] bytes)
         {
-            var size = sizeof (float);
-            var buffer = session.GetBuffer(size);
-            stream.Read(buffer, 0, size);
-            return BitConverter.ToSingle(buffer, 0);
+            stream.Read(bytes, 0, Size);
+            return BitConverter.ToSingle(bytes, 0);
         }
 
-        public override Type GetElementType()
-        {
-            return typeof (float);
-        }
+        public override int PreallocatedByteBufferSize => Size;
     }
 }

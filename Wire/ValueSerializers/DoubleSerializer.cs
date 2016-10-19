@@ -3,33 +3,28 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class DoubleSerializer : ValueSerializer
+    public class DoubleSerializer : SessionAwareByteArrayRequiringValueSerializer<double>
     {
-        public static readonly DoubleSerializer Instance = new DoubleSerializer();
         public const byte Manifest = 13;
+        public const int Size = sizeof(double);
+        public static readonly DoubleSerializer Instance = new DoubleSerializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public DoubleSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
-            stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public static void WriteValueImpl(Stream stream, double d, byte[] bytes)
         {
-            var bytes = BitConverter.GetBytes((double) value);
-            stream.Write(bytes);
+            NoAllocBitConverter.GetBytes(d, bytes);
+            stream.Write(bytes, 0, Size);
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public static double ReadValueImpl(Stream stream, byte[] bytes)
         {
-            var size = sizeof (double);
-            var buffer = session.GetBuffer(size);
-            stream.Read(buffer, 0, size);
-            return BitConverter.ToDouble(buffer, 0);
+            stream.Read(bytes, 0, Size);
+            return BitConverter.ToDouble(bytes, 0);
         }
 
-        public override Type GetElementType()
-        {
-            return typeof (double);
-        }
+        public override int PreallocatedByteBufferSize => Size;
     }
 }

@@ -1,28 +1,60 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace Wire.Tests
 {
-    [TestClass]
+    
     public class Bugs
     {
-        [TestMethod]
+
+        public class ByteMessage
+        {
+            public DateTime UtcTime { get; }
+            public long LongValue { get; }
+            public byte ByteValue { get; }
+
+            public ByteMessage(DateTime utcTime, byte byteValue, long longValue)
+            {
+                UtcTime = utcTime;
+                ByteValue = byteValue;
+                LongValue = longValue;
+            }
+
+            public override bool Equals(object obj)
+            {
+                var msg = obj as ByteMessage;
+                return msg != null && Equals(msg);
+            }
+
+            public bool Equals(ByteMessage other)
+            {
+                return UtcTime.Equals(other.UtcTime) && LongValue.Equals(other.LongValue) && ByteValue.Equals(other.ByteValue);
+            }
+        }
+
+        [Fact]
+        public void CanSerializeMessageWithByte()
+        {
+            var stream = new MemoryStream();
+            var msg = new ByteMessage(DateTime.UtcNow,1,2);
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
+            serializer.Serialize(msg, stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize(stream);
+        }
+
+        [Fact]
         public void CanSerialieCustomType_bug()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(preserveObjectReferences: true,versionTolerance:true));
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
             var root = new Recover(SnapshotSelectionCriteria.Latest);
 
             serializer.Serialize(root, stream);
             stream.Position = 0;
             var actual = serializer.Deserialize<Recover>(stream);
         }
-
 
         public class SnapshotSelectionCriteria
         {
@@ -32,6 +64,7 @@ namespace Wire.Tests
             };
             public string Foo { get; set; }
         }
+
         [Serializable]
         public sealed class Recover
         {

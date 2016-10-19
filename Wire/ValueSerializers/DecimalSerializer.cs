@@ -1,35 +1,40 @@
 ﻿using System;
 using System.IO;
+using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
     public class DecimalSerializer : ValueSerializer
     {
-        public static readonly DecimalSerializer Instance = new DecimalSerializer();
         public const byte Manifest = 14;
+        public static readonly DecimalSerializer Instance = new DecimalSerializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
+            var bytes = session.GetBuffer(Int32Serializer.Size);
+
             var data = decimal.GetBits((decimal) value);
-            stream.WriteInt32(data[0]);
-            stream.WriteInt32(data[1]);
-            stream.WriteInt32(data[2]);
-            stream.WriteInt32(data[3]);
+            Int32Serializer.WriteValueImpl(stream, data[0], bytes);
+            Int32Serializer.WriteValueImpl(stream, data[1], bytes);
+            Int32Serializer.WriteValueImpl(stream, data[2], bytes);
+            Int32Serializer.WriteValueImpl(stream, data[3], bytes);
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
+            var bytes = session.GetBuffer(Int32Serializer.Size);
+
             var parts = new[]
             {
-                (int) Int32Serializer.Instance.ReadValue(stream, session),
-                (int) Int32Serializer.Instance.ReadValue(stream, session),
-                (int) Int32Serializer.Instance.ReadValue(stream, session),
-                (int) Int32Serializer.Instance.ReadValue(stream, session)
+                Int32Serializer.ReadValueImpl(stream, bytes),
+                Int32Serializer.ReadValueImpl(stream, bytes),
+                Int32Serializer.ReadValueImpl(stream, bytes),
+                Int32Serializer.ReadValueImpl(stream, bytes)
             };
             var sign = (parts[3] & 0x80000000) != 0;
 
@@ -40,7 +45,7 @@ namespace Wire.ValueSerializers
 
         public override Type GetElementType()
         {
-            return typeof (decimal);
+            return typeof(decimal);
         }
     }
 }

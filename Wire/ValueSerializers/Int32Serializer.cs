@@ -3,48 +3,35 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class Int32Serializer : ValueSerializer
+    public class Int32Serializer : SessionAwareByteArrayRequiringValueSerializer<int>
     {
-        public static readonly Int32Serializer Instance = new Int32Serializer();
         public const byte Manifest = 8;
+        public const int Size = sizeof(int);
+        public static readonly Int32Serializer Instance = new Int32Serializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public Int32Serializer()
+            : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
-            stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public static void WriteValueImpl(Stream stream, int i, byte[] bytes)
         {
-            var bytes = BitConverter.GetBytes((int) value);
-            stream.Write(bytes);
+            NoAllocBitConverter.GetBytes(i, bytes);
+            stream.Write(bytes, 0, Size);
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public static void WriteValue(Stream stream, int value, SerializerSession session)
-        //{
-        //    var bytes = BitConverter.GetBytes(value);
-        //    stream.Write(bytes, 0, bytes.Length);
-        //}
-
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public static void WriteValueImpl(Stream stream, int i, SerializerSession session)
         {
-            var size = sizeof (int);
-            var buffer = session.GetBuffer(size);
-            stream.Read(buffer, 0, size);
-            return BitConverter.ToInt32(buffer, 0);
+            var bytes = session.GetBuffer(Size);
+            WriteValueImpl(stream, i, bytes);
         }
 
-        //public static int ReadValue(Stream stream, SerializerSession session)
-        //{
-        //    var size = sizeof(int);
-        //    var buffer = session.GetBuffer(size);
-        //    stream.Read(buffer, 0, size);
-        //    return BitConverter.ToInt32(buffer, 0);
-        //}
-
-        public override Type GetElementType()
+        public static int ReadValueImpl(Stream stream, byte[] bytes)
         {
-            return typeof (int);
+            stream.Read(bytes, 0, Size);
+            return BitConverter.ToInt32(bytes, 0);
         }
+
+        public override int PreallocatedByteBufferSize => Size;
     }
 }

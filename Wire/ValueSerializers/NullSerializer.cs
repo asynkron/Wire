@@ -8,7 +8,7 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 0;
         public static readonly NullSerializer Instance = new NullSerializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
         }
@@ -17,7 +17,7 @@ namespace Wire.ValueSerializers
         {
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
             return null;
         }

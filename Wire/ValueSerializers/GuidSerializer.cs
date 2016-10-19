@@ -1,34 +1,29 @@
 ﻿using System;
 using System.IO;
+using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
-    public class GuidSerializer : ValueSerializer
+    public class GuidSerializer : SessionIgnorantValueSerializer<Guid>
     {
-        public static readonly GuidSerializer Instance = new GuidSerializer();
         public const byte Manifest = 11;
+        public static readonly GuidSerializer Instance = new GuidSerializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public GuidSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
-            stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public static void WriteValueImpl(Stream stream, Guid g)
         {
-            var bytes = ((Guid) value).ToByteArray();
+            var bytes = g.ToByteArray();
             stream.Write(bytes);
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public static Guid ReadValueImpl(Stream stream)
         {
-            var buffer = session.GetBuffer(16);
+            var buffer = new byte[16];
             stream.Read(buffer, 0, 16);
-            return new Guid(buffer); //TODO: cap array?
-        }
-
-        public override Type GetElementType()
-        {
-            return typeof (Guid);
+            return new Guid(buffer);
         }
     }
 }

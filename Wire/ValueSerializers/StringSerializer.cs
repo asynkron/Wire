@@ -1,48 +1,44 @@
 ﻿using System;
 using System.IO;
-using System.Text;
+using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
     public class StringSerializer : ValueSerializer
     {
-        public static readonly StringSerializer Instance = new StringSerializer();
         public const byte Manifest = 7;
+        public static readonly StringSerializer Instance = new StringSerializer();
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public static void WriteValueImpl(Stream stream, string s, SerializerSession session)
+        {
+            int byteCount;
+            var bytes = NoAllocBitConverter.GetBytes(s, session, out byteCount);
+            stream.Write(bytes, 0, byteCount);
+        }
+
+        public static string ReadValueImpl(Stream stream, DeserializerSession session)
+        {
+            return stream.ReadString(session);
+        }
+
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
-            if (value == null)
-            {
-                stream.WriteInt32(-1);
-            }
-            else
-            {
-                var bytes = Encoding.UTF8.GetBytes((string) value);
-                stream.WriteLengthEncodedByteArray(bytes);
-            }
+            WriteValueImpl(stream, (string) value, session);
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
-            var length = (int) Int32Serializer.Instance.ReadValue(stream, session);
-            if (length == -1)
-                return null;
-
-            var buffer = session.GetBuffer(length);
-
-            stream.Read(buffer, 0, length);
-            var res = Encoding.UTF8.GetString(buffer, 0, length);
-            return res;
+            return ReadValueImpl(stream, session);
         }
 
         public override Type GetElementType()
         {
-            return typeof (string);
+            return typeof(string);
         }
     }
 }

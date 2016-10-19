@@ -14,7 +14,7 @@ namespace Wire.ValueSerializers
             _surrogateSerializer = surrogateSerializer;
         }
 
-        public override void WriteManifest(Stream stream, Type type, SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
             throw new NotSupportedException();
         }
@@ -24,7 +24,7 @@ namespace Wire.ValueSerializers
             throw new NotSupportedException();
         }
 
-        public override object ReadValue(Stream stream, SerializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
             var surrogateValue = _surrogateSerializer.ReadValue(stream, session);
             var value = _translator(surrogateValue);

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Wire.Converters;
+using Wire.SerializerFactories;
+using Wire.ValueSerializers;
 
 namespace Wire
 {
@@ -9,22 +10,41 @@ namespace Wire
     {
         internal static readonly Surrogate[] EmptySurrogates = new Surrogate[0];
         internal static readonly ValueSerializerFactory[] EmptyValueSerializerFactories = new ValueSerializerFactory[0];
+        
 
         private static readonly ValueSerializerFactory[] DefaultValueSerializerFactories =
         {
+            new ConsistentArraySerializerFactory(), 
+            new MethodInfoSerializerFactory(),
+            new PropertyInfoSerializerFactory(), 
+            new ConstructorInfoSerializerFactory(),
+            new FieldInfoSerializerFactory(),
+            new DelegateSerializerFactory(), 
             new ToSurrogateSerializerFactory(),
             new FromSurrogateSerializerFactory(),
+            new FSharpListSerializerFactory(), 
+            //order is important, try dictionaries before enumerables as dicts are also enumerable
+            new ExceptionSerializerFactory(), 
+            new ImmutableCollectionsSerializerFactory(),
+            new ExpandoObjectSerializerFactory(),
+            new DefaultDictionarySerializerFactory(),
+            new DictionarySerializerFactory(),
             new ArraySerializerFactory(),
-            new EnumerableSerializerFactory()
+#if SERIALIZATION
+            new ISerializableSerializerFactory(), //TODO: this will mess up the indexes in the serializer payload
+#endif
+            new EnumerableSerializerFactory(),
+            
         };
 
         internal readonly bool PreserveObjectReferences;
         internal readonly Surrogate[] Surrogates;
         internal readonly ValueSerializerFactory[] ValueSerializerFactories;
         internal readonly bool VersionTolerance;
+        internal readonly Type[] KnownTypes;
+        internal readonly Dictionary<Type, ushort> KnownTypesDict = new Dictionary<Type, ushort>();
 
-        public SerializerOptions(bool versionTolerance = false, IEnumerable<Surrogate> surrogates = null,
-            bool preserveObjectReferences = false, IEnumerable<ValueSerializerFactory> serializerFactories = null)
+        public SerializerOptions(bool versionTolerance = false, bool preserveObjectReferences = false, IEnumerable<Surrogate> surrogates = null, IEnumerable<ValueSerializerFactory> serializerFactories = null, IEnumerable<Type> knownTypes = null)
         {
             VersionTolerance = versionTolerance;
             Surrogates = surrogates?.ToArray() ?? EmptySurrogates;
@@ -34,32 +54,13 @@ namespace Wire
                 DefaultValueSerializerFactories.Concat(serializerFactories?.ToArray() ?? EmptyValueSerializerFactories)
                     .ToArray();
 
+            KnownTypes = knownTypes?.ToArray() ?? new Type[] {};
+            for (var i = 0; i < KnownTypes.Length; i++)
+            {
+                KnownTypesDict.Add(KnownTypes[i],(ushort)i);
+            }
+
             PreserveObjectReferences = preserveObjectReferences;
-        }
-    }
-
-    public class Surrogate
-    {
-        public Type From { get; protected set; }
-        public Type To { get; protected set; }
-        public Func<object, object> FromSurrogate { get; protected set; }
-        public Func<object, object> ToSurrogate { get; protected set; }
-
-        public static Surrogate Create<TSource, TSurrogate>(Func<TSource, TSurrogate> toSurrogate,
-            Func<TSurrogate, TSource> fromSurrogate)
-        {
-            return new Surrogate<TSource, TSurrogate>(toSurrogate, fromSurrogate);
-        }
-    }
-
-    public class Surrogate<TSource, TSurrogate> : Surrogate
-    {
-        public Surrogate(Func<TSource, TSurrogate> toSurrogate, Func<TSurrogate, TSource> fromSurrogate)
-        {
-            ToSurrogate = from => toSurrogate((TSource) from);
-            FromSurrogate = to => fromSurrogate((TSurrogate) to);
-            From = typeof (TSource);
-            To = typeof (TSurrogate);
         }
     }
 }

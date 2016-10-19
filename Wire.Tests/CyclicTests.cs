@@ -1,16 +1,17 @@
-﻿using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Xunit;
 
 namespace Wire.Tests
 {
-    [TestClass]
     public class CyclicTests
     {
-        [TestMethod]
+        [Fact]
         public void CanSerializeDeepCyclicReferences()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(preserveObjectReferences: true,versionTolerance:true));
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
             var root = new Root();
             var bar = new Bar();
             bar.Self = bar;
@@ -21,17 +22,68 @@ namespace Wire.Tests
             serializer.Serialize(root, stream);
             stream.Position = 0;
             var actual = serializer.Deserialize<Root>(stream);
-            Assert.AreSame(actual.B1, actual.B1);
-            Assert.AreSame(actual.B1, actual.B2);
-            Assert.AreSame(actual.B1, actual.B1.Self);
-            Assert.AreSame(actual.B1, actual.B2.Self);
+            Assert.Same(actual.B1, actual.B1);
+            Assert.Same(actual.B1, actual.B2);
+            Assert.Same(actual.B1, actual.B1.Self);
+            Assert.Same(actual.B1, actual.B2.Self);
         }
 
-        [TestMethod]
+        [Fact]
+        public void CanSerializeDictionaryPreserveObjectReferences()
+        {
+            var stream = new MemoryStream();
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
+
+            var arr1 = new[] {1, 2, 3};
+            var arr2 = new[] { 1, 2, 3 };
+            var obj = new Dictionary<int, int[]>
+            {
+                [1] = arr1,
+                [2] = arr2,
+                [3] = arr1,
+            };
+
+            serializer.Serialize(obj, stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize<Dictionary<int, int[]>>(stream);
+
+            Assert.Same(res[1], res[3]);
+            Assert.NotSame(res[1], res[2]);
+        }
+
+        //From Orleans
+        [Fact]
+        public void CanSerializeDictionaryPreserveObjectReferences2()
+        {
+            var stream = new MemoryStream();
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
+
+            var val = new List<string> { "first", "second" };
+
+            var val2 = new List<string> { "first", "second" };
+
+            var source = new Dictionary<string, List<string>>
+            {
+                ["one"] = val,
+                ["two"] = val,
+                ["three"] = val2
+            };
+
+
+            serializer.Serialize(source, stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize<Dictionary<string, List<string>>>(stream);
+
+            Assert.Same(res["one"], res["two"]);
+            Assert.NotSame(res["one"], res["three"]);
+        }
+
+
+        [Fact]
         public void CanSerializeCyclicReferences()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(preserveObjectReferences: true,versionTolerance:true));
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
             var bar = new Bar();
             bar.Self = bar;
             bar.XYZ = 234;
@@ -39,11 +91,11 @@ namespace Wire.Tests
             serializer.Serialize(bar, stream);
             stream.Position = 0;
             var actual = serializer.Deserialize<Bar>(stream);
-            Assert.AreSame(actual, actual.Self);
-            Assert.AreEqual(bar.XYZ, actual.XYZ);
+            Assert.Same(actual, actual.Self);
+            Assert.Equal(bar.XYZ, actual.XYZ);
         }
 
-        [TestMethod]
+        [Fact]
         public void CanSerializeMultiLevelCyclicReferences()
         {
             var stream = new MemoryStream();
@@ -56,18 +108,20 @@ namespace Wire.Tests
             serializer.Serialize(a, stream);
             stream.Position = 0;
             var actual = serializer.Deserialize<A>(stream);
-            Assert.AreSame(actual, actual.B.A);
+            Assert.Same(actual, actual.B.A);
         }
     }
 
     public class Root
     {
         public Bar B1 { get; set; }
+        public long Baz { get; set; }
         public Bar B2 { get; set; }
     }
 
     public class Bar
     {
+        public long Boo { get; set; }
         public Bar Self { get; set; }
         public int XYZ { get; set; }
     }
@@ -82,3 +136,4 @@ namespace Wire.Tests
         public A A { get; set; }
     }
 }
+ 
