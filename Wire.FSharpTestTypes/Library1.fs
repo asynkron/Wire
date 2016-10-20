@@ -48,7 +48,11 @@ module TestQuotations =
             | _ -> fib(n-1) + fib(n-2)
         async { return fib x } @>
 
+    
+
+module TestMap =
     type RecordWithString = {Name:string}
     type RecordWithMap = {SomeMap: Map<int,string>}
-    let createRecordWithMap = {SomeMap = Map.empty }
+    let createRecordWithMap = {SomeMap = Map.ofSeq [ (1, "one"); (2, "two") ] }
+    
 
