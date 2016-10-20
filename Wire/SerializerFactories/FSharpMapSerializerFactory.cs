@@ -62,21 +62,17 @@ namespace Wire.SerializerFactories
             var keyType = GetKeyType(type);
             var valueType = GetValyeType(type);
             var tupleType = typeof(Tuple<,>).MakeGenericType(keyType, valueType);
-            var s = serializer.GetSerializerByType(tupleType);
-
-            
             var arrType = tupleType.MakeArrayType();
 
             var mapModule = type.GetTypeInfo().Assembly.GetType("Microsoft.FSharp.Collections.MapModule");
             var ofArray = mapModule.GetTypeInfo().GetMethod("OfArray");
             var ofArrayConcrete = ofArray.MakeGenericMethod(keyType,valueType);
             var ofArrayCompiled = CompileToDelegate(ofArrayConcrete, arrType);
-
-
            
             var toArray = mapModule.GetTypeInfo().GetMethod("ToArray");
             var toArrayConcrete = toArray.MakeGenericMethod(keyType,valueType);
             var toArrayCompiled = CompileToDelegate(toArrayConcrete, type);
+
             var arrSerializer = serializer.GetSerializerByType(arrType);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
