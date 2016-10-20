@@ -15,7 +15,7 @@ namespace Wire.Tests
         [Fact]
         public void CanSerializeFSharpMap()
         {
-            var expected = FSharpTestTypes.TestQuotations.createRecordWithMap;
+            var expected = TestMap.createRecordWithMap;
             Serialize(expected);
             Reset();
             var actual = Deserialize<object>();

@@ -3,7 +3,7 @@ using Wire.Internal;
 namespace Wire
 {
     public struct ByteArrayKey
-    {
+    {       
         public readonly byte[] Bytes;
         private readonly int _hashCode;
 

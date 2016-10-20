@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Wire.SerializerFactories;
-using Wire.ValueSerializers;
 
 namespace Wire
 {
@@ -22,6 +21,7 @@ namespace Wire
             new DelegateSerializerFactory(), 
             new ToSurrogateSerializerFactory(),
             new FromSurrogateSerializerFactory(),
+            new FSharpMapSerializerFactory(), 
             new FSharpListSerializerFactory(), 
             //order is important, try dictionaries before enumerables as dicts are also enumerable
             new ExceptionSerializerFactory(), 
