@@ -4,23 +4,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ProtoBuf;
+using ZeroFormatter;
 
 namespace Wire.PerfTest.Types
 {
     [ProtoContract]
     [Serializable]
+    [ZeroFormattable]
     public class TypicalMessage
     {
         [ProtoMember(1)]
-        public string StringProp { get; set; }
+        [Index(0)]
+        public virtual string StringProp { get; set; }
 
         [ProtoMember(2)]
-        public int IntProp { get; set; }
+        [Index(1)]
+        public virtual int IntProp { get; set; }
 
         [ProtoMember(3)]
-        public Guid GuidProp { get; set; }
+        [Index(2)]
+        public virtual Guid GuidProp { get; set; }
 
         [ProtoMember(4)]
-        public DateTime DateProp { get; set; }
+        [Index(3)]
+        public virtual DateTime DateProp { get; set; }
     }
 }

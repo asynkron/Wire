@@ -8,9 +8,36 @@ using System.Text;
 using Newtonsoft.Json;
 using NFX.IO;
 using NFX.Serialization.Slim;
+using ZeroFormatter;
+using ZeroFormatter.Formatters;
+using ZeroFormatter.Internal;
+using ZeroFormatter.Segments;
 
 namespace Wire.PerfTest.Tests
 {
+
+    public class GuidFormatter : Formatter<Guid>
+    {
+        public override int? GetLength()
+        {
+            // If size is fixed, return fixed size.
+            return 16;
+        }
+
+        public override int Serialize(ref byte[] bytes, int offset, Guid value)
+        {
+            // BinaryUtil is helpers of byte[] operation 
+            return BinaryUtil.WriteBytes(ref bytes, offset, value.ToByteArray());
+        }
+
+        public override Guid Deserialize(ref byte[] bytes, int offset, DirtyTracker tracker, out int byteSize)
+        {
+            byteSize = 16;
+            var guidBytes = BinaryUtil.ReadBytes(ref bytes, offset, 16);
+            return new Guid(guidBytes);
+        }
+    }
+
     class TestResult
     {
         public string TestName { get; set; }
@@ -35,6 +62,7 @@ namespace Wire.PerfTest.Tests
 
         public void Run(int repeat)
         {
+            ZeroFormatter.Formatters.Formatter<Guid>.Register(new GuidFormatter());
             Repeat = repeat;
             Value = GetValue();
             Console.WriteLine();
@@ -62,7 +90,7 @@ namespace Wire.PerfTest.Tests
 
             var fastestSerializer = _results.OrderBy(r => r.SerializationTime).First();
             var fastestDeserializer = _results.OrderBy(r => r.DeserializationTime).First();
-            var fastestRoundtrip = _results.OrderBy(r => r.DeserializationTime).First();
+            var fastestRoundtrip = _results.OrderBy(r => r.SerializationTime + r.DeserializationTime).First();
             var smallestPayload = _results.OrderBy(r => r.PayloadSize).First();
 
             Console.WriteLine($"* **Fastest Serializer**: {fastestSerializer.TestName} - {(long)fastestSerializer.SerializationTime.TotalMilliseconds} ms");
@@ -78,18 +106,20 @@ namespace Wire.PerfTest.Tests
 
         protected virtual void TestAll()
         {
+            SerializeZeroFormatter();
+            SerializeZeroFormatterWithPooling();
             SerializeKnownTypesReuseSession();
             SerializeKnownTypes();
             SerializeDefault();
-            SerializeVersionTolerant();
-            SerializeVersionPreserveObjects();
-            SerializeNFXSlim();
-            SerializeNFXSlimPreregister();
-            SerializeSSText();
-            SerializeNetSerializer();
-            SerializeProtoBufNet();
-            SerializeJsonNet();
-            SerializeBinaryFormatter();
+            //SerializeVersionTolerant();
+            //SerializeVersionPreserveObjects();
+            //SerializeNFXSlim();
+            //SerializeNFXSlimPreregister();
+            //SerializeSSText();
+            //SerializeNetSerializer();
+            //SerializeProtoBufNet();
+            //SerializeJsonNet();
+            //SerializeBinaryFormatter();
         }
 
         private void SaveTestResult(string testName, IEnumerable<TestResult> result )
@@ -334,6 +364,31 @@ namespace Wire.PerfTest.Tests
             }, bytes.Length);
         }
 
+        private void SerializeZeroFormatter()
+        {
+            var bytes = ZeroFormatter.ZeroFormatterSerializer.Serialize(Value);
+            RunTest("ZeroFormatter", () =>
+            {
+                ZeroFormatter.ZeroFormatterSerializer.Serialize(Value);
+            }, () =>
+            {
+                ZeroFormatter.ZeroFormatterSerializer.Deserialize<T>(bytes);
+            }, bytes.Length);
+        }
+
+        private void SerializeZeroFormatterWithPooling()
+        {
+            var bytes = ZeroFormatter.ZeroFormatterSerializer.Serialize(Value);
+            RunTest("ZeroFormatterWithPooling", () =>
+            {
+                ZeroFormatter.ZeroFormatterSerializer.Serialize(ref bytes, 0, Value);
+            }, () =>
+            {
+                ZeroFormatter.ZeroFormatterSerializer.Deserialize<T>(bytes);
+            }, bytes.Length);
+        }
+
+
         private void SerializeKnownTypesReuseSession()
         {
             var types = typeof(T).Namespace.StartsWith("System") ? null : new[] { typeof(T) };
@@ -343,6 +398,7 @@ namespace Wire.PerfTest.Tests
             var s = new MemoryStream();
             serializer.Serialize(Value, s,ss);
             var bytes = s.ToArray();
+            
             RunTest("Wire - KnownTypes + Reuse Sessions", () =>
             {
                 var stream = new MemoryStream();
@@ -361,6 +417,7 @@ namespace Wire.PerfTest.Tests
             var s = new MemoryStream();
             serializer.Serialize(Value, s);
             var bytes = s.ToArray();
+            
             RunTest("Wire - KnownTypes", () =>
             {
                 var stream = new MemoryStream();

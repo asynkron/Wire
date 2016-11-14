@@ -1,5 +1,40 @@
 ﻿{
+  "version": "0.8.1-*",
+  "description": "Wire, fast binary POCO serializer",
+  "authors": [
+    "Roger Johansson"
+  ],
+  "packOptions": {
+    "tags": [
+      "serialization",
+      "akka.net",
+      "poco"
+    ],
+    "projectUrl": "https://github.com/akkadotnet/Wire",
+    "licenseUrl": "https://github.com/akkadotnet/Wire/blob/master/LICENSE",
+    "iconUrl": "https://raw.githubusercontent.com/hmemcpy/NServiceBus.Wire/master/icon.png"
+  },
+  "dependencies": {
+  },
+
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50",
+      "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "Microsoft.CSharp": "4.0.1"
+      }
+    },
+    "net450": {
+      "imports": "dotnet5.4",
+      "dependencies": {},
+      "define": [ "SERIALIZATION" ]
+    }
+  },
+  "buildOptions": {
+    "allowUnsafe": true
+  },
   "runtimes": {
-    "win": {} 
+    "win": {}
   }
 }
