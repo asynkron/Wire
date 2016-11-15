@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using ProtoBuf;
+using ZeroFormatter;
 
 namespace Wire.PerfTest.Types
 {
@@ -22,6 +23,7 @@ namespace Wire.PerfTest.Types
     [ProtoContract]
     [DataContract]
     [Serializable]
+    [ZeroFormattable]
     public class TypicalPersonData
     {
         /// <summary>
@@ -32,120 +34,151 @@ namespace Wire.PerfTest.Types
 
         [ProtoMember(1)]
         [DataMember]
-        public string Address1;
+        [Index(0)]
+        public virtual string Address1 { get; set; }
 
         [ProtoMember(2)]
         [DataMember]
-        public string Address2;
+        [Index(1)]
+        public virtual string Address2 { get; set; }
 
         [ProtoMember(3)]
         [DataMember]
-        public string AddressCity;
+        [Index(2)]
+        public virtual string AddressCity { get; set; }
 
         [ProtoMember(4)]
         [DataMember]
-        public string AddressState;
+        [Index(3)]
+        public virtual string AddressState { get; set; }
 
         [ProtoMember(5)]
         [DataMember]
-        public string AddressZip;
+        [Index(4)]
+        public virtual string AddressZip { get; set; }
 
         [ProtoMember(6)]
         [DataMember]
-        public double CreditScore;
+        [Index(5)]
+        public virtual double CreditScore { get; set; }
 
         [ProtoMember(7)]
         [DataMember]
-        public DateTime DOB;
+        [Index(6)]
+        public virtual DateTime DOB { get; set; }
 
         [ProtoMember(8)]
         [DataMember]
-        public string EMail;
+        [Index(7)]
+        public virtual string EMail { get; set; }
 
         [ProtoMember(9)]
         [DataMember]
-        public string FirstName;
+        [Index(8)]
+        public virtual string FirstName { get; set; }
 
         [ProtoMember(10)]
         [DataMember]
-        public string HomePhone;
+        [Index(9)]
+        public virtual string HomePhone { get; set; }
 
         [ProtoMember(11)]
         [DataMember]
-        public string LastName;
+        [Index(10)]
+        public virtual string LastName { get; set; }
 
         [ProtoMember(12)]
         [DataMember]
-        public MaritalStatus MaritalStatus;
+        [Index(11)]
+        public virtual MaritalStatus MaritalStatus { get; set; }
 
         [ProtoMember(13)]
         [DataMember]
-        public string MiddleName;
+        [Index(12)]
+        public virtual string MiddleName { get; set; }
 
         [ProtoMember(14)]
         [DataMember]
-        public string MobilePhone;
+        [Index(13)]
+        public virtual string MobilePhone { get; set; }
 
         [ProtoMember(15)]
         [DataMember]
-        public bool RegisteredToVote;
+        [Index(14)]
+        public virtual bool RegisteredToVote { get; set; }
 
         [ProtoMember(16)]
         [DataMember]
-        public decimal Salary;
+        [Index(15)]
+        public virtual decimal Salary { get; set; }
 
         [ProtoMember(17)]
         [DataMember]
-        public int YearsOfService;
+        [Index(16)]
+        public virtual int YearsOfService { get; set; }
 
 
 
         [ProtoMember(18)]
         [DataMember]
-        public string SkypeID;
+        [Index(17)]
+        public virtual string SkypeID { get; set; }
         [ProtoMember(19)]
         [DataMember]
-        public string YahooID;
+        [Index(18)]
+        public virtual string YahooID { get; set; }
         [ProtoMember(20)]
         [DataMember]
-        public string GoogleID;
+        [Index(19)]
+        public virtual string GoogleID { get; set; }
 
         [ProtoMember(21)]
         [DataMember]
-        public string Notes;
+        [Index(20)]
+        public virtual string Notes { get; set; }
 
         [ProtoMember(22)]
         [DataMember]
-        public bool? IsSmoker;
+        [Index(21)]
+        public virtual bool? IsSmoker { get; set; }
         [ProtoMember(23)]
         [DataMember]
-        public bool? IsLoving;
+        [Index(22)]
+        public virtual bool? IsLoving { get; set; }
         [ProtoMember(24)]
         [DataMember]
-        public bool? IsLoved;
+        [Index(23)]
+        public virtual bool? IsLoved { get; set; }
         [ProtoMember(25)]
         [DataMember]
-        public bool? IsDangerous;
+        [Index(24)]
+        public virtual bool? IsDangerous { get; set; }
         [ProtoMember(26)]
         [DataMember]
-        public bool? IsEducated;
+        [Index(25)]
+        public virtual bool? IsEducated { get; set; }
         [ProtoMember(27)]
         [DataMember]
-        public DateTime? LastSmokingDate;
+        [Index(26)]
+        public virtual DateTime? LastSmokingDate { get; set; }
 
         [ProtoMember(28)]
         [DataMember]
-        public decimal? DesiredSalary;
+        [Index(27)]
+        public virtual decimal? DesiredSalary { get; set; }
         [ProtoMember(29)]
         [DataMember]
-        public double? ProbabilityOfSpaceFlight;
+        [Index(28)]
+        public virtual double? ProbabilityOfSpaceFlight { get; set; }
 
         [ProtoMember(30)]
         [DataMember]
-        public int? CurrentFriendCount;
+        [Index(29)]
+        public virtual int? CurrentFriendCount { get; set; }
         [ProtoMember(31)]
         [DataMember]
-        public int? DesiredFriendCount;
+        [Index(30)]
+        public virtual int? DesiredFriendCount { get; set; }
 
 
         private static int counter;
@@ -156,7 +189,7 @@ namespace Wire.PerfTest.Types
             var data = new TypicalPersonData
             {
                 FirstName = NaturalTextGenerator.GenerateFirstName(),
-                MiddleName =NaturalTextGenerator.GenerateFirstName(),
+                MiddleName = NaturalTextGenerator.GenerateFirstName(),
                 LastName = NaturalTextGenerator.GenerateLastName(),
                 DOB = DateTime.Now.AddYears(5),
                 Salary = 55435345,

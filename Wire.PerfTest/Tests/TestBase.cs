@@ -15,29 +15,6 @@ using ZeroFormatter.Segments;
 
 namespace Wire.PerfTest.Tests
 {
-
-    public class GuidFormatter : Formatter<Guid>
-    {
-        public override int? GetLength()
-        {
-            // If size is fixed, return fixed size.
-            return 16;
-        }
-
-        public override int Serialize(ref byte[] bytes, int offset, Guid value)
-        {
-            // BinaryUtil is helpers of byte[] operation 
-            return BinaryUtil.WriteBytes(ref bytes, offset, value.ToByteArray());
-        }
-
-        public override Guid Deserialize(ref byte[] bytes, int offset, DirtyTracker tracker, out int byteSize)
-        {
-            byteSize = 16;
-            var guidBytes = BinaryUtil.ReadBytes(ref bytes, offset, 16);
-            return new Guid(guidBytes);
-        }
-    }
-
     class TestResult
     {
         public string TestName { get; set; }
@@ -62,7 +39,6 @@ namespace Wire.PerfTest.Tests
 
         public void Run(int repeat)
         {
-            ZeroFormatter.Formatters.Formatter<Guid>.Register(new GuidFormatter());
             Repeat = repeat;
             Value = GetValue();
             Console.WriteLine();
@@ -111,15 +87,15 @@ namespace Wire.PerfTest.Tests
             SerializeKnownTypesReuseSession();
             SerializeKnownTypes();
             SerializeDefault();
-            //SerializeVersionTolerant();
-            //SerializeVersionPreserveObjects();
-            //SerializeNFXSlim();
-            //SerializeNFXSlimPreregister();
-            //SerializeSSText();
-            //SerializeNetSerializer();
-            //SerializeProtoBufNet();
-            //SerializeJsonNet();
-            //SerializeBinaryFormatter();
+            SerializeVersionTolerant();
+            SerializeVersionPreserveObjects();
+            SerializeNFXSlim();
+            SerializeNFXSlimPreregister();
+            SerializeSSText();
+            SerializeNetSerializer();
+            SerializeProtoBufNet();
+            SerializeJsonNet();
+            SerializeBinaryFormatter();
         }
 
         private void SaveTestResult(string testName, IEnumerable<TestResult> result )
@@ -174,6 +150,9 @@ namespace Wire.PerfTest.Tests
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"{testName}");
                 Console.ForegroundColor = tmp;
+
+                GC.Collect(2, GCCollectionMode.Forced, true);
+
                 var sw = Stopwatch.StartNew();
                 for (var i = 0; i < Repeat; i++)
                 {
@@ -182,6 +161,9 @@ namespace Wire.PerfTest.Tests
                 sw.Stop();
                
                 Console.WriteLine($"   {"Serialize".PadRight(30, ' ')} {sw.ElapsedMilliseconds} ms");
+
+                GC.Collect(2, GCCollectionMode.Forced, true);
+
                 var sw2 = Stopwatch.StartNew();
                 for (var i = 0; i < Repeat; i++)
                 {
