@@ -8,14 +8,12 @@ using System.Text;
 using Newtonsoft.Json;
 using NFX.IO;
 using NFX.Serialization.Slim;
+using ServiceStack.Text;
 using ZeroFormatter;
-using ZeroFormatter.Formatters;
-using ZeroFormatter.Internal;
-using ZeroFormatter.Segments;
 
 namespace Wire.PerfTest.Tests
 {
-    class TestResult
+    internal class TestResult
     {
         public string TestName { get; set; }
         public TimeSpan SerializationTime { get; set; }
@@ -23,17 +21,15 @@ namespace Wire.PerfTest.Tests
         public TimeSpan RoundtripTime => SerializationTime + DeserializationTime;
         public int PayloadSize { get; set; }
         public bool Success { get; set; }
-
     }
 
     //Commented out serializers fail in different ways, throw or produce no output
 
     internal abstract class TestBase<T>
     {
+        private readonly List<TestResult> _results = new List<TestResult>();
         protected int Repeat;
         protected T Value;
-
-        private readonly List<TestResult> _results = new List<TestResult>();
 
         protected abstract T GetValue();
 
@@ -69,10 +65,14 @@ namespace Wire.PerfTest.Tests
             var fastestRoundtrip = _results.OrderBy(r => r.SerializationTime + r.DeserializationTime).First();
             var smallestPayload = _results.OrderBy(r => r.PayloadSize).First();
 
-            Console.WriteLine($"* **Fastest Serializer**: {fastestSerializer.TestName} - {(long)fastestSerializer.SerializationTime.TotalMilliseconds} ms");
-            Console.WriteLine($"* **Fastest Deserializer**: {fastestDeserializer.TestName} - {(long)fastestDeserializer.DeserializationTime.TotalMilliseconds} ms");
-            Console.WriteLine($"* **Fastest Roundtrip**: {fastestRoundtrip.TestName} - {(long)fastestRoundtrip.RoundtripTime.TotalMilliseconds} ms");
-            Console.WriteLine($"* **Smallest Payload**: {smallestPayload.TestName} - {smallestPayload.PayloadSize} bytes");
+            Console.WriteLine(
+                $"* **Fastest Serializer**: {fastestSerializer.TestName} - {(long) fastestSerializer.SerializationTime.TotalMilliseconds} ms");
+            Console.WriteLine(
+                $"* **Fastest Deserializer**: {fastestDeserializer.TestName} - {(long) fastestDeserializer.DeserializationTime.TotalMilliseconds} ms");
+            Console.WriteLine(
+                $"* **Fastest Roundtrip**: {fastestRoundtrip.TestName} - {(long) fastestRoundtrip.RoundtripTime.TotalMilliseconds} ms");
+            Console.WriteLine(
+                $"* **Smallest Payload**: {smallestPayload.TestName} - {smallestPayload.PayloadSize} bytes");
 
             SaveTestResult($"{testName}_roundtrip", _results.OrderBy(r => r.RoundtripTime.TotalMilliseconds));
             SaveTestResult($"{testName}_serialize", _results.OrderBy(r => r.SerializationTime.TotalMilliseconds));
@@ -98,7 +98,7 @@ namespace Wire.PerfTest.Tests
             SerializeBinaryFormatter();
         }
 
-        private void SaveTestResult(string testName, IEnumerable<TestResult> result )
+        private void SaveTestResult(string testName, IEnumerable<TestResult> result)
         {
             var sb = new StringBuilder();
             sb.AppendLine($"## {testName}");
@@ -107,11 +107,10 @@ namespace Wire.PerfTest.Tests
             foreach (var row in result)
             {
                 sb.AppendLine(
-                    $"{row.TestName} | {(long)row.RoundtripTime.TotalMilliseconds} | {(long) row.SerializationTime.TotalMilliseconds} | {(long) row.DeserializationTime.TotalMilliseconds} | {row.PayloadSize}");
+                    $"{row.TestName} | {(long) row.RoundtripTime.TotalMilliseconds} | {(long) row.SerializationTime.TotalMilliseconds} | {(long) row.DeserializationTime.TotalMilliseconds} | {row.PayloadSize}");
             }
             var file = testName + ".txt";
             File.WriteAllText(file, sb.ToString());
-
         }
 
         //private void SerializeNetJson()
@@ -136,10 +135,8 @@ namespace Wire.PerfTest.Tests
                 //PreserveReferencesHandling = PreserveReferencesHandling.All
             };
             var data = JsonConvert.SerializeObject(Value, settings);
-            RunTest("Json.NET", () => { JsonConvert.SerializeObject(Value, settings); }, () =>
-            {
-                JsonConvert.DeserializeObject(data, settings);
-            }, Encoding.UTF8.GetBytes(data).Length);
+            RunTest("Json.NET", () => { JsonConvert.SerializeObject(Value, settings); },
+                () => { JsonConvert.DeserializeObject(data, settings); }, Encoding.UTF8.GetBytes(data).Length);
         }
 
         protected void RunTest(string testName, Action serialize, Action deserialize, int size)
@@ -159,7 +156,7 @@ namespace Wire.PerfTest.Tests
                     serialize();
                 }
                 sw.Stop();
-               
+
                 Console.WriteLine($"   {"Serialize".PadRight(30, ' ')} {sw.ElapsedMilliseconds} ms");
 
                 GC.Collect(2, GCCollectionMode.Forced, true);
@@ -170,12 +167,12 @@ namespace Wire.PerfTest.Tests
                     deserialize();
                 }
                 sw2.Stop();
-              
+
                 Console.WriteLine($"   {"Deserialize".PadRight(30, ' ')} {sw2.ElapsedMilliseconds} ms");
                 Console.WriteLine($"   {"Size".PadRight(30, ' ')} {size} bytes");
                 Console.WriteLine(
                     $"   {"Total".PadRight(30, ' ')} {sw.ElapsedMilliseconds + sw2.ElapsedMilliseconds} ms");
-                var testResult = new TestResult()
+                var testResult = new TestResult
                 {
                     TestName = testName,
                     DeserializationTime = sw2.Elapsed,
@@ -224,11 +221,11 @@ namespace Wire.PerfTest.Tests
             var s = new MemoryStream();
             var serializer = new SlimSerializer();
             serializer.TypeMode = TypeRegistryMode.Batch;
-            serializer.Serialize(s, Value);//Serialize 1st in batch
+            serializer.Serialize(s, Value); //Serialize 1st in batch
 
             var deserializer = new SlimSerializer();
             deserializer.TypeMode = TypeRegistryMode.Batch;
-            s.Position = 0;  //Deserialize first in batch
+            s.Position = 0; //Deserialize first in batch
             deserializer.Deserialize(s);
 
             s = new MemoryStream(); //serialize subsequent in batch
@@ -250,17 +247,12 @@ namespace Wire.PerfTest.Tests
 
         private void SerializeSSText()
         {
-            var serializer = new ServiceStack.Text.TypeSerializer<T>();
+            var serializer = new TypeSerializer<T>();
             var text = serializer.SerializeToString(Value);
             var bytes = Encoding.UTF8.GetBytes(text);
 
-            RunTest("ServiceStack.Text", () =>
-            {
-                serializer.SerializeToString(Value);
-            }, () =>
-            {
-                serializer.DeserializeFromString(text);
-            }, bytes.Length);
+            RunTest("ServiceStack.Text", () => { serializer.SerializeToString(Value); },
+                () => { serializer.DeserializeFromString(text); }, bytes.Length);
         }
 
         private void SerializeNFXSlim()
@@ -348,58 +340,48 @@ namespace Wire.PerfTest.Tests
 
         private void SerializeZeroFormatter()
         {
-            var bytes = ZeroFormatter.ZeroFormatterSerializer.Serialize(Value);
-            RunTest("ZeroFormatter", () =>
-            {
-                ZeroFormatter.ZeroFormatterSerializer.Serialize(Value);
-            }, () =>
-            {
-                ZeroFormatter.ZeroFormatterSerializer.Deserialize<T>(bytes);
-            }, bytes.Length);
+            var bytes = ZeroFormatterSerializer.Serialize(Value);
+            RunTest("ZeroFormatter", () => { ZeroFormatterSerializer.Serialize(Value); },
+                () => { ZeroFormatterSerializer.Deserialize<T>(bytes); }, bytes.Length);
         }
 
         private void SerializeZeroFormatterWithPooling()
         {
-            var bytes = ZeroFormatter.ZeroFormatterSerializer.Serialize(Value);
-            RunTest("ZeroFormatterWithPooling", () =>
-            {
-                ZeroFormatter.ZeroFormatterSerializer.Serialize(ref bytes, 0, Value);
-            }, () =>
-            {
-                ZeroFormatter.ZeroFormatterSerializer.Deserialize<T>(bytes);
-            }, bytes.Length);
+            var bytes = ZeroFormatterSerializer.Serialize(Value);
+            RunTest("ZeroFormatterWithPooling", () => { ZeroFormatterSerializer.Serialize(ref bytes, 0, Value); },
+                () => { ZeroFormatterSerializer.Deserialize<T>(bytes); }, bytes.Length);
         }
 
 
         private void SerializeKnownTypesReuseSession()
         {
-            var types = typeof(T).Namespace.StartsWith("System") ? null : new[] { typeof(T) };
+            var types = typeof(T).Namespace.StartsWith("System") ? null : new[] {typeof(T)};
             var serializer = new Serializer(new SerializerOptions(knownTypes: types));
             var ss = serializer.GetSerializerSession();
             var ds = serializer.GetDeserializerSession();
             var s = new MemoryStream();
-            serializer.Serialize(Value, s,ss);
+            serializer.Serialize(Value, s, ss);
             var bytes = s.ToArray();
-            
+
             RunTest("Wire - KnownTypes + Reuse Sessions", () =>
             {
                 var stream = new MemoryStream();
-                serializer.Serialize(Value, stream,ss);
+                serializer.Serialize(Value, stream, ss);
             }, () =>
             {
                 s.Position = 0;
-                serializer.Deserialize<T>(s,ds);
+                serializer.Deserialize<T>(s, ds);
             }, bytes.Length);
         }
 
         private void SerializeKnownTypes()
         {
-            var types = typeof(T).Namespace.StartsWith("System")? null: new[] {typeof(T)};
+            var types = typeof(T).Namespace.StartsWith("System") ? null : new[] {typeof(T)};
             var serializer = new Serializer(new SerializerOptions(knownTypes: types));
             var s = new MemoryStream();
             serializer.Serialize(Value, s);
             var bytes = s.ToArray();
-            
+
             RunTest("Wire - KnownTypes", () =>
             {
                 var stream = new MemoryStream();
@@ -465,7 +447,7 @@ namespace Wire.PerfTest.Tests
         }
     }
 
-    abstract class CustomSerializerTestBase<T> : TestBase<T>
+    internal abstract class CustomSerializerTestBase<T> : TestBase<T>
     {
         protected override void TestAll()
         {
