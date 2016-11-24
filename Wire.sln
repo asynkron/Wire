@@ -13,6 +13,14 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Wire.FSharpTestTypes", "Wir
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire.PerformanceTests", "Wire.PerformanceTests\Wire.PerformanceTests.csproj", "{19E9324E-C3E9-4751-8B8F-5A456CA98E8C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{2F3D4EC4-3A41-48C2-9DEA-0510B0FF89B4}"
+	ProjectSection(SolutionItems) = preProject
+		build.cmd = build.cmd
+		build.fsx = build.fsx
+		build.sh = build.sh
+		RELEASE_NOTES.md = RELEASE_NOTES.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
