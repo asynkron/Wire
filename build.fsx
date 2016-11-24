@@ -232,6 +232,39 @@ Target "RunTests" <| fun _ ->
         testAssemblies
  
 //--------------------------------------------------------------------------------
+// NBench targets 
+//--------------------------------------------------------------------------------
+Target "NBench" <| fun _ ->
+    let testSearchPath = !! (root @@ "**/bin/Release/Wire.Tests.Performance.dll")
+
+    mkdir perfOutput
+    let nbenchTestPath = findToolInSubPath "NBench.Runner.exe" (root @@ "packges/NBench.Runner*")
+    printfn "Using NBench.Runner: %s" nbenchTestPath
+
+    let runNBench assembly =
+        let spec = getBuildParam "spec"
+
+        let args = new StringBuilder()
+                |> append assembly
+                |> append (sprintf "output-directory=\"%s\"" perfOutput)
+                |> append (sprintf "concurrent=\"%b\"" true)
+                |> append (sprintf "trace=\"%b\"" true)
+                |> toText
+
+        let result = ExecProcess(fun info -> 
+            info.FileName <- nbenchTestPath
+            info.WorkingDirectory <- (Path.GetDirectoryName (FullName nbenchTestPath))
+            info.Arguments <- args) (System.TimeSpan.FromMinutes 15.0) (* Reasonably long-running task. *)
+        if result <> 0 then failwithf "NBench.Runner failed. %s %s" nbenchTestPath args
+    
+    testSearchPath |> Seq.iter runNBench
+
+//--------------------------------------------------------------------------------
+// Clean NBench output
+Target "CleanPerf" <| fun _ ->
+    DeleteDir perfOutput
+
+//--------------------------------------------------------------------------------
 // Nuget targets 
 //--------------------------------------------------------------------------------
 
@@ -440,6 +473,9 @@ Target "HelpNuget" <| fun _ ->
 // tests dependencies
 "CleanTests" ==> "RunTests"
 
+// benchmark dependencies
+"CleanPerf" ==> "NBench"
+
 // nuget dependencies
 "CleanNuget" ==> "CreateNuget"
 "CleanNuget" ==> "BuildRelease" ==> "Nuget"
@@ -447,6 +483,7 @@ Target "HelpNuget" <| fun _ ->
 Target "All" DoNothing
 "BuildRelease" ==> "All"
 "RunTests" ==> "All"
+"NBench" ==> "All"
 "Nuget" ==> "All"
 
 RunTargetOrDefault "Help"
