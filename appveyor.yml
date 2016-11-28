@@ -1,0 +1,25 @@
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
+# version format
+version: 0.9.{build}
+
+# Maximum number of concurrent jobs for the project
+max_jobs: 1
+
+# disable patching of AssemblyInfo.* files
+assembly_info:
+  patch: false
+
+# Build worker image (VM template)
+image: Visual Studio 2015
+
+# to run your custom scripts instead of automatic MSBuild
+build_script: ./build.cmd all
+
+#---------------------------------#
+#       tests configuration       #
+#---------------------------------#
+
+test: off

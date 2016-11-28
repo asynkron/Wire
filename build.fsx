@@ -228,7 +228,13 @@ Target "RunTests" <| fun _ ->
 
     printfn "Using XUnit runner: %s" xunitToolPath
     xUnit2
-        (fun p -> { p with XmlOutputPath = Some (testOutput + @"\XUnitTestResults.xml"); HtmlOutputPath = Some (testOutput + @"\XUnitTestResults.HTML"); ToolPath = xunitToolPath; TimeOut = System.TimeSpan.FromMinutes 30.0; Parallel = ParallelMode.NoParallelization })
+        (fun p -> 
+            { p with 
+                XmlOutputPath = Some (testOutput + @"\XUnitTestResults.xml"); 
+                HtmlOutputPath = Some (testOutput + @"\XUnitTestResults.HTML"); 
+                ToolPath = xunitToolPath; 
+                TimeOut = System.TimeSpan.FromMinutes 30.0; 
+                Parallel = ParallelMode.NoParallelization; })
         testAssemblies
  
 //--------------------------------------------------------------------------------
@@ -393,9 +399,7 @@ let publishNugetPackages _ =
                     printfn "%s" exn.Message
 
 
-Target "Nuget" <| fun _ -> 
-    createNugetPackages()
-    publishNugetPackages()
+Target "Nuget" <| fun _ -> ()
 
 Target "CreateNuget" <| fun _ -> 
     createNugetPackages()
@@ -478,12 +482,14 @@ Target "HelpNuget" <| fun _ ->
 
 // nuget dependencies
 "CleanNuget" ==> "CreateNuget"
-"CleanNuget" ==> "BuildRelease" ==> "Nuget"
+"CleanNuget" ==> "BuildRelease" ==> "CreateNuget"
+"CreateNuget" ==> "Nuget"
+"PublishNuget" ==> "Nuget"
 
 Target "All" DoNothing
 "BuildRelease" ==> "All"
 "RunTests" ==> "All"
 "NBench" ==> "All"
-"Nuget" ==> "All"
+"CreateNuget" ==> "All"
 
 RunTargetOrDefault "Help"
