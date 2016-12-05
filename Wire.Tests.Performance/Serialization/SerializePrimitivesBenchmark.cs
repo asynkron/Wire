@@ -9,9 +9,11 @@ namespace Wire.Tests.Performance.Serialization
 {
     public class SerializePrimitivesBenchmark : PerfTestBase
     {
+        #if !NBENCH
         public SerializePrimitivesBenchmark(ITestOutputHelper output) : base(output)
         {
         }
+        #endif
 
         [NBenchFact]
         [PerfBenchmark(
@@ -20,7 +22,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 5300000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 3000000)]
         public void Serialize_Byte()
         {
             SerializeAndCount((byte)123);
@@ -33,7 +35,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 4300000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2400000)]
         public void Serialize_Int16()
         {
             SerializeAndCount((short)123);
@@ -46,7 +48,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 4100000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2300000)]
         public void Serialize_Int32()
         {
             SerializeAndCount((int)123);
@@ -59,7 +61,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 3900000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2200000)]
         public void Serialize_Int64()
         {
             SerializeAndCount((long)123);
@@ -72,7 +74,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 5500000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 3000000)]
         public void Serialize_SByte()
         {
             SerializeAndCount((sbyte)123);
@@ -85,7 +87,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 4150000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2300000)]
         public void Serialize_UInt16()
         {
             SerializeAndCount((ushort)123);
@@ -98,7 +100,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 4000000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2100000)]
         public void Serialize_UInt32()
         {
             SerializeAndCount((uint)123);
@@ -111,7 +113,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 3800000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2100000)]
         public void Serialize_UInt64()
         {
             SerializeAndCount((ulong)123);
@@ -124,7 +126,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 4800000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2100000)]
         public void Serialize_Boolean()
         {
             SerializeAndCount(true);
@@ -137,7 +139,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 4100000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2200000)]
         public void Serialize_Single()
         {
             SerializeAndCount((float)123.56);
@@ -150,7 +152,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 4000000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2200000)]
         public void Serialize_Double()
         {
             SerializeAndCount((double)123.56);
@@ -163,7 +165,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2500000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 1400000)]
         public void Serialize_Decimal()
         {
             SerializeAndCount((decimal)123.56);
@@ -176,7 +178,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 1400000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 800000)]
         public void Serialize_String()
         {
             var x = new string('x', 100);
@@ -190,7 +192,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2500000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 1500000)]
         public void Serialize_Guid()
         {
             SerializeAndCount(Guid.NewGuid());
@@ -203,7 +205,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 3500000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2000000)]
         public void Serialize_DateTime()
         {
             SerializeAndCount(DateTime.UtcNow);
@@ -216,7 +218,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2100000)] //FIXME: why is this so slower than DateTime?
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 1300000)] //FIXME: why is this so slower than DateTime?
         public void Serialize_TimeSpan()
         {
             SerializeAndCount(DateTime.UtcNow.TimeOfDay);
@@ -229,7 +231,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2100000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 1300000)]
         public void Serialize_Tuple1()
         {
             SerializeAndCount(Tuple.Create(123));
@@ -242,7 +244,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 2000000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 1100000)]
         public void Serialize_Tuple2()
         {
             SerializeAndCount(Tuple.Create(123, true));
@@ -255,7 +257,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 1300000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 900000)]
         public void Serialize_Tuple3()
         {
             SerializeAndCount(Tuple.Create(123, true, "x"));
@@ -268,7 +270,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 1200000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 720000)]
         public void Serialize_Tuple4()
         {
             SerializeAndCount(Tuple.Create(123, true, "x", 123.3f));
@@ -281,7 +283,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 900000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 570000)]
         public void Serialize_Tuple5()
         {
             SerializeAndCount(Tuple.Create(123, true, "x", 123.3f, "asdasdac"));
@@ -294,7 +296,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 900000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 500000)]
         public void Serialize_Tuple6()
         {
             SerializeAndCount(Tuple.Create(123, true, "x", 123.3f, "asdasdac", false));
@@ -307,7 +309,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 800000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 500000)]
         public void Serialize_Tuple7()
         {
             SerializeAndCount(Tuple.Create(123, true, "x", 123.3f, "asdasdac", false, (byte)0xf));
@@ -320,7 +322,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 630000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 350000)]
         public void Serialize_Tuple8()
         {
             SerializeAndCount(Tuple.Create(123, true, "x", 123.3f, "asdasdac", false, (byte)0xf, 1234));
@@ -333,7 +335,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 850000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 500000)]
         public void Serialize_Type()
         {
             SerializeAndCount(typeof(int));

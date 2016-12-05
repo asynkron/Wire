@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using NBench;
+using NBench.Sdk;
 using Pro.NBench.xUnit.XunitExtensions;
 using Xunit.Abstractions;
 
@@ -29,6 +30,7 @@ namespace Wire.Tests.Performance
         protected PerfTestBase(SerializerOptions options = null)
         {
             this.options = options;
+            new TestRunner(null).SetProcessPriority(concurrent: false);
         }
 
         protected PerfTestBase(ITestOutputHelper output, SerializerOptions options = null)

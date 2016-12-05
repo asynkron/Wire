@@ -10,11 +10,13 @@ namespace Wire.Tests.Performance.Serialization
         private LargeStruct _testStruct;
         private TypicalPersonData _testObject;
         private CyclicA _cyclic;
-        
+
+        #if !NBENCH
         public SerializeComplexObjectsBenchmark(ITestOutputHelper output) 
             : base(output, new SerializerOptions(versionTolerance: false, preserveObjectReferences: true))
         {
         }
+        #endif
 
         public override void Setup(BenchmarkContext context)
         {
@@ -37,7 +39,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 1600000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 900000)]
         public void Serialize_Struct()
         {
             SerializeAndCount(_testStruct);
@@ -50,12 +52,13 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 230000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 120000)]
         public void Serialize_LargeObject()
         {
             SerializeAndCount(_testObject);
         }
 
+        //TODO: PerfBenchmark.Skip doesn't work
         [NBenchFact(Skip = "FIXME: stack overflow")]
         [PerfBenchmark(
             Description = "Benchmark cyclic reference serialization",

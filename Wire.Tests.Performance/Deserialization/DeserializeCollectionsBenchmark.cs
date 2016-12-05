@@ -5,16 +5,11 @@ using Xunit.Abstractions;
 
 namespace Wire.Tests.Performance.Deserialization
 {
-    public sealed class ByteArrayDeserializationBenchmark : PerfTestBase
+    public class ByteArrayDeserializationBenchmark : PerfTestBase
     {
-        public ByteArrayDeserializationBenchmark(ITestOutputHelper output)
-            : base(output) { }
-
-        public override void Setup(BenchmarkContext context)
-        {
-            base.Setup(context);
-            InitStreamWith(new byte[] { 123, 134, 11, 122, 1 });
-        }
+#if !NBENCH
+        public ByteArrayDeserializationBenchmark(ITestOutputHelper output) : base(output) { }
+#endif
 
         [NBenchFact]
         [PerfBenchmark(
@@ -27,14 +22,17 @@ namespace Wire.Tests.Performance.Deserialization
         [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 1600000)]
         public void Deserialize_ByteArray()
         {
+            InitStreamWith(new byte[] { 123, 134, 11, 122, 1 });
             DeserializeAndCount<byte[]>();
         }
     }
 
     public sealed class StringArrayDeserializationBenchmark : PerfTestBase
     {
+#if !NBENCH
         public StringArrayDeserializationBenchmark(ITestOutputHelper output)
            : base(output) { }
+#endif
 
         public override void Setup(BenchmarkContext context)
         {
@@ -59,9 +57,10 @@ namespace Wire.Tests.Performance.Deserialization
 
     public sealed class DictionaryDeserializationBenchmark : PerfTestBase
     {
-        public DictionaryDeserializationBenchmark(ITestOutputHelper output)
-           : base(output)
+#if !NBENCH
+        public DictionaryDeserializationBenchmark(ITestOutputHelper output) : base(output)
         { }
+#endif
 
         public override void Setup(BenchmarkContext context)
         {
@@ -91,9 +90,10 @@ namespace Wire.Tests.Performance.Deserialization
 
     public sealed class ListDeserializationBenchmark : PerfTestBase
     {
-        public ListDeserializationBenchmark(ITestOutputHelper output)
-           : base(output)
+#if !NBENCH
+        public ListDeserializationBenchmark(ITestOutputHelper output) : base(output)
         { }
+#endif
 
         public override void Setup(BenchmarkContext context)
         {
@@ -118,9 +118,10 @@ namespace Wire.Tests.Performance.Deserialization
 
     public sealed class LinkedListDeserializationBenchmark : PerfTestBase
     {
-        public LinkedListDeserializationBenchmark(ITestOutputHelper output)
-           : base(output)
+#if !NBENCH
+        public LinkedListDeserializationBenchmark(ITestOutputHelper output) : base(output)
         { }
+#endif
 
         public override void Setup(BenchmarkContext context)
         {
@@ -145,9 +146,10 @@ namespace Wire.Tests.Performance.Deserialization
 
     public sealed class HashSetDeserializationBenchmark : PerfTestBase
     {
-        public HashSetDeserializationBenchmark(ITestOutputHelper output)
-           : base(output)
+#if !NBENCH
+        public HashSetDeserializationBenchmark(ITestOutputHelper output) : base(output)
         { }
+#endif
 
         public override void Setup(BenchmarkContext context)
         {
@@ -172,9 +174,10 @@ namespace Wire.Tests.Performance.Deserialization
 
     public sealed class SortedSetDeserializationBenchmark : PerfTestBase
     {
-        public SortedSetDeserializationBenchmark(ITestOutputHelper output)
-           : base(output)
+#if !NBENCH
+        public SortedSetDeserializationBenchmark(ITestOutputHelper output) : base(output)
         { }
+#endif
 
         public override void Setup(BenchmarkContext context)
         {

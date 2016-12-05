@@ -7,9 +7,11 @@ namespace Wire.Tests.Performance.Serialization
 {
     public class SerializeCollectionsBenchmark : PerfTestBase
     {
+        #if !NBENCH
         public SerializeCollectionsBenchmark(ITestOutputHelper output) : base(output)
         {
         }
+        #endif
 
         [NBenchFact]
         [PerfBenchmark(
@@ -18,7 +20,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 1600000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 1000000)]
         public void Serialize_ByteArray()
         {
             SerializeAndCount(new byte[] {123, 134, 11, 122, 1 });
@@ -31,7 +33,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 190000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 400000)]
         public void Serialize_StringArray()
         {
             SerializeAndCount(new string[] {"abc", "cbd0", "sdsd4", "4dfg", "sfsdf44g" });
@@ -44,7 +46,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 300000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 150000)]
         public void Serialize_Dictionary()
         {
             var dictionary = new Dictionary<string, string>
@@ -63,7 +65,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 510000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 250000)]
         public void Serialize_List()
         {
             SerializeAndCount(new List<string> { "asdad", "asdabs3", "sfsdf44g", "asdf4r", "sfsdf44g" });
@@ -76,7 +78,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 150000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 90000)]
         public void Serialize_LinkedList()
         {
             var list = new LinkedList<string>(new [] { "asdad", "asdabs3", "dfsdf9", "asdf4r", "sfsdf44g" });
@@ -90,7 +92,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 1000)] //FIXME: optimize hash sets... seriously
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 620)] //FIXME: optimize hash sets... seriously
         public void Serialize_HashSet()
         {
             var set = new HashSet<string> { "asdad", "asdabs3", "dfsdf9", "asdf4r", "sfsdf44g" };
@@ -104,7 +106,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 100000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 55000)]
         public void Serialize_SortedSet()
         {
             var set = new SortedSet<string> { "asdad", "asdabs3", "dfsdf9", "asdf4r", "sfsdf44g" };

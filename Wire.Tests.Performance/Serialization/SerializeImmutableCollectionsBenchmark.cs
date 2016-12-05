@@ -8,9 +8,11 @@ namespace Wire.Tests.Performance.Serialization
 {
     public class SerializeImmutableCollectionsBenchmark : PerfTestBase
     {
+        #if !NBENCH
         public SerializeImmutableCollectionsBenchmark(ITestOutputHelper output) : base(output)
         {
         }
+        #endif
 
         [NBenchFact]
         [PerfBenchmark(
@@ -19,7 +21,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 500000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 300000)]
         public void Serialize_ImmutableArray()
         {
             var collection = ImmutableArray.CreateRange(new[] {"abc", "cbd0", "sdsd4", "4dfg", "adafd0xd" });
@@ -33,7 +35,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 350000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 190000)]
         public void Serialize_ImmutableList()
         {
             var collection = ImmutableList.CreateRange(new[] { "abc", "cbd0", "sdsd4", "4dfg", "adafd0xd" });
@@ -47,7 +49,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 180000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 100000)]
         public void Serialize_ImmutableHashSet()
         {
             var collection = ImmutableHashSet.CreateRange(new[] { "abc", "cbd0", "sdsd4", "4dfg", "adafd0xd" });
@@ -61,7 +63,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 180000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 95000)]
         public void Serialize_ImmutableSortedSet()
         {
             var collection = ImmutableHashSet.CreateRange(new[] { "abc", "cbd0", "sdsd4", "4dfg", "adafd0xd" });
@@ -75,7 +77,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 130000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 70000)]
         public void Serialize_ImmutableDictionary()
         {
             var collection = ImmutableDictionary.CreateRange(new[]

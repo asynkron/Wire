@@ -9,9 +9,11 @@ namespace Wire.Tests.Performance.Serialization
 {
     public class SerializeFSharpTypesBenchmark : PerfTestBase
     {
+        #if !NBENCH
         public SerializeFSharpTypesBenchmark(ITestOutputHelper output) : base(output)
         {
         }
+        #endif
 
         [NBenchFact]
         [PerfBenchmark(
@@ -20,7 +22,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 900000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 500000)]
         public void Serialize_DiscriminatedUnion()
         {
             SerializeAndCount(DU2.NewC(DU1.NewB("test", 123)));
@@ -33,7 +35,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 800000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 440000)]
         public void Serialize_Record()
         {
             var record = new User(
@@ -50,7 +52,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 400)] //FIXME: F# Maps are pretty expensive
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 250)] //FIXME: F# Maps are pretty expensive
         public void Serialize_RecordWithMap()
         {
             var record = TestMap.createRecordWithMap;
@@ -64,7 +66,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 700000)] 
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 350000)] 
         public void Serialize_FSharpList()
         {
             var list = ListModule.OfArray(new[] { 123, 2342355, 456456467578, 234234, -234281 });
@@ -78,7 +80,7 @@ namespace Wire.Tests.Performance.Serialization
             RunMode = RunMode.Throughput,
             RunTimeMilliseconds = StandardRunTime,
             TestMode = TestMode.Test)]
-        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 340000)]
+        [CounterThroughputAssertion(TestCounterName, MustBe.GreaterThan, 200000)]
         public void Serialize_FSharpSet()
         {
             var set = SetModule.OfArray(new[] {123, 2342355, 456456467578, 234234, -234281});
