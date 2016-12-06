@@ -33,30 +33,20 @@ namespace Wire.SerializerFactories
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             var ser = new ObjectSerializer(type);
             typeMapping.TryAdd(type, ser);
-            var elementType = type.GetGenericArguments()[0];
+            var elementType = type.GetTypeInfo().GetGenericArguments()[0];
             var elementSerializer = serializer.GetSerializerByType(elementType);
-            var readGeneric = GetType().GetMethod(nameof(ReadHashSet), BindingFlags.NonPublic | BindingFlags.Static).MakeGenericMethod(elementType);
-            var writeGeneric = GetType().GetMethod(nameof(WriteHashSet), BindingFlags.NonPublic | BindingFlags.Static).MakeGenericMethod(elementType);
+            var readGeneric = GetType().GetTypeInfo().GetMethod(nameof(ReadHashSet), BindingFlags.NonPublic | BindingFlags.Static).MakeGenericMethod(elementType);
+            var writeGeneric = GetType().GetTypeInfo().GetMethod(nameof(WriteHashSet), BindingFlags.NonPublic | BindingFlags.Static).MakeGenericMethod(elementType);
 
             ObjectReader reader = (stream, session) =>
             {
-#pragma warning disable CS0162 // Unreachable code detected
-                var instance = Activator.CreateInstance(type);
-#pragma warning restore CS0162 // Unreachable code detected
-                if (preserveObjectReferences)
-                {
-                    session.TrackDeserializedObject(instance);
-                }
-                var res = readGeneric.Invoke(null, new object[] {stream, session, elementSerializer});
+                var res = readGeneric.Invoke(null, new object[] {stream, session, preserveObjectReferences});
                 return res;
             };
 
             ObjectWriter writer = (stream, obj, session) =>
             {
-                if (preserveObjectReferences)
-                {
-                    session.TrackSerializedObject(obj);
-                }
+
                 writeGeneric.Invoke(null, new[] {obj, stream, session,elementType, elementSerializer, preserveObjectReferences});
             };
             ser.Initialize(reader, writer);
@@ -64,10 +54,13 @@ namespace Wire.SerializerFactories
             return ser;
         }
 
-        private static HashSet<T> ReadHashSet<T>(Stream stream, DeserializerSession session,
-            ValueSerializer elementSerializer)
+        private static HashSet<T> ReadHashSet<T>(Stream stream, DeserializerSession session,bool preserveObjectReferences)
         {
             var set = new HashSet<T>();
+            if (preserveObjectReferences)
+            {
+                session.TrackDeserializedObject(set);
+            }
             var count = stream.ReadInt32(session);
             for (var i = 0; i < count; i++)
             {
@@ -78,13 +71,17 @@ namespace Wire.SerializerFactories
         }
 
         private static void WriteHashSet<T>(HashSet<T> set, Stream stream, SerializerSession session, Type elementType,
-            ValueSerializer elementSerializer, bool preserveReferences)
+            ValueSerializer elementSerializer, bool preserveObjectReferences)
         {
+            if (preserveObjectReferences)
+            {
+                session.TrackSerializedObject(set);
+            }
             // ReSharper disable once PossibleNullReferenceException
             Int32Serializer.WriteValueImpl(stream, set.Count, session);
             foreach (var item in set)
             {
-                stream.WriteObject(item,elementType,elementSerializer,preserveReferences,session);
+                stream.WriteObject(item,elementType,elementSerializer, preserveObjectReferences, session);
             }
         }
     }

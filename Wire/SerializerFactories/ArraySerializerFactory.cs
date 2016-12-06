@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Reflection;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -19,23 +20,34 @@ namespace Wire.SerializerFactories
         public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
         private static void WriteValues<T>(T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer,
-            SerializerSession session)
+            SerializerSession session, bool preserveObjectReferences)
         {
+            if (preserveObjectReferences)
+            {
+                session.TrackSerializedObject(array);
+            }
+
             Int32Serializer.WriteValueImpl(stream, array.Length, session);
-            var preserveObjectReferences = session.Serializer.Options.PreserveObjectReferences;
             foreach (var value in array)
             {
                 stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
             }
         }
 
-        private static void ReadValues<T>(int length, Stream stream, DeserializerSession session, T[] array)
+        private static object ReadValues<T>(Stream stream, DeserializerSession session, bool preserveObjectReferences)
         {
+            var length = stream.ReadInt32(session);
+            var array = new T[length];
+            if (preserveObjectReferences)
+            {
+                session.TrackDeserializedObject(array);
+            }
             for (var i = 0; i < length; i++)
             {
                 var value = (T) stream.ReadObject(session);
                 array[i] = value;
             }
+            return array;
         }
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
@@ -46,28 +58,21 @@ namespace Wire.SerializerFactories
             var elementType = type.GetElementType();
             var elementSerializer = serializer.GetSerializerByType(elementType);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
-            //TODO: code gen this part
+
+            var readGeneric = GetType().GetTypeInfo().GetMethod(nameof(ReadValues), BindingFlags.NonPublic | BindingFlags.Static).MakeGenericMethod(elementType);
+            var writeGeneric = GetType().GetTypeInfo().GetMethod(nameof(WriteValues), BindingFlags.NonPublic | BindingFlags.Static).MakeGenericMethod(elementType);
+
+
             ObjectReader reader = (stream, session) =>
             {
-                var length = stream.ReadInt32(session);
-                var array = Array.CreateInstance(elementType, length); //create the array
-                if (preserveObjectReferences)
-                {
-                    session.TrackDeserializedObject(array);
-                }
-
-                ReadValues(length, stream, session, (dynamic) array);
-
-                return array;
+                //Stream stream, DeserializerSession session, bool preserveObjectReferences
+                var res = readGeneric.Invoke(null, new object[] {stream, session, preserveObjectReferences});
+                return res;
             };
             ObjectWriter writer = (stream, arr, session) =>
             {
-                if (preserveObjectReferences)
-                {
-                    session.TrackSerializedObject(arr);
-                }
-
-                WriteValues((dynamic) arr, stream, elementType, elementSerializer, session);
+                //T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer, SerializerSession session, bool preserveObjectReferences
+                writeGeneric.Invoke(null, new[] {arr, stream, elementType, elementSerializer, session, preserveObjectReferences});
             };
             arraySerializer.Initialize(reader, writer);
             typeMapping.TryAdd(type, arraySerializer);
