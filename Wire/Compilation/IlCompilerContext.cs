@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="IlCompilerContext.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -39,6 +45,7 @@ namespace Wire.Compilation
     {
         private readonly ILGenerator _il;
         private readonly StringBuilder _sb = new StringBuilder();
+
         public IlEmitter(ILGenerator il)
         {
             _il = il;
@@ -55,10 +62,10 @@ namespace Wire.Compilation
             _il.Emit(opcode);
         }
 
-        public void Emit(OpCode opcode,FieldInfo field)
+        public void Emit(OpCode opcode, FieldInfo field)
         {
             _sb.AppendLine($"{opcode} field {field}");
-            _il.Emit(opcode,field);
+            _il.Emit(opcode, field);
         }
 
         public void Emit(OpCode opcode, ConstructorInfo ctor)

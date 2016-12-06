@@ -1,4 +1,10 @@
-﻿using System.Reflection;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="AssemblyInfo.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 
@@ -40,6 +46,7 @@ using System.Security;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
 #if UNSAFE
+
 [assembly: AllowPartiallyTrustedCallers]
 [assembly: SecurityTransparent]
 [assembly: SecurityRules(SecurityRuleSet.Level1, SkipVerificationInFullTrust = true)]

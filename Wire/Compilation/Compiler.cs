@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="Compiler.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +42,7 @@ namespace Wire.Compilation
             return _expressions.Count - 1;
         }
 
-        public int Variable(string name,Type type)
+        public int Variable(string name, Type type)
         {
             var exp = Expression.Variable(type, name);
             _variables.Add(exp);
@@ -134,16 +140,6 @@ namespace Wire.Compilation
             return _expressions.Count - 1;
         }
 
-        public Expression ToBlock()
-        {
-            if (!_content.Any())
-            {
-                _content.Add(Expression.Empty());
-            }
-
-            return Expression.Block(_variables.ToArray(), _content);
-        }
-
         public TDel Compile()
         {
             var body = ToBlock();
@@ -181,6 +177,16 @@ namespace Wire.Compilation
             var conv = (Expression) Expression.Convert(valueExp, type);
             _expressions.Add(conv);
             return _expressions.Count - 1;
+        }
+
+        public Expression ToBlock()
+        {
+            if (!_content.Any())
+            {
+                _content.Add(Expression.Empty());
+            }
+
+            return Expression.Block(_variables.ToArray(), _content);
         }
     }
 }

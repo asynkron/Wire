@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="IlExpression.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using Wire.Extensions;
@@ -33,13 +39,14 @@ namespace Wire.Compilation
     public class IlRuntimeConstant : IlExpression
     {
         private readonly object _object;
-        public int Index { get; }
 
         public IlRuntimeConstant(object value, int index)
         {
             _object = value;
             Index = index;
         }
+
+        public int Index { get; }
 
         public override void Emit(IlCompilerContext ctx)
         {
@@ -75,8 +82,8 @@ namespace Wire.Compilation
 
     public class IlWriteVariable : IlExpression
     {
-        private readonly IlVariable _variable;
         private readonly IlExpression _value;
+        private readonly IlVariable _variable;
 
         public IlWriteVariable(IlVariable variable, IlExpression value)
         {
@@ -146,8 +153,6 @@ namespace Wire.Compilation
 
     public class IlParameter : IlExpression
     {
-        public string Name { get; }
-        public int ParameterIndex { get; }
         private readonly Type _type;
 
         public IlParameter(int parameterIndex, Type type, string name)
@@ -156,6 +161,9 @@ namespace Wire.Compilation
             ParameterIndex = parameterIndex;
             _type = type;
         }
+
+        public string Name { get; }
+        public int ParameterIndex { get; }
 
         public override void Emit(IlCompilerContext ctx)
         {
@@ -168,16 +176,16 @@ namespace Wire.Compilation
 
     public class IlVariable : IlExpression
     {
-        public int VariableIndex { get; }
-        public string Name { get; }
-        public Type VarType { get; }
-
         public IlVariable(int variableIndex, Type type, string name)
         {
             VariableIndex = variableIndex;
             Name = name;
             VarType = type;
         }
+
+        public int VariableIndex { get; }
+        public string Name { get; }
+        public Type VarType { get; }
 
         public override void Emit(IlCompilerContext ctx)
         {
@@ -190,8 +198,8 @@ namespace Wire.Compilation
 
     public class IlCastClass : IlExpression
     {
-        private readonly Type _type;
         private readonly IlExpression _expression;
+        private readonly Type _type;
 
         public IlCastClass(Type type, IlExpression expression)
         {
@@ -212,8 +220,8 @@ namespace Wire.Compilation
 
     public class IlBox : IlExpression
     {
-        private readonly Type _type;
         private readonly IlExpression _expression;
+        private readonly Type _type;
 
         public IlBox(Type type, IlExpression expression)
         {
@@ -232,8 +240,8 @@ namespace Wire.Compilation
 
     public class IlUnbox : IlExpression
     {
-        private readonly Type _type;
         private readonly IlExpression _expression;
+        private readonly Type _type;
 
         public IlUnbox(Type type, IlExpression expression)
         {
@@ -252,9 +260,9 @@ namespace Wire.Compilation
 
     public class IlCall : IlExpression
     {
-        private readonly IlExpression _target;
-        private readonly MethodInfo _method;
         private readonly IlExpression[] _args;
+        private readonly MethodInfo _method;
+        private readonly IlExpression _target;
 
         public IlCall(IlExpression target, MethodInfo method, params IlExpression[] args)
         {
@@ -288,8 +296,8 @@ namespace Wire.Compilation
 
     public class IlCallStatic : IlExpression
     {
-        private readonly MethodInfo _method;
         private readonly IlExpression[] _args;
+        private readonly MethodInfo _method;
 
         public IlCallStatic(MethodInfo method, params IlExpression[] args)
         {

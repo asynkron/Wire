@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="Serializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
@@ -145,7 +151,7 @@ namespace Wire
         {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
-            SerializerSession session = GetSerializerSession();
+            var session = GetSerializerSession();
 
             var type = obj.GetType();
             var s = GetSerializerByType(type);
@@ -160,9 +166,9 @@ namespace Wire
 
         public T Deserialize<T>([NotNull] Stream stream)
         {
-            DeserializerSession session = GetDeserializerSession();
+            var session = GetDeserializerSession();
             var s = GetDeserializerByManifest(stream, session);
-            return (T)s.ReadValue(stream, session);
+            return (T) s.ReadValue(stream, session);
         }
 
         public DeserializerSession GetDeserializerSession()
@@ -173,7 +179,7 @@ namespace Wire
         public T Deserialize<T>([NotNull] Stream stream, DeserializerSession session)
         {
             var s = GetDeserializerByManifest(stream, session);
-            return (T)s.ReadValue(stream, session);
+            return (T) s.ReadValue(stream, session);
         }
 
         public object Deserialize([NotNull] Stream stream)
@@ -216,16 +222,14 @@ namespace Wire
                     return _serializers[type];
 
 
-                
-
                 try
                 {
                     //build the serializer IL code
-                    CodeGenerator.BuildSerializer(this, (ObjectSerializer)serializer);
+                    CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
                 }
                 catch (Exception exp)
                 {
-                    var invalidSerializer = new UnsupportedTypeSerializer(type,exp.Message);
+                    var invalidSerializer = new UnsupportedTypeSerializer(type, exp.Message);
                     _serializers[type] = invalidSerializer;
                     return invalidSerializer;
                 }
@@ -236,16 +240,14 @@ namespace Wire
                 return _serializers[type];
 
 
-
             try
             {
                 //build the serializer IL code
-                CodeGenerator.BuildSerializer(this, (ObjectSerializer)serializer);
-
+                CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
             }
-            catch(Exception exp)
+            catch (Exception exp)
             {
-                var invalidSerializer = new UnsupportedTypeSerializer(type,exp.Message);
+                var invalidSerializer = new UnsupportedTypeSerializer(type, exp.Message);
                 _serializers[type] = invalidSerializer;
                 return invalidSerializer;
             }

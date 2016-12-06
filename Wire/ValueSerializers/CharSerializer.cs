@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="CharSerializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.IO;
 
 namespace Wire.ValueSerializers
@@ -13,6 +19,8 @@ namespace Wire.ValueSerializers
         {
         }
 
+        public override int PreallocatedByteBufferSize => Size;
+
         public static char ReadValueImpl(Stream stream, byte[] bytes)
         {
             stream.Read(bytes, 0, Size);
@@ -24,7 +32,5 @@ namespace Wire.ValueSerializers
             NoAllocBitConverter.GetBytes(ch, bytes);
             stream.Write(bytes, 0, Size);
         }
-
-        public override int PreallocatedByteBufferSize => Size;
     }
 }

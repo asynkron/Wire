@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="ImmutableCollectionsSerializerFactory.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -31,7 +37,10 @@ namespace Wire.SerializerFactories
             return type
                 .GetTypeInfo()
                 .GetInterfaces()
-                .Where(intType => intType.GetTypeInfo().IsGenericType && intType.GetTypeInfo().GetGenericTypeDefinition() == typeof (IEnumerable<>))
+                .Where(
+                    intType =>
+                        intType.GetTypeInfo().IsGenericType &&
+                        intType.GetTypeInfo().GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 .Select(intType => intType.GetTypeInfo().GetGenericArguments()[0])
                 .FirstOrDefault();
         }
@@ -43,7 +52,7 @@ namespace Wire.SerializerFactories
             typeMapping.TryAdd(type, x);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
-            var elementType = GetEnumerableType(type) ?? typeof (object);
+            var elementType = GetEnumerableType(type) ?? typeof(object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
             var typeName = type.Name;
@@ -54,8 +63,8 @@ namespace Wire.SerializerFactories
                     ImmutableCollectionsNamespace + "." + typeName + ", " + ImmutableCollectionsAssembly, true);
 
             var genericTypes = elementType.GetTypeInfo().IsGenericType
-                   ? elementType.GetTypeInfo().GetGenericArguments()
-                   : new[] { elementType };
+                ? elementType.GetTypeInfo().GetGenericArguments()
+                : new[] {elementType};
             var createRange = creatorType.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .First(methodInfo => methodInfo.Name == "CreateRange" && methodInfo.GetParameters().Length == 1)
                 .MakeGenericMethod(genericTypes);
@@ -67,11 +76,11 @@ namespace Wire.SerializerFactories
                 {
                     // object can be IEnumerable but not ICollection i.e. ImmutableQueue
                     var e = (IEnumerable) o;
-                    var list = e.Cast<object>().ToList();//
+                    var list = e.Cast<object>().ToList(); //
 
                     enumerable = list;
                 }
-                Int32Serializer.WriteValueImpl(stream,enumerable.Count,session);
+                Int32Serializer.WriteValueImpl(stream, enumerable.Count, session);
                 foreach (var value in enumerable)
                 {
                     stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
@@ -91,7 +100,7 @@ namespace Wire.SerializerFactories
                     var value = stream.ReadObject(session);
                     items.SetValue(value, i);
                 }
-               
+
                 var instance = createRange.Invoke(null, new object[] {items});
                 if (preserveObjectReferences)
                 {

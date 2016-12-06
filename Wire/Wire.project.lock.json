@@ -3160,8 +3160,9 @@
       ]
     },
     "runtime.native.System.Net.Http/4.0.1": {
-      "sha512": "Nh0UPZx2Vifh8r+J+H2jxifZUD3sBrmolgiFWJd2yiNrxO0xTa6bAw3YwRn1VOiSen/tUXMS31ttNItCZ6lKuA==",
+      "sha512": "mBsKYpKLQUYz4a8NpS0VxC4DQNCcYVYOjtz9UdyVQAxL6CBRI6FBZoqwly+k1JBbcl7GZ4OS1N/xLaV5UIAteQ==",
       "type": "package",
+      "path": "runtime.native.System.Net.Http/4.0.1",
       "files": [
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4818,7 +4819,7 @@
       ]
     },
     "System.Reflection.Emit.Lightweight/4.0.1": {
-      "sha512": "sSzHHXueZ5Uh0OLpUQprhr+ZYJrLPA2Cmr4gn0wj9+FftNKXx8RIMKvO9qnjk2ebPYUjZ+F2ulGdPOsvj+MEjA==",
+      "sha512": "tqPJ0LLLpQKsVGQqVqKe4i1KVq6m6TJjeYQLygDovNsVtyI8dWFvZC+CQQrfqo1AnbbDq/7S+TQNkOfzxNqPvw==",
       "type": "package",
       "path": "System.Reflection.Emit.Lightweight/4.0.1",
       "files": [
@@ -5518,8 +5519,9 @@
       ]
     },
     "System.Security.Cryptography.Cng/4.2.0": {
-      "sha512": "cUJ2h+ZvONDe28Szw3st5dOHdjndhJzQ2WObDEXAWRPEQBtVItVoxbXM/OEsTthl3cNn2dk2k0I3y45igCQcLw==",
+      "sha512": "k4YzVPC/8jwgmiwLGRteetYrd/qp+us5CpagrPJ5XmCj8JrwtZnD3c6wQ0Qv3kK02nc0x15vVIxp+yL4EGjAsA==",
       "type": "package",
+      "path": "System.Security.Cryptography.Cng/4.2.0",
       "files": [
         "System.Security.Cryptography.Cng.4.2.0.nupkg.sha512",
         "System.Security.Cryptography.Cng.nuspec",
@@ -5543,8 +5545,9 @@
       ]
     },
     "System.Security.Cryptography.Csp/4.0.0": {
-      "sha512": "/i1Usuo4PgAqgbPNC0NjbO3jPW//BoBlTpcWFD1EHVbidH21y4c1ap5bbEMSGAXjAShhMH4abi/K8fILrnu4BQ==",
+      "sha512": "RskCiZVzL8Ygo/MB4SNsNVch5fRtWyCPdpkxcIEYAPdVV7fWZW2HABm67773xUsQr+hsbQg2KN5H9RlPt0NquA==",
       "type": "package",
+      "path": "System.Security.Cryptography.Csp/4.0.0",
       "files": [
         "System.Security.Cryptography.Csp.4.0.0.nupkg.sha512",
         "System.Security.Cryptography.Csp.nuspec",
@@ -5610,8 +5613,9 @@
       ]
     },
     "System.Security.Cryptography.OpenSsl/4.0.0": {
-      "sha512": "HUG/zNUJwEiLkoURDixzkzZdB5yGA5pQhDP93ArOpDPQMteURIGERRNzzoJlmTreLBWr5lkFSjjMSk8ySEpQMw==",
+      "sha512": "tINzoEUUUftkzGRK17WhXpx9W6ntHQqpgUg80pnR03Ix+vbME7s4BBV7AykYn2HNq6x8TelCJQ7wgX0p3y6ozg==",
       "type": "package",
+      "path": "System.Security.Cryptography.OpenSsl/4.0.0",
       "files": [
         "System.Security.Cryptography.OpenSsl.4.0.0.nupkg.sha512",
         "System.Security.Cryptography.OpenSsl.nuspec",
@@ -6369,5 +6373,7 @@
       "Microsoft.CSharp >= 4.0.1",
       "NETStandard.Library >= 1.6.0"
     ]
-  }
+  },
+  "tools": {},
+  "projectFileToolGroups": {}
 }

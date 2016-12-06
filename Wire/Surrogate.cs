@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="Surrogate.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Reflection;
 
 namespace Wire
@@ -9,8 +15,8 @@ namespace Wire
         {
             ToSurrogate = from => toSurrogate((TSource) from);
             FromSurrogate = to => fromSurrogate((TSurrogate) to);
-            From = typeof (TSource);
-            To = typeof (TSurrogate);
+            From = typeof(TSource);
+            To = typeof(TSurrogate);
         }
     }
 

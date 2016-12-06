@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="FromSurrogateSerializerFactory.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
@@ -19,7 +25,9 @@ namespace Wire.SerializerFactories
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.To.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()));
+            var surrogate =
+                serializer.Options.Surrogates.FirstOrDefault(
+                    s => s.To.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()));
             var objectSerializer = new ObjectSerializer(type);
             // ReSharper disable once PossibleNullReferenceException
             var fromSurrogateSerializer = new FromSurrogateSerializer(surrogate.FromSurrogate, objectSerializer);

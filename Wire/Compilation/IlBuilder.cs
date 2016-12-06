@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="IlBuilder.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,7 +60,7 @@ namespace Wire.Compilation
             return _expressions.Count - 1;
         }
 
-        public int Variable(string name,Type type)
+        public int Variable(string name, Type type)
         {
             var exp = new IlVariable(Variables.Count, type, name);
             _expressions.Add(exp);

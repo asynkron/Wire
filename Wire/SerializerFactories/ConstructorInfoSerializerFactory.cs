@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="ConstructorInfoSerializerFactory.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
@@ -38,7 +44,7 @@ namespace Wire.SerializerFactories
             };
             ObjectWriter writer = (stream, obj, session) =>
             {
-                var ctor = (ConstructorInfo)obj;
+                var ctor = (ConstructorInfo) obj;
                 var owner = ctor.DeclaringType;
                 var arguments = ctor.GetParameters().Select(p => p.ParameterType).ToArray();
                 stream.WriteObjectWithManifest(owner, session);

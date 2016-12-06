@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="SessionAwareByteArrayRequiringValueSerializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.IO;
 using System.Linq.Expressions;
@@ -9,10 +15,10 @@ namespace Wire.ValueSerializers
     public abstract class SessionAwareByteArrayRequiringValueSerializer<TElementType> : ValueSerializer
     {
         private readonly byte _manifest;
-        private readonly MethodInfo _write;
-        private readonly Action<Stream, object, byte[]> _writeCompiled;
         private readonly MethodInfo _read;
         private readonly Func<Stream, byte[], TElementType> _readCompiled;
+        private readonly MethodInfo _write;
+        private readonly Action<Stream, object, byte[]> _writeCompiled;
 
         protected SessionAwareByteArrayRequiringValueSerializer(byte manifest,
             Expression<Func<Action<Stream, TElementType, byte[]>>> writeStaticMethod,

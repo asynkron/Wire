@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="EnumerableSerializerFactory.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -25,7 +31,7 @@ namespace Wire.SerializerFactories
             if (isGenericEnumerable)
                 return true;
 
-            if (typeof (ICollection).GetTypeInfo().IsAssignableFrom(type))
+            if (typeof(ICollection).GetTypeInfo().IsAssignableFrom(type))
                 return true;
 
             return false;
@@ -41,7 +47,10 @@ namespace Wire.SerializerFactories
             return type
                 .GetTypeInfo()
                 .GetInterfaces()
-                .Where(intType => intType.GetTypeInfo().IsGenericType && intType.GetTypeInfo().GetGenericTypeDefinition() == typeof (IEnumerable<>))
+                .Where(
+                    intType =>
+                        intType.GetTypeInfo().IsGenericType &&
+                        intType.GetTypeInfo().GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 .Select(intType => intType.GetTypeInfo().GetGenericArguments()[0])
                 .FirstOrDefault();
         }
@@ -53,14 +62,14 @@ namespace Wire.SerializerFactories
             typeMapping.TryAdd(type, x);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
-            var elementType = GetEnumerableType(type) ?? typeof (object);
+            var elementType = GetEnumerableType(type) ?? typeof(object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
             var countProperty = type.GetTypeInfo().GetProperty("Count");
             var addRange = type.GetTypeInfo().GetMethod("AddRange");
             var add = type.GetTypeInfo().GetMethod("Add");
 
-            Func<object, int> countGetter = o => (int)countProperty.GetValue(o);
+            Func<object, int> countGetter = o => (int) countProperty.GetValue(o);
 
 
             ObjectReader reader = (stream, session) =>
@@ -72,7 +81,7 @@ namespace Wire.SerializerFactories
                 }
 
                 var count = stream.ReadInt32(session);
-               
+
                 if (addRange != null)
                 {
                     var items = Array.CreateInstance(elementType, count);
@@ -91,7 +100,7 @@ namespace Wire.SerializerFactories
                     for (var i = 0; i < count; i++)
                     {
                         var value = stream.ReadObject(session);
-                        add.Invoke(instance, new[] { value });
+                        add.Invoke(instance, new[] {value});
                     }
                 }
 
@@ -105,15 +114,13 @@ namespace Wire.SerializerFactories
                 {
                     session.TrackSerializedObject(o);
                 }
-                Int32Serializer.WriteValueImpl(stream, countGetter(o),session);
+                Int32Serializer.WriteValueImpl(stream, countGetter(o), session);
                 var enumerable = o as IEnumerable;
                 // ReSharper disable once PossibleNullReferenceException
                 foreach (var value in enumerable)
                 {
                     stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
                 }
-
-
             };
             x.Initialize(reader, writer);
             return x;

@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="MethodInfoSerializerFactory.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
@@ -33,7 +39,7 @@ namespace Wire.SerializerFactories
 #if NET45
                 var method = owner.GetTypeInfo().GetMethod(
                     name,
-                    BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, 
+                    BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                     null,
                     CallingConventions.Any,
                     arguments,
@@ -49,7 +55,7 @@ namespace Wire.SerializerFactories
                 var name = method.Name;
                 var owner = method.DeclaringType;
                 var arguments = method.GetParameters().Select(p => p.ParameterType).ToArray();
-                StringSerializer.WriteValueImpl(stream,name,session);
+                StringSerializer.WriteValueImpl(stream, name, session);
                 stream.WriteObjectWithManifest(owner, session);
                 stream.WriteObjectWithManifest(arguments, session);
             };

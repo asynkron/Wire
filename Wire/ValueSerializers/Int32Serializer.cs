@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="Int32Serializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.IO;
 
@@ -13,6 +19,8 @@ namespace Wire.ValueSerializers
             : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
+
+        public override int PreallocatedByteBufferSize => Size;
 
         public static void WriteValueImpl(Stream stream, int i, byte[] bytes)
         {
@@ -31,7 +39,5 @@ namespace Wire.ValueSerializers
             stream.Read(bytes, 0, Size);
             return BitConverter.ToInt32(bytes, 0);
         }
-
-        public override int PreallocatedByteBufferSize => Size;
     }
 }

@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="TypeSerializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.IO;
 using Wire.Extensions;
 
@@ -12,14 +18,14 @@ namespace Wire.ValueSerializers
         public override void WriteManifest(Stream stream, SerializerSession session)
         {
             ushort typeIdentifier;
-            if (session.ShouldWriteTypeManifest(TypeEx.RuntimeType,out typeIdentifier))
+            if (session.ShouldWriteTypeManifest(TypeEx.RuntimeType, out typeIdentifier))
             {
                 stream.WriteByte(Manifest);
             }
             else
             {
-                stream.Write(new[] { ObjectSerializer.ManifestIndex });
-                UInt16Serializer.WriteValueImpl(stream,typeIdentifier,session);
+                stream.Write(new[] {ObjectSerializer.ManifestIndex});
+                UInt16Serializer.WriteValueImpl(stream, typeIdentifier, session);
             }
         }
 
@@ -27,7 +33,7 @@ namespace Wire.ValueSerializers
         {
             if (value == null)
             {
-                StringSerializer.WriteValueImpl(stream,null,session);
+                StringSerializer.WriteValueImpl(stream, null, session);
             }
             else
             {
@@ -39,7 +45,7 @@ namespace Wire.ValueSerializers
                     ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
                 }
                 else
-                { 
+                {
                     if (session.Serializer.Options.PreserveObjectReferences)
                     {
                         session.TrackSerializedObject(type);
@@ -58,7 +64,7 @@ namespace Wire.ValueSerializers
                 return null;
 
             var name = TypeEx.ToQualifiedAssemblyName(shortname);
-            var type = Type.GetType(name,true);
+            var type = Type.GetType(name, true);
 
             //add the deserialized type to lookup
             if (session.Serializer.Options.PreserveObjectReferences)
@@ -70,7 +76,7 @@ namespace Wire.ValueSerializers
 
         public override Type GetElementType()
         {
-            return typeof (Type);
+            return typeof(Type);
         }
     }
 }

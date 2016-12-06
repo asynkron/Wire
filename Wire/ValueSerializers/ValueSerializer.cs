@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="ValueSerializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -9,6 +15,15 @@ namespace Wire.ValueSerializers
 {
     public abstract class ValueSerializer
     {
+        /// <summary>
+        ///     Marks a given <see cref="ValueSerializer" /> as one requiring a preallocated byte buffer to perform its operations.
+        ///     The byte[] value will be accessible in <see cref="ValueSerializer.EmitWriteValue" /> and
+        ///     <see cref="ValueSerializer.EmitReadValue" /> in the <see cref="ICompiler{TDel}" /> with
+        ///     <see cref="ICompiler{TDel}.GetVariable{T}" /> under following name
+        ///     <see cref="DefaultCodeGenerator.PreallocatedByteBuffer" />.
+        /// </summary>
+        public virtual int PreallocatedByteBufferSize => 0;
+
         public abstract void WriteManifest([NotNull] Stream stream, [NotNull] SerializerSession session);
         public abstract void WriteValue([NotNull] Stream stream, object value, [NotNull] SerializerSession session);
         public abstract object ReadValue([NotNull] Stream stream, [NotNull] DeserializerSession session);
@@ -33,11 +48,6 @@ namespace Wire.ValueSerializers
             read = c.Convert(read, field.FieldType);
             return read;
         }
-
-        /// <summary>
-        /// Marks a given <see cref="ValueSerializer"/> as one requiring a preallocated byte buffer to perform its operations. The byte[] value will be accessible in <see cref="ValueSerializer.EmitWriteValue"/> and <see cref="ValueSerializer.EmitReadValue"/> in the <see cref="ICompiler{TDel}"/> with <see cref="ICompiler{TDel}.GetVariable{T}"/> under following name <see cref="DefaultCodeGenerator.PreallocatedByteBuffer"/>.
-        /// </summary>
-        public virtual int PreallocatedByteBufferSize => 0;
 
         protected static MethodInfo GetStatic([NotNull] LambdaExpression expression, [NotNull] Type expectedReturnType)
         {

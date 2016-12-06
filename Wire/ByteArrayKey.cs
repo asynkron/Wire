@@ -1,9 +1,15 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="ByteArrayKey.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using Wire.Internal;
 
 namespace Wire
 {
     public struct ByteArrayKey
-    {       
+    {
         public readonly byte[] Bytes;
         private readonly int _hashCode;
 

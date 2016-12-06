@@ -1,8 +1,8 @@
 # Wire
 
-[![Join the chat at https://gitter.im/akkadotnet/Wire](https://badges.gitter.im/akkadotnet/Wire.svg)](https://gitter.im/akkadotnet/Wire?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+A high performance polymorphic serializer for the .NET framework.
 
-A high performance polymorphic serializer for the .NET framework.¨
+> Wire is still in beta and may have breaking changes to both the API and serialization format on the road to 1.0
 
 ## Polymorphic serializations
 
@@ -48,15 +48,17 @@ This is essential for frameworks like Akka.NET where we need to be able to resol
 Wire has been designed to work in multiple modes in terms of version tolerance vs. performance.
 
 1. Pre Register Types, when using "Pre registered types", Wire will only emit a type ID in the output stream.
-This results in the best performance, but is also fragile if different clients have different versions of the contract types.
+   This results in the best performance, but is also fragile if different clients have different versions of the contract types.
 2. Non Versioned, this is largely the same as the above, but the serializer does not need to know about your types up front. it will embed the fully qualified typename
-in the outputstream. this results in a larger payload and some performance overhead.
+   in the outputstream. this results in a larger payload and some performance overhead.
 3. Versioned, in this mode, Wire will emit both type names and field information in the output stream.
-This allows systems to have slightly different versions of the contract types where some fields may have been added or removed.
+   This allows systems to have slightly different versions of the contract types where some fields may have been added or removed.
+
+### Durable persistence and version tolerance
 
 Wire has been designed as a wire format, point to point for soft realtime scenarios.
 If you need a format that is durable for persistence over time.
-e.g. EventSourcing or for message queues, then Protobuf or MS Bond is probably a better choise as those formats have been designed for true versiom tolerance.
+e.g. EventSourcing or for message queues, then **Protobuf**, **Thrift**, **Flatbuffers** or **MS Bond** will be a better choise as those formats have been designed for true versiom tolerance.
 
 ## Performance
 
@@ -130,4 +132,4 @@ public class Poco
 ```
 
 > Big disclaimer: The above results change drastically depending on your contracts, e.g. using smaller messages favor both NetSerializer and Jil.
-There is no "best" or "fastest" serializer, it all depends on context and requirements.
+> There is no "best" or "fastest" serializer, it all depends on context and requirements.

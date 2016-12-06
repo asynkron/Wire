@@ -1,6 +1,11 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="UInt64Serializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.IO;
-using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
@@ -14,6 +19,8 @@ namespace Wire.ValueSerializers
         {
         }
 
+        public override int PreallocatedByteBufferSize => Size;
+
         public static void WriteValueImpl(Stream stream, ulong ul, byte[] bytes)
         {
             NoAllocBitConverter.GetBytes(ul, bytes);
@@ -25,7 +32,5 @@ namespace Wire.ValueSerializers
             stream.Read(bytes, 0, Size);
             return BitConverter.ToUInt64(bytes, 0);
         }
-
-        public override int PreallocatedByteBufferSize => Size;
     }
 }

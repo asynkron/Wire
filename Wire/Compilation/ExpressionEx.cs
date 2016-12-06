@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="ExpressionEx.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Wire.Extensions;
@@ -17,7 +23,7 @@ namespace Wire.Compilation
         {
             if (type.GetTypeInfo().IsValueType)
             {
-                var x =  Expression.Constant(Activator.CreateInstance(type));
+                var x = Expression.Constant(Activator.CreateInstance(type));
                 var convert = Expression.Convert(x, typeof(object));
                 return convert;
             }
@@ -33,7 +39,7 @@ namespace Wire.Compilation
 #endif
             var emptyObjectMethod = typeof(TypeEx).GetTypeInfo().GetMethod(nameof(TypeEx.GetEmptyObject));
             var emptyObject = Expression.Call(null, emptyObjectMethod, type.ToConstant());
-            
+
             return emptyObject;
         }
     }

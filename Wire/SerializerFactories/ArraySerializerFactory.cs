@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="ArraySerializerFactory.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using Wire.Extensions;
@@ -12,7 +18,8 @@ namespace Wire.SerializerFactories
 
         public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
-        private static void WriteValues<T>(T[] array,Stream stream,Type elementType, ValueSerializer elementSerializer, SerializerSession session)
+        private static void WriteValues<T>(T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer,
+            SerializerSession session)
         {
             Int32Serializer.WriteValueImpl(stream, array.Length, session);
             var preserveObjectReferences = session.Serializer.Options.PreserveObjectReferences;
@@ -21,11 +28,12 @@ namespace Wire.SerializerFactories
                 stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
             }
         }
+
         private static void ReadValues<T>(int length, Stream stream, DeserializerSession session, T[] array)
         {
             for (var i = 0; i < length; i++)
             {
-                var value = (T)stream.ReadObject(session);
+                var value = (T) stream.ReadObject(session);
                 array[i] = value;
             }
         }
@@ -34,7 +42,7 @@ namespace Wire.SerializerFactories
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
             var arraySerializer = new ObjectSerializer(type);
-            
+
             var elementType = type.GetElementType();
             var elementSerializer = serializer.GetSerializerByType(elementType);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
@@ -60,7 +68,6 @@ namespace Wire.SerializerFactories
                 }
 
                 WriteValues((dynamic) arr, stream, elementType, elementSerializer, session);
- 
             };
             arraySerializer.Initialize(reader, writer);
             typeMapping.TryAdd(type, arraySerializer);

@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="TypeEx.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 #if SERIALIZATION
 using System.Runtime.Serialization;
+
 #endif
 
 namespace Wire.Extensions
@@ -94,7 +101,7 @@ namespace Wire.Extensions
 
         public static byte[] GetTypeManifest(IReadOnlyCollection<byte[]> fieldNames)
         {
-            IEnumerable<byte> result = new[] { (byte)fieldNames.Count };
+            IEnumerable<byte> result = new[] {(byte) fieldNames.Count};
             foreach (var name in fieldNames)
             {
                 var encodedLength = BitConverter.GetBytes(name.Length);
@@ -132,7 +139,6 @@ namespace Wire.Extensions
             for (var i = 0; i < fieldCount; i++)
             {
                 var fieldName = stream.ReadLengthEncodedByteArray(session);
-
             }
 
             session.TrackDeserializedTypeWithVersion(type, null);
@@ -141,7 +147,6 @@ namespace Wire.Extensions
 
         public static Type GetTypeFromManifestIndex(int typeId, DeserializerSession session)
         {
-
             var type = session.GetTypeFromTypeId(typeId);
             return type;
         }
@@ -173,17 +178,17 @@ namespace Wire.Extensions
             if (type == Int16Type)
                 return sizeof(short);
             if (type == Int32Type)
-                return sizeof (int);
+                return sizeof(int);
             if (type == Int64Type)
-                return sizeof (long);
+                return sizeof(long);
             if (type == BoolType)
-                return sizeof (bool);
+                return sizeof(bool);
             if (type == UInt16Type)
-                return sizeof (ushort);
+                return sizeof(ushort);
             if (type == UInt32Type)
-                return sizeof (uint);
+                return sizeof(uint);
             if (type == UInt64Type)
-                return sizeof (ulong);
+                return sizeof(ulong);
             if (type == CharType)
                 return sizeof(char);
 
@@ -195,7 +200,7 @@ namespace Wire.Extensions
         private static string GetCoreAssemblyName()
         {
             var name = 1.GetType().AssemblyQualifiedName;
-            var part = name.Substring( name.IndexOf(", Version", StringComparison.Ordinal));
+            var part = name.Substring(name.IndexOf(", Version", StringComparison.Ordinal));
             return part;
         }
 

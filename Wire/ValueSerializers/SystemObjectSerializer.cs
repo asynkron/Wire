@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="SystemObjectSerializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.IO;
 
 namespace Wire.ValueSerializers
@@ -7,6 +13,7 @@ namespace Wire.ValueSerializers
     {
         public const byte Manifest = 1;
         public static SystemObjectSerializer Instance = new SystemObjectSerializer();
+
         public override void WriteManifest(Stream stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);

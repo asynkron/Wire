@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="ICompiler.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.Reflection;
 
@@ -8,7 +14,7 @@ namespace Wire.Compilation
         int NewObject(Type type);
         int Parameter<T>(string name);
         int Variable<T>(string name);
-        int Variable(string name,Type type);
+        int Variable(string name, Type type);
         int GetVariable<T>(string name);
         int Constant(object value);
         int CastOrUnbox(int value, Type type);

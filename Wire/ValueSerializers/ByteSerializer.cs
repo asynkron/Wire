@@ -1,4 +1,10 @@
-﻿using System.IO;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="ByteSerializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System.IO;
 
 namespace Wire.ValueSerializers
 {

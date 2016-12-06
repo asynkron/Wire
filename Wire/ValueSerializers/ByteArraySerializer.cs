@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="ByteArraySerializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.IO;
 using Wire.Extensions;
@@ -17,7 +23,7 @@ namespace Wire.ValueSerializers
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             var bytes = (byte[]) value;
-            stream.WriteLengthEncodedByteArray(bytes,session);
+            stream.WriteLengthEncodedByteArray(bytes, session);
 
             if (session.Serializer.Options.PreserveObjectReferences)
             {
@@ -33,12 +39,11 @@ namespace Wire.ValueSerializers
                 session.TrackDeserializedObject(res);
             }
             return res;
-
         }
 
         public override Type GetElementType()
         {
-            return typeof (byte[]);
+            return typeof(byte[]);
         }
     }
 }

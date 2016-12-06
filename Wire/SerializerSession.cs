@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="SerializerSession.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 
 namespace Wire
@@ -6,13 +12,13 @@ namespace Wire
     public class SerializerSession
     {
         public const int MinBufferSize = 9;
+        private readonly ushort _nextTypeId;
         private readonly Dictionary<object, int> _objects;
         public readonly Serializer Serializer;
-        private LinkedList<Type> _trackedTypes;
         private byte[] _buffer = new byte[MinBufferSize];
 
         private int _nextObjectId;
-        private readonly ushort _nextTypeId;
+        private LinkedList<Type> _trackedTypes;
 
         public SerializerSession(Serializer serializer)
         {
@@ -21,7 +27,7 @@ namespace Wire
             {
                 _objects = new Dictionary<object, int>();
             }
-            _nextTypeId = (ushort)(serializer.Options.KnownTypes.Length );
+            _nextTypeId = (ushort) serializer.Options.KnownTypes.Length;
         }
 
         public void TrackSerializedObject(object obj)
@@ -66,7 +72,7 @@ namespace Wire
                 return false;
             }
 
-            ushort j = _nextTypeId;
+            var j = _nextTypeId;
             foreach (var t in _trackedTypes)
             {
                 if (key == t)

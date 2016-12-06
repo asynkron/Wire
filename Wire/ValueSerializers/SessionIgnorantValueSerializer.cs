@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="SessionIgnorantValueSerializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.IO;
 using System.Linq.Expressions;
@@ -9,10 +15,10 @@ namespace Wire.ValueSerializers
     public abstract class SessionIgnorantValueSerializer<TElementType> : ValueSerializer
     {
         private readonly byte _manifest;
-        private readonly MethodInfo _write;
-        private readonly Action<Stream, object> _writeCompiled;
         private readonly MethodInfo _read;
         private readonly Func<Stream, TElementType> _readCompiled;
+        private readonly MethodInfo _write;
+        private readonly Action<Stream, object> _writeCompiled;
 
         protected SessionIgnorantValueSerializer(byte manifest,
             Expression<Func<Action<Stream, TElementType>>> writeStaticMethod,
@@ -42,7 +48,7 @@ namespace Wire.ValueSerializers
 #endif
 
             var stream2 = c2.Parameter<Stream>("stream");
-            c2.EmitStaticCall(_read,stream2);
+            c2.EmitStaticCall(_read, stream2);
 
             _readCompiled = c2.Compile();
         }

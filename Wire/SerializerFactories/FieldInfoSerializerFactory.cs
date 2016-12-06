@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="FieldInfoSerializerFactory.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using Wire.Extensions;
@@ -29,7 +35,9 @@ namespace Wire.SerializerFactories
                 var owner = stream.ReadObject(session) as Type;
 
 #if NET45
-                var field = owner.GetTypeInfo().GetField(name, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                var field = owner.GetTypeInfo()
+                    .GetField(name,
+                        BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 return field;
 #else
                 return null;
@@ -37,7 +45,7 @@ namespace Wire.SerializerFactories
             };
             ObjectWriter writer = (stream, obj, session) =>
             {
-                var field = (FieldInfo)obj;
+                var field = (FieldInfo) obj;
                 var name = field.Name;
                 var owner = field.DeclaringType;
                 StringSerializer.WriteValueImpl(stream, name, session);

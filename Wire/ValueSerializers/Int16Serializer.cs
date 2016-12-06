@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="Int16Serializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.IO;
 
@@ -13,6 +19,8 @@ namespace Wire.ValueSerializers
         {
         }
 
+        public override int PreallocatedByteBufferSize => Size;
+
         public static void WriteValueImpl(Stream stream, short sh, byte[] bytes)
         {
             NoAllocBitConverter.GetBytes(sh, bytes);
@@ -24,7 +32,5 @@ namespace Wire.ValueSerializers
             stream.Read(bytes, 0, Size);
             return BitConverter.ToInt16(bytes, 0);
         }
-
-        public override int PreallocatedByteBufferSize => Size;
     }
 }

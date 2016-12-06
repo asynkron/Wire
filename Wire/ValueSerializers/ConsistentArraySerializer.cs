@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="ConsistentArraySerializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.IO;
 using Wire.Extensions;
@@ -62,16 +68,17 @@ namespace Wire.ValueSerializers
             var elementSerializer = session.Serializer.GetSerializerByType(elementType);
             elementSerializer.WriteManifest(stream, session); //write array element type
             // ReSharper disable once PossibleNullReferenceException
-            WriteValues((dynamic)value, stream,elementSerializer,session);
+            WriteValues((dynamic) value, stream, elementSerializer, session);
         }
 
-        private static void WriteValues<T>(T[] array, Stream stream, ValueSerializer elementSerializer, SerializerSession session)
+        private static void WriteValues<T>(T[] array, Stream stream, ValueSerializer elementSerializer,
+            SerializerSession session)
         {
-            Int32Serializer.WriteValueImpl(stream,array.Length,session);
+            Int32Serializer.WriteValueImpl(stream, array.Length, session);
             if (typeof(T).IsFixedSizeType())
             {
                 var size = typeof(T).GetTypeSize();
-                var result = new byte[array.Length * size];
+                var result = new byte[array.Length*size];
                 Buffer.BlockCopy(array, 0, result, 0, result.Length);
                 stream.Write(result);
             }
@@ -81,7 +88,7 @@ namespace Wire.ValueSerializers
                 {
                     elementSerializer.WriteValue(stream, value, session);
                 }
-            }    
+            }
         }
     }
 }

@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="NoAllocBitConverter.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Wire.ValueSerializers;
@@ -6,10 +12,13 @@ using Wire.ValueSerializers;
 namespace Wire
 {
     /// <summary>
-    /// Provides methods not allocating the byte buffer but using <see cref="SerializerSession.GetBuffer"/> to lease a buffer.
+    ///     Provides methods not allocating the byte buffer but using <see cref="SerializerSession.GetBuffer" /> to lease a
+    ///     buffer.
     /// </summary>
     public static class NoAllocBitConverter
     {
+        internal static readonly UTF8Encoding Utf8 = (UTF8Encoding) Encoding.UTF8;
+
         public static void GetBytes(char value, byte[] bytes)
         {
             GetBytes((short) value, bytes);
@@ -18,19 +27,19 @@ namespace Wire
         public static unsafe void GetBytes(short value, byte[] bytes)
         {
             fixed (byte* b = bytes)
-                *((short*) b) = value;
+                *(short*) b = value;
         }
 
         public static unsafe void GetBytes(int value, byte[] bytes)
         {
             fixed (byte* b = bytes)
-                *((int*) b) = value;
+                *(int*) b = value;
         }
 
         public static unsafe void GetBytes(long value, byte[] bytes)
         {
             fixed (byte* b = bytes)
-                *((long*) b) = value;
+                *(long*) b = value;
         }
 
         public static void GetBytes(ushort value, byte[] bytes)
@@ -58,8 +67,6 @@ namespace Wire
             GetBytes(*(long*) &value, bytes);
         }
 
-        internal static readonly UTF8Encoding Utf8 = (UTF8Encoding) Encoding.UTF8;
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe byte[] GetBytes(string str, SerializerSession session, out int byteCount)
         {
@@ -74,7 +81,7 @@ namespace Wire
             byteCount = Utf8.GetByteCount(str);
             if (byteCount < 254) //short string
             {
-                byte[] bytes = session.GetBuffer(byteCount + 1);
+                var bytes = session.GetBuffer(byteCount + 1);
                 Utf8.GetBytes(str, 0, str.Length, bytes, 1);
                 bytes[0] = (byte) (byteCount + 1);
                 byteCount += 1;
@@ -82,13 +89,13 @@ namespace Wire
             }
             else //long string
             {
-                byte[] bytes = session.GetBuffer(byteCount + 1 + 4);
+                var bytes = session.GetBuffer(byteCount + 1 + 4);
                 Utf8.GetBytes(str, 0, str.Length, bytes, 1 + 4);
                 bytes[0] = 255;
 
 
                 fixed (byte* b = bytes)
-                    *((int*) (b+1) ) = byteCount;
+                    *(int*) (b + 1) = byteCount;
 
                 byteCount += 1 + 4;
 
@@ -100,7 +107,7 @@ namespace Wire
         {
             //datetime size is 9 ticks + kind
             fixed (byte* b = bytes)
-                *((long*) b) = dateTime.Ticks;
+                *(long*) b = dateTime.Ticks;
             bytes[DateTimeSerializer.Size - 1] = (byte) dateTime.Kind;
         }
     }

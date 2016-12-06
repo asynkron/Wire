@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="DefaultCodeGenerator.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +18,8 @@ namespace Wire
 {
     public class DefaultCodeGenerator : ICodeGenerator
     {
+        public const string PreallocatedByteBuffer = "PreallocatedByteBuffer";
+
         public void BuildSerializer([NotNull] Serializer serializer, [NotNull] ObjectSerializer objectSerializer)
         {
             var type = objectSerializer.Type;
@@ -38,7 +46,8 @@ namespace Wire
             if (serializer.Options.PreserveObjectReferences)
             {
                 var trackDeserializedObjectMethod =
-                    typeof(DeserializerSession).GetTypeInfo().GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                    typeof(DeserializerSession).GetTypeInfo()
+                        .GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
 
                 c.EmitCall(trackDeserializedObjectMethod, session, target);
             }
@@ -66,7 +75,9 @@ namespace Wire
             var fieldsArray = fields.ToArray();
             var serializers = fieldsArray.Select(field => serializer.GetSerializerByType(field.FieldType)).ToArray();
 
-            var preallocatedBufferSize = serializers.Length != 0 ? serializers.Max(s => s.PreallocatedByteBufferSize) : 0;
+            var preallocatedBufferSize = serializers.Length != 0
+                ? serializers.Max(s => s.PreallocatedByteBufferSize)
+                : 0;
             if (preallocatedBufferSize > 0)
             {
                 EmitPreallocatedBuffer(c, preallocatedBufferSize, session,
@@ -183,7 +194,5 @@ namespace Wire
 
             return c.Compile();
         }
-
-        public const string PreallocatedByteBuffer = "PreallocatedByteBuffer";
     }
 }

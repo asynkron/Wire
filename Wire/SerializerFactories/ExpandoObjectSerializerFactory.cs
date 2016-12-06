@@ -1,9 +1,14 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="ExpandoObjectSerializerFactory.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+using System.Dynamic;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -11,11 +16,10 @@ namespace Wire.SerializerFactories
 {
     public class ExpandoObjectSerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type) => type == typeof(System.Dynamic.ExpandoObject);
+        public override bool CanSerialize(Serializer serializer, Type type) => type == typeof(ExpandoObject);
 
-        
 
-        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer,type);
+        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
@@ -27,8 +31,7 @@ namespace Wire.SerializerFactories
 
             ObjectReader reader = (stream, session) =>
             {
-               
-                var instance = Activator.CreateInstance(type) as IDictionary<string,object>;
+                var instance = Activator.CreateInstance(type) as IDictionary<string, object>;
 
                 if (preserveObjectReferences)
                 {
@@ -37,7 +40,7 @@ namespace Wire.SerializerFactories
                 var count = stream.ReadInt32(session);
                 for (var i = 0; i < count; i++)
                 {
-                    var entry = (KeyValuePair<string,object>)stream.ReadObject(session);
+                    var entry = (KeyValuePair<string, object>) stream.ReadObject(session);
                     instance.Add(entry);
                 }
                 return instance;
@@ -49,7 +52,7 @@ namespace Wire.SerializerFactories
                 {
                     session.TrackSerializedObject(obj);
                 }
-                var dict = obj as IDictionary<string,object>;
+                var dict = obj as IDictionary<string, object>;
                 // ReSharper disable once PossibleNullReferenceException
                 Int32Serializer.WriteValueImpl(stream, dict.Count, session);
                 foreach (var item in dict)

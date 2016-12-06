@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="ObjectSerializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.IO;
 using System.Linq;
@@ -16,9 +22,9 @@ namespace Wire.ValueSerializers
         private readonly byte[] _manifestWithVersionInfo;
 
         private volatile bool _isInitialized;
+        int _preallocatedBufferSize;
         private ObjectReader _reader;
         private ObjectWriter _writer;
-        int _preallocatedBufferSize;
 
         public ObjectSerializer(Type type)
         {
@@ -71,6 +77,8 @@ namespace Wire.ValueSerializers
 
         public Type Type { get; }
 
+        public override int PreallocatedByteBufferSize => _preallocatedBufferSize;
+
         public override void WriteManifest(Stream stream, SerializerSession session)
         {
             ushort typeIdentifier;
@@ -105,7 +113,5 @@ namespace Wire.ValueSerializers
             _writer = writer;
             _isInitialized = true;
         }
-
-        public override int PreallocatedByteBufferSize => _preallocatedBufferSize;
     }
 }

@@ -1,6 +1,11 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="PropertyInfoSerializerFactory.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Reflection;
 using Wire.Extensions;
 using Wire.ValueSerializers;
@@ -30,7 +35,9 @@ namespace Wire.SerializerFactories
                 var owner = stream.ReadObject(session) as Type;
 
 #if NET45
-                var property = owner.GetTypeInfo().GetProperty(name, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                var property = owner.GetTypeInfo()
+                    .GetProperty(name,
+                        BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 return property;
 #else
                 return null;
@@ -38,7 +45,7 @@ namespace Wire.SerializerFactories
             };
             ObjectWriter writer = (stream, obj, session) =>
             {
-                var property = (PropertyInfo)obj;
+                var property = (PropertyInfo) obj;
                 var name = property.Name;
                 var owner = property.DeclaringType;
                 StringSerializer.WriteValueImpl(stream, name, session);

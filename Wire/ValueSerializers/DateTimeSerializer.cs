@@ -1,3 +1,9 @@
+// //-----------------------------------------------------------------------
+// // <copyright file="DateTimeSerializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
 using System;
 using System.IO;
 
@@ -12,6 +18,8 @@ namespace Wire.ValueSerializers
         public DateTimeSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
+
+        public override int PreallocatedByteBufferSize => Size;
 
         private static void WriteValueImpl(Stream stream, DateTime dateTime, byte[] bytes)
         {
@@ -33,7 +41,5 @@ namespace Wire.ValueSerializers
             var dateTime = new DateTime(ticks, kind);
             return dateTime;
         }
-
-        public override int PreallocatedByteBufferSize => Size;
     }
 }

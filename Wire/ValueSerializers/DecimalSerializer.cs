@@ -1,6 +1,11 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="DecimalSerializer.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.IO;
-using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {

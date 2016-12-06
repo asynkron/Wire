@@ -1,4 +1,10 @@
-﻿using System;
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="DictionarySerializerFactory.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -18,7 +24,10 @@ namespace Wire.SerializerFactories
             return type
                 .GetTypeInfo()
                 .GetInterfaces()
-                .Select(t => t.GetTypeInfo().IsGenericType && t.GetTypeInfo().GetGenericTypeDefinition() == typeof (IDictionary<,>))
+                .Select(
+                    t =>
+                        t.GetTypeInfo().IsGenericType &&
+                        t.GetTypeInfo().GetGenericTypeDefinition() == typeof(IDictionary<,>))
                 .Any(isDict => isDict);
         }
 
@@ -30,7 +39,7 @@ namespace Wire.SerializerFactories
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             var ser = new ObjectSerializer(type);
             typeMapping.TryAdd(type, ser);
-            var elementSerializer = serializer.GetSerializerByType(typeof (DictionaryEntry));
+            var elementSerializer = serializer.GetSerializerByType(typeof(DictionaryEntry));
 
             ObjectReader reader = (stream, session) =>
             {
@@ -61,16 +70,16 @@ namespace Wire.SerializerFactories
                 }
                 var dict = obj as IDictionary;
                 // ReSharper disable once PossibleNullReferenceException
-                Int32Serializer.WriteValueImpl(stream,dict.Count,session);
+                Int32Serializer.WriteValueImpl(stream, dict.Count, session);
                 foreach (var item in dict)
                 {
-                    stream.WriteObject(item, typeof (DictionaryEntry), elementSerializer,
+                    stream.WriteObject(item, typeof(DictionaryEntry), elementSerializer,
                         serializer.Options.PreserveObjectReferences, session);
                     // elementSerializer.WriteValue(stream,item,session);
                 }
             };
             ser.Initialize(reader, writer);
-            
+
             return ser;
         }
     }

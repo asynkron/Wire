@@ -1,4 +1,10 @@
-﻿#if SERIALIZATION
+﻿// //-----------------------------------------------------------------------
+// // <copyright file="ISerializableSerializerFactory.cs" company="Asynkron HB">
+// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
+// // </copyright>
+// //-----------------------------------------------------------------------
+
+#if SERIALIZATION
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,7 +19,7 @@ namespace Wire.SerializerFactories
     {
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            return typeof (ISerializable).IsAssignableFrom(type);
+            return typeof(ISerializable).IsAssignableFrom(type);
         }
 
         public override bool CanDeserialize(Serializer serializer, Type type)
@@ -37,7 +43,7 @@ namespace Wire.SerializerFactories
                 }
 
                 var ctor = type.GetConstructor(BindingFlagsEx.All, null,
-                    new[] {typeof (SerializationInfo), typeof (StreamingContext)}, null);
+                    new[] {typeof(SerializationInfo), typeof(StreamingContext)}, null);
                 var instance = ctor.Invoke(new object[] {info, new StreamingContext()});
                 var deserializationCallback = instance as IDeserializationCallback;
                 deserializationCallback?.OnDeserialization(this);
@@ -63,4 +69,5 @@ namespace Wire.SerializerFactories
         }
     }
 }
+
 #endif
