@@ -35,6 +35,7 @@ namespace Wire
             new ExpandoObjectSerializerFactory(),
             new DefaultDictionarySerializerFactory(),
             new DictionarySerializerFactory(),
+            new HashSetSerializerFactory(), 
             new ArraySerializerFactory(),
 #if SERIALIZATION
             new ISerializableSerializerFactory(), //TODO: this will mess up the indexes in the serializer payload
