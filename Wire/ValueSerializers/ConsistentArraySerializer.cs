@@ -58,6 +58,10 @@ namespace Wire.ValueSerializers
             stream.WriteByte(Manifest);
         }
 
+        // private static void WriteValues<T>(T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer,
+        // private static object ReadValues<T>(Stream stream, DeserializerSession session, bool preserveObjectReferences)
+
+
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             if (session.Serializer.Options.PreserveObjectReferences)
@@ -68,6 +72,7 @@ namespace Wire.ValueSerializers
             var elementSerializer = session.Serializer.GetSerializerByType(elementType);
             elementSerializer.WriteManifest(stream, session); //write array element type
             // ReSharper disable once PossibleNullReferenceException
+            //TODO fix this
             WriteValues((dynamic) value, stream, elementSerializer, session);
         }
 
