@@ -34,6 +34,7 @@ namespace Wire
             new ImmutableCollectionsSerializerFactory(),
             new ExpandoObjectSerializerFactory(),
             new DefaultDictionarySerializerFactory(),
+            new LinkedListSerializerFactory(), 
             new DictionarySerializerFactory(),
             new HashSetSerializerFactory(), 
             new ArraySerializerFactory(),

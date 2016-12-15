@@ -11,6 +11,22 @@ namespace Wire.Tests
     public class CollectionTests : TestBase
     {
         [Fact]
+        public void CanSerializeLinkedList()
+        {
+            var expected = new LinkedList<string>();
+            expected.AddLast("a");
+            expected.AddLast("b");
+            expected.AddLast("c");
+            expected.AddLast("d");
+
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<LinkedList<string>>();
+
+            Assert.True(actual.SequenceEqual(expected));            
+        }
+
+        [Fact]
         public void CanSerializeArrayOfTuples()
         {
             var expected = new[]

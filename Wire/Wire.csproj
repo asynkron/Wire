@@ -69,6 +69,7 @@
     <Compile Include="SerializerFactories\HashSetSerializerFactory.cs" />
     <Compile Include="SerializerFactories\ImmutableCollectionsSerializerFactory.cs" />
     <Compile Include="SerializerFactories\ISerializableSerializerFactory.cs" />
+    <Compile Include="SerializerFactories\LinkedListSerializerFactory.cs" />
     <Compile Include="SerializerFactories\MethodInfoSerializerFactory.cs" />
     <Compile Include="SerializerFactories\ToSurrogateSerializerFactory.cs" />
     <Compile Include="SerializerFactories\ValueSerializerFactory.cs" />

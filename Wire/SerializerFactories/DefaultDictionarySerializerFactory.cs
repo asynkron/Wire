@@ -15,14 +15,14 @@ namespace Wire.SerializerFactories
 {
     public class DefaultDictionarySerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type) => IsInterface(type);
+        public override bool CanSerialize(Serializer serializer, Type type) => IsDictionary(type);
 
-        private static bool IsInterface(Type type)
+        private static bool IsDictionary(Type type)
         {
             return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
         }
 
-        public override bool CanDeserialize(Serializer serializer, Type type) => IsInterface(type);
+        public override bool CanDeserialize(Serializer serializer, Type type) => IsDictionary(type);
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
