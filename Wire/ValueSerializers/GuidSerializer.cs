@@ -27,7 +27,7 @@ namespace Wire.ValueSerializers
 
         public static Guid ReadValueImpl(Stream stream)
         {
-            var buffer = new byte[16];
+            var buffer = session.GetBuffer(16);
             stream.Read(buffer, 0, 16);
             return new Guid(buffer);
         }
