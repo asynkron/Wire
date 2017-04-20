@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 #if SERIALIZATION
 using System.Runtime.Serialization;
 
@@ -19,6 +20,7 @@ namespace Wire.Extensions
 {
     public static class TypeEx
     {
+        const string VERSION_REGEX = @", Version=(\d+([.]\d+)?([.]\d+)?([.]\d+)?.*?)";
         //Why not inline typeof you ask?
         //Because it actually generates calls to get the type.
         //We prefetch all primitives here
@@ -207,17 +209,29 @@ namespace Wire.Extensions
         public static string GetShortAssemblyQualifiedName(this Type self)
         {
             var name = self.AssemblyQualifiedName;
-            name = name.Replace(CoreAssemblyName, ",%core%");
-            name = name.Replace(", Culture=neutral", "");
-            name = name.Replace(", PublicKeyToken=null", "");
-            name = name.Replace(", Version=1.0.0.0", ""); //TODO: regex or whatever...
-            return name;
+            return ReplaceTokens(name);
         }
 
         public static string ToQualifiedAssemblyName(string shortName)
         {
             var res = shortName.Replace(",%core%", CoreAssemblyName);
             return res;
+        }
+
+        public static string ReplaceTokens(string input)
+        {
+            var name = input;
+            name = name.Replace(CoreAssemblyName, ",%core%");
+            name = name.Replace(", Culture=neutral", "");
+            name = name.Replace(", PublicKeyToken=null", "");
+            name = ReplaceVersion(name);
+            return name;
+        }
+
+        static string ReplaceVersion(string input)
+        {
+            var regex = new Regex(VERSION_REGEX);
+            return regex.Replace(input, "");
         }
     }
 }
