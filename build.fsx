@@ -112,9 +112,9 @@ Target "AssemblyInfo" <| fun _ ->
 //--------------------------------------------------------------------------------
 // Build the solution
 
-Target "Build" <| fun _ ->
+Target "Build" <| fun _ -> 
     !! solutionPath
-    |> MSBuildRelease "" "Rebuild"
+    |> MSBuild "" "Rebuild" [ "Configuration", "Release"; "DefineConstants", "NBENCH;NET45" ]
     |> ignore
     
 //--------------------------------------------------------------------------------
