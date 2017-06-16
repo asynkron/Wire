@@ -1,13 +1,14 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="ImmutableCollectionsSerializerFactory.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="ImmutableCollectionsSerializerFactory.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Wire.Extensions;
@@ -22,10 +23,15 @@ namespace Wire.SerializerFactories
 
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            if (type.Namespace == null || !type.Namespace.Equals(ImmutableCollectionsNamespace)) return false;
+            if (type.Namespace == null || !type.Namespace.Equals(ImmutableCollectionsNamespace))
+            {
+                return false;
+            }
             var isGenericEnumerable = GetEnumerableType(type) != null;
             if (isGenericEnumerable)
+            {
                 return true;
+            }
 
             return false;
         }
@@ -69,7 +75,7 @@ namespace Wire.SerializerFactories
                 .First(methodInfo => methodInfo.Name == "CreateRange" && methodInfo.GetParameters().Length == 1)
                 .MakeGenericMethod(genericTypes);
 
-            ObjectWriter writer = (stream, o, session) =>
+            void Writer(Stream stream, object o, SerializerSession session)
             {
                 var enumerable = o as ICollection;
                 if (enumerable == null)
@@ -89,9 +95,9 @@ namespace Wire.SerializerFactories
                 {
                     session.TrackSerializedObject(o);
                 }
-            };
+            }
 
-            ObjectReader reader = (stream, session) =>
+            object Reader(Stream stream, DeserializerSession session)
             {
                 var count = stream.ReadInt32(session);
                 var items = Array.CreateInstance(elementType, count);
@@ -107,8 +113,9 @@ namespace Wire.SerializerFactories
                     session.TrackDeserializedObject(instance);
                 }
                 return instance;
-            };
-            x.Initialize(reader, writer);
+            }
+
+            x.Initialize(Reader, Writer);
             return x;
         }
     }

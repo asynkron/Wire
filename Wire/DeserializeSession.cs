@@ -1,8 +1,8 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="DeserializeSession.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="DeserializeSession.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using Wire.Internal;
@@ -13,8 +13,7 @@ using TypeToVersionInfoLookup = System.Collections.Generic.Dictionary<System.Typ
 namespace Wire
 {
     public class TypeVersionInfo
-    {
-    }
+    {}
 
     public class
         DeserializerSession
@@ -45,7 +44,9 @@ namespace Wire
         public byte[] GetBuffer(int length)
         {
             if (length <= _buffer.Length)
+            {
                 return _buffer;
+            }
 
             length = Math.Max(length, _buffer.Length*2);
 
@@ -80,7 +81,9 @@ namespace Wire
                 return Serializer.Options.KnownTypes[typeId];
             }
             if (_identifierToType == null)
+            {
                 throw new ArgumentException(nameof(typeId));
+            }
 
             return _identifierToType[typeId - _offset];
         }

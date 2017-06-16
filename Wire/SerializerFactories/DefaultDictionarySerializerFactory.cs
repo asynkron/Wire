@@ -1,13 +1,14 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="DefaultDictionarySerializerFactory.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="DefaultDictionarySerializerFactory.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -31,7 +32,8 @@ namespace Wire.SerializerFactories
             typeMapping.TryAdd(type, ser);
             var elementSerializer = serializer.GetSerializerByType(typeof(DictionaryEntry));
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
-            ObjectReader reader = (stream, session) =>
+
+            object Reader(Stream stream, DeserializerSession session)
             {
                 var count = stream.ReadInt32(session);
                 var instance = (IDictionary) Activator.CreateInstance(type, count);
@@ -46,9 +48,9 @@ namespace Wire.SerializerFactories
                     instance.Add(entry.Key, entry.Value);
                 }
                 return instance;
-            };
+            }
 
-            ObjectWriter writer = (stream, obj, session) =>
+            void Writer(Stream stream, object obj, SerializerSession session)
             {
                 if (preserveObjectReferences)
                 {
@@ -59,12 +61,12 @@ namespace Wire.SerializerFactories
                 Int32Serializer.WriteValueImpl(stream, dict.Count, session);
                 foreach (DictionaryEntry item in dict)
                 {
-                    stream.WriteObject(item, typeof(DictionaryEntry), elementSerializer,
-                        serializer.Options.PreserveObjectReferences, session);
+                    stream.WriteObject(item, typeof(DictionaryEntry), elementSerializer, serializer.Options.PreserveObjectReferences, session);
                     // elementSerializer.WriteValue(stream,item,session);
                 }
-            };
-            ser.Initialize(reader, writer);
+            }
+
+            ser.Initialize(Reader, Writer);
 
             return ser;
         }

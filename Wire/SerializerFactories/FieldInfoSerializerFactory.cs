@@ -1,11 +1,12 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="FieldInfoSerializerFactory.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="FieldInfoSerializerFactory.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Reflection;
 using Wire.Extensions;
 using Wire.ValueSerializers;
@@ -29,29 +30,31 @@ namespace Wire.SerializerFactories
         {
             var os = new ObjectSerializer(type);
             typeMapping.TryAdd(type, os);
-            ObjectReader reader = (stream, session) =>
+
+            object Reader(Stream stream, DeserializerSession session)
             {
                 var name = stream.ReadString(session);
                 var owner = stream.ReadObject(session) as Type;
 
 #if NET45
                 var field = owner.GetTypeInfo()
-                    .GetField(name,
-                        BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                                 .GetField(name, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 return field;
 #else
                 return null;
 #endif
-            };
-            ObjectWriter writer = (stream, obj, session) =>
+            }
+
+            void Writer(Stream stream, object obj, SerializerSession session)
             {
                 var field = (FieldInfo) obj;
                 var name = field.Name;
                 var owner = field.DeclaringType;
                 StringSerializer.WriteValueImpl(stream, name, session);
                 stream.WriteObjectWithManifest(owner, session);
-            };
-            os.Initialize(reader, writer);
+            }
+
+            os.Initialize(Reader, Writer);
 
             return os;
         }

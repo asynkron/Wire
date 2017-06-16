@@ -1,8 +1,8 @@
-// //-----------------------------------------------------------------------
-// // <copyright file="ObjectSerializer.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+//   <copyright file="ObjectSerializer.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.IO;
@@ -29,7 +29,9 @@ namespace Wire.ValueSerializers
         public ObjectSerializer(Type type)
         {
             if (type == null)
+            {
                 throw new ArgumentNullException(nameof(type));
+            }
 
             Type = type;
             //TODO: remove version info

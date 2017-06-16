@@ -1,8 +1,8 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="StreamEx.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="StreamEx.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.IO;
@@ -21,12 +21,16 @@ namespace Wire.Extensions
             {
                 var b = stream.ReadByte();
                 if (b == -1)
+                {
                     throw new EndOfStreamException();
+                }
 
                 result |= (b & 0x7f) << offset;
 
                 if ((b & 0x80) == 0)
+                {
                     return (uint) result;
+                }
             }
 
             throw new InvalidDataException();
@@ -35,7 +39,9 @@ namespace Wire.Extensions
         public static void WriteVarint32(this Stream stream, uint value)
         {
             for (; value >= 0x80u; value >>= 7)
+            {
                 stream.WriteByte((byte) (value | 0x80u));
+            }
 
             stream.WriteByte((byte) value);
         }
@@ -49,12 +55,16 @@ namespace Wire.Extensions
             {
                 var b = stream.ReadByte();
                 if (b == -1)
+                {
                     throw new EndOfStreamException();
+                }
 
                 result |= (long) (b & 0x7f) << offset;
 
                 if ((b & 0x80) == 0)
+                {
                     return (ulong) result;
+                }
             }
 
             throw new InvalidDataException();
@@ -63,7 +73,9 @@ namespace Wire.Extensions
         public static void WriteVarint64(this Stream stream, ulong value)
         {
             for (; value >= 0x80u; value >>= 7)
+            {
                 stream.WriteByte((byte) (value | 0x80u));
+            }
 
             stream.WriteByte((byte) value);
         }

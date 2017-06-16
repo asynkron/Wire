@@ -1,11 +1,12 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="DelegateSerializerFactory.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="DelegateSerializerFactory.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Reflection;
 using Wire.Extensions;
 using Wire.ValueSerializers;
@@ -31,22 +32,25 @@ namespace Wire.SerializerFactories
             typeMapping.TryAdd(type, os);
             var methodInfoSerializer = serializer.GetSerializerByType(typeof(MethodInfo));
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
-            ObjectReader reader = (stream, session) =>
+
+            object Reader(Stream stream, DeserializerSession session)
             {
                 var target = stream.ReadObject(session);
                 var method = (MethodInfo) stream.ReadObject(session);
                 var del = method.CreateDelegate(type, target);
                 return del;
-            };
-            ObjectWriter writer = (stream, value, session) =>
+            }
+
+            void Writer(Stream stream, object value, SerializerSession session)
             {
                 var d = (Delegate) value;
                 var method = d.GetMethodInfo();
                 stream.WriteObjectWithManifest(d.Target, session);
                 //less lookups, slightly faster
                 stream.WriteObject(method, type, methodInfoSerializer, preserveObjectReferences, session);
-            };
-            os.Initialize(reader, writer);
+            }
+
+            os.Initialize(Reader, Writer);
             return os;
         }
     }

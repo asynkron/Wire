@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using Akka.Actor;
 using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
 using Wire.FSharpTestTypes;
@@ -72,14 +71,7 @@ namespace Wire.Tests
             var actual = Deserialize<object>();
             Assert.Equal(expected, actual);
         }
-
-        public class FooActor : UntypedActor
-        {
-            protected override void OnReceive(object message)
-            {                
-            }
-        }
-
+    
         [Fact]
         public void CanSerializeUser()
         {

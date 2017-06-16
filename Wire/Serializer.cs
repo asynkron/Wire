@@ -1,8 +1,8 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="Serializer.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="Serializer.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections.Concurrent;
@@ -114,7 +114,9 @@ namespace Wire
 
             //do we already have a deserializer for this type?
             if (_deserializers.TryGetValue(type, out serializer))
+            {
                 return serializer;
+            }
 
             //is there a deserializer factory that can handle this type?
             foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
@@ -128,7 +130,10 @@ namespace Wire
             //none of the above, lets create a POCO object deserializer
             serializer = new ObjectSerializer(type);
             //add it to the serializer lookup in case of recursive serialization
-            if (!_deserializers.TryAdd(type, serializer)) return _deserializers[type];
+            if (!_deserializers.TryAdd(type, serializer))
+            {
+                return _deserializers[type];
+            }
             //build the serializer IL code
             CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
             return serializer;
@@ -139,7 +144,9 @@ namespace Wire
         public void Serialize(object obj, [NotNull] Stream stream, SerializerSession session)
         {
             if (obj == null)
+            {
                 throw new ArgumentNullException(nameof(obj));
+            }
 
             var type = obj.GetType();
             var s = GetSerializerByType(type);
@@ -150,7 +157,9 @@ namespace Wire
         public void Serialize(object obj, [NotNull] Stream stream)
         {
             if (obj == null)
+            {
                 throw new ArgumentNullException(nameof(obj));
+            }
             var session = GetSerializerSession();
 
             var type = obj.GetType();
@@ -201,7 +210,9 @@ namespace Wire
 
             //do we already have a serializer for this type?
             if (_serializers.TryGetValue(type, out serializer))
+            {
                 return serializer;
+            }
 
             //is there a serializer factory that can handle this type?
             foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
@@ -219,8 +230,9 @@ namespace Wire
             {
                 var wrapper = new KnownTypeObjectSerializer((ObjectSerializer) serializer, index);
                 if (!_serializers.TryAdd(type, wrapper))
+                {
                     return _serializers[type];
-
+                }
 
                 try
                 {
@@ -237,8 +249,9 @@ namespace Wire
                 return wrapper;
             }
             if (!_serializers.TryAdd(type, serializer))
+            {
                 return _serializers[type];
-
+            }
 
             try
             {
@@ -262,7 +275,10 @@ namespace Wire
         public ValueSerializer GetDeserializerByManifest([NotNull] Stream stream, [NotNull] DeserializerSession session)
         {
             var first = stream.ReadByte();
-            if (first <= 250) return _deserializerLookup[first];
+            if (first <= 250)
+            {
+                return _deserializerLookup[first];
+            }
             switch (first)
             {
                 case ConsistentArraySerializer.Manifest:

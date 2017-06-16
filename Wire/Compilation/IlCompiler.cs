@@ -1,8 +1,8 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="IlCompiler.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="IlCompiler.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Linq;
@@ -54,11 +54,15 @@ namespace Wire.Compilation
 
             //if we have a return type, it's OK that there is one item on the stack
             if (returnType != typeof(void))
+            {
                 context.StackDepth--;
+            }
 
             //if the stack is not aligned, there is some error
             if (context.StackDepth != 0)
+            {
                 throw new NotSupportedException("Stack error");
+            }
 
             var del = (TDel) (object) method.CreateDelegate(typeof(TDel), self);
 
@@ -75,7 +79,9 @@ namespace Wire.Compilation
         private object BuildSelf()
         {
             if (!Constants.Any())
+            {
                 return null;
+            }
 
             //TODO: a tuple will not be enough, we need arbitrary many constants.
             //just emit the state object instead.

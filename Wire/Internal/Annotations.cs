@@ -1,8 +1,8 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="Annotations.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="Annotations.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 
@@ -35,8 +35,7 @@ namespace Wire.Internal
         AttributeTargets.Delegate | AttributeTargets.Field | AttributeTargets.Event |
         AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.GenericParameter)]
     public sealed class CanBeNullAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Indicates that the value of the marked element could never be <c>null</c>.
@@ -53,8 +52,7 @@ namespace Wire.Internal
         AttributeTargets.Delegate | AttributeTargets.Field | AttributeTargets.Event |
         AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.GenericParameter)]
     public sealed class NotNullAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Can be appplied to symbols of types derived from IEnumerable as well as to symbols of Task
@@ -65,8 +63,7 @@ namespace Wire.Internal
         AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property |
         AttributeTargets.Delegate | AttributeTargets.Field)]
     public sealed class ItemNotNullAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Can be appplied to symbols of types derived from IEnumerable as well as to symbols of Task
@@ -77,8 +74,7 @@ namespace Wire.Internal
         AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property |
         AttributeTargets.Delegate | AttributeTargets.Field)]
     public sealed class ItemCanBeNullAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Implicitly apply [NotNull]/[ItemNotNull] annotation to all the of type members and parameters
@@ -87,8 +83,7 @@ namespace Wire.Internal
     [AttributeUsage(
         AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface | AttributeTargets.Assembly)]
     public sealed class ImplicitNotNullAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Indicates that the marked method builds string by format pattern and (optional) arguments.
@@ -119,7 +114,7 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string FormatParameterName { get; private set; }
+        public string FormatParameterName { get; }
     }
 
     /// <summary>
@@ -135,7 +130,7 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string Name { get; private set; }
+        public string Name { get; }
     }
 
     /// <summary>
@@ -153,8 +148,7 @@ namespace Wire.Internal
     /// </example>
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class InvokerParameterNameAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Indicates that the method is contained in a type that implements
@@ -226,7 +220,7 @@ namespace Wire.Internal
         }
 
         [CanBeNull]
-        public string ParameterName { get; private set; }
+        public string ParameterName { get; }
     }
 
     /// <summary>
@@ -299,9 +293,9 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string Contract { get; private set; }
+        public string Contract { get; }
 
-        public bool ForceFullStates { get; private set; }
+        public bool ForceFullStates { get; }
     }
 
     /// <summary>
@@ -327,7 +321,7 @@ namespace Wire.Internal
             Required = required;
         }
 
-        public bool Required { get; private set; }
+        public bool Required { get; }
     }
 
     /// <summary>
@@ -354,8 +348,7 @@ namespace Wire.Internal
     /// </example>
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class CannotApplyEqualityOperatorAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     When applied to a target attribute, specifies a requirement for any type marked
@@ -380,7 +373,7 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public Type BaseType { get; private set; }
+        public Type BaseType { get; }
     }
 
     /// <summary>
@@ -411,8 +404,8 @@ namespace Wire.Internal
             TargetFlags = targetFlags;
         }
 
-        public ImplicitUseKindFlags UseKindFlags { get; private set; }
-        public ImplicitUseTargetFlags TargetFlags { get; private set; }
+        public ImplicitUseKindFlags UseKindFlags { get; }
+        public ImplicitUseTargetFlags TargetFlags { get; }
     }
 
     /// <summary>
@@ -444,10 +437,10 @@ namespace Wire.Internal
         }
 
         [UsedImplicitly]
-        public ImplicitUseKindFlags UseKindFlags { get; private set; }
+        public ImplicitUseKindFlags UseKindFlags { get; }
 
         [UsedImplicitly]
-        public ImplicitUseTargetFlags TargetFlags { get; private set; }
+        public ImplicitUseTargetFlags TargetFlags { get; }
     }
 
     [Flags]
@@ -468,7 +461,7 @@ namespace Wire.Internal
         InstantiatedWithFixedConstructorSignature = 4,
 
         /// <summary>Indicates implicit instantiation of a type.</summary>
-        InstantiatedNoFixedConstructorSignature = 8,
+        InstantiatedNoFixedConstructorSignature = 8
     }
 
     /// <summary>
@@ -505,7 +498,7 @@ namespace Wire.Internal
         }
 
         [CanBeNull]
-        public string Comment { get; private set; }
+        public string Comment { get; }
     }
 
     /// <summary>
@@ -515,8 +508,7 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class InstantHandleAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Indicates that a method does not make any observable state changes.
@@ -533,8 +525,7 @@ namespace Wire.Internal
     /// </example>
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class PureAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Indicates that the return value of method invocation must be used.
@@ -552,7 +543,7 @@ namespace Wire.Internal
         }
 
         [CanBeNull]
-        public string Justification { get; private set; }
+        public string Justification { get; }
     }
 
     /// <summary>
@@ -577,8 +568,7 @@ namespace Wire.Internal
         AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct |
         AttributeTargets.GenericParameter)]
     public sealed class ProvidesContextAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Indicates that a parameter is a path to a file or a folder within a web project.
@@ -597,7 +587,7 @@ namespace Wire.Internal
         }
 
         [CanBeNull]
-        public string BasePath { get; private set; }
+        public string BasePath { get; }
     }
 
     /// <summary>
@@ -625,8 +615,7 @@ namespace Wire.Internal
     /// </example>
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class SourceTemplateAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Allows specifying a macro for a parameter of a <see cref="SourceTemplateAttribute">source template</see>.
@@ -692,7 +681,7 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string Format { get; private set; }
+        public string Format { get; }
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -704,7 +693,7 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string Format { get; private set; }
+        public string Format { get; }
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -716,7 +705,7 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string Format { get; private set; }
+        public string Format { get; }
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -727,7 +716,7 @@ namespace Wire.Internal
             Format = format;
         }
 
-        public string Format { get; private set; }
+        public string Format { get; }
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -739,7 +728,7 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string Format { get; private set; }
+        public string Format { get; }
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -751,7 +740,7 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string Format { get; private set; }
+        public string Format { get; }
     }
 
     /// <summary>
@@ -773,7 +762,7 @@ namespace Wire.Internal
         }
 
         [CanBeNull]
-        public string AnonymousProperty { get; private set; }
+        public string AnonymousProperty { get; }
     }
 
     /// <summary>
@@ -794,7 +783,7 @@ namespace Wire.Internal
         }
 
         [CanBeNull]
-        public string AnonymousProperty { get; private set; }
+        public string AnonymousProperty { get; }
     }
 
     /// <summary>
@@ -816,7 +805,7 @@ namespace Wire.Internal
         }
 
         [CanBeNull]
-        public string AnonymousProperty { get; private set; }
+        public string AnonymousProperty { get; }
     }
 
     /// <summary>
@@ -825,8 +814,7 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class AspMvcMasterAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     ASP.NET MVC attribute. Indicates that a parameter is an MVC model type. Use this attribute
@@ -834,8 +822,7 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class AspMvcModelTypeAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter is an MVC
@@ -845,16 +832,14 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
     public sealed class AspMvcPartialViewAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     ASP.NET MVC attribute. Allows disabling inspections for MVC views within a class or a method.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public sealed class AspMvcSuppressViewErrorAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     ASP.NET MVC attribute. Indicates that a parameter is an MVC display template.
@@ -863,8 +848,7 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class AspMvcDisplayTemplateAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     ASP.NET MVC attribute. Indicates that a parameter is an MVC editor template.
@@ -873,8 +857,7 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class AspMvcEditorTemplateAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     ASP.NET MVC attribute. Indicates that a parameter is an MVC template.
@@ -883,8 +866,7 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class AspMvcTemplateAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
@@ -894,8 +876,7 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
     public sealed class AspMvcViewAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
@@ -903,8 +884,7 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class AspMvcViewComponentAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
@@ -912,8 +892,7 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
     public sealed class AspMvcViewComponentViewAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     ASP.NET MVC attribute. When applied to a parameter of an attribute,
@@ -930,8 +909,7 @@ namespace Wire.Internal
     /// </example>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
     public sealed class AspMvcActionSelectorAttribute : Attribute
-    {
-    }
+    {}
 
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field)]
     public sealed class HtmlElementAttributesAttribute : Attribute
@@ -946,7 +924,7 @@ namespace Wire.Internal
         }
 
         [CanBeNull]
-        public string Name { get; private set; }
+        public string Name { get; }
     }
 
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
@@ -958,7 +936,7 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string Name { get; private set; }
+        public string Name { get; }
     }
 
     /// <summary>
@@ -968,8 +946,7 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
     public sealed class RazorSectionAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Indicates how method, constructor invocation or property access
@@ -983,7 +960,7 @@ namespace Wire.Internal
             CollectionAccessType = collectionAccessType;
         }
 
-        public CollectionAccessType CollectionAccessType { get; private set; }
+        public CollectionAccessType CollectionAccessType { get; }
     }
 
     [Flags]
@@ -1009,8 +986,7 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class AssertionMethodAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Indicates the condition parameter of the assertion method. The method itself should be
@@ -1025,7 +1001,7 @@ namespace Wire.Internal
             ConditionType = conditionType;
         }
 
-        public AssertionConditionType ConditionType { get; private set; }
+        public AssertionConditionType ConditionType { get; }
     }
 
     /// <summary>
@@ -1044,7 +1020,7 @@ namespace Wire.Internal
         IS_NULL = 2,
 
         /// <summary>Marked parameter should be evaluated to not null value.</summary>
-        IS_NOT_NULL = 3,
+        IS_NOT_NULL = 3
     }
 
     /// <summary>
@@ -1054,8 +1030,7 @@ namespace Wire.Internal
     [Obsolete("Use [ContractAnnotation('=> halt')] instead")]
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class TerminatesProgramAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Indicates that method is pure LINQ method, with postponed enumeration (like Enumerable.Select,
@@ -1064,24 +1039,21 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class LinqTunnelAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Indicates that IEnumerable, passed as parameter, is not enumerated.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class NoEnumerationAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Indicates that parameter is regular expression pattern.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class RegexPatternAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     XAML attribute. Indicates the type that has <c>ItemsSource</c> property and should be treated
@@ -1089,8 +1061,7 @@ namespace Wire.Internal
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class XamlItemsControlAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     XAML attribute. Indicates the property of some <c>BindingBase</c>-derived type, that
@@ -1103,8 +1074,7 @@ namespace Wire.Internal
     /// </remarks>
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class XamlItemBindingOfItemsControlAttribute : Attribute
-    {
-    }
+    {}
 
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public sealed class AspChildControlTypeAttribute : Attribute
@@ -1116,26 +1086,23 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string TagName { get; private set; }
+        public string TagName { get; }
 
         [NotNull]
-        public Type ControlType { get; private set; }
+        public Type ControlType { get; }
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method)]
     public sealed class AspDataFieldAttribute : Attribute
-    {
-    }
+    {}
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method)]
     public sealed class AspDataFieldsAttribute : Attribute
-    {
-    }
+    {}
 
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class AspMethodPropertyAttribute : Attribute
-    {
-    }
+    {}
 
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public sealed class AspRequiredAttributeAttribute : Attribute
@@ -1146,7 +1113,7 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string Attribute { get; private set; }
+        public string Attribute { get; }
     }
 
     [AttributeUsage(AttributeTargets.Property)]
@@ -1157,7 +1124,7 @@ namespace Wire.Internal
             CreateConstructorReferences = createConstructorReferences;
         }
 
-        public bool CreateConstructorReferences { get; private set; }
+        public bool CreateConstructorReferences { get; }
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -1169,7 +1136,7 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string Name { get; private set; }
+        public string Name { get; }
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -1182,10 +1149,10 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string Type { get; private set; }
+        public string Type { get; }
 
         [NotNull]
-        public string FieldName { get; private set; }
+        public string FieldName { get; }
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -1197,33 +1164,28 @@ namespace Wire.Internal
         }
 
         [NotNull]
-        public string Directive { get; private set; }
+        public string Directive { get; }
     }
 
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class RazorHelperCommonAttribute : Attribute
-    {
-    }
+    {}
 
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class RazorLayoutAttribute : Attribute
-    {
-    }
+    {}
 
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class RazorWriteLiteralMethodAttribute : Attribute
-    {
-    }
+    {}
 
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class RazorWriteMethodAttribute : Attribute
-    {
-    }
+    {}
 
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class RazorWriteMethodParameterAttribute : Attribute
-    {
-    }
+    {}
 
     /// <summary>
     ///     Prevents the Member Reordering feature from tossing members of the marked class.
@@ -1233,6 +1195,5 @@ namespace Wire.Internal
     /// </remarks>
     [AttributeUsage(AttributeTargets.All)]
     public sealed class NoReorder : Attribute
-    {
-    }
+    {}
 }

@@ -1,15 +1,13 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="LinkedListSerializerFactory.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="LinkedListSerializerFactory.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using Wire.Extensions;
 using Wire.ValueSerializers;
@@ -71,18 +69,20 @@ namespace Wire.SerializerFactories
             var readGeneric = GetType().GetTypeInfo().GetMethod(nameof(ReadValues), BindingFlags.NonPublic | BindingFlags.Static).MakeGenericMethod(elementType);
             var writeGeneric = GetType().GetTypeInfo().GetMethod(nameof(WriteValues), BindingFlags.NonPublic | BindingFlags.Static).MakeGenericMethod(elementType);
 
-            ObjectReader reader = (stream, session) =>
+            object Reader(Stream stream, DeserializerSession session)
             {
                 //Stream stream, DeserializerSession session, bool preserveObjectReferences
-                var res = readGeneric.Invoke(null, new object[] { stream, session, preserveObjectReferences });
+                var res = readGeneric.Invoke(null, new object[] {stream, session, preserveObjectReferences});
                 return res;
-            };
-            ObjectWriter writer = (stream, arr, session) =>
+            }
+
+            void Writer(Stream stream, object arr, SerializerSession session)
             {
                 //T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer, SerializerSession session, bool preserveObjectReferences
-                writeGeneric.Invoke(null, new[] { arr, stream, elementType, elementSerializer, session, preserveObjectReferences });
-            };
-            arraySerializer.Initialize(reader, writer);
+                writeGeneric.Invoke(null, new[] {arr, stream, elementType, elementSerializer, session, preserveObjectReferences});
+            }
+
+            arraySerializer.Initialize(Reader, Writer);
             typeMapping.TryAdd(type, arraySerializer);
             return arraySerializer;
         }

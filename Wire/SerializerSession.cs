@@ -1,8 +1,8 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="SerializerSession.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="SerializerSession.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
@@ -55,7 +55,9 @@ namespace Wire
         public byte[] GetBuffer(int length)
         {
             if (length <= _buffer.Length)
+            {
                 return _buffer;
+            }
 
             length = Math.Max(length, _buffer.Length*2);
 

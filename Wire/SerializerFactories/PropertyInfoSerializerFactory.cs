@@ -1,11 +1,12 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="PropertyInfoSerializerFactory.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="PropertyInfoSerializerFactory.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Reflection;
 using Wire.Extensions;
 using Wire.ValueSerializers;
@@ -29,29 +30,31 @@ namespace Wire.SerializerFactories
         {
             var os = new ObjectSerializer(type);
             typeMapping.TryAdd(type, os);
-            ObjectReader reader = (stream, session) =>
+
+            object Reader(Stream stream, DeserializerSession session)
             {
                 var name = stream.ReadString(session);
                 var owner = stream.ReadObject(session) as Type;
 
 #if NET45
                 var property = owner.GetTypeInfo()
-                    .GetProperty(name,
-                        BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                                    .GetProperty(name, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 return property;
 #else
                 return null;
 #endif
-            };
-            ObjectWriter writer = (stream, obj, session) =>
+            }
+
+            void Writer(Stream stream, object obj, SerializerSession session)
             {
                 var property = (PropertyInfo) obj;
                 var name = property.Name;
                 var owner = property.DeclaringType;
                 StringSerializer.WriteValueImpl(stream, name, session);
                 stream.WriteObjectWithManifest(owner, session);
-            };
-            os.Initialize(reader, writer);
+            }
+
+            os.Initialize(Reader, Writer);
 
             return os;
         }

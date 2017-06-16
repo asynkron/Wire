@@ -1,13 +1,14 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="EnumerableSerializerFactory.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="EnumerableSerializerFactory.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Wire.Extensions;
@@ -22,17 +23,25 @@ namespace Wire.SerializerFactories
             //TODO: check for constructor with IEnumerable<T> param
 
             if (!type.GetTypeInfo().GetMethods().Any(m => m.Name == "AddRange" || m.Name == "Add"))
+            {
                 return false;
+            }
 
             if (type.GetTypeInfo().GetProperty("Count") == null)
+            {
                 return false;
+            }
 
             var isGenericEnumerable = GetEnumerableType(type) != null;
             if (isGenericEnumerable)
+            {
                 return true;
+            }
 
             if (typeof(ICollection).GetTypeInfo().IsAssignableFrom(type))
+            {
                 return true;
+            }
 
             return false;
         }
@@ -69,10 +78,9 @@ namespace Wire.SerializerFactories
             var addRange = type.GetTypeInfo().GetMethod("AddRange");
             var add = type.GetTypeInfo().GetMethod("Add");
 
-            Func<object, int> countGetter = o => (int) countProperty.GetValue(o);
+            int CountGetter(object o) => (int) countProperty.GetValue(o);
 
-
-            ObjectReader reader = (stream, session) =>
+            object Reader(Stream stream, DeserializerSession session)
             {
                 var instance = Activator.CreateInstance(type);
                 if (preserveObjectReferences)
@@ -104,25 +112,25 @@ namespace Wire.SerializerFactories
                     }
                 }
 
-
                 return instance;
-            };
+            }
 
-            ObjectWriter writer = (stream, o, session) =>
+            void Writer(Stream stream, object o, SerializerSession session)
             {
                 if (preserveObjectReferences)
                 {
                     session.TrackSerializedObject(o);
                 }
-                Int32Serializer.WriteValueImpl(stream, countGetter(o), session);
+                Int32Serializer.WriteValueImpl(stream, CountGetter(o), session);
                 var enumerable = o as IEnumerable;
                 // ReSharper disable once PossibleNullReferenceException
                 foreach (var value in enumerable)
                 {
                     stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
                 }
-            };
-            x.Initialize(reader, writer);
+            }
+
+            x.Initialize(Reader, Writer);
             return x;
         }
     }

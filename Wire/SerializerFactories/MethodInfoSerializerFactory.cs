@@ -1,11 +1,12 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="MethodInfoSerializerFactory.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="MethodInfoSerializerFactory.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Wire.Extensions;
@@ -30,26 +31,22 @@ namespace Wire.SerializerFactories
         {
             var os = new ObjectSerializer(type);
             typeMapping.TryAdd(type, os);
-            ObjectReader reader = (stream, session) =>
+
+            object Reader(Stream stream, DeserializerSession session)
             {
                 var name = stream.ReadString(session);
                 var owner = stream.ReadObject(session) as Type;
                 var arguments = stream.ReadObject(session) as Type[];
 
 #if NET45
-                var method = owner.GetTypeInfo().GetMethod(
-                    name,
-                    BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                    null,
-                    CallingConventions.Any,
-                    arguments,
-                    null);
+                var method = owner.GetTypeInfo().GetMethod(name, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, CallingConventions.Any, arguments, null);
                 return method;
 #else
                 return null;
 #endif
-            };
-            ObjectWriter writer = (stream, obj, session) =>
+            }
+
+            void Writer(Stream stream, object obj, SerializerSession session)
             {
                 var method = (MethodInfo) obj;
                 var name = method.Name;
@@ -58,8 +55,9 @@ namespace Wire.SerializerFactories
                 StringSerializer.WriteValueImpl(stream, name, session);
                 stream.WriteObjectWithManifest(owner, session);
                 stream.WriteObjectWithManifest(arguments, session);
-            };
-            os.Initialize(reader, writer);
+            }
+
+            os.Initialize(Reader, Writer);
 
             return os;
         }

@@ -1,11 +1,12 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="ConstructorInfoSerializerFactory.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="ConstructorInfoSerializerFactory.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Wire.Extensions;
@@ -30,7 +31,8 @@ namespace Wire.SerializerFactories
         {
             var os = new ObjectSerializer(type);
             typeMapping.TryAdd(type, os);
-            ObjectReader reader = (stream, session) =>
+
+            object Reader(Stream stream, DeserializerSession session)
             {
                 var owner = stream.ReadObject(session) as Type;
                 var arguments = stream.ReadObject(session) as Type[];
@@ -41,16 +43,18 @@ namespace Wire.SerializerFactories
 #else
                 return null;
 #endif
-            };
-            ObjectWriter writer = (stream, obj, session) =>
+            }
+
+            void Writer(Stream stream, object obj, SerializerSession session)
             {
                 var ctor = (ConstructorInfo) obj;
                 var owner = ctor.DeclaringType;
                 var arguments = ctor.GetParameters().Select(p => p.ParameterType).ToArray();
                 stream.WriteObjectWithManifest(owner, session);
                 stream.WriteObjectWithManifest(arguments, session);
-            };
-            os.Initialize(reader, writer);
+            }
+
+            os.Initialize(Reader, Writer);
 
             return os;
         }

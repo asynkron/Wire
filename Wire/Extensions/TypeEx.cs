@@ -1,8 +1,8 @@
-// //-----------------------------------------------------------------------
-// // <copyright file="TypeEx.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+//   <copyright file="TypeEx.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections.Concurrent;
@@ -178,21 +178,37 @@ namespace Wire.Extensions
         public static int GetTypeSize(this Type type)
         {
             if (type == Int16Type)
+            {
                 return sizeof(short);
+            }
             if (type == Int32Type)
+            {
                 return sizeof(int);
+            }
             if (type == Int64Type)
+            {
                 return sizeof(long);
+            }
             if (type == BoolType)
+            {
                 return sizeof(bool);
+            }
             if (type == UInt16Type)
+            {
                 return sizeof(ushort);
+            }
             if (type == UInt32Type)
+            {
                 return sizeof(uint);
+            }
             if (type == UInt64Type)
+            {
                 return sizeof(ulong);
+            }
             if (type == CharType)
+            {
                 return sizeof(char);
+            }
 
             throw new NotSupportedException();
         }

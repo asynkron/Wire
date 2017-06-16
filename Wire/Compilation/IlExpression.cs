@@ -1,8 +1,8 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="IlExpression.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="IlExpression.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Reflection;
@@ -267,7 +267,9 @@ namespace Wire.Compilation
         public IlCall(IlExpression target, MethodInfo method, params IlExpression[] args)
         {
             if (args.Length != method.GetParameters().Length)
+            {
                 throw new ArgumentException("Parameter count mismatch", nameof(args));
+            }
 
             _target = target;
             _method = method;
@@ -284,11 +286,17 @@ namespace Wire.Compilation
                 ctx.StackDepth--;
             }
             if (_method.IsVirtual)
+            {
                 ctx.Il.EmitCall(OpCodes.Callvirt, _method, null);
+            }
             else
+            {
                 ctx.Il.EmitCall(OpCodes.Call, _method, null);
+            }
             if (_method.ReturnType != typeof(void))
+            {
                 ctx.StackDepth++;
+            }
         }
 
         public override Type Type() => _method.ReturnType;
@@ -302,7 +310,9 @@ namespace Wire.Compilation
         public IlCallStatic(MethodInfo method, params IlExpression[] args)
         {
             if (args.Length != method.GetParameters().Length)
+            {
                 throw new ArgumentException("Parameter count mismatch", nameof(args));
+            }
 
             _method = method;
             _args = args;
@@ -317,7 +327,9 @@ namespace Wire.Compilation
             }
             ctx.Il.EmitCall(OpCodes.Call, _method, null);
             if (_method.ReturnType != typeof(void))
+            {
                 ctx.StackDepth++;
+            }
         }
 
         public override Type Type() => _method.ReturnType;

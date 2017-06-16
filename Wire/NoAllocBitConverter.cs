@@ -1,8 +1,8 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="NoAllocBitConverter.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="NoAllocBitConverter.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Runtime.CompilerServices;
@@ -27,19 +27,25 @@ namespace Wire
         public static unsafe void GetBytes(short value, byte[] bytes)
         {
             fixed (byte* b = bytes)
+            {
                 *(short*) b = value;
+            }
         }
 
         public static unsafe void GetBytes(int value, byte[] bytes)
         {
             fixed (byte* b = bytes)
+            {
                 *(int*) b = value;
+            }
         }
 
         public static unsafe void GetBytes(long value, byte[] bytes)
         {
             fixed (byte* b = bytes)
+            {
                 *(long*) b = value;
+            }
         }
 
         public static void GetBytes(ushort value, byte[] bytes)
@@ -95,7 +101,9 @@ namespace Wire
 
 
                 fixed (byte* b = bytes)
+                {
                     *(int*) (b + 1) = byteCount;
+                }
 
                 byteCount += 1 + 4;
 
@@ -107,7 +115,9 @@ namespace Wire
         {
             //datetime size is 9 ticks + kind
             fixed (byte* b = bytes)
+            {
                 *(long*) b = dateTime.Ticks;
+            }
             bytes[DateTimeSerializer.Size - 1] = (byte) dateTime.Kind;
         }
     }

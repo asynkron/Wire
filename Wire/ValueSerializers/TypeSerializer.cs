@@ -1,8 +1,8 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="TypeSerializer.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="TypeSerializer.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.IO;
@@ -61,7 +61,9 @@ namespace Wire.ValueSerializers
         {
             var shortname = stream.ReadString(session);
             if (shortname == null)
+            {
                 return null;
+            }
 
             var name = TypeEx.ToQualifiedAssemblyName(shortname);
             var type = Type.GetType(name, true);

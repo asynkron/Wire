@@ -1,8 +1,8 @@
-// //-----------------------------------------------------------------------
-// // <copyright file="IlCompilerContext.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+//   <copyright file="IlCompilerContext.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Reflection;
@@ -23,7 +23,6 @@ namespace Wire.Compilation
         }
 
         public IlEmitter Il { get; }
-
 
         public int StackDepth
         {

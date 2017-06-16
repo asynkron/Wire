@@ -1,8 +1,8 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="CharSerializer.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="CharSerializer.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.IO;
@@ -24,7 +24,7 @@ namespace Wire.ValueSerializers
         public static char ReadValueImpl(Stream stream, byte[] bytes)
         {
             stream.Read(bytes, 0, Size);
-            return (char) BitConverter.ToSingle(bytes, 0);
+            return BitConverter.ToChar(bytes, 0);
         }
 
         public static void WriteValueImpl(Stream stream, char ch, byte[] bytes)

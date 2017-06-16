@@ -1,12 +1,13 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="FSharpMapSerializerFactory.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="FSharpMapSerializerFactory.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -45,7 +46,6 @@ namespace Wire.SerializerFactories
                 .FirstOrDefault();
         }
 
-
         private static TypedArray CompileToDelegate(MethodInfo method, Type argType)
         {
             var arg = Expression.Parameter(typeof(object));
@@ -80,7 +80,7 @@ namespace Wire.SerializerFactories
             var arrSerializer = serializer.GetSerializerByType(arrType);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
-            ObjectWriter writer = (stream, o, session) =>
+            void Writer(Stream stream, object o, SerializerSession session)
             {
                 var arr = toArrayCompiled(o);
                 arrSerializer.WriteValue(stream, arr, session);
@@ -88,15 +88,16 @@ namespace Wire.SerializerFactories
                 {
                     session.TrackSerializedObject(o);
                 }
-            };
+            }
 
-            ObjectReader reader = (stream, session) =>
+            object Reader(Stream stream, DeserializerSession session)
             {
                 var arr = arrSerializer.ReadValue(stream, session);
                 var res = ofArrayCompiled(arr);
                 return res;
-            };
-            x.Initialize(reader, writer);
+            }
+
+            x.Initialize(Reader, Writer);
             return x;
         }
     }

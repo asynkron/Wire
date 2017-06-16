@@ -1,14 +1,15 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="ExpandoObjectSerializerFactory.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
+//   <copyright file="ExpandoObjectSerializerFactory.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.IO;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -17,7 +18,6 @@ namespace Wire.SerializerFactories
     public class ExpandoObjectSerializerFactory : ValueSerializerFactory
     {
         public override bool CanSerialize(Serializer serializer, Type type) => type == typeof(ExpandoObject);
-
 
         public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
@@ -29,7 +29,7 @@ namespace Wire.SerializerFactories
             typeMapping.TryAdd(type, ser);
             var elementSerializer = serializer.GetSerializerByType(typeof(DictionaryEntry));
 
-            ObjectReader reader = (stream, session) =>
+            object Reader(Stream stream, DeserializerSession session)
             {
                 var instance = Activator.CreateInstance(type) as IDictionary<string, object>;
 
@@ -44,9 +44,9 @@ namespace Wire.SerializerFactories
                     instance.Add(entry);
                 }
                 return instance;
-            };
+            }
 
-            ObjectWriter writer = (stream, obj, session) =>
+            void Writer(Stream stream, object obj, SerializerSession session)
             {
                 if (preserveObjectReferences)
                 {
@@ -57,12 +57,12 @@ namespace Wire.SerializerFactories
                 Int32Serializer.WriteValueImpl(stream, dict.Count, session);
                 foreach (var item in dict)
                 {
-                    stream.WriteObject(item, typeof(DictionaryEntry), elementSerializer,
-                        serializer.Options.PreserveObjectReferences, session);
+                    stream.WriteObject(item, typeof(DictionaryEntry), elementSerializer, serializer.Options.PreserveObjectReferences, session);
                     // elementSerializer.WriteValue(stream,item,session);
                 }
-            };
-            ser.Initialize(reader, writer);
+            }
+
+            ser.Initialize(Reader, Writer);
 
             return ser;
         }

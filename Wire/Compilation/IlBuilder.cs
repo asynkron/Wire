@@ -1,8 +1,8 @@
-// //-----------------------------------------------------------------------
-// // <copyright file="IlBuilder.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+//   <copyright file="IlBuilder.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
@@ -99,9 +99,13 @@ namespace Wire.Compilation
         {
             var valueExp = _expressions[value];
             if (type.IsValueType)
+            {
                 _expressions.Add(new IlUnbox(type, valueExp));
+            }
             else
+            {
                 _expressions.Add(new IlCastClass(type, valueExp));
+            }
             return _expressions.Count - 1;
         }
 
@@ -172,9 +176,13 @@ namespace Wire.Compilation
         {
             var valueExp = _expressions[value];
             if (valueExp.Type().IsValueType)
+            {
                 _expressions.Add(new IlBox(valueExp.Type(), valueExp));
+            }
             else
+            {
                 _expressions.Add(new IlCastClass(type, valueExp));
+            }
             return _expressions.Count - 1;
         }
     }

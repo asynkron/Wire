@@ -1,13 +1,13 @@
-﻿// //-----------------------------------------------------------------------
-// // <copyright file="ISerializableSerializerFactory.cs" company="Asynkron HB">
-// //     Copyright (C) 2015-2016 Asynkron HB All rights reserved
-// // </copyright>
-// //-----------------------------------------------------------------------
-
+﻿// -----------------------------------------------------------------------
+//   <copyright file="ISerializableSerializerFactory.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 #if SERIALIZATION
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Serialization;
 using Wire.Extensions;
 using Wire.ValueSerializers;
@@ -32,7 +32,8 @@ namespace Wire.SerializerFactories
         {
             var serializableSerializer = new ObjectSerializer(type);
             typeMapping.TryAdd(type, serializableSerializer);
-            ObjectReader reader = (stream, session) =>
+
+            object Reader(Stream stream, DeserializerSession session)
             {
                 var dict = stream.ReadObject(session) as Dictionary<string, object>;
                 var info = new SerializationInfo(type, new FormatterConverter());
@@ -42,15 +43,14 @@ namespace Wire.SerializerFactories
                     info.AddValue(item.Key, item.Value);
                 }
 
-                var ctor = type.GetConstructor(BindingFlagsEx.All, null,
-                    new[] {typeof(SerializationInfo), typeof(StreamingContext)}, null);
+                var ctor = type.GetConstructor(BindingFlagsEx.All, null, new[] {typeof(SerializationInfo), typeof(StreamingContext)}, null);
                 var instance = ctor.Invoke(new object[] {info, new StreamingContext()});
                 var deserializationCallback = instance as IDeserializationCallback;
                 deserializationCallback?.OnDeserialization(this);
                 return instance;
-            };
+            }
 
-            ObjectWriter writer = (stream, o, session) =>
+            void Writer(Stream stream, object o, SerializerSession session)
             {
                 var info = new SerializationInfo(type, new FormatterConverter());
                 var serializable = o as ISerializable;
@@ -62,8 +62,9 @@ namespace Wire.SerializerFactories
                     dict.Add(item.Name, item.Value);
                 }
                 stream.WriteObjectWithManifest(dict, session);
-            };
-            serializableSerializer.Initialize(reader, writer);
+            }
+
+            serializableSerializer.Initialize(Reader, Writer);
 
             return serializableSerializer;
         }
