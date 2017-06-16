@@ -1,136 +1,36 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7AF8D2B6-9F1F-4A1C-8673-48E533108385}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Wire</RootNamespace>
+    <Description>Wire, fast binary POCO serializer</Description>
+    <VersionPrefix>0.8.2</VersionPrefix>
+    <Authors>Roger Johansson</Authors>
+    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>Wire</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <PackageId>Wire</PackageId>
+    <PackageTags>serialization;poco</PackageTags>
+    <PackageIconUrl>https://raw.githubusercontent.com/hmemcpy/NServiceBus.Wire/master/icon.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/rogeralsing/Wire</PackageProjectUrl>
+    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.0</NetStandardImplicitPackageVersion>
+    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'net45' ">$(PackageTargetFallback);dotnet5.4</PackageTargetFallback>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;SERIALIZATION, UNSAFE, NET45</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;SERIALIZATION, UNSAFE, NET45</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <PackageReference Include="Microsoft.CSharp" Version="4.0.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Internal\Annotations.cs" />
-    <Compile Include="ByteArrayKey.cs" />
-    <Compile Include="ByteArrayKeyComparer.cs" />
-    <Compile Include="Compilation\ExpressionEx.cs" />
-    <Compile Include="Compilation\IlCompiler.cs" />
-    <Compile Include="Compilation\IlBuilder.cs" />
-    <Compile Include="Compilation\IlCompilerContext.cs" />
-    <Compile Include="DefaultCodeGenerator.cs" />
-    <Compile Include="Compilation\Compiler.cs" />
-    <Compile Include="Compilation\IlExpression.cs" />
-    <Compile Include="Compilation\ICompiler.cs" />
-    <Compile Include="ICodeGenerator.cs" />
-    <Compile Include="Extensions\ReflectionEx.cs" />
-    <Compile Include="SerializerFactories\ArraySerializerFactory.cs" />
-    <Compile Include="SerializerFactories\ConsistentArraySerializerFactory.cs" />
-    <Compile Include="SerializerFactories\DefaultDictionarySerializerFactory.cs" />
-    <Compile Include="SerializerFactories\DelegateSerializerFactory.cs" />
-    <Compile Include="SerializerFactories\DictionarySerializerFactory.cs" />
-    <Compile Include="SerializerFactories\EnumerableSerializerFactory.cs" />
-    <Compile Include="SerializerFactories\ExceptionSerializerFactory.cs" />
-    <Compile Include="SerializerFactories\ExpandoObjectSerializerFactory.cs" />
-    <Compile Include="SerializerFactories\FromSurrogateSerializerFactory.cs" />
-    <Compile Include="SerializerFactories\FSharpListSerializerFactory.cs" />
-    <Compile Include="SerializerFactories\FSharpMapSerializerFactory.cs" />
-    <Compile Include="SerializerFactories\HashSetSerializerFactory.cs" />
-    <Compile Include="SerializerFactories\ImmutableCollectionsSerializerFactory.cs" />
-    <Compile Include="SerializerFactories\ISerializableSerializerFactory.cs" />
-    <Compile Include="SerializerFactories\LinkedListSerializerFactory.cs" />
-    <Compile Include="SerializerFactories\MethodInfoSerializerFactory.cs" />
-    <Compile Include="SerializerFactories\ToSurrogateSerializerFactory.cs" />
-    <Compile Include="SerializerFactories\ValueSerializerFactory.cs" />
-    <Compile Include="Delegates.cs" />
-    <Compile Include="DeserializeSession.cs" />
-    <Compile Include="SerializerOptions.cs" />
-    <Compile Include="Extensions\StreamEx.cs" />
-    <Compile Include="Extensions\StringEx.cs" />
-    <Compile Include="Surrogate.cs" />
-    <Compile Include="Extensions\TypeEx.cs" />
-    <Compile Include="ValueSerializers\BoolSerializer.cs" />
-    <Compile Include="ValueSerializers\ByteArraySerializer.cs" />
-    <Compile Include="ValueSerializers\ByteSerializer.cs" />
-    <Compile Include="ValueSerializers\CharSerializer.cs" />
-    <Compile Include="ValueSerializers\ConsistentArraySerializer.cs" />
-    <Compile Include="SerializerFactories\ConstructorInfoSerializerFactory.cs" />
-    <Compile Include="ValueSerializers\DateTimeSerializer.cs" />
-    <Compile Include="ValueSerializers\DecimalSerializer.cs" />
-    <Compile Include="ValueSerializers\DoubleSerializer.cs" />
-    <Compile Include="SerializerFactories\FieldInfoSerializerFactory.cs" />
-    <Compile Include="ValueSerializers\FloatSerializer.cs" />
-    <Compile Include="ValueSerializers\FromSurrogateSerializer.cs" />
-    <Compile Include="ValueSerializers\GuidSerializer.cs" />
-    <Compile Include="ValueSerializers\Int16Serializer.cs" />
-    <Compile Include="ValueSerializers\Int32Serializer.cs" />
-    <Compile Include="ValueSerializers\Int64Serializer.cs" />
-    <Compile Include="NoAllocBitConverter.cs" />
-    <Compile Include="ValueSerializers\UnsupportedTypeSerializer.cs" />
-    <Compile Include="ValueSerializers\KnownTypeObjectSerializer.cs" />
-    <Compile Include="ValueSerializers\NullSerializer.cs" />
-    <Compile Include="ValueSerializers\ObjectReferenceSerializer.cs" />
-    <Compile Include="ValueSerializers\ObjectSerializer.cs" />
-    <Compile Include="Serializer.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SerializerSession.cs" />
-    <Compile Include="SerializerFactories\PropertyInfoSerializerFactory.cs" />
-    <Compile Include="ValueSerializers\SByteSerializer.cs" />
-    <Compile Include="ValueSerializers\SessionAwareByteArrayRequiringValueSerializer.cs" />
-    <Compile Include="ValueSerializers\SessionIgnorantValueSerializer.cs" />
-    <Compile Include="ValueSerializers\StringSerializer.cs" />
-    <Compile Include="ValueSerializers\SystemObjectSerializer.cs" />
-    <Compile Include="ValueSerializers\ToSurrogateSerializer.cs" />
-    <Compile Include="ValueSerializers\TypeSerializer.cs" />
-    <Compile Include="ValueSerializers\UInt16Serializer.cs" />
-    <Compile Include="ValueSerializers\UInt32Serializer.cs" />
-    <Compile Include="ValueSerializers\UInt64Serializer.cs" />
-    <Compile Include="ValueSerializers\ValueSerializer.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>
