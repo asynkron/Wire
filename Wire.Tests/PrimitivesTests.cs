@@ -1,4 +1,10 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="PrimitivesTests.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using Xunit;
 
 namespace Wire.Tests
@@ -6,6 +12,88 @@ namespace Wire.Tests
     
     public class PrimitivesTest : TestBase
     {
+        private void SerializeAndAssert(object expected)
+        {
+            Serialize(expected);
+            Reset();
+            var res = Deserialize<object>();
+            Assert.Equal(expected, res);
+            AssertMemoryStreamConsumed();
+        }
+
+        [Fact]
+        public void CanSerializeBool()
+        {
+            SerializeAndAssert(true);
+        }
+
+        [Fact]
+        public void CanSerializeByte()
+        {
+            SerializeAndAssert((byte) 123);
+        }
+
+        [Fact]
+        public void CanSerializeDateTime()
+        {
+            SerializeAndAssert(DateTime.UtcNow);
+        }
+
+        [Fact]
+        public void CanSerializeDecimal()
+        {
+            SerializeAndAssert(123m);
+        }
+
+        [Fact]
+        public void CanSerializeDouble()
+        {
+            SerializeAndAssert(123d);
+        }
+
+        [Fact]
+        public void CanSerializeGuid()
+        {
+            SerializeAndAssert(Guid.NewGuid());
+        }
+
+        [Fact]
+        public void CanSerializeInt16()
+        {
+            SerializeAndAssert((short) 123);
+        }
+
+        [Fact]
+        public void CanSerializeInt32()
+        {
+            SerializeAndAssert(123);
+        }
+
+        [Fact]
+        public void CanSerializeInt64()
+        {
+            SerializeAndAssert(123L);
+        }
+
+        [Fact]
+        public void CanSerializeLongString()
+        {
+            var s = new string('x',1000);
+            SerializeAndAssert(s);
+        }
+
+        [Fact]
+        public void CanSerializeSByte()
+        {
+            SerializeAndAssert((sbyte)123);
+        }
+
+        [Fact]
+        public void CanSerializeString()
+        {
+            SerializeAndAssert("hello");
+        }
+
         [Fact]
         public void CanSerializeTuple1()
         {
@@ -55,75 +143,9 @@ namespace Wire.Tests
         }
 
         [Fact]
-        public void CanSerializeBool()
-        {
-            SerializeAndAssert(true);
-        }
-
-        [Fact]
-        public void CanSerializeGuid()
-        {
-            SerializeAndAssert(Guid.NewGuid());
-        }
-
-        [Fact]
-        public void CanSerializeDateTime()
-        {
-            SerializeAndAssert(DateTime.UtcNow);
-        }
-
-        [Fact]
-        public void CanSerializeDecimal()
-        {
-            SerializeAndAssert(123m);
-        }
-
-        [Fact]
-        public void CanSerializeDouble()
-        {
-            SerializeAndAssert(123d);
-        }
-
-
-        [Fact]
-        public void CanSerializeByte()
-        {
-            SerializeAndAssert((byte) 123);
-        }
-        [Fact]
-        public void CanSerializeSByte()
-        {
-            SerializeAndAssert((sbyte)123);
-        }
-
-        [Fact]
-        public void CanSerializeInt16()
-        {
-            SerializeAndAssert((short) 123);
-        }
-
-        [Fact]
-        public void CanSerializeInt64()
-        {
-            SerializeAndAssert(123L);
-        }
-
-        [Fact]
-        public void CanSerializeInt32()
-        {
-            SerializeAndAssert(123);
-        }
-
-        [Fact]
         public void CanSerializeUInt16()
         {
             SerializeAndAssert((ushort)123);
-        }
-
-        [Fact]
-        public void CanSerializeUInt64()
-        {
-            SerializeAndAssert((ulong)123);
         }
 
         [Fact]
@@ -133,25 +155,9 @@ namespace Wire.Tests
         }
 
         [Fact]
-        public void CanSerializeLongString()
+        public void CanSerializeUInt64()
         {
-            var s = new string('x',1000);
-            SerializeAndAssert(s);
-        }
-
-        [Fact]
-        public void CanSerializeString()
-        {
-            SerializeAndAssert("hello");
-        }
-
-        private void SerializeAndAssert(object expected)
-        {
-            Serialize(expected);
-            Reset();
-            var res = Deserialize<object>();
-            Assert.Equal(expected, res);
-            AssertMemoryStreamConsumed();
+            SerializeAndAssert((ulong)123);
         }
     }
 }

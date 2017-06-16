@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="ISerializableTests.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
 
 namespace Wire.Tests
 {
     public class ISerializableTests : TestBase
-    {
-    }
+    {}
 }

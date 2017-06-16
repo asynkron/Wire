@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="InterfaceTests.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Wire.Tests
@@ -21,6 +22,7 @@ namespace Wire.Tests
             int A { get; set; }
             string B { get; set; }
         }
+
         public class Foo : IFoo
         {
             public int A { get; set; }
@@ -32,7 +34,7 @@ namespace Wire.Tests
         {
             var b = new Bar
             {
-                Foo = new Foo()
+                Foo = new Foo
                 {
                     A = 123,
                     B = "hello"

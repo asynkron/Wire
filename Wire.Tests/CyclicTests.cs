@@ -1,12 +1,33 @@
-﻿using System.Collections.Generic;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="CyclicTests.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Xunit;
 
 namespace Wire.Tests
 {
     public class CyclicTests
     {
+        [Fact]
+        public void CanSerializeCyclicReferences()
+        {
+            var stream = new MemoryStream();
+            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
+            var bar = new Bar();
+            bar.Self = bar;
+            bar.XYZ = 234;
+
+            serializer.Serialize(bar, stream);
+            stream.Position = 0;
+            var actual = serializer.Deserialize<Bar>(stream);
+            Assert.Same(actual, actual.Self);
+            Assert.Equal(bar.XYZ, actual.XYZ);
+        }
+
         [Fact]
         public void CanSerializeDeepCyclicReferences()
         {
@@ -40,7 +61,7 @@ namespace Wire.Tests
             {
                 [1] = arr1,
                 [2] = arr2,
-                [3] = arr1,
+                [3] = arr1
             };
 
             serializer.Serialize(obj, stream);
@@ -76,23 +97,6 @@ namespace Wire.Tests
 
             Assert.Same(res["one"], res["two"]);
             Assert.NotSame(res["one"], res["three"]);
-        }
-
-
-        [Fact]
-        public void CanSerializeCyclicReferences()
-        {
-            var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
-            var bar = new Bar();
-            bar.Self = bar;
-            bar.XYZ = 234;
-
-            serializer.Serialize(bar, stream);
-            stream.Position = 0;
-            var actual = serializer.Deserialize<Bar>(stream);
-            Assert.Same(actual, actual.Self);
-            Assert.Equal(bar.XYZ, actual.XYZ);
         }
 
         [Fact]

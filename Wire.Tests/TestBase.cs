@@ -1,12 +1,18 @@
-﻿using System.IO;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="TestBase.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System.IO;
 using Xunit;
 
 namespace Wire.Tests
 {
     public abstract class TestBase
     {
-        private Serializer _serializer;
         private readonly MemoryStream _stream;
+        private Serializer _serializer;
 
         protected TestBase()
         {
@@ -18,7 +24,6 @@ namespace Wire.Tests
         {
             _serializer = serializer;
         }
-
 
         public void Reset()
         {

@@ -1,9 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="TypicalPerson.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using ProtoBuf;
 using ZeroFormatter;
 
@@ -26,11 +28,7 @@ namespace Wire.PerfTest.Types
     [ZeroFormattable]
     public class TypicalPersonData
     {
-        /// <summary>
-        /// Required by some serilizers (i.e. XML)
-        /// </summary>
-        public TypicalPersonData() { }
-
+        private static int counter;
 
         [ProtoMember(1)]
         [DataMember]
@@ -117,16 +115,16 @@ namespace Wire.PerfTest.Types
         [Index(16)]
         public virtual int YearsOfService { get; set; }
 
-
-
         [ProtoMember(18)]
         [DataMember]
         [Index(17)]
         public virtual string SkypeID { get; set; }
+
         [ProtoMember(19)]
         [DataMember]
         [Index(18)]
         public virtual string YahooID { get; set; }
+
         [ProtoMember(20)]
         [DataMember]
         [Index(19)]
@@ -141,22 +139,27 @@ namespace Wire.PerfTest.Types
         [DataMember]
         [Index(21)]
         public virtual bool? IsSmoker { get; set; }
+
         [ProtoMember(23)]
         [DataMember]
         [Index(22)]
         public virtual bool? IsLoving { get; set; }
+
         [ProtoMember(24)]
         [DataMember]
         [Index(23)]
         public virtual bool? IsLoved { get; set; }
+
         [ProtoMember(25)]
         [DataMember]
         [Index(24)]
         public virtual bool? IsDangerous { get; set; }
+
         [ProtoMember(26)]
         [DataMember]
         [Index(25)]
         public virtual bool? IsEducated { get; set; }
+
         [ProtoMember(27)]
         [DataMember]
         [Index(26)]
@@ -166,6 +169,7 @@ namespace Wire.PerfTest.Types
         [DataMember]
         [Index(27)]
         public virtual decimal? DesiredSalary { get; set; }
+
         [ProtoMember(29)]
         [DataMember]
         [Index(28)]
@@ -175,13 +179,12 @@ namespace Wire.PerfTest.Types
         [DataMember]
         [Index(29)]
         public virtual int? CurrentFriendCount { get; set; }
+
         [ProtoMember(31)]
         [DataMember]
         [Index(30)]
         public virtual int? DesiredFriendCount { get; set; }
 
-
-        private static int counter;
         public static TypicalPersonData MakeRandom()
         {
             var rnd = counter++;
@@ -206,21 +209,53 @@ namespace Wire.PerfTest.Types
                 EMail = NaturalTextGenerator.GenerateEMail()
             };
 
-            if (0 != (rnd & (1 << 32))) data.Notes = NaturalTextGenerator.Generate(45);
-            if (0 != (rnd & (1 << 31))) data.SkypeID = NaturalTextGenerator.GenerateEMail();
-            if (0 != (rnd & (1 << 30))) data.YahooID = NaturalTextGenerator.GenerateEMail();
+            if (0 != (rnd & (1 << 32)))
+            {
+                data.Notes = NaturalTextGenerator.Generate(45);
+            }
+            if (0 != (rnd & (1 << 31)))
+            {
+                data.SkypeID = NaturalTextGenerator.GenerateEMail();
+            }
+            if (0 != (rnd & (1 << 30)))
+            {
+                data.YahooID = NaturalTextGenerator.GenerateEMail();
+            }
 
-            if (0 != (rnd & (1 << 29))) data.IsSmoker = 0 != (rnd & (1 << 17));
-            if (0 != (rnd & (1 << 28))) data.IsLoving = 0 != (rnd & (1 << 16));
-            if (0 != (rnd & (1 << 27))) data.IsLoved = 0 != (rnd & (1 << 15));
-            if (0 != (rnd & (1 << 26))) data.IsDangerous = 0 != (rnd & (1 << 14));
-            if (0 != (rnd & (1 << 25))) data.IsEducated = 0 != (rnd & (1 << 13));
+            if (0 != (rnd & (1 << 29)))
+            {
+                data.IsSmoker = 0 != (rnd & (1 << 17));
+            }
+            if (0 != (rnd & (1 << 28)))
+            {
+                data.IsLoving = 0 != (rnd & (1 << 16));
+            }
+            if (0 != (rnd & (1 << 27)))
+            {
+                data.IsLoved = 0 != (rnd & (1 << 15));
+            }
+            if (0 != (rnd & (1 << 26)))
+            {
+                data.IsDangerous = 0 != (rnd & (1 << 14));
+            }
+            if (0 != (rnd & (1 << 25)))
+            {
+                data.IsEducated = 0 != (rnd & (1 << 13));
+            }
 
-            if (0 != (rnd & (1 << 24))) data.LastSmokingDate = DateTime.Now.AddYears(-10);
+            if (0 != (rnd & (1 << 24)))
+            {
+                data.LastSmokingDate = DateTime.Now.AddYears(-10);
+            }
 
-
-            if (0 != (rnd & (1 << 23))) data.DesiredSalary = rnd / 1000m;
-            if (0 != (rnd & (1 << 22))) data.ProbabilityOfSpaceFlight = rnd / (double)int.MaxValue;
+            if (0 != (rnd & (1 << 23)))
+            {
+                data.DesiredSalary = rnd / 1000m;
+            }
+            if (0 != (rnd & (1 << 22)))
+            {
+                data.ProbabilityOfSpaceFlight = rnd / (double)int.MaxValue;
+            }
 
             if (0 != (rnd & (1 << 21)))
             {
@@ -266,6 +301,5 @@ namespace Wire.PerfTest.Types
     }
 
     public class ExternalRandomGenerator
-    {
-    }
+    {}
 }

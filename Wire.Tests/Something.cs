@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="Something.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 
 namespace Wire.Tests
 {
@@ -17,16 +19,27 @@ namespace Wire.Tests
         public bool Equals(Empty other)
         {
             if (other == null)
+            {
                 return false;
+            }
 
             return true;
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
             return Equals((Empty) obj);
         }
 
@@ -47,18 +60,40 @@ namespace Wire.Tests
     }
     public class Something : IEquatable<Something>
     {
+        public string StringProp { get; set; }
+        public int Int32Prop { get; set; }
+        public bool BoolProp { get; set; }
+        public int? NullableInt32PropNoValue { get; set; } = null;
+        public int? NullableInt32PropHasValue { get; set; } = 123;
+        public Else Else { get; set; }
+
         public bool Equals(Something other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
             return string.Equals(StringProp, other.StringProp) && Int32Prop == other.Int32Prop && BoolProp == other.BoolProp && NullableInt32PropNoValue == other.NullableInt32PropNoValue && NullableInt32PropHasValue == other.NullableInt32PropHasValue && Equals(Else, other.Else);
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
             return Equals((Something) obj);
         }
 
@@ -66,7 +101,7 @@ namespace Wire.Tests
         {
             unchecked
             {
-                var hashCode = (StringProp != null ? StringProp.GetHashCode() : 0);
+                var hashCode = StringProp != null ? StringProp.GetHashCode() : 0;
                 hashCode = (hashCode*397) ^ Int32Prop;
                 hashCode = (hashCode*397) ^ BoolProp.GetHashCode();
                 hashCode = (hashCode*397) ^ NullableInt32PropNoValue.GetHashCode();
@@ -85,35 +120,45 @@ namespace Wire.Tests
         {
             return !Equals(left, right);
         }
-
-        public string StringProp { get; set; }
-        public int Int32Prop { get; set; }
-        public bool BoolProp { get; set; }
-        public int? NullableInt32PropNoValue { get; set; } = null;
-        public int? NullableInt32PropHasValue { get; set; } = 123;
-        public Else Else { get; set; }
     }
 
     public class Else : IEquatable<Else>
     {
+        public string Name { get; set; }
+
         public bool Equals(Else other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
             return string.Equals(Name, other.Name);
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
             return Equals((Else) obj);
         }
 
         public override int GetHashCode()
         {
-            return (Name != null ? Name.GetHashCode() : 0);
+            return Name != null ? Name.GetHashCode() : 0;
         }
 
         public static bool operator ==(Else left, Else right)
@@ -125,24 +170,39 @@ namespace Wire.Tests
         {
             return !Equals(left, right);
         }
-
-        public string Name { get; set; }
     }
 
     public class OtherElse : Else, IEquatable<OtherElse>
     {
+        public string More { get; set; }
+
         public bool Equals(OtherElse other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
             return base.Equals(other) && string.Equals(More, other.More);
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
             return Equals((OtherElse) obj);
         }
 
@@ -163,8 +223,6 @@ namespace Wire.Tests
         {
             return !Equals(left, right);
         }
-
-        public string More { get; set; }
     }
 
 

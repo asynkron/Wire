@@ -1,4 +1,10 @@
-﻿using Wire.Extensions;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="TypeExTests.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using Wire.Extensions;
 using Xunit;
 
 namespace Wire.Tests.Extensions

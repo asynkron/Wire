@@ -1,8 +1,10 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="TypicalPersonArrayTest.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Wire.PerfTest.Types;
 
 namespace Wire.PerfTest.Tests
@@ -12,7 +14,7 @@ namespace Wire.PerfTest.Tests
         protected override TypicalPersonData[] GetValue()
         {
             var l = new List<TypicalPersonData>();
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
                 l.Add(TypicalPersonData.MakeRandom());
             }

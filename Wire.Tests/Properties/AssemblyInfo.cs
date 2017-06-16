@@ -1,4 +1,10 @@
-﻿using System.Reflection;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="AssemblyInfo.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 

@@ -1,8 +1,11 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="GuidArrayTest.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Wire.PerfTest.Tests
 {
@@ -11,7 +14,7 @@ namespace Wire.PerfTest.Tests
         protected override Guid[] GetValue()
         {
             var l = new List<Guid>();
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
                 l.Add(Guid.NewGuid());
             }

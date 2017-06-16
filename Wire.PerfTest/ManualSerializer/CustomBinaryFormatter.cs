@@ -1,4 +1,10 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="CustomBinaryFormatter.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -35,24 +41,32 @@ namespace Wire.PerfTest.ManualSerializer
         public object Deserialize(Stream serializationStream)
         {
             if (serializationStream.Read(_lengthBuffer, 0, 4) != 4)
+            {
                 throw new SerializationException("Could not read length from the stream.");
+            }
             var length = new IntToBytes(_lengthBuffer[0], _lengthBuffer[1], _lengthBuffer[2], _lengthBuffer[3]);
             //TODO make this support partial reads from stream
             if (serializationStream.Read(_copyBuffer, 0, length.I32) != length.I32)
+            {
                 throw new SerializationException("Could not read " + length + " bytes from the stream.");
+            }
             _readStream.Seek(0L, SeekOrigin.Begin);
             _readStream.Write(_copyBuffer, 0, length.I32);
             _readStream.Seek(0L, SeekOrigin.Begin);
             var typeid = _reader.ReadInt32();
             Type t;
             if (!_byId.TryGetValue(typeid, out t))
+            {
                 throw new SerializationException("TypeId " + typeid + " is not a registerred type id");
+            }
             var obj = FormatterServices.GetUninitializedObject(t);
             var deserialize = (ICustomBinarySerializable) obj;
             deserialize.SetDataFrom(_reader);
             if (_readStream.Position != length.I32)
+            {
                 throw new SerializationException("object of type " + t +
                                                  " did not read its entire buffer during deserialization. This is most likely an inbalance between the writes and the reads of the object.");
+            }
             return deserialize;
         }
 
@@ -60,7 +74,9 @@ namespace Wire.PerfTest.ManualSerializer
         {
             int key;
             if (!_byType.TryGetValue(graph.GetType(), out key))
+            {
                 throw new SerializationException(graph.GetType() + " has not been registered with the serializer");
+            }
             var c = (ICustomBinarySerializable) graph; //this will always work due to generic constraint on the Register
             _writeStream.Seek(0L, SeekOrigin.Begin);
             _writer.Write(key);
@@ -89,7 +105,7 @@ namespace Wire.PerfTest.ManualSerializer
     [StructLayout(LayoutKind.Explicit)]
     public struct IntToBytes
     {
-        public IntToBytes(Int32 value) { B0 = B1 = B2 = B3 = 0; I32 = value; }
+        public IntToBytes(int value) { B0 = B1 = B2 = B3 = 0; I32 = value; }
         public IntToBytes(byte b0, byte b1, byte b2, byte b3)
         {
             I32 = 0;
@@ -99,7 +115,7 @@ namespace Wire.PerfTest.ManualSerializer
             B3 = b3;
         }
         [FieldOffset(0)]
-        public Int32 I32;
+        public int I32;
         [FieldOffset(0)]
         public byte B0;
         [FieldOffset(1)]

@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="SerializeCollectionsBenchmark.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System.Collections.Generic;
 using System.IO;
 using NBench;
 
@@ -6,30 +12,6 @@ namespace Wire.Tests.Performance
 {
     public class SerializeCollectionsBenchmark
     {
-        #region init
-
-        public const int Iterations = 5;
-
-        private Serializer _serializer;
-        private MemoryStream _stream;
-
-        [PerfSetup]
-        public void Setup()
-        {
-            _serializer = new Serializer();
-            _stream = new MemoryStream();
-        }
-
-        [PerfCleanup]
-        public void Cleanup()
-        {
-            _stream.Dispose();
-            _stream = null;
-            _serializer = null;
-        }
-
-        #endregion
-
         [PerfBenchmark(Description = "Benchmark byte array serialization",
             RunMode = RunMode.Iterations, TestMode = TestMode.Test, NumberOfIterations = Iterations)]
         [TimingMeasurement]
@@ -45,7 +27,7 @@ namespace Wire.Tests.Performance
         [ElapsedTimeAssertion(MaxTimeMilliseconds = 300)]
         public void Serialize_StringArray()
         {
-            _serializer.Serialize(new string[] { "abc", "cbd0", "sdsd4", "4dfg" }, _stream);
+            _serializer.Serialize(new[] { "abc", "cbd0", "sdsd4", "4dfg" }, _stream);
         }
 
         [PerfBenchmark(Description = "Benchmark dictionary serialization",
@@ -100,5 +82,29 @@ namespace Wire.Tests.Performance
             var set = new SortedSet<string> { "asdad", "asdabs3", "dfsdf9", "asdf4r", "sfsdf44g" };
             _serializer.Serialize(set, _stream);
         }
+
+        #region init
+
+        public const int Iterations = 5;
+
+        private Serializer _serializer;
+        private MemoryStream _stream;
+
+        [PerfSetup]
+        public void Setup()
+        {
+            _serializer = new Serializer();
+            _stream = new MemoryStream();
+        }
+
+        [PerfCleanup]
+        public void Cleanup()
+        {
+            _stream.Dispose();
+            _stream = null;
+            _serializer = null;
+        }
+
+        #endregion
     }
 }

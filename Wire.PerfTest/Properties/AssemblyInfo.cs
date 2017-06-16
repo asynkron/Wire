@@ -1,6 +1,11 @@
-﻿using System.Reflection;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="AssemblyInfo.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System.Reflection;
 using System.Runtime.InteropServices;
-using Wire.PerfTest;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information

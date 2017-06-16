@@ -1,4 +1,10 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="TestBase.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -118,7 +124,6 @@ namespace Wire.PerfTest.Tests
         //    var s = new MemoryStream();
         //    var res = NetJSON.NetJSON.Serialize(Value);
         //    var size = Encoding.UTF8.GetBytes(res).Length;
-
 
         //    RunTest("NET-JSON", () =>
         //    {
@@ -351,7 +356,6 @@ namespace Wire.PerfTest.Tests
             RunTest("ZeroFormatterWithPooling", () => { ZeroFormatterSerializer.Serialize(ref bytes, 0, Value); },
                 () => { ZeroFormatterSerializer.Deserialize<T>(bytes); }, bytes.Length);
         }
-
 
         private void SerializeKnownTypesReuseSession()
         {

@@ -1,26 +1,31 @@
-﻿using System.IO;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="FSharpTests.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
 using Microsoft.FSharp.Collections;
-using Microsoft.FSharp.Core;
-using Wire.FSharpTestTypes;
-using Microsoft.FSharp.Quotations;
 using Microsoft.FSharp.Control;
+using Microsoft.FSharp.Core;
+using Microsoft.FSharp.Quotations;
+using Wire.FSharpTestTypes;
 using Xunit;
 
 namespace Wire.Tests
 {
     public class FSharpTests : TestBase
     {
-
-        [Fact]
-        public void CanSerializeFSharpMap()
+        //FIXME: make F# quotations and Async serializable
+        //[Fact]
+        public void CanSerializeQuotation()
         {
-            var expected = TestMap.createRecordWithMap;
+            var expected = TestQuotations.Quotation;
             Serialize(expected);
             Reset();
-            var actual = Deserialize<object>();
+            var actual = Deserialize<FSharpExpr<FSharpFunc<int, FSharpAsync<int>>>>();
+            // Assert.Equal(expected, actual);
             Assert.Equal(expected, actual);
         }
-
 
         [Fact]
         public void CanSerializeFSharpList()
@@ -33,19 +38,29 @@ namespace Wire.Tests
         }
 
         [Fact]
-        public void CanSerializeSimpleDU()
+        public void CanSerializeFSharpMap()
         {
-            var expected = DU1.NewA(1);
+            var expected = TestMap.createRecordWithMap;
             Serialize(expected);
             Reset();
             var actual = Deserialize<object>();
-            Assert.Equal(expected,actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
         public void CanSerializeNestedDU()
         {
             var expected = DU2.NewC(DU1.NewA(1));
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<object>();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void CanSerializeOption()
+        {
+            var expected = FSharpOption<string>.Some("hello");
             Serialize(expected);
             Reset();
             var actual = Deserialize<object>();
@@ -63,15 +78,15 @@ namespace Wire.Tests
         }
 
         [Fact]
-        public void CanSerializeOption()
+        public void CanSerializeSimpleDU()
         {
-            var expected = FSharpOption<string>.Some("hello");
+            var expected = DU1.NewA(1);
             Serialize(expected);
             Reset();
             var actual = Deserialize<object>();
-            Assert.Equal(expected, actual);
+            Assert.Equal(expected,actual);
         }
-    
+
         [Fact]
         public void CanSerializeUser()
         {
@@ -84,18 +99,6 @@ namespace Wire.Tests
                 Assert.Equal(expected.name, actual.name);
                 Assert.Equal(expected.connections, actual.connections);
 
-        }
-
-        //FIXME: make F# quotations and Async serializable
-        //[Fact]
-        public void CanSerializeQuotation()
-        {
-            var expected = TestQuotations.Quotation;
-            Serialize(expected);
-            Reset();
-            var actual = Deserialize<FSharpExpr<FSharpFunc<int, FSharpAsync<int>>>>();
-            // Assert.Equal(expected, actual);
-            Assert.Equal(expected, actual);
         }
     }
 }

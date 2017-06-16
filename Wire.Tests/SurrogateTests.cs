@@ -1,5 +1,10 @@
-﻿using System.IO;
-using System.Runtime.Serialization;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="SurrogateTests.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System.IO;
 using Xunit;
 
 namespace Wire.Tests
@@ -56,15 +61,15 @@ namespace Wire.Tests
     public class SurrogateTests
     {
         [Fact]
-        public void CanSerializeWithSurrogate()
+        public void CanSerializeWithInterfaceSurrogate()
         {
             var surrogateHasBeenInvoked = false;
             var surrogates = new[]
             {
-                Surrogate.Create<Foo, FooSurrogate>(FooSurrogate.FromFoo, surrogate =>
+                Surrogate.Create<IOriginal, ISurrogate>(from => from.ToSurrogate(), surrogate =>
                 {
                     surrogateHasBeenInvoked = true;
-                    return surrogate.Restore();
+                    return surrogate.FromSurrogate();
                 })
             };
             var stream = new MemoryStream();
@@ -82,15 +87,15 @@ namespace Wire.Tests
         }
 
         [Fact]
-        public void CanSerializeWithInterfaceSurrogate()
+        public void CanSerializeWithSurrogate()
         {
             var surrogateHasBeenInvoked = false;
             var surrogates = new[]
             {
-                Surrogate.Create<IOriginal, ISurrogate>(from => from.ToSurrogate(), surrogate =>
+                Surrogate.Create<Foo, FooSurrogate>(FooSurrogate.FromFoo, surrogate =>
                 {
                     surrogateHasBeenInvoked = true;
-                    return surrogate.FromSurrogate();
+                    return surrogate.Restore();
                 })
             };
             var stream = new MemoryStream();

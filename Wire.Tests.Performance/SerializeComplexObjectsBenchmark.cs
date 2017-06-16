@@ -1,4 +1,10 @@
-﻿using System.IO;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="SerializeComplexObjectsBenchmark.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System.IO;
 using NBench;
 using Wire.Tests.Performance.Types;
 
@@ -6,6 +12,24 @@ namespace Wire.Tests.Performance
 {
     public class SerializeComplexObjectsBenchmark
     {
+        [PerfBenchmark(Description = "Benchmark struct serialization",
+            RunMode = RunMode.Iterations, TestMode = TestMode.Test, NumberOfIterations = Iterations)]
+        [TimingMeasurement]
+        [ElapsedTimeAssertion(MaxTimeMilliseconds = 300)]
+        public void Serialize_LargeStruct()
+        {
+            _serializer.Serialize(_testStruct, _stream);
+        }
+
+        [PerfBenchmark(Description = "Benchmark large object serialization",
+            RunMode = RunMode.Iterations, TestMode = TestMode.Test, NumberOfIterations = Iterations)]
+        [TimingMeasurement]
+        [ElapsedTimeAssertion(MaxTimeMilliseconds = 300)]
+        public void Serialize_LargeObject()
+        {
+            _serializer.Serialize(_testPerson, _stream);
+        }
+
         #region init
 
         public const int Iterations = 5;
@@ -14,7 +38,7 @@ namespace Wire.Tests.Performance
         private MemoryStream _stream;
 
         private LargeStruct _testStruct;
-        private TypicalPersonData _testPerson; 
+        private TypicalPersonData _testPerson;
 
         [PerfSetup]
         public void Setup()
@@ -36,23 +60,5 @@ namespace Wire.Tests.Performance
         }
 
         #endregion
-        
-        [PerfBenchmark(Description = "Benchmark struct serialization",
-            RunMode = RunMode.Iterations, TestMode = TestMode.Test, NumberOfIterations = Iterations)]
-        [TimingMeasurement]
-        [ElapsedTimeAssertion(MaxTimeMilliseconds = 300)]
-        public void Serialize_LargeStruct()
-        {
-            _serializer.Serialize(_testStruct, _stream);
-        }
-
-        [PerfBenchmark(Description = "Benchmark large object serialization",
-            RunMode = RunMode.Iterations, TestMode = TestMode.Test, NumberOfIterations = Iterations)]
-        [TimingMeasurement]
-        [ElapsedTimeAssertion(MaxTimeMilliseconds = 300)]
-        public void Serialize_LargeObject()
-        {
-            _serializer.Serialize(_testPerson, _stream);
-        }
     }
 }

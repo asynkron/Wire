@@ -1,8 +1,11 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="TypicalMessageArrayTest.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Wire.PerfTest.Types;
 
 namespace Wire.PerfTest.Tests
@@ -15,7 +18,7 @@ namespace Wire.PerfTest.Tests
 
             for (var i = 0; i < 100; i++)
             {
-                var v = new TypicalMessage()
+                var v = new TypicalMessage
                 {
                     StringProp = "hello",
                     GuidProp = Guid.NewGuid(),

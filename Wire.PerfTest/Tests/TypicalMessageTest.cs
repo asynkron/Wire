@@ -1,4 +1,10 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="TypicalMessageTest.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.IO;
 using Wire.PerfTest.ManualSerializer;
 using Wire.PerfTest.Types;
@@ -36,7 +42,7 @@ namespace Wire.PerfTest.Tests
     {
         protected override TypicalMessage GetValue()
         {
-            return new TypicalMessage()
+            return new TypicalMessage
             {
                 StringProp = "hello",
                 GuidProp = Guid.NewGuid(),
@@ -54,12 +60,12 @@ namespace Wire.PerfTest.Tests
         private void SerializeCustom()
         {
             var s = new CustomBinaryFormatter();
-            var message = new CustomTypicalMessage()
+            var message = new CustomTypicalMessage
             {
                 StringProp = "hello",
                 GuidProp = Guid.NewGuid(),
                 IntProp = 123,
-                DateProp = DateTime.UtcNow,
+                DateProp = DateTime.UtcNow
             };
             s.Register<CustomTypicalMessage>(0);
 

@@ -1,4 +1,10 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="CollectionTests.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Dynamic;
@@ -10,22 +16,6 @@ namespace Wire.Tests
 {
     public class CollectionTests : TestBase
     {
-        [Fact]
-        public void CanSerializeLinkedList()
-        {
-            var expected = new LinkedList<string>();
-            expected.AddLast("a");
-            expected.AddLast("b");
-            expected.AddLast("c");
-            expected.AddLast("d");
-
-            Serialize(expected);
-            Reset();
-            var actual = Deserialize<LinkedList<string>>();
-
-            Assert.True(actual.SequenceEqual(expected));            
-        }
-
         [Fact]
         public void CanSerializeArrayOfTuples()
         {
@@ -53,7 +43,6 @@ namespace Wire.Tests
             var actual = Deserialize<byte[]>();
             Assert.Equal(expected, actual);
         }
-
 
         [Fact]
         public void CanSerializeDictionary()
@@ -102,7 +91,6 @@ namespace Wire.Tests
             }
         }
 
-
         [Fact]
         public void CanSerializeExpandoObject()
         {
@@ -148,6 +136,22 @@ namespace Wire.Tests
             Reset();
             var actual = Deserialize<int[]>();
             Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void CanSerializeLinkedList()
+        {
+            var expected = new LinkedList<string>();
+            expected.AddLast("a");
+            expected.AddLast("b");
+            expected.AddLast("c");
+            expected.AddLast("d");
+
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<LinkedList<string>>();
+
+            Assert.True(actual.SequenceEqual(expected));            
         }
 
         [Fact]

@@ -1,4 +1,10 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="SerializePrimitivesBenchmark.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.IO;
 using NBench;
 
@@ -6,30 +12,6 @@ namespace Wire.Tests.Performance
 {
     public class SerializePrimitivesBenchmark
     {
-        #region init
-
-        public const int Iterations = 5;
-
-        private Serializer _serializer;
-        private MemoryStream _stream;
-
-        [PerfSetup]
-        public void Setup()
-        {
-            _serializer = new Serializer();
-            _stream = new MemoryStream();
-        }
-
-        [PerfCleanup]
-        public void Cleanup()
-        {
-            _stream.Dispose();
-            _stream = null;
-            _serializer = null;
-        }
-
-        #endregion
-
         [PerfBenchmark(Description = "Benchmark System.Byte serialization",
             RunMode = RunMode.Iterations, TestMode = TestMode.Test, NumberOfIterations = Iterations)]
         [TimingMeasurement]
@@ -54,7 +36,7 @@ namespace Wire.Tests.Performance
         [ElapsedTimeAssertion(MaxTimeMilliseconds = 300)]
         public void Serialize_Int32()
         {
-            _serializer.Serialize((int)123, _stream);
+            _serializer.Serialize(123, _stream);
         }
 
         [PerfBenchmark(Description = "Benchmark System.Int64 serialization",
@@ -126,7 +108,7 @@ namespace Wire.Tests.Performance
         [ElapsedTimeAssertion(MaxTimeMilliseconds = 300)]
         public void Serialize_Double()
         {
-            _serializer.Serialize((double)123.56, _stream);
+            _serializer.Serialize(123.56, _stream);
         }
 
         [PerfBenchmark(Description = "Benchmark System.Decimal serialization",
@@ -246,5 +228,29 @@ namespace Wire.Tests.Performance
         {
             _serializer.Serialize(Tuple.Create(123, true, "x", 123.3f, "asdasdac", false, (byte)0xf, 1234), _stream);
         }
+
+        #region init
+
+        public const int Iterations = 5;
+
+        private Serializer _serializer;
+        private MemoryStream _stream;
+
+        [PerfSetup]
+        public void Setup()
+        {
+            _serializer = new Serializer();
+            _stream = new MemoryStream();
+        }
+
+        [PerfCleanup]
+        public void Cleanup()
+        {
+            _stream.Dispose();
+            _stream = null;
+            _serializer = null;
+        }
+
+        #endregion
     }
 }

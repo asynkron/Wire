@@ -1,4 +1,10 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="LargeStruct.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using ProtoBuf;
 using ZeroFormatter;
 
@@ -12,7 +18,9 @@ namespace Wire.PerfTest.Types
         private static void A(bool b)
         {
             if (!b)
+            {
                 throw new Exception();
+            }
         }
 
         [Index(0)]

@@ -1,4 +1,10 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="CustomObjectTests.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using Xunit;
 
 namespace Wire.Tests
@@ -10,43 +16,17 @@ namespace Wire.Tests
         {
             public int IntProp { get; set; }
         }
-        [Fact]
-        public void CanSerializePrivateType()
-        {
-            var expected = new PrivateType()
-            {
-                IntProp = 123,
-            };
-            Serialize(expected);
-            Reset();
-            var actual = Deserialize<PrivateType>();
-            Assert.Equal(expected.IntProp, actual.IntProp);
-        }
 
         [Fact]
-        public void CanSerializeTypeObject()
+        public void CanEmptyObject()
         {
-            var expected = typeof(ArgumentException);
+            var expected = new Empty();
+
             Serialize(expected);
             Reset();
-            var actual = Deserialize<Type>();
+            var actual = Deserialize<Empty>();
             Assert.Equal(expected, actual);
         }
-
-        [Fact]
-        public void CanSerializeNull()
-        {
-            var expected = new Something
-            {
-
-                Else = null
-            };
-            Serialize(expected);
-            Reset();
-            var actual = Deserialize<Something>();
-            Assert.Equal(expected, actual);
-        }
-
 
         //this uses a lightweight serialization of exceptions to conform to .NET core's lack of ISerializable
         //all custom exception information will be lost.
@@ -63,35 +43,16 @@ namespace Wire.Tests
         }
 
         [Fact]
-        public void CanSerializePolymorphicObject()
+        public void CanSerializeNull()
         {
             var expected = new Something
             {
-                Else = new OtherElse
-                {
-                    Name = "Foo",
-                    More = "Bar"
-                }
+
+                Else = null
             };
             Serialize(expected);
             Reset();
             var actual = Deserialize<Something>();
-            Assert.Equal(expected, actual);
-        }
-
-        [Fact]
-        public void CanSerializeStruct()
-        {
-            var expected = new StuctValue
-            {
-                Prop1 = "hello",
-                Prop2 = 123,
-            };
-
-
-            Serialize(expected);
-            Reset();
-            var actual = Deserialize<StuctValue>();
             Assert.Equal(expected, actual);
         }
 
@@ -103,7 +64,7 @@ namespace Wire.Tests
                 BoolProp = true,
                 Int32Prop = 123,
                 NullableInt32PropHasValue = 888,
-                StringProp = "hello",
+                StringProp = "hello"
             };
 
 
@@ -138,27 +99,6 @@ namespace Wire.Tests
         }
 
         [Fact]
-        public void CanSerializeTuple()
-        {
-            var expected = Tuple.Create("hello");
-            Serialize(expected);
-            Reset();
-            var actual = Deserialize<Tuple<string>>();
-            Assert.Equal(expected, actual);
-        }
-
-        [Fact]
-        public void CanEmptyObject()
-        {
-            var expected = new Empty();
-
-            Serialize(expected);
-            Reset();
-            var actual = Deserialize<Empty>();
-            Assert.Equal(expected, actual);
-        }
-
-        [Fact]
         public void CanSerializeObjectsKnownTypes()
         {
             CustomInit(new Serializer(new SerializerOptions(knownTypes:new[] {typeof(Something)})));
@@ -181,6 +121,72 @@ namespace Wire.Tests
             Assert.Equal(expected1, Deserialize<Something>());
             Assert.Equal(expected2, Deserialize<Something>());
             Assert.Equal(expected3, Deserialize<Something>());
+        }
+
+        [Fact]
+        public void CanSerializePolymorphicObject()
+        {
+            var expected = new Something
+            {
+                Else = new OtherElse
+                {
+                    Name = "Foo",
+                    More = "Bar"
+                }
+            };
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<Something>();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void CanSerializePrivateType()
+        {
+            var expected = new PrivateType
+            {
+                IntProp = 123
+            };
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<PrivateType>();
+            Assert.Equal(expected.IntProp, actual.IntProp);
+        }
+
+        [Fact]
+        public void CanSerializeStruct()
+        {
+            var expected = new StuctValue
+            {
+                Prop1 = "hello",
+                Prop2 = 123
+            };
+
+
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<StuctValue>();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void CanSerializeTuple()
+        {
+            var expected = Tuple.Create("hello");
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<Tuple<string>>();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void CanSerializeTypeObject()
+        {
+            var expected = typeof(ArgumentException);
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<Type>();
+            Assert.Equal(expected, actual);
         }
     }
 }

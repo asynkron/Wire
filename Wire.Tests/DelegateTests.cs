@@ -1,4 +1,10 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+//   <copyright file="DelegateTests.cs" company="Asynkron HB">
+//       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//   </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.IO;
 using Xunit;
 
@@ -14,6 +20,7 @@ namespace Wire.Tests
         public class HasClosure
         {
             public Func<int> Del;
+
             public void Create()
             {
                 var a = 3;
@@ -21,19 +28,9 @@ namespace Wire.Tests
             }
         }
 
-        [Fact]
-        public void CanSerializeMemberMethod()
+        private static int StaticFunc(int a)
         {
-            var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions());
-
-            Func<string> a = 123.ToString;
-            serializer.Serialize(a, stream);
-            stream.Position = 0;
-            var res = serializer.Deserialize<Func<string>>(stream);
-            Assert.NotNull(res);
-            var actual = res();
-            Assert.Equal("123", actual);
+            return a + 1;
         }
 
         [Fact]
@@ -53,26 +50,19 @@ namespace Wire.Tests
             Assert.Equal(1,d.Prop);
         }
 
-        private static int StaticFunc(int a)
-        {
-            return a + 1;
-        }
-
         [Fact]
-        public void CanSerializeStaticDelegate()
+        public void CanSerializeMemberMethod()
         {
             var stream = new MemoryStream();
             var serializer = new Serializer(new SerializerOptions());
 
-            Func<int, int> fun = StaticFunc;
-
-            serializer.Serialize(fun, stream);
+            Func<string> a = 123.ToString;
+            serializer.Serialize(a, stream);
             stream.Position = 0;
-            var res = serializer.Deserialize<Func<int, int>>(stream);
+            var res = serializer.Deserialize<Func<string>>(stream);
             Assert.NotNull(res);
-            var actual = res(4);
-
-            Assert.Equal(5, actual);
+            var actual = res();
+            Assert.Equal("123", actual);
         }
 
         [Fact]
@@ -90,6 +80,23 @@ namespace Wire.Tests
             Assert.NotNull(res);
             var actual = res.Del();
             Assert.Equal(4,actual);
+        }
+
+        [Fact]
+        public void CanSerializeStaticDelegate()
+        {
+            var stream = new MemoryStream();
+            var serializer = new Serializer(new SerializerOptions());
+
+            Func<int, int> fun = StaticFunc;
+
+            serializer.Serialize(fun, stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize<Func<int, int>>(stream);
+            Assert.NotNull(res);
+            var actual = res(4);
+
+            Assert.Equal(5, actual);
         }
     }
 }
