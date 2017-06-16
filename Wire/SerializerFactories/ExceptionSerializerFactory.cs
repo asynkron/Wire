@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Reflection;
 using Wire.Extensions;
 using Wire.ValueSerializers;
@@ -39,7 +40,8 @@ namespace Wire.SerializerFactories
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
             var exceptionSerializer = new ObjectSerializer(type);
-            exceptionSerializer.Initialize((stream, session) =>
+
+            object Reader(Stream stream, DeserializerSession session)
             {
                 var exception = Activator.CreateInstance(type);
                 var className = stream.ReadString(session);
@@ -54,7 +56,9 @@ namespace Wire.SerializerFactories
                 _stackTraceString.SetValue(exception, stackTraceString);
                 _innerException.SetValue(exception, innerException);
                 return exception;
-            }, (stream, exception, session) =>
+            }
+
+            void Writer(Stream stream, object exception, SerializerSession session)
             {
                 var className = (string) _className.GetValue(exception);
                 var message = (string) _message.GetValue(exception);
@@ -66,7 +70,9 @@ namespace Wire.SerializerFactories
                 StringSerializer.WriteValueImpl(stream, remoteStackTraceString, session);
                 StringSerializer.WriteValueImpl(stream, stackTraceString, session);
                 stream.WriteObjectWithManifest(innerException, session);
-            });
+            }
+
+            exceptionSerializer.Initialize(Reader, Writer);
             typeMapping.TryAdd(type, exceptionSerializer);
             return exceptionSerializer;
         }
