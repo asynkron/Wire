@@ -46,7 +46,7 @@ namespace Wire.Internal
             return new ByteArrayKey(bytes);
         }
 
-#if UNSAFE
+#if NET45
         public static unsafe bool Compare(byte[] a1, byte[] a2)
         {
             if (a1 == null || a2 == null || a1.Length != a2.Length)

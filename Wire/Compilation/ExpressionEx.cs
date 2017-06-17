@@ -26,7 +26,7 @@ namespace Wire.Compilation
                 var convert = Expression.Convert(x, typeof(object));
                 return convert;
             }
-#if SERIALIZATION
+#if NET45
             var defaultCtor = type.GetTypeInfo().GetConstructor(new Type[] {});
             var il = defaultCtor?.GetMethodBody()?.GetILAsByteArray();
             var sideEffectFreeCtor = il != null && il.Length <= 8; //this is the size of an empty ctor

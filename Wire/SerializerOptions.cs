@@ -37,7 +37,7 @@ namespace Wire
             new DictionarySerializerFactory(),
             new HashSetSerializerFactory(), 
             new ArraySerializerFactory(),
-#if SERIALIZATION
+#if NET45
             new ISerializableSerializerFactory(), //TODO: this will mess up the indexes in the serializer payload
 #endif
             new EnumerableSerializerFactory()

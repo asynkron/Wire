@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-#if SERIALIZATION
+#if NET45
 
 #endif
 
@@ -39,7 +39,7 @@ namespace Wire.Extensions
                     current
                         .GetTypeInfo()
                         .GetFields(BindingFlagsEx.All)
-#if SERIALIZATION
+#if NET45
                         .Where(f => !f.IsDefined(typeof(NonSerializedAttribute)))
 #endif
                         .Where(f => !f.IsStatic)

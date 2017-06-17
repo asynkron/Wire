@@ -123,8 +123,7 @@ namespace Wire.Extensions
             }
             else
             {
-                int existingId;
-                if (session.Serializer.Options.PreserveObjectReferences && session.TryGetObjectId(value, out existingId))
+                if (session.Serializer.Options.PreserveObjectReferences && session.TryGetObjectId(value, out int existingId))
                 {
                     //write the serializer manifest
                     ObjectReferenceSerializer.Instance.WriteManifest(stream, session);
@@ -150,8 +149,7 @@ namespace Wire.Extensions
             }
             else
             {
-                int existingId;
-                if (preserveObjectReferences && session.TryGetObjectId(value, out existingId))
+                if (preserveObjectReferences && session.TryGetObjectId(value, out int existingId))
                 {
                     //write the serializer manifest
                     ObjectReferenceSerializer.Instance.WriteManifest(stream, session);

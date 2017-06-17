@@ -13,7 +13,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Wire.Internal;
 
-#if SERIALIZATION
+#if NET45
 using System.Runtime.Serialization;
 
 #endif
@@ -68,7 +68,7 @@ namespace Wire.Extensions
             //add TypeSerializer with null support
         }
 
-#if !SERIALIZATION
+#if !NET45
     //HACK: the GetUnitializedObject actually exists in .NET Core, its just not public
         private static readonly Func<Type, object> getUninitializedObjectDelegate = (Func<Type, object>)
             typeof(string)

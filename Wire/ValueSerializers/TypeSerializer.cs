@@ -17,14 +17,13 @@ namespace Wire.ValueSerializers
 
         public override void WriteManifest(Stream stream, SerializerSession session)
         {
-            ushort typeIdentifier;
-            if (session.ShouldWriteTypeManifest(TypeEx.RuntimeType, out typeIdentifier))
+            if (session.ShouldWriteTypeManifest(TypeEx.RuntimeType, out ushort typeIdentifier))
             {
                 stream.WriteByte(Manifest);
             }
             else
             {
-                stream.Write(new[] {ObjectSerializer.ManifestIndex});
+                stream.Write(new[] { ObjectSerializer.ManifestIndex });
                 UInt16Serializer.WriteValueImpl(stream, typeIdentifier, session);
             }
         }
@@ -38,8 +37,7 @@ namespace Wire.ValueSerializers
             else
             {
                 var type = (Type) value;
-                int existingId;
-                if (session.Serializer.Options.PreserveObjectReferences && session.TryGetObjectId(type, out existingId))
+                if (session.Serializer.Options.PreserveObjectReferences && session.TryGetObjectId(type, out int existingId))
                 {
                     ObjectReferenceSerializer.Instance.WriteManifest(stream, session);
                     ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
