@@ -4,11 +4,9 @@
 //   </copyright>
 // -----------------------------------------------------------------------
 
-using Wire.Internal;
-
-namespace Wire
+namespace Wire.Internal
 {
-    public struct ByteArrayKey
+    internal struct ByteArrayKey
     {
         public readonly byte[] Bytes;
         private readonly int _hashCode;

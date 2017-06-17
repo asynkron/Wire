@@ -9,13 +9,13 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Wire.ValueSerializers;
 
-namespace Wire
+namespace Wire.Internal
 {
     /// <summary>
     ///     Provides methods not allocating the byte buffer but using <see cref="SerializerSession.GetBuffer" /> to lease a
     ///     buffer.
     /// </summary>
-    public static class NoAllocBitConverter
+    internal static class NoAllocBitConverter
     {
         internal static readonly UTF8Encoding Utf8 = (UTF8Encoding) Encoding.UTF8;
 

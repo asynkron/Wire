@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System.Runtime.CompilerServices;
+using Wire.Internal;
 
 namespace Wire.Extensions
 {

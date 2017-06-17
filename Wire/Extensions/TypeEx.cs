@@ -11,6 +11,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Wire.Internal;
+
 #if SERIALIZATION
 using System.Runtime.Serialization;
 

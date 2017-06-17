@@ -9,16 +9,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Wire.Compilation;
 using Wire.Extensions;
 using Wire.Internal;
 using Wire.ValueSerializers;
 
-namespace Wire
+namespace Wire.Compilation
 {
     public class DefaultCodeGenerator : ICodeGenerator
     {
-        public const string PreallocatedByteBuffer = "PreallocatedByteBuffer";
+        public const string PreallocatedByteBuffer = nameof(PreallocatedByteBuffer);
 
         public void BuildSerializer([NotNull] Serializer serializer, [NotNull] ObjectSerializer objectSerializer)
         {
