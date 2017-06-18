@@ -4,7 +4,7 @@
 //       Copyright (C) 2016-2016 Akka.NET Team <https://github.com/akkadotnet>
 //   </copyright>
 // -----------------------------------------------------------------------
-
+#if NET45
 using System;
 using System.Linq;
 using System.Reflection;
@@ -12,7 +12,7 @@ using System.Reflection.Emit;
 
 namespace Wire.Compilation
 {
-#if NET45
+
     public class IlCompiler<TDel> : IlBuilder, ICompiler<TDel>
     {
         public TDel Compile()
@@ -97,5 +97,6 @@ namespace Wire.Compilation
             return self;
         }
     }
-#endif
+
 }
+#endif
