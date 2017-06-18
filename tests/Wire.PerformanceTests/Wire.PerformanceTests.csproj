@@ -88,12 +88,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Wire\Wire.csproj">
-      <Project>{7af8d2b6-9f1f-4a1c-8673-48e533108385}</Project>
-      <Name>Wire</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>

@@ -3,16 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire", "Wire\Wire.csproj", "{7AF8D2B6-9F1F-4A1C-8673-48E533108385}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire.Tests", "Wire.Tests\Wire.Tests.csproj", "{096C7E76-2170-4E5F-9DA5-CD9CCAF0E5DF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire.PerfTest", "Wire.PerfTest\Wire.PerfTest.csproj", "{35352664-E867-48EC-A0B1-39013CA42FE0}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Wire.FSharpTestTypes", "Wire.FSharpTestTypes\Wire.FSharpTestTypes.fsproj", "{2D321671-6320-4DD2-B174-2773192D2A5A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire.PerformanceTests", "Wire.PerformanceTests\Wire.PerformanceTests.csproj", "{19E9324E-C3E9-4751-8B8F-5A456CA98E8C}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{2F3D4EC4-3A41-48C2-9DEA-0510B0FF89B4}"
 	ProjectSection(SolutionItems) = preProject
 		build.cmd = build.cmd
@@ -25,24 +15,30 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C75E620D-91F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{04F7E5CA-8978-48CF-A40D-084FB5B84B17}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wire", "src\Wire\Wire.csproj", "{0E200D3D-224F-454D-80A9-CCC6CF1E577C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wire.Tests", "tests\Wire.Tests\Wire.Tests.csproj", "{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Wire.FSharpTestTypes", "tests\Wire.FSharpTestTypes\Wire.FSharpTestTypes.fsproj", "{2D321671-6320-4DD2-B174-2773192D2A5A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire.PerformanceTests", "tests\Wire.PerformanceTests\Wire.PerformanceTests.csproj", "{19E9324E-C3E9-4751-8B8F-5A456CA98E8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire.PerfTest", "tests\Wire.PerfTest\Wire.PerfTest.csproj", "{35352664-E867-48EC-A0B1-39013CA42FE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7AF8D2B6-9F1F-4A1C-8673-48E533108385}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7AF8D2B6-9F1F-4A1C-8673-48E533108385}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7AF8D2B6-9F1F-4A1C-8673-48E533108385}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7AF8D2B6-9F1F-4A1C-8673-48E533108385}.Release|Any CPU.Build.0 = Release|Any CPU
-		{096C7E76-2170-4E5F-9DA5-CD9CCAF0E5DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{096C7E76-2170-4E5F-9DA5-CD9CCAF0E5DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{096C7E76-2170-4E5F-9DA5-CD9CCAF0E5DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{096C7E76-2170-4E5F-9DA5-CD9CCAF0E5DF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{35352664-E867-48EC-A0B1-39013CA42FE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{35352664-E867-48EC-A0B1-39013CA42FE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{35352664-E867-48EC-A0B1-39013CA42FE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{35352664-E867-48EC-A0B1-39013CA42FE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E200D3D-224F-454D-80A9-CCC6CF1E577C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E200D3D-224F-454D-80A9-CCC6CF1E577C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E200D3D-224F-454D-80A9-CCC6CF1E577C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E200D3D-224F-454D-80A9-CCC6CF1E577C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2D321671-6320-4DD2-B174-2773192D2A5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2D321671-6320-4DD2-B174-2773192D2A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D321671-6320-4DD2-B174-2773192D2A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -51,15 +47,19 @@ Global
 		{19E9324E-C3E9-4751-8B8F-5A456CA98E8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19E9324E-C3E9-4751-8B8F-5A456CA98E8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19E9324E-C3E9-4751-8B8F-5A456CA98E8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35352664-E867-48EC-A0B1-39013CA42FE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35352664-E867-48EC-A0B1-39013CA42FE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35352664-E867-48EC-A0B1-39013CA42FE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35352664-E867-48EC-A0B1-39013CA42FE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{7AF8D2B6-9F1F-4A1C-8673-48E533108385} = {C75E620D-91F2-4AC3-8115-055E470A83E1}
-		{096C7E76-2170-4E5F-9DA5-CD9CCAF0E5DF} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
-		{35352664-E867-48EC-A0B1-39013CA42FE0} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
+		{0E200D3D-224F-454D-80A9-CCC6CF1E577C} = {C75E620D-91F2-4AC3-8115-055E470A83E1}
+		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
 		{2D321671-6320-4DD2-B174-2773192D2A5A} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
 		{19E9324E-C3E9-4751-8B8F-5A456CA98E8C} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
+		{35352664-E867-48EC-A0B1-39013CA42FE0} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
 	EndGlobalSection
 EndGlobal
