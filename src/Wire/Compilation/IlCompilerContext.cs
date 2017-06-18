@@ -26,7 +26,7 @@ namespace Wire.Compilation
 
         public int StackDepth
         {
-            get { return _stackDepth; }
+            get => _stackDepth;
             set
             {
                 _stackDepth = value;

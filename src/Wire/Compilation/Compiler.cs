@@ -122,23 +122,24 @@ namespace Wire.Compilation
             return _expressions.Count - 1;
         }
 
-        public int WriteField(FieldInfo field, int typedTarget, int target, int value)
+        public int WriteField(FieldInfo field, int typedTarget, int value)
         {
-            if (field.IsInitOnly)
-            {
-                //TODO: field is readonly, can we set it via IL or only via reflection
-                var method = typeof(FieldInfo).GetTypeInfo()
-                                              .GetMethod(nameof(FieldInfo.SetValue), new[] { typeof(object), typeof(object) });
-                var fld = Constant(field);
-                var valueToObject = Convert<object>(value);
-                return Call(method, fld, target, valueToObject);
-            }
             var targetExp = _expressions[typedTarget];
             var valueExp = _expressions[value];
             var accessExp = Expression.Field(targetExp, field);
             var writeExp = Expression.Assign(accessExp, valueExp);
             _expressions.Add(writeExp);
             return _expressions.Count - 1;
+        }
+
+        public int WriteReadonlyField(FieldInfo field, int target, int value)
+        {
+            var method = typeof(FieldInfo).GetTypeInfo()
+                                          .GetMethod(nameof(FieldInfo.SetValue), new[] {typeof(object), typeof(object)});
+            var fld = Constant(field);
+            var valueToObject = Convert<object>(value);
+            return Call(method, fld, target, valueToObject);
+
         }
 
         public TDel Compile()

@@ -89,7 +89,7 @@ namespace Wire.Tests
         {
             var c = new IlCompiler<Action<Dummy>>();
             var param = c.Parameter<Dummy>("dummy");
-            var write = c.WriteField(BoolField, param, 0, c.Constant(true));
+            var write = c.WriteField(BoolField, param, c.Constant(true));
             c.Emit(write);
             var a = c.Compile();
             var dummy = new Dummy();
@@ -151,7 +151,7 @@ namespace Wire.Tests
             var c = new IlCompiler<Action>();
             var True = c.Constant(true);
             var obj = c.NewObject(typeof(Dummy));
-            var write = c.WriteField(BoolField, obj, 0, True);
+            var write = c.WriteField(BoolField, obj, True);
             c.Emit(write);
             var a = c.Compile();
             a();
@@ -167,7 +167,7 @@ namespace Wire.Tests
             var unboxedBool = c.CastOrUnbox(boxedBool, typeof(bool));
 
             var obj = c.NewObject(typeof(Dummy));
-            var write = c.WriteField(BoolField, obj, 0, unboxedBool);
+            var write = c.WriteField(BoolField, obj, unboxedBool);
             c.Emit(write);
             var a = c.Compile();
             a();
@@ -297,7 +297,7 @@ namespace Wire.Tests
                 var s = serializer.GetSerializerByType(field.FieldType);
                 var read = s.EmitReadValue(c, stream, session, field);
                 
-                var assignReadToField = c.WriteField(field, typedTarget, 0, read);
+                var assignReadToField = c.WriteField(field, typedTarget, read);
                 c.Emit(assignReadToField);
             }
             c.Emit(target);
