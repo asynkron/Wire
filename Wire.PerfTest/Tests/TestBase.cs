@@ -89,7 +89,7 @@ namespace Wire.PerfTest.Tests
         protected virtual void TestAll()
         {
             SerializeZeroFormatter();
-            SerializeZeroFormatterWithPooling();
+          //  SerializeZeroFormatterWithPooling();
             SerializeKnownTypesReuseSession();
             SerializeKnownTypes();
             SerializeDefault();
@@ -345,17 +345,35 @@ namespace Wire.PerfTest.Tests
 
         private void SerializeZeroFormatter()
         {
-            var bytes = ZeroFormatterSerializer.Serialize(Value);
-            RunTest("ZeroFormatter", () => { ZeroFormatterSerializer.Serialize(Value); },
-                () => { ZeroFormatterSerializer.Deserialize<T>(bytes); }, bytes.Length);
+            var s = new MemoryStream();
+            ZeroFormatterSerializer.Serialize(s, Value);
+            var bytes = s.ToArray();
+            RunTest("ZeroFormatter", () =>
+                    {
+                        var stream = new MemoryStream();
+                        ZeroFormatterSerializer.Serialize(stream, Value);
+                    },
+                    () =>
+                    {
+                        s.Position = 0;
+                        ZeroFormatterSerializer.Deserialize<T>(s);
+                    }, bytes.Length);
         }
 
-        private void SerializeZeroFormatterWithPooling()
-        {
-            var bytes = ZeroFormatterSerializer.Serialize(Value);
-            RunTest("ZeroFormatterWithPooling", () => { ZeroFormatterSerializer.Serialize(ref bytes, 0, Value); },
-                () => { ZeroFormatterSerializer.Deserialize<T>(bytes); }, bytes.Length);
-        }
+        // Serializes directly into an array of bytes, which is of faster than a stream
+        // apples vs pears
+        //private void SerializeZeroFormatterWithPooling()
+        //{
+        //    var bytes = ZeroFormatterSerializer.Serialize(Value);
+        //    RunTest("ZeroFormatterWithPooling", () =>
+        //            {
+        //                ZeroFormatterSerializer.Serialize(ref bytes, 0, Value);
+        //            },
+        //            () =>
+        //            {
+        //                ZeroFormatterSerializer.Deserialize<T>(bytes);
+        //            }, bytes.Length);
+        //}
 
         private void SerializeKnownTypesReuseSession()
         {

@@ -48,6 +48,7 @@ namespace Wire.Tests
         public string Item1 { get; }
     }
 
+#if NET452
     public class IlCompilerTests
     {
         private static readonly FieldInfo BoolField = typeof(Dummy).GetField(nameof(Dummy.BoolField));
@@ -298,4 +299,5 @@ namespace Wire.Tests
             Assert.Equal(value.Item1, x.Item1);
         }
     }
+#endif
 }

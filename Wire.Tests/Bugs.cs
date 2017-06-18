@@ -48,7 +48,6 @@ namespace Wire.Tests
             public string Foo { get; set; }
         }
 
-        [Serializable]
         public sealed class Recover
         {
             public static readonly Recover Default = new Recover(SnapshotSelectionCriteria.Latest);

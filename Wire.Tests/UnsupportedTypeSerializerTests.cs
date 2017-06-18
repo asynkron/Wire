@@ -37,9 +37,8 @@ namespace Wire.Tests
                 }
             });
             th.Start();
-            if (!th.Join(TimeSpan.FromSeconds(5)))
+            if (!th.Join(5000))
             {
-                th.Abort();
                 Assert.True(false, "Serializer did not complete in 5 seconds");
             }
         }
