@@ -57,7 +57,6 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Library1.fs" />
     <None Include="Script.fsx" />
-    <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Akka">
