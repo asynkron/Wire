@@ -30,8 +30,8 @@ namespace Wire.Compilation
             objectSerializer.Initialize(reader, writer, preallocatedBufferSize);
         }
 
-        private ObjectReader GetFieldsReader([NotNull] Serializer serializer, [NotNull] IEnumerable<FieldInfo> fields,
-            [NotNull] Type type)
+        private ObjectReader GetFieldsReader([NotNull] Serializer serializer, [NotNull] FieldInfo[] fields,
+                                             [NotNull] Type type)
         {
             var c = new Compiler<ObjectReader>();
             var stream = c.Parameter<Stream>("stream");
@@ -45,8 +45,7 @@ namespace Wire.Compilation
             if (serializer.Options.PreserveObjectReferences)
             {
                 var trackDeserializedObjectMethod =
-                    typeof(DeserializerSession).GetTypeInfo()
-                        .GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                    typeof(DeserializerSession).GetTypeInfo().GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
 
                 c.EmitCall(trackDeserializedObjectMethod, session, target);
             }
@@ -71,21 +70,18 @@ namespace Wire.Compilation
             //}
 
             var typedTarget = c.CastOrUnbox(target, type);
-            var fieldsArray = fields.ToArray();
-            var serializers = fieldsArray.Select(field => serializer.GetSerializerByType(field.FieldType)).ToArray();
+            var serializers = fields.Select(field => serializer.GetSerializerByType(field.FieldType)).ToArray();
 
-            var preallocatedBufferSize = serializers.Length != 0
-                ? serializers.Max(s => s.PreallocatedByteBufferSize)
-                : 0;
+            var preallocatedBufferSize = serializers.Length != 0 ? serializers.Max(s => s.PreallocatedByteBufferSize) : 0;
             if (preallocatedBufferSize > 0)
             {
                 EmitPreallocatedBuffer(c, preallocatedBufferSize, session,
-                    typeof(DeserializerSession).GetTypeInfo().GetMethod(nameof(DeserializerSession.GetBuffer)));
+                                       typeof(DeserializerSession).GetTypeInfo().GetMethod(nameof(DeserializerSession.GetBuffer)));
             }
 
-            for (var i = 0; i < fieldsArray.Length; i++)
+            for (var i = 0; i < fields.Length; i++)
             {
-                var field = fieldsArray[i];
+                var field = fields[i];
                 var s = serializers[i];
 
                 int read;
@@ -104,8 +100,7 @@ namespace Wire.Compilation
                     read = c.Convert(read, field.FieldType);
                 }
 
-
-                var assignReadToField = c.WriteField(field, typedTarget, read);
+                var assignReadToField = c.WriteField(field, typedTarget, target, read);
                 c.Emit(assignReadToField);
             }
             c.Emit(target);
@@ -115,7 +110,7 @@ namespace Wire.Compilation
         }
 
         private static void EmitPreallocatedBuffer<T>(ICompiler<T> c, int preallocatedBufferSize, int session,
-            MethodInfo getBuffer)
+                                                      MethodInfo getBuffer)
         {
             var size = c.Constant(preallocatedBufferSize);
             var buffer = c.Variable<byte[]>(PreallocatedByteBuffer);
@@ -127,7 +122,7 @@ namespace Wire.Compilation
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
         private ObjectWriter GetFieldsWriter([NotNull] Serializer serializer, [NotNull] IEnumerable<FieldInfo> fields,
-            out int preallocatedBufferSize)
+                                             out int preallocatedBufferSize)
         {
             var c = new Compiler<ObjectWriter>();
 
@@ -152,13 +147,13 @@ namespace Wire.Compilation
             if (preallocatedBufferSize > 0)
             {
                 EmitPreallocatedBuffer(c, preallocatedBufferSize, session,
-                    typeof(SerializerSession).GetTypeInfo().GetMethod("GetBuffer"));
+                                       typeof(SerializerSession).GetTypeInfo().GetMethod("GetBuffer"));
             }
 
             for (var i = 0; i < fieldsArray.Length; i++)
             {
                 var field = fieldsArray[i];
-//get the serializer for the type of the field
+                //get the serializer for the type of the field
                 var valueSerializer = serializers[i];
                 //runtime Get a delegate that reads the content of the given field
 

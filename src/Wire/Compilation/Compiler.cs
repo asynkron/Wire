@@ -1,6 +1,7 @@
 // -----------------------------------------------------------------------
 //   <copyright file="Compiler.cs" company="Asynkron HB">
 //       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//       Copyright (C) 2016-2016 Akka.NET Team <https://github.com/akkadotnet>
 //   </copyright>
 // -----------------------------------------------------------------------
 
@@ -72,11 +73,11 @@ namespace Wire.Compilation
         {
             var tempQualifier = _expressions[value];
             var cast = type.GetTypeInfo().IsValueType
-                // ReSharper disable once AssignNullToNotNullAttribute
-                ? Expression.Unbox(tempQualifier, type)
-                // ReSharper disable once AssignNullToNotNullAttribute
-                : Expression.Convert(tempQualifier, type);
-            var exp = (Expression) cast;
+                           // ReSharper disable once AssignNullToNotNullAttribute
+                           ? Expression.Unbox(tempQualifier, type)
+                           // ReSharper disable once AssignNullToNotNullAttribute
+                           : Expression.Convert(tempQualifier, type);
+            var exp = (Expression)cast;
             _expressions.Add(exp);
             return _expressions.Count - 1;
         }
@@ -121,18 +122,18 @@ namespace Wire.Compilation
             return _expressions.Count - 1;
         }
 
-        public int WriteField(FieldInfo field, int target, int value)
+        public int WriteField(FieldInfo field, int typedTarget, int target, int value)
         {
             if (field.IsInitOnly)
             {
                 //TODO: field is readonly, can we set it via IL or only via reflection
                 var method = typeof(FieldInfo).GetTypeInfo()
-                    .GetMethod(nameof(FieldInfo.SetValue), new[] {typeof(object), typeof(object)});
+                                              .GetMethod(nameof(FieldInfo.SetValue), new[] { typeof(object), typeof(object) });
                 var fld = Constant(field);
                 var valueToObject = Convert<object>(value);
                 return Call(method, fld, target, valueToObject);
             }
-            var targetExp = _expressions[target];
+            var targetExp = _expressions[typedTarget];
             var valueExp = _expressions[value];
             var accessExp = Expression.Field(targetExp, field);
             var writeExp = Expression.Assign(accessExp, valueExp);
@@ -151,7 +152,7 @@ namespace Wire.Compilation
         public int Convert<T>(int value)
         {
             var valueExp = _expressions[value];
-            var con = (Expression) Expression.Convert(valueExp, typeof(T));
+            var con = (Expression)Expression.Convert(valueExp, typeof(T));
             _expressions.Add(con);
             return _expressions.Count - 1;
         }
@@ -174,7 +175,7 @@ namespace Wire.Compilation
         public int Convert(int value, Type type)
         {
             var valueExp = _expressions[value];
-            var conv = (Expression) Expression.Convert(valueExp, type);
+            var conv = (Expression)Expression.Convert(valueExp, type);
             _expressions.Add(conv);
             return _expressions.Count - 1;
         }

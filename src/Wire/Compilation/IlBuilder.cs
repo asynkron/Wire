@@ -1,6 +1,7 @@
 // -----------------------------------------------------------------------
 //   <copyright file="IlBuilder.cs" company="Asynkron HB">
 //       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//       Copyright (C) 2016-2016 Akka.NET Team <https://github.com/akkadotnet>
 //   </copyright>
 // -----------------------------------------------------------------------
 
@@ -21,7 +22,7 @@ namespace Wire.Compilation
         protected List<object> Constants { get; } = new List<object>();
         protected List<Action<IlCompilerContext>> LazyEmits { get; } = new List<Action<IlCompilerContext>>();
 
-        public int NewObject(Type type)
+        public int NewObject(System.Type type)
         {
             var ctor = type.GetConstructor(new Type[] {});
             // ReSharper disable once PossibleNullReferenceException
@@ -60,7 +61,7 @@ namespace Wire.Compilation
             return _expressions.Count - 1;
         }
 
-        public int Variable(string name, Type type)
+        public int Variable(string name,Type type)
         {
             var exp = new IlVariable(Variables.Count, type, name);
             _expressions.Add(exp);
@@ -99,13 +100,9 @@ namespace Wire.Compilation
         {
             var valueExp = _expressions[value];
             if (type.IsValueType)
-            {
                 _expressions.Add(new IlUnbox(type, valueExp));
-            }
             else
-            {
                 _expressions.Add(new IlCastClass(type, valueExp));
-            }
             return _expressions.Count - 1;
         }
 
@@ -142,9 +139,9 @@ namespace Wire.Compilation
             return _expressions.Count - 1;
         }
 
-        public int WriteField(FieldInfo field, int target, int value)
+        public int WriteField(FieldInfo field, int typedTarget, int target, int value)
         {
-            var exp = new IlWriteField(field, _expressions[target], _expressions[value]);
+            var exp = new IlWriteField(field, _expressions[typedTarget], _expressions[value]);
             _expressions.Add(exp);
             return _expressions.Count - 1;
         }
@@ -176,13 +173,9 @@ namespace Wire.Compilation
         {
             var valueExp = _expressions[value];
             if (valueExp.Type().IsValueType)
-            {
                 _expressions.Add(new IlBox(valueExp.Type(), valueExp));
-            }
             else
-            {
                 _expressions.Add(new IlCastClass(type, valueExp));
-            }
             return _expressions.Count - 1;
         }
     }

@@ -1,6 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 //   <copyright file="IlCompiler.cs" company="Asynkron HB">
 //       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//       Copyright (C) 2016-2016 Akka.NET Team <https://github.com/akkadotnet>
 //   </copyright>
 // -----------------------------------------------------------------------
 

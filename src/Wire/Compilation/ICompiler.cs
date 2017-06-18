@@ -1,6 +1,7 @@
 // -----------------------------------------------------------------------
 //   <copyright file="ICompiler.cs" company="Asynkron HB">
 //       Copyright (C) 2015-2017 Asynkron HB All rights reserved
+//       Copyright (C) 2016-2016 Akka.NET Team <https://github.com/akkadotnet>
 //   </copyright>
 // -----------------------------------------------------------------------
 
@@ -23,7 +24,7 @@ namespace Wire.Compilation
         int Call(MethodInfo method, int target, params int[] arguments);
         int StaticCall(MethodInfo method, params int[] arguments);
         int ReadField(FieldInfo field, int target);
-        int WriteField(FieldInfo field, int target, int value);
+        int WriteField(FieldInfo field, int typedTarget, int target, int value);
         TDel Compile();
         int Convert<T>(int value);
         int WriteVar(int variable, int value);
