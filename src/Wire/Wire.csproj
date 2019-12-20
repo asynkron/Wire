@@ -4,7 +4,7 @@
     <Description>Wire, fast binary POCO serializer</Description>
     <VersionPrefix>0.8.3</VersionPrefix>
     <Authors>Roger Johansson</Authors>
-    <TargetFrameworks>netstandard1.6;net45;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;net45;netstandard2.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>Wire</AssemblyName>
     <PackageId>Wire</PackageId>
@@ -30,6 +30,11 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <PackageReference Include="Microsoft.CSharp" Version="4.0.1" />
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="Microsoft.CSharp" Version="4.0.1" />
     <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
   </ItemGroup>

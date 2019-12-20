@@ -79,10 +79,18 @@ namespace Wire.Extensions
             var formatterType = typeof(string)
                 .GetTypeInfo()
                 .Assembly
-                .GetType(FormatterServices)
-                ?? Assembly.Load("System.Runtime.Serialization.Formatters").GetType(FormatterServices);
+                .GetType(FormatterServices);
 
-            return (Func<Type, object>)formatterType?.GetTypeInfo()?.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+#if NETSTANDARD2_0
+            if (formatterType == null)
+            {
+                // it's been moved to the Formatters assembly in .NET Core 3.x
+                formatterType = Assembly.Load("System.Runtime.Serialization.Formatters")?.GetType(FormatterServices);
+            }
+#endif
+            return (Func<Type, object>)formatterType?.GetTypeInfo()
+                ?.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+                ?.CreateDelegate(typeof(Func<Type, object>));
         }
 
         public static object GetEmptyObject(this Type type)
