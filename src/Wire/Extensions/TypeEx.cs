@@ -69,15 +69,21 @@ namespace Wire.Extensions
         }
 
 #if !NET45
-    //HACK: the GetUnitializedObject actually exists in .NET Core, its just not public
-        private static readonly Func<Type, object> getUninitializedObjectDelegate = (Func<Type, object>)
-            typeof(string)
+        //HACK: the GetUnitializedObject actually exists in .NET Core, its just not public
+        private static readonly Func<Type, object> getUninitializedObjectDelegate = GetFormatterDelegate();
+
+        private static Func<Type, object> GetFormatterDelegate()
+        {
+            const string FormatterServices = "System.Runtime.Serialization.FormatterServices";
+
+            var formatterType = typeof(string)
                 .GetTypeInfo()
                 .Assembly
-                .GetType("System.Runtime.Serialization.FormatterServices")
-                ?.GetTypeInfo()
-                ?.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
-                ?.CreateDelegate(typeof(Func<Type, object>));
+                .GetType(FormatterServices)
+                ?? Assembly.Load("System.Runtime.Serialization.Formatters").GetType(FormatterServices);
+
+            return (Func<Type, object>)formatterType?.GetTypeInfo()?.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+        }
 
         public static object GetEmptyObject(this Type type)
         {
@@ -105,7 +111,7 @@ namespace Wire.Extensions
 
         public static byte[] GetTypeManifest(IReadOnlyCollection<byte[]> fieldNames)
         {
-            IEnumerable<byte> result = new[] {(byte) fieldNames.Count};
+            IEnumerable<byte> result = new[] { (byte)fieldNames.Count };
             foreach (var name in fieldNames)
             {
                 var encodedLength = BitConverter.GetBytes(name.Length);
