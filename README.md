@@ -1,3 +1,15 @@
+# [Archived]
+
+Due to how Wire handles type information on the wire, malicious payloads can be passed.
+e.g. using a surrogate on the sender end, an attacker can pass information about a different type for the receiving end.
+And by doing so allowing the serializer to create any type on the deserializing end.
+
+This is the same issue that exists for BinaryFormatter
+https://docs.microsoft.com/en-us/visualstudio/code-quality/ca2300?view=vs-2019
+
+Any future forks or derivates of Wire will have to account for this.
+
+
 # Wire
 
 A high performance polymorphic serializer for the .NET framework.
