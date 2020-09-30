@@ -39,11 +39,9 @@ namespace Wire.ValueSerializers
             stream.Read(bytes, 0, Size);
             var ticks = BitConverter.ToInt64(bytes, 0);
             var offsetMinutes = BitConverter.ToInt16(bytes, 8);
-
             var kind = (DateTimeKind) bytes[Size - 1]; //avoid reading a single byte from the stream
-            var dateTime = new DateTime(ticks, kind);
 
-            stream.Read(bytes, 0, Size);
+            var dateTime = new DateTime(ticks, kind);
             var dateTimeOffset = new DateTimeOffset(dateTime, TimeSpan.FromMinutes(offsetMinutes));
             return dateTimeOffset;
         }
