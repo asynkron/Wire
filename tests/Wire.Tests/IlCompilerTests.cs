@@ -1,10 +1,12 @@
 ﻿#region copyright
+
 // -----------------------------------------------------------------------
 //  <copyright file="IlCompilerTests.cs" company="Akka.NET Team">
 //      Copyright (C) 2015-2016 AsynkronIT <https://github.com/AsynkronIT>
 //      Copyright (C) 2016-2016 Akka.NET Team <https://github.com/akkadotnet>
 //  </copyright>
 // -----------------------------------------------------------------------
+
 #endregion
 
 
@@ -13,7 +15,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Microsoft.FSharp.Core;
-using Wire;
 using Wire.Compilation;
 using Wire.Extensions;
 using Xunit;
@@ -45,12 +46,12 @@ namespace Wire.Tests
 
     public class FakeTupleString
     {
-        public string Item1 { get; }
-
         public FakeTupleString(string item1)
         {
             Item1 = item1;
         }
+
+        public string Item1 { get; }
     }
 
     public class IlCompilerTests
@@ -76,7 +77,7 @@ namespace Wire.Tests
         {
             var c = new IlCompiler<Action<Dummy>>();
             var param = c.Parameter<Dummy>("dummy");
-            c.EmitCall(SetBool, param);            
+            c.EmitCall(SetBool, param);
             var a = c.Compile();
             var dummy = new Dummy();
             a(dummy);
@@ -94,7 +95,7 @@ namespace Wire.Tests
             var a = c.Compile();
             var dummy = new Dummy();
             a(dummy);
-            Assert.Equal(true,dummy.BoolField);
+            Assert.Equal(true, dummy.BoolField);
         }
 
         [Fact]
@@ -113,7 +114,7 @@ namespace Wire.Tests
             c.Emit(b);
             var a = c.Compile();
             var res = a();
-            Assert.Equal(true,res);
+            Assert.Equal(true, res);
         }
 
         [Fact]
@@ -161,9 +162,9 @@ namespace Wire.Tests
         public void CanCastToAndFromObject()
         {
             var c = new IlCompiler<Action>();
-            
+
             var True = c.Constant(true);
-            var boxedBool = c.Convert(True,typeof(object));
+            var boxedBool = c.Convert(True, typeof(object));
             var unboxedBool = c.CastOrUnbox(boxedBool, typeof(bool));
 
             var obj = c.NewObject(typeof(Dummy));
@@ -191,7 +192,7 @@ namespace Wire.Tests
         {
             var value = new FakeTupleString("Hello");
             var type = value.GetType();
-            var serializer = new Serializer(new SerializerOptions(knownTypes: new List<Type>() { type }));
+            var serializer = new Serializer(new SerializerOptions(knownTypes: new List<Type> {type}));
             var session = new DeserializerSession(serializer);
             var stream = new MemoryStream();
 
@@ -202,7 +203,7 @@ namespace Wire.Tests
 
             var readAllFields = GetDelegate(type, fields, serializer);
 
-            var x = (FakeTupleString)readAllFields(stream, session);
+            var x = (FakeTupleString) readAllFields(stream, session);
             Assert.Equal(value.Item1, x.Item1);
         }
 
@@ -212,17 +213,17 @@ namespace Wire.Tests
         {
             var value = FSharpOption<string>.Some("abc");
             var type = value.GetType();
-            var serializer = new Serializer(new SerializerOptions(knownTypes: new List<Type>() { type }));
+            var serializer = new Serializer(new SerializerOptions(knownTypes: new List<Type> {type}));
             var session = new DeserializerSession(serializer);
             var stream = new MemoryStream();
 
             serializer.Serialize(value, stream);
             stream.Position = 3; //skip forward to payload
-            var fields = ReflectionEx.GetFieldInfosForType(type);
+            var fields = type.GetFieldInfosForType();
 
             var readAllFields = GetDelegate(type, fields, serializer);
 
-            var x = (FSharpOption<string>)readAllFields(stream, session);
+            var x = (FSharpOption<string>) readAllFields(stream, session);
             Assert.Equal(value.Value, x.Value);
         }
 
@@ -231,7 +232,7 @@ namespace Wire.Tests
         {
             var value = Tuple.Create("Hello");
             var type = value.GetType();
-            var serializer = new Serializer(new SerializerOptions(knownTypes: new List<Type>() { type }));
+            var serializer = new Serializer(new SerializerOptions(knownTypes: new List<Type> {type}));
             var session = new DeserializerSession(serializer);
             var stream = new MemoryStream();
 
@@ -242,24 +243,24 @@ namespace Wire.Tests
 
             var readAllFields = GetDelegate(type, fields, serializer);
 
-            var x = (Tuple<string>)readAllFields(stream, session);
+            var x = (Tuple<string>) readAllFields(stream, session);
             Assert.Equal(value.Item1, x.Item1);
         }
 
         [Fact]
         public void ReadSimulation()
         {
-            var serializer = new Serializer(new SerializerOptions(knownTypes:new List<Type>() {typeof(Poco)}));
+            var serializer = new Serializer(new SerializerOptions(knownTypes: new List<Type> {typeof(Poco)}));
             var session = new DeserializerSession(serializer);
             var stream = new MemoryStream();
-            var poco = new Poco()
+            var poco = new Poco
             {
                 StringProp = "hello",
                 GuidProp = Guid.NewGuid(),
                 IntProp = 123,
-                DateProp = DateTime.Now,
+                DateProp = DateTime.Now
             };
-            serializer.Serialize(poco,stream);
+            serializer.Serialize(poco, stream);
             stream.Position = 3; //skip forward to payload
 
             var type = typeof(Poco);
@@ -267,7 +268,7 @@ namespace Wire.Tests
 
             var readAllFields = GetDelegate(type, fields, serializer);
 
-            var x = (Poco)readAllFields(stream, session);
+            var x = (Poco) readAllFields(stream, session);
             Assert.Equal(poco.DateProp, x.DateProp);
             Assert.Equal(poco.GuidProp, x.GuidProp);
             Assert.Equal(poco.IntProp, x.IntProp);
@@ -290,16 +291,17 @@ namespace Wire.Tests
             var bufferValue = c.Call(typeof(DeserializerSession).GetMethod("GetBuffer"), session, size);
             var assignBuffer = c.WriteVar(buffer, bufferValue);
             c.Emit(assignBuffer);
-            
+
             var typedTarget = c.CastOrUnbox(target, type);
             foreach (var field in fields)
             {
                 var s = serializer.GetSerializerByType(field.FieldType);
                 var read = s.EmitReadValue(c, stream, session, field);
-                
+
                 var assignReadToField = c.WriteField(field, typedTarget, read);
                 c.Emit(assignReadToField);
             }
+
             c.Emit(target);
 
             var readAllFields = c.Compile();

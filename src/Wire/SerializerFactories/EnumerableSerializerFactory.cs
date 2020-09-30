@@ -22,26 +22,14 @@ namespace Wire.SerializerFactories
         {
             //TODO: check for constructor with IEnumerable<T> param
 
-            if (!type.GetTypeInfo().GetMethods().Any(m => m.Name == "AddRange" || m.Name == "Add"))
-            {
-                return false;
-            }
+            if (!type.GetTypeInfo().GetMethods().Any(m => m.Name == "AddRange" || m.Name == "Add")) return false;
 
-            if (type.GetTypeInfo().GetProperty("Count") == null)
-            {
-                return false;
-            }
+            if (type.GetTypeInfo().GetProperty("Count") == null) return false;
 
             var isGenericEnumerable = GetEnumerableType(type) != null;
-            if (isGenericEnumerable)
-            {
-                return true;
-            }
+            if (isGenericEnumerable) return true;
 
-            if (typeof(ICollection).GetTypeInfo().IsAssignableFrom(type))
-            {
-                return true;
-            }
+            if (typeof(ICollection).GetTypeInfo().IsAssignableFrom(type)) return true;
 
             return false;
         }
@@ -78,15 +66,15 @@ namespace Wire.SerializerFactories
             var addRange = type.GetTypeInfo().GetMethod("AddRange");
             var add = type.GetTypeInfo().GetMethod("Add");
 
-            int CountGetter(object o) => (int) countProperty.GetValue(o);
+            int CountGetter(object o)
+            {
+                return (int) countProperty.GetValue(o);
+            }
 
             object Reader(Stream stream, DeserializerSession session)
             {
                 var instance = Activator.CreateInstance(type);
-                if (preserveObjectReferences)
-                {
-                    session.TrackDeserializedObject(instance);
-                }
+                if (preserveObjectReferences) session.TrackDeserializedObject(instance);
 
                 var count = stream.ReadInt32(session);
 
@@ -103,31 +91,25 @@ namespace Wire.SerializerFactories
                     addRange.Invoke(instance, new object[] {items});
                     return instance;
                 }
+
                 if (add != null)
-                {
                     for (var i = 0; i < count; i++)
                     {
                         var value = stream.ReadObject(session);
                         add.Invoke(instance, new[] {value});
                     }
-                }
 
                 return instance;
             }
 
             void Writer(Stream stream, object o, SerializerSession session)
             {
-                if (preserveObjectReferences)
-                {
-                    session.TrackSerializedObject(o);
-                }
+                if (preserveObjectReferences) session.TrackSerializedObject(o);
                 Int32Serializer.WriteValueImpl(stream, CountGetter(o), session);
                 var enumerable = o as IEnumerable;
                 // ReSharper disable once PossibleNullReferenceException
                 foreach (var value in enumerable)
-                {
                     stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
-                }
             }
 
             x.Initialize(Reader, Writer);

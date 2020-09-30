@@ -16,14 +16,20 @@ namespace Wire.SerializerFactories
 {
     public class DefaultDictionarySerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type) => IsDictionary(type);
+        public override bool CanSerialize(Serializer serializer, Type type)
+        {
+            return IsDictionary(type);
+        }
 
         private static bool IsDictionary(Type type)
         {
             return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
         }
 
-        public override bool CanDeserialize(Serializer serializer, Type type) => IsDictionary(type);
+        public override bool CanDeserialize(Serializer serializer, Type type)
+        {
+            return IsDictionary(type);
+        }
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
@@ -37,33 +43,27 @@ namespace Wire.SerializerFactories
             {
                 var count = stream.ReadInt32(session);
                 var instance = (IDictionary) Activator.CreateInstance(type, count);
-                if (preserveObjectReferences)
-                {
-                    session.TrackDeserializedObject(instance);
-                }
+                if (preserveObjectReferences) session.TrackDeserializedObject(instance);
 
                 for (var i = 0; i < count; i++)
                 {
                     var entry = (DictionaryEntry) stream.ReadObject(session);
                     instance.Add(entry.Key, entry.Value);
                 }
+
                 return instance;
             }
 
             void Writer(Stream stream, object obj, SerializerSession session)
             {
-                if (preserveObjectReferences)
-                {
-                    session.TrackSerializedObject(obj);
-                }
+                if (preserveObjectReferences) session.TrackSerializedObject(obj);
                 var dict = obj as IDictionary;
                 // ReSharper disable once PossibleNullReferenceException
                 Int32Serializer.WriteValueImpl(stream, dict.Count, session);
                 foreach (DictionaryEntry item in dict)
-                {
-                    stream.WriteObject(item, typeof(DictionaryEntry), elementSerializer, serializer.Options.PreserveObjectReferences, session);
-                    // elementSerializer.WriteValue(stream,item,session);
-                }
+                    stream.WriteObject(item, typeof(DictionaryEntry), elementSerializer,
+                        serializer.Options.PreserveObjectReferences, session);
+                // elementSerializer.WriteValue(stream,item,session);
             }
 
             ser.Initialize(Reader, Writer);

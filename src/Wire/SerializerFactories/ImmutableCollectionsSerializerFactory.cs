@@ -23,20 +23,17 @@ namespace Wire.SerializerFactories
 
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            if (type.Namespace == null || !type.Namespace.Equals(ImmutableCollectionsNamespace))
-            {
-                return false;
-            }
+            if (type.Namespace == null || !type.Namespace.Equals(ImmutableCollectionsNamespace)) return false;
             var isGenericEnumerable = GetEnumerableType(type) != null;
-            if (isGenericEnumerable)
-            {
-                return true;
-            }
+            if (isGenericEnumerable) return true;
 
             return false;
         }
 
-        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
+        public override bool CanDeserialize(Serializer serializer, Type type)
+        {
+            return CanSerialize(serializer, type);
+        }
 
         private static Type GetEnumerableType(Type type)
         {
@@ -86,15 +83,11 @@ namespace Wire.SerializerFactories
 
                     enumerable = list;
                 }
+
                 Int32Serializer.WriteValueImpl(stream, enumerable.Count, session);
                 foreach (var value in enumerable)
-                {
                     stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
-                }
-                if (preserveObjectReferences)
-                {
-                    session.TrackSerializedObject(o);
-                }
+                if (preserveObjectReferences) session.TrackSerializedObject(o);
             }
 
             object Reader(Stream stream, DeserializerSession session)
@@ -108,10 +101,7 @@ namespace Wire.SerializerFactories
                 }
 
                 var instance = createRange.Invoke(null, new object[] {items});
-                if (preserveObjectReferences)
-                {
-                    session.TrackDeserializedObject(instance);
-                }
+                if (preserveObjectReferences) session.TrackDeserializedObject(instance);
                 return instance;
             }
 

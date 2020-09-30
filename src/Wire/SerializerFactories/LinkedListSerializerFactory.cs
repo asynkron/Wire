@@ -26,34 +26,28 @@ namespace Wire.SerializerFactories
             return CanSerialize(serializer, type);
         }
 
-        private static void WriteValues<T>(LinkedList<T> llist, Stream stream, Type elementType, ValueSerializer elementSerializer,
-    SerializerSession session, bool preserveObjectReferences)
+        private static void WriteValues<T>(LinkedList<T> llist, Stream stream, Type elementType,
+            ValueSerializer elementSerializer,
+            SerializerSession session, bool preserveObjectReferences)
         {
-            if (preserveObjectReferences)
-            {
-                session.TrackSerializedObject(llist);
-            }
-            
+            if (preserveObjectReferences) session.TrackSerializedObject(llist);
+
             Int32Serializer.WriteValueImpl(stream, llist.Count, session);
             foreach (var value in llist)
-            {
                 stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
-            }
         }
 
         private static object ReadValues<T>(Stream stream, DeserializerSession session, bool preserveObjectReferences)
         {
             var length = stream.ReadInt32(session);
             var llist = new LinkedList<T>();
-            if (preserveObjectReferences)
-            {
-                session.TrackDeserializedObject(llist);
-            }
+            if (preserveObjectReferences) session.TrackDeserializedObject(llist);
             for (var i = 0; i < length; i++)
             {
-                var value = (T)stream.ReadObject(session);
+                var value = (T) stream.ReadObject(session);
                 llist.AddLast(value);
             }
+
             return llist;
         }
 
@@ -66,8 +60,12 @@ namespace Wire.SerializerFactories
             var elementSerializer = serializer.GetSerializerByType(elementType);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
-            var readGeneric = GetType().GetTypeInfo().GetMethod(nameof(ReadValues), BindingFlags.NonPublic | BindingFlags.Static).MakeGenericMethod(elementType);
-            var writeGeneric = GetType().GetTypeInfo().GetMethod(nameof(WriteValues), BindingFlags.NonPublic | BindingFlags.Static).MakeGenericMethod(elementType);
+            var readGeneric = GetType().GetTypeInfo()
+                .GetMethod(nameof(ReadValues), BindingFlags.NonPublic | BindingFlags.Static)
+                .MakeGenericMethod(elementType);
+            var writeGeneric = GetType().GetTypeInfo()
+                .GetMethod(nameof(WriteValues), BindingFlags.NonPublic | BindingFlags.Static)
+                .MakeGenericMethod(elementType);
 
             object Reader(Stream stream, DeserializerSession session)
             {
@@ -79,7 +77,8 @@ namespace Wire.SerializerFactories
             void Writer(Stream stream, object arr, SerializerSession session)
             {
                 //T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer, SerializerSession session, bool preserveObjectReferences
-                writeGeneric.Invoke(null, new[] {arr, stream, elementType, elementSerializer, session, preserveObjectReferences});
+                writeGeneric.Invoke(null,
+                    new[] {arr, stream, elementType, elementSerializer, session, preserveObjectReferences});
             }
 
             arraySerializer.Initialize(Reader, Writer);

@@ -56,15 +56,10 @@ namespace Wire.ValueSerializers
             var methodCallObject = (ConstantExpression) methodCallExpression.Object;
             var method = (MethodInfo) methodCallObject.Value;
 
-            if (method.IsStatic == false)
-            {
-                throw new ArgumentException($"Method {method.Name} should be static.");
-            }
+            if (method.IsStatic == false) throw new ArgumentException($"Method {method.Name} should be static.");
 
             if (method.ReturnType != expectedReturnType)
-            {
                 throw new ArgumentException($"Method {method.Name} should return {expectedReturnType.Name}.");
-            }
 
             return method;
         }

@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-
 namespace Wire.Extensions
 {
     public static class BindingFlagsEx
@@ -23,10 +22,7 @@ namespace Wire.Extensions
 
         public static FieldInfo[] GetFieldInfosForType(this Type type)
         {
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
+            if (type == null) throw new ArgumentNullException(nameof(type));
 
             var fieldInfos = new List<FieldInfo>();
             var current = type;
@@ -45,6 +41,7 @@ namespace Wire.Extensions
                 fieldInfos.AddRange(tfields);
                 current = current.GetTypeInfo().BaseType;
             }
+
             var fields = fieldInfos.OrderBy(f => f.Name).ToArray();
             return fields;
         }

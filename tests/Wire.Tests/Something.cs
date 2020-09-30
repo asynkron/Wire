@@ -18,28 +18,16 @@ namespace Wire.Tests
     {
         public bool Equals(Empty other)
         {
-            if (other == null)
-            {
-                return false;
-            }
+            if (other == null) return false;
 
             return true;
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
             return Equals((Empty) obj);
         }
 
@@ -58,6 +46,7 @@ namespace Wire.Tests
             return !Equals(left, right);
         }
     }
+
     public class Something : IEquatable<Something>
     {
         public string StringProp { get; set; }
@@ -69,31 +58,18 @@ namespace Wire.Tests
 
         public bool Equals(Something other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            return string.Equals(StringProp, other.StringProp) && Int32Prop == other.Int32Prop && BoolProp == other.BoolProp && NullableInt32PropNoValue == other.NullableInt32PropNoValue && NullableInt32PropHasValue == other.NullableInt32PropHasValue && Equals(Else, other.Else);
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return string.Equals(StringProp, other.StringProp) && Int32Prop == other.Int32Prop &&
+                   BoolProp == other.BoolProp && NullableInt32PropNoValue == other.NullableInt32PropNoValue &&
+                   NullableInt32PropHasValue == other.NullableInt32PropHasValue && Equals(Else, other.Else);
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
             return Equals((Something) obj);
         }
 
@@ -102,11 +78,11 @@ namespace Wire.Tests
             unchecked
             {
                 var hashCode = StringProp != null ? StringProp.GetHashCode() : 0;
-                hashCode = (hashCode*397) ^ Int32Prop;
-                hashCode = (hashCode*397) ^ BoolProp.GetHashCode();
-                hashCode = (hashCode*397) ^ NullableInt32PropNoValue.GetHashCode();
-                hashCode = (hashCode*397) ^ NullableInt32PropHasValue.GetHashCode();
-                hashCode = (hashCode*397) ^ (Else != null ? Else.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ Int32Prop;
+                hashCode = (hashCode * 397) ^ BoolProp.GetHashCode();
+                hashCode = (hashCode * 397) ^ NullableInt32PropNoValue.GetHashCode();
+                hashCode = (hashCode * 397) ^ NullableInt32PropHasValue.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Else != null ? Else.GetHashCode() : 0);
                 return hashCode;
             }
         }
@@ -128,31 +104,16 @@ namespace Wire.Tests
 
         public bool Equals(Else other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
             return string.Equals(Name, other.Name);
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
             return Equals((Else) obj);
         }
 
@@ -178,31 +139,16 @@ namespace Wire.Tests
 
         public bool Equals(OtherElse other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
             return base.Equals(other) && string.Equals(More, other.More);
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
             return Equals((OtherElse) obj);
         }
 
@@ -210,7 +156,7 @@ namespace Wire.Tests
         {
             unchecked
             {
-                return (base.GetHashCode()*397) ^ (More != null ? More.GetHashCode() : 0);
+                return (base.GetHashCode() * 397) ^ (More != null ? More.GetHashCode() : 0);
             }
         }
 
@@ -224,6 +170,4 @@ namespace Wire.Tests
             return !Equals(left, right);
         }
     }
-
-
 }

@@ -4,12 +4,12 @@
 //   </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+using System.IO;
+using Wire.Internal;
+
 namespace Wire.ValueSerializers
 {
-    using System;
-    using System.IO;
-    using Internal;
-
     public class DateTimeOffsetSerializer : SessionAwareByteArrayRequiringValueSerializer<DateTimeOffset>
     {
         public const byte Manifest = 10;

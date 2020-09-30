@@ -38,7 +38,8 @@ namespace Wire.SerializerFactories
 
 
                 var field = owner.GetTypeInfo()
-                                 .GetField(name, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    .GetField(name,
+                        BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 return field;
             }
 

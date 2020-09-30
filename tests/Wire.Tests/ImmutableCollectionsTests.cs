@@ -11,7 +11,6 @@ using Xunit;
 
 namespace Wire.Tests
 {
-    
     public class ImmutableCollectionTests : TestBase
     {
         //[Fact]

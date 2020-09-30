@@ -23,15 +23,12 @@ namespace Wire.ValueSerializers
             //get the element type serializer
             var length = stream.ReadInt32(session);
             var array = Array.CreateInstance(elementType, length); //create the array
-            if (session.Serializer.Options.PreserveObjectReferences)
-            {
-                session.TrackDeserializedObject(array);
-            }
+            if (session.Serializer.Options.PreserveObjectReferences) session.TrackDeserializedObject(array);
 
             if (elementType.IsFixedSizeType())
             {
                 var size = elementType.GetTypeSize();
-                var totalSize = size*length;
+                var totalSize = size * length;
                 var buffer = session.GetBuffer(totalSize);
                 stream.Read(buffer, 0, totalSize);
                 Buffer.BlockCopy(buffer, 0, array, 0, totalSize);
@@ -63,10 +60,7 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
-            if (session.Serializer.Options.PreserveObjectReferences)
-            {
-                session.TrackSerializedObject(value);
-            }
+            if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(value);
             var elementType = value.GetType().GetElementType();
             var elementSerializer = session.Serializer.GetSerializerByType(elementType);
             elementSerializer.WriteManifest(stream, session); //write array element type
@@ -82,16 +76,13 @@ namespace Wire.ValueSerializers
             if (typeof(T).IsFixedSizeType())
             {
                 var size = typeof(T).GetTypeSize();
-                var result = new byte[array.Length*size];
+                var result = new byte[array.Length * size];
                 Buffer.BlockCopy(array, 0, result, 0, result.Length);
                 stream.Write(result);
             }
             else
             {
-                foreach (var value in array)
-                {
-                    elementSerializer.WriteValue(stream, value, session);
-                }
+                foreach (var value in array) elementSerializer.WriteValue(stream, value, session);
             }
         }
     }

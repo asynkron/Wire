@@ -7,5 +7,6 @@
 namespace Wire.Tests
 {
     public class ISerializableTests : TestBase
-    {}
+    {
+    }
 }

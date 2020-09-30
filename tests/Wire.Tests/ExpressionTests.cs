@@ -16,28 +16,6 @@ namespace Wire.Tests
 {
     public class ExpressionTests
     {
-        public struct Dummy
-        {
-            public string TestField;
-            public int TestProperty { get; set; }
-            public string Fact(string input) => input;
-
-            public Dummy(string testField) : this()
-            {
-                TestField = testField;
-            }
-        }
-
-        public class DummyException : Exception
-        {
-            protected DummyException(
-                SerializationInfo info,
-                StreamingContext context) : base(info, context)
-            {
-            }
-        }
-
-
         [Fact]
         public void CanSerializeBinaryExpression()
         {
@@ -57,7 +35,7 @@ namespace Wire.Tests
         [Fact]
         public void CanSerializeBlockExpression()
         {
-            var expr = Expression.Block(new[] { Expression.Constant(1), Expression.Constant(2), Expression.Constant(3) });
+            var expr = Expression.Block(new[] {Expression.Constant(1), Expression.Constant(2), Expression.Constant(3)});
             var serializer = new Serializer();
 
             using (var stream = new MemoryStream())
@@ -131,7 +109,7 @@ namespace Wire.Tests
         [Fact]
         public void CanSerializeConstructorInfo()
         {
-            var constructorInfo = typeof(Dummy).GetConstructor(new[] { typeof(string) });
+            var constructorInfo = typeof(Dummy).GetConstructor(new[] {typeof(string)});
             var serializer = new Serializer();
 
             using (var stream = new MemoryStream())
@@ -184,7 +162,7 @@ namespace Wire.Tests
         [Fact]
         public void CanSerializeElementInit()
         {
-            var listAddMethod = typeof (List<int>).GetMethod("Add");
+            var listAddMethod = typeof(List<int>).GetMethod("Add");
             var expr = Expression.ElementInit(listAddMethod, Expression.Constant(1));
             var serializer = new Serializer();
 
@@ -251,7 +229,7 @@ namespace Wire.Tests
                 Assert.Equal(expr.Indexer, deserialized.Indexer);
                 Assert.Equal(1, deserialized.Arguments.Count);
                 Assert.Equal(expr.Arguments[0].ConstantValue(), deserialized.Arguments[0].ConstantValue());
-                var actual = (int[])deserialized.Object.ConstantValue();
+                var actual = (int[]) deserialized.Object.ConstantValue();
                 Assert.Equal(value[0], actual[0]);
                 Assert.Equal(value[1], actual[1]);
                 Assert.Equal(value[2], actual[2]);
@@ -318,7 +296,7 @@ namespace Wire.Tests
         public void CanSerializeLambdaExpression()
         {
             var methodInfo = typeof(Dummy).GetMethod("Fact");
-            var param = Expression.Parameter(typeof (Dummy), "dummy");
+            var param = Expression.Parameter(typeof(Dummy), "dummy");
             var expr = Expression.Lambda(Expression.Call(param, methodInfo, Expression.Constant("s")), param);
             var serializer = new Serializer();
 
@@ -340,7 +318,7 @@ namespace Wire.Tests
         [Fact]
         public void CanSerializeLoopExpression()
         {
-            var breakLabel = Expression.Label(typeof (void), "break");
+            var breakLabel = Expression.Label(typeof(void), "break");
             var continueLabel = Expression.Label(typeof(void), "cont");
             var expr = Expression.Loop(Expression.Constant(2), breakLabel, continueLabel);
             var serializer = new Serializer();
@@ -380,7 +358,8 @@ namespace Wire.Tests
         public void CanSerializeMethodCallExpression()
         {
             var methodInfo = typeof(Dummy).GetMethod("Fact");
-            var expr = Expression.Call(Expression.Constant(new Dummy()), methodInfo, Expression.Constant("test string"));
+            var expr = Expression.Call(Expression.Constant(new Dummy()), methodInfo,
+                Expression.Constant("test string"));
             var serializer = new Serializer();
 
             using (var stream = new MemoryStream())
@@ -415,7 +394,7 @@ namespace Wire.Tests
         [Fact]
         public void CanSerializeNewExpression()
         {
-            var ctor = typeof(Dummy).GetConstructor(new[] { typeof(string) });
+            var ctor = typeof(Dummy).GetConstructor(new[] {typeof(string)});
             var expr = Expression.New(ctor, Expression.Constant("test param"));
             var serializer = new Serializer();
 
@@ -496,10 +475,38 @@ namespace Wire.Tests
                 Assert.Equal(expr.Operand.ConstantValue(), deserialized.Operand.ConstantValue());
             }
         }
+
+        public struct Dummy
+        {
+            public string TestField;
+            public int TestProperty { get; set; }
+
+            public string Fact(string input)
+            {
+                return input;
+            }
+
+            public Dummy(string testField) : this()
+            {
+                TestField = testField;
+            }
+        }
+
+        public class DummyException : Exception
+        {
+            protected DummyException(
+                SerializationInfo info,
+                StreamingContext context) : base(info, context)
+            {
+            }
+        }
     }
 
     internal static class ExpressionExtensions
     {
-        public static object ConstantValue(this Expression expr) => ((ConstantExpression)expr).Value;
+        public static object ConstantValue(this Expression expr)
+        {
+            return ((ConstantExpression) expr).Value;
+        }
     }
 }

@@ -19,7 +19,10 @@ namespace Wire.SerializerFactories
             return surrogate != null;
         }
 
-        public override bool CanDeserialize(Serializer serializer, Type type) => false;
+        public override bool CanDeserialize(Serializer serializer, Type type)
+        {
+            return false;
+        }
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)

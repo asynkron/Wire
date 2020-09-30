@@ -112,29 +112,18 @@ namespace Wire
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ValueSerializer GetCustomDeserializer([NotNull] Type type)
         {
-
             //do we already have a deserializer for this type?
-            if (_deserializers.TryGetValue(type, out ValueSerializer serializer))
-            {
-                return serializer;
-            }
+            if (_deserializers.TryGetValue(type, out var serializer)) return serializer;
 
             //is there a deserializer factory that can handle this type?
             foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
-            {
                 if (valueSerializerFactory.CanDeserialize(this, type))
-                {
                     return valueSerializerFactory.BuildSerializer(this, type, _deserializers);
-                }
-            }
 
             //none of the above, lets create a POCO object deserializer
             serializer = new ObjectSerializer(type);
             //add it to the serializer lookup in case of recursive serialization
-            if (!_deserializers.TryAdd(type, serializer))
-            {
-                return _deserializers[type];
-            }
+            if (!_deserializers.TryAdd(type, serializer)) return _deserializers[type];
             //build the serializer IL code
             CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
             return serializer;
@@ -144,10 +133,7 @@ namespace Wire
 
         public void Serialize(object obj, [NotNull] Stream stream, SerializerSession session)
         {
-            if (obj == null)
-            {
-                throw new ArgumentNullException(nameof(obj));
-            }
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
 
             var type = obj.GetType();
             var s = GetSerializerByType(type);
@@ -157,10 +143,7 @@ namespace Wire
 
         public void Serialize(object obj, [NotNull] Stream stream)
         {
-            if (obj == null)
-            {
-                throw new ArgumentNullException(nameof(obj));
-            }
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
             var session = GetSerializerSession();
 
             var type = obj.GetType();
@@ -207,36 +190,25 @@ namespace Wire
 
         public ValueSerializer GetSerializerByType([NotNull] Type type)
         {
-
             //do we already have a serializer for this type?
-            if (_serializers.TryGetValue(type, out ValueSerializer serializer))
-            {
-                return serializer;
-            }
+            if (_serializers.TryGetValue(type, out var serializer)) return serializer;
 
             //is there a serializer factory that can handle this type?
             foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
-            {
                 if (valueSerializerFactory.CanSerialize(this, type))
-                {
                     return valueSerializerFactory.BuildSerializer(this, type, _serializers);
-                }
-            }
 
             //none of the above, lets create a POCO object serializer
             serializer = new ObjectSerializer(type);
-            if (Options.KnownTypesDict.TryGetValue(type, out ushort index))
+            if (Options.KnownTypesDict.TryGetValue(type, out var index))
             {
-                var wrapper = new KnownTypeObjectSerializer((ObjectSerializer)serializer, index);
-                if (!_serializers.TryAdd(type, wrapper))
-                {
-                    return _serializers[type];
-                }
+                var wrapper = new KnownTypeObjectSerializer((ObjectSerializer) serializer, index);
+                if (!_serializers.TryAdd(type, wrapper)) return _serializers[type];
 
                 try
                 {
                     //build the serializer IL code
-                    CodeGenerator.BuildSerializer(this, (ObjectSerializer)serializer);
+                    CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
                 }
                 catch (Exception exp)
                 {
@@ -244,13 +216,12 @@ namespace Wire
                     _serializers[type] = invalidSerializer;
                     return invalidSerializer;
                 }
+
                 //just ignore if this fails, another thread have already added an identical serializer
                 return wrapper;
             }
-            if (!_serializers.TryAdd(type, serializer))
-            {
-                return _serializers[type];
-            }
+
+            if (!_serializers.TryAdd(type, serializer)) return _serializers[type];
 
             try
             {
@@ -274,10 +245,7 @@ namespace Wire
         public ValueSerializer GetDeserializerByManifest([NotNull] Stream stream, [NotNull] DeserializerSession session)
         {
             var first = stream.ReadByte();
-            if (first <= 250)
-            {
-                return _deserializerLookup[first];
-            }
+            if (first <= 250) return _deserializerLookup[first];
             switch (first)
             {
                 case ConsistentArraySerializer.Manifest:
@@ -297,10 +265,7 @@ namespace Wire
                 case ObjectSerializer.ManifestIndex:
                 {
                     var typeId = (int) stream.ReadUInt16(session);
-                    if (typeId < _knownValueSerializers.Length)
-                    {
-                        return _knownValueSerializers[typeId];
-                    }
+                    if (typeId < _knownValueSerializers.Length) return _knownValueSerializers[typeId];
                     var type = TypeEx.GetTypeFromManifestIndex(typeId, session);
                     return GetCustomDeserializer(type);
                 }

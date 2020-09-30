@@ -33,9 +33,9 @@ namespace Wire
             new ImmutableCollectionsSerializerFactory(),
             new ExpandoObjectSerializerFactory(),
             new DefaultDictionarySerializerFactory(),
-            new LinkedListSerializerFactory(), 
+            new LinkedListSerializerFactory(),
             new DictionarySerializerFactory(),
-            new HashSetSerializerFactory(), 
+            new HashSetSerializerFactory(),
             new ArraySerializerFactory(),
 
             new ISerializableSerializerFactory(), //TODO: this will mess up the indexes in the serializer payload
@@ -63,11 +63,8 @@ namespace Wire
                 DefaultValueSerializerFactories.Concat(serializerFactories?.ToArray() ?? EmptyValueSerializerFactories)
                     .ToArray();
 
-            KnownTypes = knownTypes?.ToArray() ?? new Type[] {};
-            for (var i = 0; i < KnownTypes.Length; i++)
-            {
-                KnownTypesDict.Add(KnownTypes[i], (ushort) i);
-            }
+            KnownTypes = knownTypes?.ToArray() ?? new Type[] { };
+            for (var i = 0; i < KnownTypes.Length; i++) KnownTypesDict.Add(KnownTypes[i], (ushort) i);
 
             PreserveObjectReferences = preserveObjectReferences;
         }

@@ -9,26 +9,8 @@ using Xunit;
 
 namespace Wire.Tests
 {
-   
     public class InterfaceTests
     {
-        public class Bar
-        {
-            public IFoo Foo { get; set; }
-        }
-
-        public interface IFoo
-        {
-            int A { get; set; }
-            string B { get; set; }
-        }
-
-        public class Foo : IFoo
-        {
-            public int A { get; set; }
-            public string B { get; set; }
-        }
-
         [Fact]
         public void CanSerializeInterfaceField()
         {
@@ -45,6 +27,23 @@ namespace Wire.Tests
             serializer.Serialize(b, stream);
             stream.Position = 0;
             var res = serializer.Deserialize(stream);
+        }
+
+        public class Bar
+        {
+            public IFoo Foo { get; set; }
+        }
+
+        public interface IFoo
+        {
+            int A { get; set; }
+            string B { get; set; }
+        }
+
+        public class Foo : IFoo
+        {
+            public int A { get; set; }
+            public string B { get; set; }
         }
     }
 }

@@ -13,13 +13,12 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Wire.Internal;
 
-
-
 namespace Wire.Extensions
 {
     public static class TypeEx
     {
-        const string VERSION_REGEX = @", Version=(\d+([.]\d+)?([.]\d+)?([.]\d+)?.*?)";
+        private const string VERSION_REGEX = @", Version=(\d+([.]\d+)?([.]\d+)?([.]\d+)?.*?)";
+
         //Why not inline typeof you ask?
         //Because it actually generates calls to get the type.
         //We prefetch all primitives here
@@ -44,6 +43,14 @@ namespace Wire.Extensions
         public static readonly Type TypeType = typeof(Type);
         public static readonly Type RuntimeType = Type.GetType("System.RuntimeType");
 
+        //HACK: the GetUnitializedObject actually exists in .NET Core, its just not public
+        private static readonly Func<Type, object> getUninitializedObjectDelegate = GetFormatterDelegate();
+
+        private static readonly ConcurrentDictionary<ByteArrayKey, Type> TypeNameLookup =
+            new ConcurrentDictionary<ByteArrayKey, Type>(ByteArrayKeyComparer.Instance);
+
+        private static readonly string CoreAssemblyName = GetCoreAssemblyName();
+
         public static bool IsWirePrimitive(this Type type)
         {
             return type == Int32Type ||
@@ -64,9 +71,6 @@ namespace Wire.Extensions
                    type == CharType;
             //add TypeSerializer with null support
         }
-        
-        //HACK: the GetUnitializedObject actually exists in .NET Core, its just not public
-        private static readonly Func<Type, object> getUninitializedObjectDelegate = GetFormatterDelegate();
 
         private static Func<Type, object> GetFormatterDelegate()
         {
@@ -79,13 +83,12 @@ namespace Wire.Extensions
 
 
             if (formatterType == null)
-            {
                 // it's been moved to the Formatters assembly in .NET Core 3.x
                 formatterType = Assembly.Load("System.Runtime.Serialization.Formatters")?.GetType(FormatterServices);
-            }
 
-            return (Func<Type, object>)formatterType?.GetTypeInfo()
-                ?.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+            return (Func<Type, object>) formatterType?.GetTypeInfo()
+                ?.GetMethod("GetUninitializedObject",
+                    BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
                 ?.CreateDelegate(typeof(Func<Type, object>));
         }
 
@@ -104,18 +107,16 @@ namespace Wire.Extensions
             return type.IsArray && type.GetArrayRank() == 1 && type.GetElementType().IsWirePrimitive();
         }
 
-        private static readonly ConcurrentDictionary<ByteArrayKey, Type> TypeNameLookup =
-            new ConcurrentDictionary<ByteArrayKey, Type>(ByteArrayKeyComparer.Instance);
-
         public static byte[] GetTypeManifest(IReadOnlyCollection<byte[]> fieldNames)
         {
-            IEnumerable<byte> result = new[] { (byte)fieldNames.Count };
+            IEnumerable<byte> result = new[] {(byte) fieldNames.Count};
             foreach (var name in fieldNames)
             {
                 var encodedLength = BitConverter.GetBytes(name.Length);
                 result = result.Concat(encodedLength);
                 result = result.Concat(name);
             }
+
             var versionTolerantHeader = result.ToArray();
             return versionTolerantHeader;
         }
@@ -183,43 +184,17 @@ namespace Wire.Extensions
 
         public static int GetTypeSize(this Type type)
         {
-            if (type == Int16Type)
-            {
-                return sizeof(short);
-            }
-            if (type == Int32Type)
-            {
-                return sizeof(int);
-            }
-            if (type == Int64Type)
-            {
-                return sizeof(long);
-            }
-            if (type == BoolType)
-            {
-                return sizeof(bool);
-            }
-            if (type == UInt16Type)
-            {
-                return sizeof(ushort);
-            }
-            if (type == UInt32Type)
-            {
-                return sizeof(uint);
-            }
-            if (type == UInt64Type)
-            {
-                return sizeof(ulong);
-            }
-            if (type == CharType)
-            {
-                return sizeof(char);
-            }
+            if (type == Int16Type) return sizeof(short);
+            if (type == Int32Type) return sizeof(int);
+            if (type == Int64Type) return sizeof(long);
+            if (type == BoolType) return sizeof(bool);
+            if (type == UInt16Type) return sizeof(ushort);
+            if (type == UInt32Type) return sizeof(uint);
+            if (type == UInt64Type) return sizeof(ulong);
+            if (type == CharType) return sizeof(char);
 
             throw new NotSupportedException();
         }
-
-        private static readonly string CoreAssemblyName = GetCoreAssemblyName();
 
         private static string GetCoreAssemblyName()
         {
@@ -250,7 +225,7 @@ namespace Wire.Extensions
             return name;
         }
 
-        static string ReplaceVersion(string input)
+        private static string ReplaceVersion(string input)
         {
             var regex = new Regex(VERSION_REGEX);
             return regex.Replace(input, "");

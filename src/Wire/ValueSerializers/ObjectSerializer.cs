@@ -22,7 +22,7 @@ namespace Wire.ValueSerializers
         private readonly byte[] _manifestWithVersionInfo;
 
         private volatile bool _isInitialized;
-        int _preallocatedBufferSize;
+        private int _preallocatedBufferSize;
         private ObjectReader _reader;
         private ObjectWriter _writer;
 
@@ -78,7 +78,7 @@ namespace Wire.ValueSerializers
 
         public override void WriteManifest(Stream stream, SerializerSession session)
         {
-            if (session.ShouldWriteTypeManifest(Type, out ushort typeIdentifier))
+            if (session.ShouldWriteTypeManifest(Type, out var typeIdentifier))
             {
                 session.TrackSerializedType(Type);
 
@@ -96,11 +96,19 @@ namespace Wire.ValueSerializers
         }
 
         public override void WriteValue(Stream stream, object value, SerializerSession session)
-            => _writer(stream, value, session);
+        {
+            _writer(stream, value, session);
+        }
 
-        public override object ReadValue(Stream stream, DeserializerSession session) => _reader(stream, session);
+        public override object ReadValue(Stream stream, DeserializerSession session)
+        {
+            return _reader(stream, session);
+        }
 
-        public override Type GetElementType() => Type;
+        public override Type GetElementType()
+        {
+            return Type;
+        }
 
         public void Initialize(ObjectReader reader, ObjectWriter writer, int preallocatedBufferSize = 0)
         {

@@ -17,13 +17,13 @@ namespace Wire.ValueSerializers
 
         public override void WriteManifest(Stream stream, SerializerSession session)
         {
-            if (session.ShouldWriteTypeManifest(TypeEx.RuntimeType, out ushort typeIdentifier))
+            if (session.ShouldWriteTypeManifest(TypeEx.RuntimeType, out var typeIdentifier))
             {
                 stream.WriteByte(Manifest);
             }
             else
             {
-                stream.Write(new[] { ObjectSerializer.ManifestIndex });
+                stream.Write(new[] {ObjectSerializer.ManifestIndex});
                 UInt16Serializer.WriteValueImpl(stream, typeIdentifier, session);
             }
         }
@@ -37,17 +37,15 @@ namespace Wire.ValueSerializers
             else
             {
                 var type = (Type) value;
-                if (session.Serializer.Options.PreserveObjectReferences && session.TryGetObjectId(type, out int existingId))
+                if (session.Serializer.Options.PreserveObjectReferences &&
+                    session.TryGetObjectId(type, out var existingId))
                 {
                     ObjectReferenceSerializer.Instance.WriteManifest(stream, session);
                     ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
                 }
                 else
                 {
-                    if (session.Serializer.Options.PreserveObjectReferences)
-                    {
-                        session.TrackSerializedObject(type);
-                    }
+                    if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(type);
                     //type was not written before, add it to the tacked object list
                     var name = type.GetShortAssemblyQualifiedName();
                     StringSerializer.WriteValueImpl(stream, name, session);
@@ -58,19 +56,13 @@ namespace Wire.ValueSerializers
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
             var shortname = stream.ReadString(session);
-            if (shortname == null)
-            {
-                return null;
-            }
+            if (shortname == null) return null;
 
             var name = TypeEx.ToQualifiedAssemblyName(shortname);
             var type = Type.GetType(name, true);
 
             //add the deserialized type to lookup
-            if (session.Serializer.Options.PreserveObjectReferences)
-            {
-                session.TrackDeserializedObject(type);
-            }
+            if (session.Serializer.Options.PreserveObjectReferences) session.TrackDeserializedObject(type);
             return type;
         }
 

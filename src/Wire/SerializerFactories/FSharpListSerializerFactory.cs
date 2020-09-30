@@ -18,9 +18,14 @@ namespace Wire.SerializerFactories
     public class FSharpListSerializerFactory : ValueSerializerFactory
     {
         public override bool CanSerialize(Serializer serializer, Type type)
-            => type.FullName.StartsWith("Microsoft.FSharp.Collections.FSharpList`1");
+        {
+            return type.FullName.StartsWith("Microsoft.FSharp.Collections.FSharpList`1");
+        }
 
-        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
+        public override bool CanDeserialize(Serializer serializer, Type type)
+        {
+            return CanSerialize(serializer, type);
+        }
 
         private static Type GetEnumerableType(Type type)
         {
@@ -68,10 +73,7 @@ namespace Wire.SerializerFactories
                 var arr = toArrayCompiled(o);
                 var arrSerializer = serializer.GetSerializerByType(arrType);
                 arrSerializer.WriteValue(stream, arr, session);
-                if (preserveObjectReferences)
-                {
-                    session.TrackSerializedObject(o);
-                }
+                if (preserveObjectReferences) session.TrackSerializedObject(o);
             }
 
             object Reader(Stream stream, DeserializerSession session)
@@ -79,10 +81,7 @@ namespace Wire.SerializerFactories
                 var arrSerializer = serializer.GetSerializerByType(arrType);
                 var items = (Array) arrSerializer.ReadValue(stream, session);
                 var res = ofArrayCompiled(items);
-                if (preserveObjectReferences)
-                {
-                    session.TrackDeserializedObject(res);
-                }
+                if (preserveObjectReferences) session.TrackDeserializedObject(res);
                 return res;
             }
 

@@ -25,19 +25,13 @@ namespace Wire.ValueSerializers
             var bytes = (byte[]) value;
             stream.WriteLengthEncodedByteArray(bytes, session);
 
-            if (session.Serializer.Options.PreserveObjectReferences)
-            {
-                session.TrackSerializedObject(bytes);
-            }
+            if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(bytes);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
             var res = stream.ReadLengthEncodedByteArray(session);
-            if (session.Serializer.Options.PreserveObjectReferences)
-            {
-                session.TrackDeserializedObject(res);
-            }
+            if (session.Serializer.Options.PreserveObjectReferences) session.TrackDeserializedObject(res);
             return res;
         }
 

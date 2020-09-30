@@ -39,9 +39,10 @@ namespace Wire.SerializerFactories
                 var arguments = stream.ReadObject(session) as Type[];
 
 
-                var method = owner.GetTypeInfo().GetMethod(name, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, CallingConventions.Any, arguments, null);
+                var method = owner.GetTypeInfo().GetMethod(name,
+                    BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null,
+                    CallingConventions.Any, arguments, null);
                 return method;
-
             }
 
             void Writer(Stream stream, object obj, SerializerSession session)

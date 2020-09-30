@@ -23,10 +23,7 @@ namespace Wire
         public SerializerSession(Serializer serializer)
         {
             Serializer = serializer;
-            if (serializer.Options.PreserveObjectReferences)
-            {
-                _objects = new Dictionary<object, int>();
-            }
+            if (serializer.Options.PreserveObjectReferences) _objects = new Dictionary<object, int>();
             _nextTypeId = (ushort) serializer.Options.KnownTypes.Length;
         }
 
@@ -54,12 +51,9 @@ namespace Wire
 
         public byte[] GetBuffer(int length)
         {
-            if (length <= _buffer.Length)
-            {
-                return _buffer;
-            }
+            if (length <= _buffer.Length) return _buffer;
 
-            length = Math.Max(length, _buffer.Length*2);
+            length = Math.Max(length, _buffer.Length * 2);
 
             _buffer = new byte[length];
 
@@ -82,6 +76,7 @@ namespace Wire
                     value = j;
                     return true;
                 }
+
                 j++;
             }
 
@@ -91,10 +86,7 @@ namespace Wire
 
         public void TrackSerializedType(Type type)
         {
-            if (_trackedTypes == null)
-            {
-                _trackedTypes = new LinkedList<Type>();
-            }
+            if (_trackedTypes == null) _trackedTypes = new LinkedList<Type>();
             _trackedTypes.AddLast(type);
         }
     }

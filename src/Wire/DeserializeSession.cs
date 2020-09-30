@@ -13,7 +13,8 @@ using TypeToVersionInfoLookup = System.Collections.Generic.Dictionary<System.Typ
 namespace Wire
 {
     public class TypeVersionInfo
-    {}
+    {
+    }
 
     public class
         DeserializerSession
@@ -30,25 +31,16 @@ namespace Wire
         {
             Serializer = serializer;
             _buffer = new byte[MinBufferSize];
-            if (serializer.Options.PreserveObjectReferences)
-            {
-                _objectById = new IntToObjectLookup(1);
-            }
-            if (serializer.Options.VersionTolerance)
-            {
-                _versionInfoByType = new TypeToVersionInfoLookup();
-            }
+            if (serializer.Options.PreserveObjectReferences) _objectById = new IntToObjectLookup(1);
+            if (serializer.Options.VersionTolerance) _versionInfoByType = new TypeToVersionInfoLookup();
             _offset = serializer.Options.KnownTypes.Length;
         }
 
         public byte[] GetBuffer(int length)
         {
-            if (length <= _buffer.Length)
-            {
-                return _buffer;
-            }
+            if (length <= _buffer.Length) return _buffer;
 
-            length = Math.Max(length, _buffer.Length*2);
+            length = Math.Max(length, _buffer.Length * 2);
 
             _buffer = new byte[length];
 
@@ -67,23 +59,14 @@ namespace Wire
 
         public void TrackDeserializedType([NotNull] Type type)
         {
-            if (_identifierToType == null)
-            {
-                _identifierToType = new IntToTypeLookup(1);
-            }
+            if (_identifierToType == null) _identifierToType = new IntToTypeLookup(1);
             _identifierToType.Add(type);
         }
 
         public Type GetTypeFromTypeId(int typeId)
         {
-            if (typeId < _offset)
-            {
-                return Serializer.Options.KnownTypes[typeId];
-            }
-            if (_identifierToType == null)
-            {
-                throw new ArgumentException(nameof(typeId));
-            }
+            if (typeId < _offset) return Serializer.Options.KnownTypes[typeId];
+            if (_identifierToType == null) throw new ArgumentException(nameof(typeId));
 
             return _identifierToType[typeId - _offset];
         }

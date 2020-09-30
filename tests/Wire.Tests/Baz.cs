@@ -1,32 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Wire;
 using Xunit;
 
 namespace Wire.Tests
 {
-
     public class ClassWithPrivCtor
     {
-        public static ClassWithPrivCtor Create(int value) => new ClassWithPrivCtor(value);
-
-        public int Value { get; }
-
         private ClassWithPrivCtor(int value)
         {
             Value = value;
+        }
+
+        public int Value { get; }
+
+        public static ClassWithPrivCtor Create(int value)
+        {
+            return new ClassWithPrivCtor(value);
         }
     }
 
     internal class NonPublicClass
     {
-        public int Value { get; }
-
         public NonPublicClass(int value)
         {
             Value = value;
         }
+
+        public int Value { get; }
     }
 
 
@@ -42,7 +43,7 @@ namespace Wire.Tests
             PublicValue = publicValue;
         }
     }
-    
+
     public class EncapsulationTests : IDisposable
     {
         private readonly Serializer serializer;
@@ -52,6 +53,11 @@ namespace Wire.Tests
         {
             serializer = new Serializer();
             stream = new MemoryStream();
+        }
+
+        public void Dispose()
+        {
+            stream.Dispose();
         }
 
         [Fact]
@@ -123,7 +129,7 @@ namespace Wire.Tests
             IList<StructWithReadonlyFields> actual = new List<StructWithReadonlyFields>
             {
                 new StructWithReadonlyFields(123, "hello"),
-                new StructWithReadonlyFields(239, "world"),
+                new StructWithReadonlyFields(239, "world")
             };
 
             var deserialized = Roundtrip(actual);
@@ -140,11 +146,6 @@ namespace Wire.Tests
             serializer.Serialize(target, stream);
             stream.Position = 0;
             return serializer.Deserialize<T>(stream);
-        }
-
-        public void Dispose()
-        {
-            stream.Dispose();
         }
     }
 }

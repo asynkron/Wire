@@ -9,7 +9,6 @@ using Xunit;
 
 namespace Wire.Tests
 {
-    
     public class PrimitivesTest : TestBase
     {
         private void SerializeAndAssert(object expected)
@@ -38,7 +37,7 @@ namespace Wire.Tests
         {
             SerializeAndAssert(DateTime.UtcNow);
         }
-        
+
         [Fact]
         public void CanSerializeDateTimeOffset()
         {
@@ -84,14 +83,14 @@ namespace Wire.Tests
         [Fact]
         public void CanSerializeLongString()
         {
-            var s = new string('x',1000);
+            var s = new string('x', 1000);
             SerializeAndAssert(s);
         }
 
         [Fact]
         public void CanSerializeSByte()
         {
-            SerializeAndAssert((sbyte)123);
+            SerializeAndAssert((sbyte) 123);
         }
 
         [Fact]
@@ -151,19 +150,19 @@ namespace Wire.Tests
         [Fact]
         public void CanSerializeUInt16()
         {
-            SerializeAndAssert((ushort)123);
+            SerializeAndAssert((ushort) 123);
         }
 
         [Fact]
         public void CanSerializeUInt32()
         {
-            SerializeAndAssert((uint)123);
+            SerializeAndAssert((uint) 123);
         }
 
         [Fact]
         public void CanSerializeUInt64()
         {
-            SerializeAndAssert((ulong)123);
+            SerializeAndAssert((ulong) 123);
         }
     }
 }

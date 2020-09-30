@@ -10,9 +10,31 @@ using Xunit;
 
 namespace Wire.Tests
 {
-    
     public class Bugs
     {
+        [Fact]
+        public void CanSerialieCustomType_bug()
+        {
+            var stream = new MemoryStream();
+            var serializer = new Serializer(new SerializerOptions(true, true));
+            var root = new Recover(SnapshotSelectionCriteria.Latest);
+
+            serializer.Serialize(root, stream);
+            stream.Position = 0;
+            var actual = serializer.Deserialize<Recover>(stream);
+        }
+
+        [Fact]
+        public void CanSerializeMessageWithByte()
+        {
+            var stream = new MemoryStream();
+            var msg = new ByteMessage(DateTime.UtcNow, 1, 2);
+            var serializer = new Serializer(new SerializerOptions(true, true));
+            serializer.Serialize(msg, stream);
+            stream.Position = 0;
+            var res = serializer.Deserialize(stream);
+        }
+
         public class ByteMessage
         {
             public ByteMessage(DateTime utcTime, byte byteValue, long longValue)
@@ -34,7 +56,8 @@ namespace Wire.Tests
 
             public bool Equals(ByteMessage other)
             {
-                return UtcTime.Equals(other.UtcTime) && LongValue.Equals(other.LongValue) && ByteValue.Equals(other.ByteValue);
+                return UtcTime.Equals(other.UtcTime) && LongValue.Equals(other.LongValue) &&
+                       ByteValue.Equals(other.ByteValue);
             }
         }
 
@@ -52,7 +75,8 @@ namespace Wire.Tests
         {
             public static readonly Recover Default = new Recover(SnapshotSelectionCriteria.Latest);
 
-            public Recover(SnapshotSelectionCriteria fromSnapshot, long toSequenceNr = long.MaxValue, long replayMax = long.MaxValue)
+            public Recover(SnapshotSelectionCriteria fromSnapshot, long toSequenceNr = long.MaxValue,
+                long replayMax = long.MaxValue)
             {
                 FromSnapshot = fromSnapshot;
                 ToSequenceNr = toSequenceNr;
@@ -60,42 +84,19 @@ namespace Wire.Tests
             }
 
             /// <summary>
-            /// Criteria for selecting a saved snapshot from which recovery should start. Default is del youngest snapshot.
+            ///     Criteria for selecting a saved snapshot from which recovery should start. Default is del youngest snapshot.
             /// </summary>
             public SnapshotSelectionCriteria FromSnapshot { get; }
 
             /// <summary>
-            /// Upper, inclusive sequence number bound. Default is no upper bound.
+            ///     Upper, inclusive sequence number bound. Default is no upper bound.
             /// </summary>
             public long ToSequenceNr { get; }
 
             /// <summary>
-            /// Maximum number of messages to replay. Default is no limit.
+            ///     Maximum number of messages to replay. Default is no limit.
             /// </summary>
             public long ReplayMax { get; }
-        }
-
-        [Fact]
-        public void CanSerialieCustomType_bug()
-        {
-            var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
-            var root = new Recover(SnapshotSelectionCriteria.Latest);
-
-            serializer.Serialize(root, stream);
-            stream.Position = 0;
-            var actual = serializer.Deserialize<Recover>(stream);
-        }
-
-        [Fact]
-        public void CanSerializeMessageWithByte()
-        {
-            var stream = new MemoryStream();
-            var msg = new ByteMessage(DateTime.UtcNow,1,2);
-            var serializer = new Serializer(new SerializerOptions(versionTolerance: true, preserveObjectReferences: true));
-            serializer.Serialize(msg, stream);
-            stream.Position = 0;
-            var res = serializer.Deserialize(stream);
         }
     }
 }

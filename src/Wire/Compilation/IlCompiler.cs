@@ -12,7 +12,6 @@ using System.Reflection.Emit;
 
 namespace Wire.Compilation
 {
-
     public class IlCompiler<TDel> : IlBuilder, ICompiler<TDel>
     {
         public TDel Compile()
@@ -31,19 +30,14 @@ namespace Wire.Compilation
             var context = new IlCompilerContext(il, selfType);
 
             //declare local variables
-            foreach (var variable in Variables)
-            {
-                il.DeclareLocal(variable.Type());
-            }
+            foreach (var variable in Variables) il.DeclareLocal(variable.Type());
 
             //declare "this"
             method.DefineParameter(0, ParameterAttributes.None, "this");
 
             //declare custom parameters
             foreach (var parameter in Parameters)
-            {
                 method.DefineParameter(parameter.ParameterIndex, ParameterAttributes.None, parameter.Name);
-            }
 
             //emit il code
             LazyEmits.ForEach(e => e(context));
@@ -54,16 +48,10 @@ namespace Wire.Compilation
             //   Console.WriteLine(context.Il.ToString());
 
             //if we have a return type, it's OK that there is one item on the stack
-            if (returnType != typeof(void))
-            {
-                context.StackDepth--;
-            }
+            if (returnType != typeof(void)) context.StackDepth--;
 
             //if the stack is not aligned, there is some error
-            if (context.StackDepth != 0)
-            {
-                throw new NotSupportedException("Stack error");
-            }
+            if (context.StackDepth != 0) throw new NotSupportedException("Stack error");
 
             var del = (TDel) (object) method.CreateDelegate(typeof(TDel), self);
 
@@ -79,10 +67,7 @@ namespace Wire.Compilation
 
         private object BuildSelf()
         {
-            if (!Constants.Any())
-            {
-                return null;
-            }
+            if (!Constants.Any()) return null;
 
             //TODO: a tuple will not be enough, we need arbitrary many constants.
             //just emit the state object instead.
@@ -97,5 +82,4 @@ namespace Wire.Compilation
             return self;
         }
     }
-
 }

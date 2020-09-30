@@ -37,10 +37,7 @@ namespace Wire.Tests
                 }
             });
             th.Start();
-            if (!th.Join(5000))
-            {
-                Assert.True(false, "Serializer did not complete in 5 seconds");
-            }
+            if (!th.Join(5000)) Assert.True(false, "Serializer did not complete in 5 seconds");
         }
 
         [Fact]
@@ -67,14 +64,8 @@ namespace Wire.Tests
     {
         public TestElement(string name, string value)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
+            if (name == null) throw new ArgumentNullException("name");
+            if (value == null) throw new ArgumentNullException("value");
             Name = name;
             Value = value;
         }
@@ -106,10 +97,7 @@ namespace Wire.Tests
         public int CompareTo(TestElement other)
         {
             var r = Name.CompareTo(other.Name);
-            if (r != 0)
-            {
-                return r;
-            }
+            if (r != 0) return r;
             return Value.CompareTo(other.Value);
         }
 
@@ -120,10 +108,7 @@ namespace Wire.Tests
 
         public override bool Equals(object obj)
         {
-            if (obj == null || obj.GetType() != typeof(TestElement))
-            {
-                return false;
-            }
+            if (obj == null || obj.GetType() != typeof(TestElement)) return false;
             return Equals((TestElement) obj);
         }
 
@@ -131,8 +116,8 @@ namespace Wire.Tests
         {
             // see Effective Java by Joshua Bloch
             var hash = 17;
-            hash = 37*hash + Name.GetHashCode();
-            hash = 37*hash + Value.GetHashCode();
+            hash = 37 * hash + Name.GetHashCode();
+            hash = 37 * hash + Value.GetHashCode();
             return hash;
         }
 

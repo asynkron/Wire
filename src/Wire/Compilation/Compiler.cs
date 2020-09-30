@@ -54,10 +54,7 @@ namespace Wire.Compilation
         public int GetVariable<T>(string name)
         {
             var existing = _expressions.OfType<ParameterExpression>().First(v => v.Name == name && v.Type == typeof(T));
-            if (existing == null)
-            {
-                throw new Exception("Variable not found.");
-            }
+            if (existing == null) throw new Exception("Variable not found.");
 
             return _expressions.IndexOf(existing);
         }
@@ -73,11 +70,11 @@ namespace Wire.Compilation
         {
             var tempQualifier = _expressions[value];
             var cast = type.GetTypeInfo().IsValueType
-                           // ReSharper disable once AssignNullToNotNullAttribute
-                           ? Expression.Unbox(tempQualifier, type)
-                           // ReSharper disable once AssignNullToNotNullAttribute
-                           : Expression.Convert(tempQualifier, type);
-            var exp = (Expression)cast;
+                // ReSharper disable once AssignNullToNotNullAttribute
+                ? Expression.Unbox(tempQualifier, type)
+                // ReSharper disable once AssignNullToNotNullAttribute
+                : Expression.Convert(tempQualifier, type);
+            var exp = (Expression) cast;
             _expressions.Add(exp);
             return _expressions.Count - 1;
         }
@@ -135,11 +132,10 @@ namespace Wire.Compilation
         public int WriteReadonlyField(FieldInfo field, int target, int value)
         {
             var method = typeof(FieldInfo).GetTypeInfo()
-                                          .GetMethod(nameof(FieldInfo.SetValue), new[] {typeof(object), typeof(object)});
+                .GetMethod(nameof(FieldInfo.SetValue), new[] {typeof(object), typeof(object)});
             var fld = Constant(field);
             var valueToObject = Convert<object>(value);
             return Call(method, fld, target, valueToObject);
-
         }
 
         public TDel Compile()
@@ -153,7 +149,7 @@ namespace Wire.Compilation
         public int Convert<T>(int value)
         {
             var valueExp = _expressions[value];
-            var con = (Expression)Expression.Convert(valueExp, typeof(T));
+            var con = (Expression) Expression.Convert(valueExp, typeof(T));
             _expressions.Add(con);
             return _expressions.Count - 1;
         }
@@ -176,17 +172,14 @@ namespace Wire.Compilation
         public int Convert(int value, Type type)
         {
             var valueExp = _expressions[value];
-            var conv = (Expression)Expression.Convert(valueExp, type);
+            var conv = (Expression) Expression.Convert(valueExp, type);
             _expressions.Add(conv);
             return _expressions.Count - 1;
         }
 
         public Expression ToBlock()
         {
-            if (!_content.Any())
-            {
-                _content.Add(Expression.Empty());
-            }
+            if (!_content.Any()) _content.Add(Expression.Empty());
 
             return Expression.Block(_variables.ToArray(), _content);
         }

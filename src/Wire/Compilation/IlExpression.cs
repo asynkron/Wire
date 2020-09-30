@@ -11,7 +11,6 @@ using Wire.Extensions;
 
 namespace Wire.Compilation
 {
-
     public abstract class IlExpression
     {
         public abstract void Emit(IlCompilerContext ctx);
@@ -33,7 +32,10 @@ namespace Wire.Compilation
             ctx.StackDepth++;
         }
 
-        public override Type Type() => typeof(bool);
+        public override Type Type()
+        {
+            return typeof(bool);
+        }
     }
 
     public class IlRuntimeConstant : IlExpression
@@ -56,7 +58,10 @@ namespace Wire.Compilation
             ctx.StackDepth++;
         }
 
-        public override Type Type() => _object.GetType();
+        public override Type Type()
+        {
+            return _object.GetType();
+        }
     }
 
     public class IlReadField : IlExpression
@@ -77,7 +82,10 @@ namespace Wire.Compilation
             //we are still at the same stack size as we consumed the target
         }
 
-        public override Type Type() => _field.FieldType;
+        public override Type Type()
+        {
+            return _field.FieldType;
+        }
     }
 
     public class IlWriteVariable : IlExpression
@@ -142,13 +150,16 @@ namespace Wire.Compilation
 
         public override void Emit(IlCompilerContext ctx)
         {
-            var ctor = _type.GetConstructor(new Type[] {});
+            var ctor = _type.GetConstructor(new Type[] { });
             // ReSharper disable once AssignNullToNotNullAttribute
             ctx.Il.Emit(OpCodes.Newobj, ctor);
             ctx.StackDepth++;
         }
 
-        public override Type Type() => _type;
+        public override Type Type()
+        {
+            return _type;
+        }
     }
 
     public class IlParameter : IlExpression
@@ -171,7 +182,10 @@ namespace Wire.Compilation
             ctx.StackDepth++;
         }
 
-        public override Type Type() => _type;
+        public override Type Type()
+        {
+            return _type;
+        }
     }
 
     public class IlVariable : IlExpression
@@ -193,7 +207,10 @@ namespace Wire.Compilation
             ctx.StackDepth++;
         }
 
-        public override Type Type() => VarType;
+        public override Type Type()
+        {
+            return VarType;
+        }
     }
 
     public class IlCastClass : IlExpression
@@ -215,7 +232,10 @@ namespace Wire.Compilation
             ctx.StackDepth++;
         }
 
-        public override Type Type() => _type;
+        public override Type Type()
+        {
+            return _type;
+        }
     }
 
     public class IlBox : IlExpression
@@ -235,7 +255,10 @@ namespace Wire.Compilation
             ctx.Il.Emit(OpCodes.Box, _type);
         }
 
-        public override Type Type() => typeof(object);
+        public override Type Type()
+        {
+            return typeof(object);
+        }
     }
 
     public class IlUnbox : IlExpression
@@ -255,7 +278,10 @@ namespace Wire.Compilation
             ctx.Il.Emit(OpCodes.Unbox_Any, _type);
         }
 
-        public override Type Type() => _type;
+        public override Type Type()
+        {
+            return _type;
+        }
     }
 
     public class IlCall : IlExpression
@@ -267,9 +293,7 @@ namespace Wire.Compilation
         public IlCall(IlExpression target, MethodInfo method, params IlExpression[] args)
         {
             if (args.Length != method.GetParameters().Length)
-            {
                 throw new ArgumentException("Parameter count mismatch", nameof(args));
-            }
 
             _target = target;
             _method = method;
@@ -285,21 +309,18 @@ namespace Wire.Compilation
                 arg.Emit(ctx);
                 ctx.StackDepth--;
             }
+
             if (_method.IsVirtual)
-            {
                 ctx.Il.EmitCall(OpCodes.Callvirt, _method, null);
-            }
             else
-            {
                 ctx.Il.EmitCall(OpCodes.Call, _method, null);
-            }
-            if (_method.ReturnType != typeof(void))
-            {
-                ctx.StackDepth++;
-            }
+            if (_method.ReturnType != typeof(void)) ctx.StackDepth++;
         }
 
-        public override Type Type() => _method.ReturnType;
+        public override Type Type()
+        {
+            return _method.ReturnType;
+        }
     }
 
     public class IlCallStatic : IlExpression
@@ -310,9 +331,7 @@ namespace Wire.Compilation
         public IlCallStatic(MethodInfo method, params IlExpression[] args)
         {
             if (args.Length != method.GetParameters().Length)
-            {
                 throw new ArgumentException("Parameter count mismatch", nameof(args));
-            }
 
             _method = method;
             _args = args;
@@ -325,14 +344,14 @@ namespace Wire.Compilation
                 arg.Emit(ctx);
                 ctx.StackDepth--;
             }
+
             ctx.Il.EmitCall(OpCodes.Call, _method, null);
-            if (_method.ReturnType != typeof(void))
-            {
-                ctx.StackDepth++;
-            }
+            if (_method.ReturnType != typeof(void)) ctx.StackDepth++;
         }
 
-        public override Type Type() => _method.ReturnType;
+        public override Type Type()
+        {
+            return _method.ReturnType;
+        }
     }
-
 }

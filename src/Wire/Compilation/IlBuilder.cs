@@ -14,7 +14,6 @@ using Wire.Extensions;
 
 namespace Wire.Compilation
 {
-
     public class IlBuilder
     {
         private readonly List<IlExpression> _expressions = new List<IlExpression>();
@@ -23,9 +22,9 @@ namespace Wire.Compilation
         protected List<object> Constants { get; } = new List<object>();
         protected List<Action<IlCompilerContext>> LazyEmits { get; } = new List<Action<IlCompilerContext>>();
 
-        public int NewObject(System.Type type)
+        public int NewObject(Type type)
         {
-            var ctor = type.GetConstructor(new Type[] {});
+            var ctor = type.GetConstructor(new Type[] { });
             // ReSharper disable once PossibleNullReferenceException
             if (ctor != null && ctor.GetMethodBody().GetILAsByteArray().Length <= 8)
             {
@@ -62,7 +61,7 @@ namespace Wire.Compilation
             return _expressions.Count - 1;
         }
 
-        public int Variable(string name,Type type)
+        public int Variable(string name, Type type)
         {
             var exp = new IlVariable(Variables.Count, type, name);
             _expressions.Add(exp);
@@ -75,10 +74,7 @@ namespace Wire.Compilation
         {
             var existing =
                 _expressions.OfType<IlVariable>().FirstOrDefault(v => v.Name == name && v.VarType == typeof(T));
-            if (existing == null)
-            {
-                throw new Exception("Variable not found");
-            }
+            if (existing == null) throw new Exception("Variable not found");
 
             return _expressions.IndexOf(existing);
         }
@@ -187,5 +183,4 @@ namespace Wire.Compilation
             return _expressions.Count - 1;
         }
     }
-
 }

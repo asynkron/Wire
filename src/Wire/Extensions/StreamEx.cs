@@ -20,17 +20,11 @@ namespace Wire.Extensions
             for (; offset < 32; offset += 7)
             {
                 var b = stream.ReadByte();
-                if (b == -1)
-                {
-                    throw new EndOfStreamException();
-                }
+                if (b == -1) throw new EndOfStreamException();
 
                 result |= (b & 0x7f) << offset;
 
-                if ((b & 0x80) == 0)
-                {
-                    return (uint) result;
-                }
+                if ((b & 0x80) == 0) return (uint) result;
             }
 
             throw new InvalidDataException();
@@ -38,10 +32,7 @@ namespace Wire.Extensions
 
         public static void WriteVarint32(this Stream stream, uint value)
         {
-            for (; value >= 0x80u; value >>= 7)
-            {
-                stream.WriteByte((byte) (value | 0x80u));
-            }
+            for (; value >= 0x80u; value >>= 7) stream.WriteByte((byte) (value | 0x80u));
 
             stream.WriteByte((byte) value);
         }
@@ -54,17 +45,11 @@ namespace Wire.Extensions
             for (; offset < 64; offset += 7)
             {
                 var b = stream.ReadByte();
-                if (b == -1)
-                {
-                    throw new EndOfStreamException();
-                }
+                if (b == -1) throw new EndOfStreamException();
 
                 result |= (long) (b & 0x7f) << offset;
 
-                if ((b & 0x80) == 0)
-                {
-                    return (ulong) result;
-                }
+                if ((b & 0x80) == 0) return (ulong) result;
             }
 
             throw new InvalidDataException();
@@ -72,10 +57,7 @@ namespace Wire.Extensions
 
         public static void WriteVarint64(this Stream stream, ulong value)
         {
-            for (; value >= 0x80u; value >>= 7)
-            {
-                stream.WriteByte((byte) (value | 0x80u));
-            }
+            for (; value >= 0x80u; value >>= 7) stream.WriteByte((byte) (value | 0x80u));
 
             stream.WriteByte((byte) value);
         }
@@ -123,7 +105,8 @@ namespace Wire.Extensions
             }
             else
             {
-                if (session.Serializer.Options.PreserveObjectReferences && session.TryGetObjectId(value, out int existingId))
+                if (session.Serializer.Options.PreserveObjectReferences &&
+                    session.TryGetObjectId(value, out var existingId))
                 {
                     //write the serializer manifest
                     ObjectReferenceSerializer.Instance.WriteManifest(stream, session);
@@ -140,7 +123,8 @@ namespace Wire.Extensions
             }
         }
 
-        public static void WriteObject(this Stream stream, object value, Type valueType, ValueSerializer valueSerializer,
+        public static void WriteObject(this Stream stream, object value, Type valueType,
+            ValueSerializer valueSerializer,
             bool preserveObjectReferences, SerializerSession session)
         {
             if (value == null) //value is null
@@ -149,7 +133,7 @@ namespace Wire.Extensions
             }
             else
             {
-                if (preserveObjectReferences && session.TryGetObjectId(value, out int existingId))
+                if (preserveObjectReferences && session.TryGetObjectId(value, out var existingId))
                 {
                     //write the serializer manifest
                     ObjectReferenceSerializer.Instance.WriteManifest(stream, session);
@@ -161,10 +145,8 @@ namespace Wire.Extensions
                     var vType = value.GetType();
                     var s2 = valueSerializer;
                     if (vType != valueType)
-                    {
                         //value is of subtype, lookup the serializer for that type
                         s2 = session.Serializer.GetSerializerByType(vType);
-                    }
                     //lookup serializer for subtype
                     s2.WriteManifest(stream, session);
                     s2.WriteValue(stream, value, session);

@@ -9,14 +9,8 @@ using Xunit;
 
 namespace Wire.Tests
 {
-    
     public class CustomObjectTests : TestBase
     {
-        private class PrivateType
-        {
-            public int IntProp { get; set; }
-        }
-
         [Fact]
         public void CanEmptyObject()
         {
@@ -34,10 +28,10 @@ namespace Wire.Tests
         [Fact]
         public void CanSerializeException()
         {
-            var expected = new Exception("hello wire");
+            var expected = new ArgumentException("hello wire");
             Serialize(expected);
             Reset();
-            var actual = Deserialize<Exception>();
+            var actual = Deserialize<ArgumentException>();
             Assert.Equal(expected.StackTrace, actual.StackTrace);
             Assert.Equal(expected.Message, actual.Message);
         }
@@ -47,7 +41,6 @@ namespace Wire.Tests
         {
             var expected = new Something
             {
-
                 Else = null
             };
             Serialize(expected);
@@ -101,7 +94,7 @@ namespace Wire.Tests
         [Fact]
         public void CanSerializeObjectsKnownTypes()
         {
-            CustomInit(new Serializer(new SerializerOptions(knownTypes:new[] {typeof(Something)})));
+            CustomInit(new Serializer(new SerializerOptions(knownTypes: new[] {typeof(Something)})));
             var expected1 = new Something
             {
                 StringProp = "First"
@@ -187,6 +180,11 @@ namespace Wire.Tests
             Reset();
             var actual = Deserialize<Type>();
             Assert.Equal(expected, actual);
+        }
+
+        private class PrivateType
+        {
+            public int IntProp { get; set; }
         }
     }
 }

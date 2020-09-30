@@ -12,22 +12,6 @@ namespace Wire.Tests
 {
     public class DelegateTests
     {
-        public class Dummy
-        {
-            public int Prop { get; set; }
-        }
-
-        public class HasClosure
-        {
-            public Func<int> Del;
-
-            public void Create()
-            {
-                var a = 3;
-                Del = () => a+1;
-            }
-        }
-
         private static int StaticFunc(int a)
         {
             return a + 1;
@@ -40,14 +24,14 @@ namespace Wire.Tests
             var serializer = new Serializer(new SerializerOptions());
 
             Action<Dummy> a = dummy => dummy.Prop = 1;
-            serializer.Serialize(a,stream);
+            serializer.Serialize(a, stream);
             stream.Position = 0;
             var res = serializer.Deserialize<Action<Dummy>>(stream);
             Assert.NotNull(res);
 
             var d = new Dummy {Prop = 0};
             res(d);
-            Assert.Equal(1,d.Prop);
+            Assert.Equal(1, d.Prop);
         }
 
         [Fact]
@@ -79,7 +63,7 @@ namespace Wire.Tests
             var res = serializer.Deserialize<HasClosure>(stream);
             Assert.NotNull(res);
             var actual = res.Del();
-            Assert.Equal(4,actual);
+            Assert.Equal(4, actual);
         }
 
         [Fact]
@@ -97,6 +81,22 @@ namespace Wire.Tests
             var actual = res(4);
 
             Assert.Equal(5, actual);
+        }
+
+        public class Dummy
+        {
+            public int Prop { get; set; }
+        }
+
+        public class HasClosure
+        {
+            public Func<int> Del;
+
+            public void Create()
+            {
+                var a = 3;
+                Del = () => a + 1;
+            }
         }
     }
 }

@@ -14,11 +14,15 @@ namespace Wire.SerializerFactories
 {
     public class FromSurrogateSerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type) => false;
+        public override bool CanSerialize(Serializer serializer, Type type)
+        {
+            return false;
+        }
 
         public override bool CanDeserialize(Serializer serializer, Type type)
         {
-            var surrogate = serializer.Options.Surrogates.FirstOrDefault(s => s.To.GetTypeInfo().IsAssignableFrom(type));
+            var surrogate =
+                serializer.Options.Surrogates.FirstOrDefault(s => s.To.GetTypeInfo().IsAssignableFrom(type));
             return surrogate != null;
         }
 

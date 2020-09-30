@@ -17,11 +17,15 @@ namespace Wire.SerializerFactories
 {
     public class FSharpMapSerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type) =>
-            type.FullName.StartsWith("Microsoft.FSharp.Collections.FSharpMap`2");
+        public override bool CanSerialize(Serializer serializer, Type type)
+        {
+            return type.FullName.StartsWith("Microsoft.FSharp.Collections.FSharpMap`2");
+        }
 
-        public override bool CanDeserialize(Serializer serializer, Type type) =>
-            CanSerialize(serializer, type);
+        public override bool CanDeserialize(Serializer serializer, Type type)
+        {
+            return CanSerialize(serializer, type);
+        }
 
         private static Type GetKeyType(Type type)
         {
@@ -84,10 +88,7 @@ namespace Wire.SerializerFactories
             {
                 var arr = toArrayCompiled(o);
                 arrSerializer.WriteValue(stream, arr, session);
-                if (preserveObjectReferences)
-                {
-                    session.TrackSerializedObject(o);
-                }
+                if (preserveObjectReferences) session.TrackSerializedObject(o);
             }
 
             object Reader(Stream stream, DeserializerSession session)

@@ -12,7 +12,6 @@ using System.Text;
 
 namespace Wire.Compilation
 {
-
     public class IlCompilerContext
     {
         private int _stackDepth;
@@ -31,10 +30,7 @@ namespace Wire.Compilation
             set
             {
                 _stackDepth = value;
-                if (value < 0)
-                {
-                    throw new NotSupportedException("Stack depth can not be less than 0");
-                }
+                if (value < 0) throw new NotSupportedException("Stack depth can not be less than 0");
             }
         }
 
@@ -92,5 +88,4 @@ namespace Wire.Compilation
             _il.EmitCall(opcode, method, optionalTypes);
         }
     }
-
 }

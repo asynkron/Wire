@@ -84,6 +84,7 @@ namespace Wire.Internal
                 byteCount = 1;
                 return new[] {(byte) 0};
             }
+
             byteCount = Utf8.GetByteCount(str);
             if (byteCount < 254) //short string
             {
@@ -118,9 +119,10 @@ namespace Wire.Internal
             {
                 *(long*) b = dateTime.Ticks;
             }
+
             bytes[DateTimeSerializer.Size - 1] = (byte) dateTime.Kind;
         }
-        
+
         public static unsafe void GetBytes(DateTimeOffset dateTimeOffset, byte[] bytes)
         {
             //datetimeoffset size is 11 bytes, ticks + kind + offset seconds
@@ -128,10 +130,10 @@ namespace Wire.Internal
             fixed (byte* offset = &bytes[8])
             {
                 *(long*) b = dateTimeOffset.Ticks;
-                var minutes = (short) (dateTimeOffset.Offset.Ticks/TimeSpan.TicksPerMinute);
+                var minutes = (short) (dateTimeOffset.Offset.Ticks / TimeSpan.TicksPerMinute);
                 *(short*) offset = minutes;
-
             }
+
             bytes[DateTimeOffsetSerializer.Size - 1] = (byte) dateTimeOffset.DateTime.Kind;
         }
     }
