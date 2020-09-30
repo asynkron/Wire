@@ -197,3 +197,11 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+/.idea/.idea.Wire/.idea/contentModel.xml
+/.idea/.idea.Wire/.idea/encodings.xml
+/.idea/.idea.Wire/.idea/indexLayout.xml
+/.idea/.idea.Wire/.idea/modules.xml
+/.idea/.idea.Wire/.idea/projectSettingsUpdater.xml
+/.idea/.idea.Wire/.idea/riderModule.iml
+/.idea/.idea.Wire/.idea/vcs.xml
+/.idea/.idea.Wire/.idea/workspace.xml
