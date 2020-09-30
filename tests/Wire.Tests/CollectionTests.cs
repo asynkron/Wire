@@ -282,7 +282,7 @@ namespace Wire.Tests
         public void Issue18()
         {
             var msg = new byte[] {1, 2, 3, 4};
-            var serializer = new Serializer(new SerializerOptions(true, true));
+            var serializer = new Serializer(new SerializerOptions(true));
 
             byte[] serialized;
             using (var ms = new MemoryStream())

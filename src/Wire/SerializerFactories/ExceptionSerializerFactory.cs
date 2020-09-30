@@ -24,7 +24,6 @@ namespace Wire.SerializerFactories
 
         public ExceptionSerializerFactory()
         {
-            var allFields = ExceptionTypeInfo.GetFields(BindingFlagsEx.All);
             _className = ExceptionTypeInfo.GetField("_className", BindingFlagsEx.All);
             _innerException = ExceptionTypeInfo.GetField("_innerException", BindingFlagsEx.All);
             _message = ExceptionTypeInfo.GetField("_message", BindingFlagsEx.All);

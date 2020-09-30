@@ -8,18 +8,14 @@ using System;
 using Wire.Internal;
 using IntToObjectLookup = System.Collections.Generic.List<object>;
 using IntToTypeLookup = System.Collections.Generic.List<System.Type>;
-using TypeToVersionInfoLookup = System.Collections.Generic.Dictionary<System.Type, Wire.TypeVersionInfo>;
 
 namespace Wire
 {
-    public class TypeVersionInfo
-    {
-    }
 
     public class
         DeserializerSession
     {
-        public const int MinBufferSize = 9;
+        private const int MinBufferSize = 9;
         private readonly IntToObjectLookup _objectById;
         private readonly int _offset;
         public readonly Serializer Serializer;
@@ -58,7 +54,7 @@ namespace Wire
 
         public void TrackDeserializedType([NotNull] Type type)
         {
-            if (_identifierToType == null) _identifierToType = new IntToTypeLookup(1);
+            _identifierToType ??= new IntToTypeLookup(1);
             _identifierToType.Add(type);
         }
 
@@ -70,7 +66,7 @@ namespace Wire
             return _identifierToType[typeId - _offset];
         }
 
-        public void TrackDeserializedTypeWithVersion([NotNull] Type type, [NotNull] TypeVersionInfo versionInfo)
+        public void TrackDeserializedTypeWithVersion([NotNull] Type type)
         {
             TrackDeserializedType(type);
         }

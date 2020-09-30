@@ -22,25 +22,22 @@ namespace Wire.Extensions
         //Why not inline typeof you ask?
         //Because it actually generates calls to get the type.
         //We prefetch all primitives here
-        public static readonly Type SystemObject = typeof(object);
-        public static readonly Type Int32Type = typeof(int);
-        public static readonly Type Int64Type = typeof(long);
-        public static readonly Type Int16Type = typeof(short);
-        public static readonly Type UInt32Type = typeof(uint);
-        public static readonly Type UInt64Type = typeof(ulong);
-        public static readonly Type UInt16Type = typeof(ushort);
-        public static readonly Type ByteType = typeof(byte);
-        public static readonly Type SByteType = typeof(sbyte);
-        public static readonly Type BoolType = typeof(bool);
-        public static readonly Type DateTimeType = typeof(DateTime);
-        public static readonly Type StringType = typeof(string);
-        public static readonly Type GuidType = typeof(Guid);
-        public static readonly Type FloatType = typeof(float);
-        public static readonly Type DoubleType = typeof(double);
-        public static readonly Type DecimalType = typeof(decimal);
-        public static readonly Type CharType = typeof(char);
-        public static readonly Type ByteArrayType = typeof(byte[]);
-        public static readonly Type TypeType = typeof(Type);
+        private static readonly Type Int32Type = typeof(int);
+        private static readonly Type Int64Type = typeof(long);
+        private static readonly Type Int16Type = typeof(short);
+        private static readonly Type UInt32Type = typeof(uint);
+        private static readonly Type UInt64Type = typeof(ulong);
+        private static readonly Type UInt16Type = typeof(ushort);
+        private static readonly Type ByteType = typeof(byte);
+        private static readonly Type SByteType = typeof(sbyte);
+        private static readonly Type BoolType = typeof(bool);
+        private static readonly Type DateTimeType = typeof(DateTime);
+        private static readonly Type StringType = typeof(string);
+        private static readonly Type GuidType = typeof(Guid);
+        private static readonly Type FloatType = typeof(float);
+        private static readonly Type DoubleType = typeof(double);
+        private static readonly Type DecimalType = typeof(decimal);
+        private static readonly Type CharType = typeof(char);
         public static readonly Type RuntimeType = Type.GetType("System.RuntimeType");
 
         //HACK: the GetUnitializedObject actually exists in .NET Core, its just not public
@@ -87,7 +84,7 @@ namespace Wire.Extensions
                 formatterType = Assembly.Load("System.Runtime.Serialization.Formatters")?.GetType(FormatterServices);
 
             return (Func<Type, object>) formatterType?.GetTypeInfo()
-                ?.GetMethod("GetUninitializedObject",
+                .GetMethod("GetUninitializedObject",
                     BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
                 ?.CreateDelegate(typeof(Func<Type, object>));
         }
@@ -140,19 +137,7 @@ namespace Wire.Extensions
             return type;
         }
 
-        public static Type GetTypeFromManifestVersion(Stream stream, DeserializerSession session)
-        {
-            var type = GetTypeFromManifestName(stream, session);
 
-            var fieldCount = stream.ReadByte();
-            for (var i = 0; i < fieldCount; i++)
-            {
-                var fieldName = stream.ReadLengthEncodedByteArray(session);
-            }
-
-            session.TrackDeserializedTypeWithVersion(type, null);
-            return type;
-        }
 
         public static Type GetTypeFromManifestIndex(int typeId, DeserializerSession session)
         {

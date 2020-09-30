@@ -13,8 +13,8 @@ namespace Wire
 {
     public class SerializerOptions
     {
-        internal static readonly Surrogate[] EmptySurrogates = new Surrogate[0];
-        internal static readonly ValueSerializerFactory[] EmptyValueSerializerFactories = new ValueSerializerFactory[0];
+        private static readonly Surrogate[] EmptySurrogates = new Surrogate[0];
+        private static readonly ValueSerializerFactory[] EmptyValueSerializerFactories = new ValueSerializerFactory[0];
 
         private static readonly ValueSerializerFactory[] DefaultValueSerializerFactories =
         {
@@ -37,9 +37,7 @@ namespace Wire
             new DictionarySerializerFactory(),
             new HashSetSerializerFactory(),
             new ArraySerializerFactory(),
-
             new ISerializableSerializerFactory(), //TODO: this will mess up the indexes in the serializer payload
-
             new EnumerableSerializerFactory()
         };
 
@@ -50,7 +48,7 @@ namespace Wire
         internal readonly Surrogate[] Surrogates;
         internal readonly ValueSerializerFactory[] ValueSerializerFactories;
 
-        public SerializerOptions(bool versionTolerance = false, bool preserveObjectReferences = false,
+        public SerializerOptions(bool preserveObjectReferences = false,
             IEnumerable<Surrogate> surrogates = null, IEnumerable<ValueSerializerFactory> serializerFactories = null,
             IEnumerable<Type> knownTypes = null)
         {

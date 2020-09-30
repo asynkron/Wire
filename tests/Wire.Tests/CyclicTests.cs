@@ -16,7 +16,7 @@ namespace Wire.Tests
         public void CanSerializeCyclicReferences()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(true, true));
+            var serializer = new Serializer(new SerializerOptions(true));
             var bar = new Bar();
             bar.Self = bar;
             bar.XYZ = 234;
@@ -32,7 +32,7 @@ namespace Wire.Tests
         public void CanSerializeDeepCyclicReferences()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(true, true));
+            var serializer = new Serializer(new SerializerOptions(true));
             var root = new Root();
             var bar = new Bar();
             bar.Self = bar;
@@ -53,7 +53,7 @@ namespace Wire.Tests
         public void CanSerializeDictionaryPreserveObjectReferences()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(true, true));
+            var serializer = new Serializer(new SerializerOptions(true));
 
             var arr1 = new[] {1, 2, 3};
             var arr2 = new[] {1, 2, 3};
@@ -77,7 +77,7 @@ namespace Wire.Tests
         public void CanSerializeDictionaryPreserveObjectReferences2()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(true, true));
+            var serializer = new Serializer(new SerializerOptions(true));
 
             var val = new List<string> {"first", "second"};
 

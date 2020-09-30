@@ -257,11 +257,6 @@ namespace Wire
                     var type = TypeEx.GetTypeFromManifestFull(stream, session);
                     return GetCustomDeserializer(type);
                 }
-                case ObjectSerializer.ManifestVersion:
-                {
-                    var type = TypeEx.GetTypeFromManifestVersion(stream, session);
-                    return GetCustomDeserializer(type);
-                }
                 case ObjectSerializer.ManifestIndex:
                 {
                     var typeId = (int) stream.ReadUInt16(session);

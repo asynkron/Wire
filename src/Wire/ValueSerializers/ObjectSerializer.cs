@@ -14,7 +14,7 @@ namespace Wire.ValueSerializers
 {
     public class ObjectSerializer : ValueSerializer
     {
-        public const byte ManifestVersion = 251;
+        private const byte ManifestVersion = 251;
         public const byte ManifestFull = 255;
         public const byte ManifestIndex = 254;
 

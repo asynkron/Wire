@@ -16,7 +16,7 @@ namespace Wire.Tests
         public void CanSerialieCustomType_bug()
         {
             var stream = new MemoryStream();
-            var serializer = new Serializer(new SerializerOptions(true, true));
+            var serializer = new Serializer(new SerializerOptions(true));
             var root = new Recover(SnapshotSelectionCriteria.Latest);
 
             serializer.Serialize(root, stream);
@@ -29,7 +29,7 @@ namespace Wire.Tests
         {
             var stream = new MemoryStream();
             var msg = new ByteMessage(DateTime.UtcNow, 1, 2);
-            var serializer = new Serializer(new SerializerOptions(true, true));
+            var serializer = new Serializer(new SerializerOptions(true));
             serializer.Serialize(msg, stream);
             stream.Position = 0;
             var res = serializer.Deserialize(stream);
