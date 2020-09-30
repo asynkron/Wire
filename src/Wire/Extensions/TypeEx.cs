@@ -13,10 +13,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Wire.Internal;
 
-#if NET45
-using System.Runtime.Serialization;
 
-#endif
 
 namespace Wire.Extensions
 {
@@ -67,8 +64,7 @@ namespace Wire.Extensions
                    type == CharType;
             //add TypeSerializer with null support
         }
-
-#if !NET45
+        
         //HACK: the GetUnitializedObject actually exists in .NET Core, its just not public
         private static readonly Func<Type, object> getUninitializedObjectDelegate = GetFormatterDelegate();
 
@@ -81,13 +77,13 @@ namespace Wire.Extensions
                 .Assembly
                 .GetType(FormatterServices);
 
-#if NETSTANDARD2_0
+
             if (formatterType == null)
             {
                 // it's been moved to the Formatters assembly in .NET Core 3.x
                 formatterType = Assembly.Load("System.Runtime.Serialization.Formatters")?.GetType(FormatterServices);
             }
-#endif
+
             return (Func<Type, object>)formatterType?.GetTypeInfo()
                 ?.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
                 ?.CreateDelegate(typeof(Func<Type, object>));
@@ -97,12 +93,6 @@ namespace Wire.Extensions
         {
             return getUninitializedObjectDelegate(type);
         }
-#else
-        public static object GetEmptyObject(this Type type)
-        {
-            return FormatterServices.GetUninitializedObject(type);
-        }
-#endif
 
         public static bool IsOneDimensionalArray(this Type type)
         {

@@ -9,9 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-#if NET45
-
-#endif
 
 namespace Wire.Extensions
 {
@@ -39,9 +36,7 @@ namespace Wire.Extensions
                     current
                         .GetTypeInfo()
                         .GetFields(BindingFlagsEx.All)
-#if NET45
                         .Where(f => !f.IsDefined(typeof(NonSerializedAttribute)))
-#endif
                         .Where(f => !f.IsStatic)
                         .Where(f => f.FieldType != typeof(IntPtr))
                         .Where(f => f.FieldType != typeof(UIntPtr))

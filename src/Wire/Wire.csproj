@@ -4,16 +4,12 @@
     <Description>Wire, fast binary POCO serializer</Description>
     <VersionPrefix>0.8.3</VersionPrefix>
     <Authors>Roger Johansson</Authors>
-    <TargetFrameworks>netstandard1.6;net45;netstandard2.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>Wire</AssemblyName>
     <PackageId>Wire</PackageId>
     <PackageTags>serialization;poco</PackageTags>
     <PackageIconUrl>https://raw.githubusercontent.com/hmemcpy/NServiceBus.Wire/master/icon.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/rogeralsing/Wire</PackageProjectUrl>
-    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
-    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.0</NetStandardImplicitPackageVersion>
-    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'net45' ">$(PackageTargetFallback);dotnet5.4</PackageTargetFallback>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -23,6 +19,8 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <Version>0.9</Version>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.6|AnyCPU'">

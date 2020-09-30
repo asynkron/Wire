@@ -27,7 +27,7 @@ namespace Wire.Tests
                 TestField = testField;
             }
         }
-#if NET452
+
         public class DummyException : Exception
         {
             protected DummyException(
@@ -36,7 +36,7 @@ namespace Wire.Tests
             {
             }
         }
-#endif
+
 
         [Fact]
         public void CanSerializeBinaryExpression()
@@ -74,7 +74,7 @@ namespace Wire.Tests
             }
         }
 
-#if NET452
+
         [Fact]
         public void CanSerializeCatchBlock()
         {
@@ -90,7 +90,7 @@ namespace Wire.Tests
                 Assert.Equal(expr.Body.ConstantValue(), deserialized.Body.ConstantValue());
             }
         }
-#endif
+
 
         [Fact]
         public void CanSerializeConditionalExpression()

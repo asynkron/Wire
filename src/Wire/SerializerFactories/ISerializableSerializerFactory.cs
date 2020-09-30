@@ -3,7 +3,7 @@
 //       Copyright (C) 2015-2017 Asynkron HB All rights reserved
 //   </copyright>
 // -----------------------------------------------------------------------
-#if NET45
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -70,5 +70,3 @@ namespace Wire.SerializerFactories
         }
     }
 }
-
-#endif

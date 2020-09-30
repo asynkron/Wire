@@ -6,7 +6,6 @@ using Xunit;
 
 namespace Wire.Tests
 {
-    #region test support classes
 
     public class ClassWithPrivCtor
     {
@@ -30,9 +29,8 @@ namespace Wire.Tests
         }
     }
 
-#if SERIALIZATION
+
     [Serializable]
-#endif
     public struct StructWithReadonlyFields
     {
         public readonly int Value;
@@ -44,9 +42,7 @@ namespace Wire.Tests
             PublicValue = publicValue;
         }
     }
-
-    #endregion
-
+    
     public class EncapsulationTests : IDisposable
     {
         private readonly Serializer serializer;
