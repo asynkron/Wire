@@ -13,16 +13,16 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 4;
         public static readonly ByteSerializer Instance = new ByteSerializer();
 
-        public ByteSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
+        private ByteSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
 
-        public static void WriteValueImpl(Stream stream, byte b)
+        private static void WriteValueImpl(Stream stream, byte b)
         {
             stream.WriteByte(b);
         }
 
-        public static byte ReadValueImpl(Stream stream)
+        private static byte ReadValueImpl(Stream stream)
         {
             return (byte) stream.ReadByte();
         }

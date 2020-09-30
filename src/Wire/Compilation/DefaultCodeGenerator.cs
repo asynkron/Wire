@@ -85,7 +85,7 @@ namespace Wire.Compilation
                 var s = serializers[i];
 
                 int read;
-                if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
+                if (field.FieldType.IsWirePrimitive())
                 {
                     //Only optimize if property names are not included.
                     //if they are included, we need to be able to skip past unknown property data
@@ -168,7 +168,7 @@ namespace Wire.Compilation
                 var readField = c.ReadField(field, cast);
 
                 //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
-                if (!serializer.Options.VersionTolerance && field.FieldType.IsWirePrimitive())
+                if (field.FieldType.IsWirePrimitive())
                 {
                     //primitive types does not need to write any manifest, if the field type is known
                     valueSerializer.EmitWriteValue(c, stream, readField, session);

@@ -22,7 +22,6 @@ namespace Wire
         public const int MinBufferSize = 9;
         private readonly IntToObjectLookup _objectById;
         private readonly int _offset;
-        private readonly TypeToVersionInfoLookup _versionInfoByType;
         public readonly Serializer Serializer;
         private byte[] _buffer;
         private IntToTypeLookup _identifierToType;
@@ -32,7 +31,7 @@ namespace Wire
             Serializer = serializer;
             _buffer = new byte[MinBufferSize];
             if (serializer.Options.PreserveObjectReferences) _objectById = new IntToObjectLookup(1);
-            if (serializer.Options.VersionTolerance) _versionInfoByType = new TypeToVersionInfoLookup();
+
             _offset = serializer.Options.KnownTypes.Length;
         }
 
@@ -74,12 +73,6 @@ namespace Wire
         public void TrackDeserializedTypeWithVersion([NotNull] Type type, [NotNull] TypeVersionInfo versionInfo)
         {
             TrackDeserializedType(type);
-            _versionInfoByType.Add(type, versionInfo);
-        }
-
-        public TypeVersionInfo GetVersionInfo([NotNull] Type type)
-        {
-            return _versionInfoByType[type];
         }
     }
 }

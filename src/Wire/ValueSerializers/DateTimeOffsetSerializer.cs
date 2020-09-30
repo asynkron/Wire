@@ -16,7 +16,7 @@ namespace Wire.ValueSerializers
         public const int Size = sizeof(long) + sizeof(byte) + sizeof(short);
         public static readonly DateTimeOffsetSerializer Instance = new DateTimeOffsetSerializer();
 
-        public DateTimeOffsetSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
+        private DateTimeOffsetSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
 
@@ -28,7 +28,7 @@ namespace Wire.ValueSerializers
             stream.Write(bytes, 0, Size);
         }
 
-        public static DateTimeOffset ReadValueImpl(Stream stream, byte[] bytes)
+        private static DateTimeOffset ReadValueImpl(Stream stream, byte[] bytes)
         {
             var dateTimeOffset = ReadDateTimeOffset(stream, bytes);
             return dateTimeOffset;

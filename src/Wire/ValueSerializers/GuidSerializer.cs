@@ -14,17 +14,17 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 11;
         public static readonly GuidSerializer Instance = new GuidSerializer();
 
-        public GuidSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
+        private GuidSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
 
-        public static void WriteValueImpl(Stream stream, Guid g)
+        private static void WriteValueImpl(Stream stream, Guid g)
         {
             var bytes = g.ToByteArray();
             stream.Write(bytes);
         }
 
-        public static Guid ReadValueImpl(Stream stream)
+        private static Guid ReadValueImpl(Stream stream)
         {
             var buffer = new byte[16];
             stream.Read(buffer, 0, 16);

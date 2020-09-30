@@ -49,13 +49,11 @@ namespace Wire
         internal readonly bool PreserveObjectReferences;
         internal readonly Surrogate[] Surrogates;
         internal readonly ValueSerializerFactory[] ValueSerializerFactories;
-        internal readonly bool VersionTolerance;
 
         public SerializerOptions(bool versionTolerance = false, bool preserveObjectReferences = false,
             IEnumerable<Surrogate> surrogates = null, IEnumerable<ValueSerializerFactory> serializerFactories = null,
             IEnumerable<Type> knownTypes = null)
         {
-            VersionTolerance = versionTolerance;
             Surrogates = surrogates?.ToArray() ?? EmptySurrogates;
 
             //use the default factories + any user defined

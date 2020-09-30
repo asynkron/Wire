@@ -13,22 +13,22 @@ namespace Wire.ValueSerializers
     public class DoubleSerializer : SessionAwareByteArrayRequiringValueSerializer<double>
     {
         public const byte Manifest = 13;
-        public const int Size = sizeof(double);
+        private const int Size = sizeof(double);
         public static readonly DoubleSerializer Instance = new DoubleSerializer();
 
-        public DoubleSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
+        private DoubleSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
 
         public override int PreallocatedByteBufferSize => Size;
 
-        public static void WriteValueImpl(Stream stream, double d, byte[] bytes)
+        private static void WriteValueImpl(Stream stream, double d, byte[] bytes)
         {
             NoAllocBitConverter.GetBytes(d, bytes);
             stream.Write(bytes, 0, Size);
         }
 
-        public static double ReadValueImpl(Stream stream, byte[] bytes)
+        private static double ReadValueImpl(Stream stream, byte[] bytes)
         {
             stream.Read(bytes, 0, Size);
             return BitConverter.ToDouble(bytes, 0);

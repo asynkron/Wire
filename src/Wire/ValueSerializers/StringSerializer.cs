@@ -22,7 +22,7 @@ namespace Wire.ValueSerializers
             stream.Write(bytes, 0, byteCount);
         }
 
-        public static string ReadValueImpl(Stream stream, DeserializerSession session)
+        private static string ReadValueImpl(Stream stream, DeserializerSession session)
         {
             return stream.ReadString(session);
         }

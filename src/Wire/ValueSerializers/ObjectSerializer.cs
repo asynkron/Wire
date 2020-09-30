@@ -19,7 +19,6 @@ namespace Wire.ValueSerializers
         public const byte ManifestIndex = 254;
 
         private readonly byte[] _manifest;
-        private readonly byte[] _manifestWithVersionInfo;
 
         private volatile bool _isInitialized;
         private int _preallocatedBufferSize;
@@ -51,12 +50,11 @@ namespace Wire.ValueSerializers
             //custom object serializers should not emit their inner fields
 
             //this is the same as the above, but including all field names of the type, in alphabetical order
-            _manifestWithVersionInfo =
-                new[] {ManifestVersion}
-                    .Concat(BitConverter.GetBytes(typeNameBytes.Length))
-                    .Concat(typeNameBytes)
-                    .Concat(versionInfo)
-                    .ToArray(); //serializer id 255 + assembly qualified name + versionInfo
+            new[] {ManifestVersion}
+                .Concat(BitConverter.GetBytes(typeNameBytes.Length))
+                .Concat(typeNameBytes)
+                .Concat(versionInfo)
+                .ToArray(); //serializer id 255 + assembly qualified name + versionInfo
 
             //initialize reader and writer with dummy handlers that wait until the serializer is fully initialized
             _writer = (stream, o, session) =>
@@ -82,9 +80,7 @@ namespace Wire.ValueSerializers
             {
                 session.TrackSerializedType(Type);
 
-                var manifestToWrite = session.Serializer.Options.VersionTolerance
-                    ? _manifestWithVersionInfo
-                    : _manifest;
+                var manifestToWrite = _manifest;
 
                 stream.Write(manifestToWrite);
             }

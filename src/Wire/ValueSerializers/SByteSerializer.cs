@@ -13,16 +13,16 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 20;
         public static readonly SByteSerializer Instance = new SByteSerializer();
 
-        public SByteSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
+        private SByteSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
         }
 
-        public static unsafe void WriteValueImpl(Stream stream, sbyte @sbyte)
+        private static unsafe void WriteValueImpl(Stream stream, sbyte @sbyte)
         {
             stream.WriteByte(*(byte*) &@sbyte);
         }
 
-        public static unsafe sbyte ReadValueImpl(Stream stream)
+        private static unsafe sbyte ReadValueImpl(Stream stream)
         {
             var @byte = (byte) stream.ReadByte();
             return *(sbyte*) &@byte;

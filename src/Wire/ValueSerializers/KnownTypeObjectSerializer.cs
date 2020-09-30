@@ -12,13 +12,11 @@ namespace Wire.ValueSerializers
     public class KnownTypeObjectSerializer : ValueSerializer
     {
         private readonly ObjectSerializer _serializer;
-        private readonly ushort _typeIdentifier;
         private readonly byte[] _typeIdentifierBytes;
 
         public KnownTypeObjectSerializer(ObjectSerializer serializer, ushort typeIdentifier)
         {
             _serializer = serializer;
-            _typeIdentifier = typeIdentifier;
             _typeIdentifierBytes = BitConverter.GetBytes(typeIdentifier);
         }
 
