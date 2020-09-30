@@ -38,6 +38,12 @@ namespace Wire.Tests
         {
             SerializeAndAssert(DateTime.UtcNow);
         }
+        
+        [Fact]
+        public void CanSerializeDateTimeOffset()
+        {
+            SerializeAndAssert(DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(14)));
+        }
 
         [Fact]
         public void CanSerializeDecimal()

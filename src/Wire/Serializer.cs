@@ -55,7 +55,7 @@ namespace Wire
             _deserializerLookup[StringSerializer.Manifest] = StringSerializer.Instance;
             _deserializerLookup[Int32Serializer.Manifest] = Int32Serializer.Instance;
             _deserializerLookup[ByteArraySerializer.Manifest] = ByteArraySerializer.Instance;
-            //10 not yet used
+            _deserializerLookup[DateTimeOffsetSerializer.Manifest] = DateTimeOffsetSerializer.Instance;
             _deserializerLookup[GuidSerializer.Manifest] = GuidSerializer.Instance;
             _deserializerLookup[FloatSerializer.Manifest] = FloatSerializer.Instance;
             _deserializerLookup[DoubleSerializer.Manifest] = DoubleSerializer.Instance;
@@ -93,6 +93,7 @@ namespace Wire
             AddValueSerializer<char>(CharSerializer.Instance);
             AddValueSerializer<byte[]>(ByteArraySerializer.Instance);
             AddValueSerializer<DateTime>(DateTimeSerializer.Instance);
+            AddValueSerializer<DateTimeOffset>(DateTimeOffsetSerializer.Instance);
 
             AddValueSerializer<Type>(TypeSerializer.Instance);
             AddValueSerializer(TypeSerializer.Instance, TypeEx.RuntimeType);
