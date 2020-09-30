@@ -61,10 +61,8 @@ namespace Wire.Tests
 
 
     /* Copied from MongoDB.Bson.BsonElement - causes failures in the serializer - not sure why */
-#if NET45
-    [Serializable]
-#endif
 
+    [Serializable]
     internal struct TestElement : IComparable<TestElement>, IEquatable<TestElement>
     {
         public TestElement(string name, string value)

@@ -28,11 +28,9 @@ namespace Wire.ValueSerializers
             _write = GetStatic(writeStaticMethod, typeof(void));
             _read = GetStatic(readStaticMethod, typeof(TElementType));
 
-#if NET45
+
             var c = new IlCompiler<Action<Stream, object, byte[]>>();
-#else
-            var c = new Compiler<Action<Stream, object, byte[]>>();
-#endif
+
 
             var stream = c.Parameter<Stream>("stream");
             var value = c.Parameter<object>("value");
@@ -42,11 +40,7 @@ namespace Wire.ValueSerializers
             c.EmitStaticCall(_write, stream, valueTyped, buffer);
 
             _writeCompiled = c.Compile();
-#if NET45
             var c2 = new IlCompiler<Func<Stream, byte[], TElementType>>();
-#else
-            var c2 = new Compiler<Func<Stream, byte[], TElementType>>();
-#endif
 
             var stream2 = c2.Parameter<Stream>("stream");
             var buffer2 = c2.Parameter<byte[]>("buffer");

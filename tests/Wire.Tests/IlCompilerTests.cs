@@ -7,7 +7,7 @@
 // -----------------------------------------------------------------------
 #endregion
 
-#if NET452
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -307,4 +307,3 @@ namespace Wire.Tests
         }
     }
 }
-#endif

@@ -35,14 +35,10 @@ namespace Wire.SerializerFactories
             {
                 var name = stream.ReadString(session);
                 var owner = stream.ReadObject(session) as Type;
-
-#if NET45
+                
                 var property = owner.GetTypeInfo()
                                     .GetProperty(name, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 return property;
-#else
-                return null;
-#endif
             }
 
             void Writer(Stream stream, object obj, SerializerSession session)

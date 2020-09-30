@@ -4,7 +4,7 @@
 //       Copyright (C) 2016-2016 Akka.NET Team <https://github.com/akkadotnet>
 //   </copyright>
 // -----------------------------------------------------------------------
-#if NET45
+
 using System;
 using System.Linq;
 using System.Reflection;
@@ -99,4 +99,3 @@ namespace Wire.Compilation
     }
 
 }
-#endif
