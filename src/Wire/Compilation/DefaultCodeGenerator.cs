@@ -46,38 +46,20 @@ namespace Wire.Compilation
             {
                 var trackDeserializedObjectMethod =
                     typeof(DeserializerSession).GetTypeInfo()
-                        .GetMethod(nameof(DeserializerSession.TrackDeserializedObject));
+                        .GetMethod(nameof(DeserializerSession.TrackDeserializedObject))!;
 
                 c.EmitCall(trackDeserializedObjectMethod, session, target);
             }
 
-            //for (var i = 0; i < storedFieldCount; i++)
-            //{
-            //    var fieldName = stream.ReadLengthEncodedByteArray(session);
-            //    if (!Utils.Compare(fieldName, fieldNames[i]))
-            //    {
-            //        //TODO: field name mismatch
-            //        //this should really be a compare less equal or greater
-            //        //to know if the field is added or removed
-
-            //        //1) if names are equal, read the value and assign the field
-
-            //        //2) if the field is less than the expected field, then this field is an unknown new field
-            //        //we need to read this object and just ignore its content.
-
-            //        //3) if the field is greater than the expected, we need to check the next expected until
-            //        //the current is less or equal, then goto 1)
-            //    }
-            //}
 
             var typedTarget = c.CastOrUnbox(target, type);
             var serializers = fields.Select(field => serializer.GetSerializerByType(field.FieldType)).ToArray();
 
-            var preallocatedBufferSize =
+            var bufferSize =
                 serializers.Length != 0 ? serializers.Max(s => s.PreallocatedByteBufferSize) : 0;
-            if (preallocatedBufferSize > 0)
-                EmitPreallocatedBuffer(c, preallocatedBufferSize, session,
-                    typeof(DeserializerSession).GetTypeInfo().GetMethod(nameof(DeserializerSession.GetBuffer)));
+            if (bufferSize > 0)
+                EmitPreallocatedBuffer(c, bufferSize, session,
+                    typeof(DeserializerSession).GetTypeInfo().GetMethod(nameof(DeserializerSession.GetBuffer))!);
 
             for (var i = 0; i < fields.Length; i++)
             {
@@ -87,21 +69,18 @@ namespace Wire.Compilation
                 int read;
                 if (field.FieldType.IsWirePrimitive())
                 {
-                    //Only optimize if property names are not included.
-                    //if they are included, we need to be able to skip past unknown property data
-                    //e.g. if sender have added a new property that the receiveing end does not yet know about
-                    //which we cannot do w/o a manifest
                     read = s.EmitReadValue(c, stream, session, field);
                 }
                 else
                 {
-                    var method = typeof(StreamEx).GetTypeInfo().GetMethod(nameof(StreamEx.ReadObject));
+                    var method = typeof(StreamEx).GetTypeInfo().GetMethod(nameof(StreamEx.ReadObject))!;
                     read = c.StaticCall(method, stream, session);
                     read = c.Convert(read, field.FieldType);
                 }
 
                 if (field.IsInitOnly)
                 {
+                    //TODO: fix this
                     var assignReadToField = c.WriteReadonlyField(field, target, read);
                     c.Emit(assignReadToField);
                 }
@@ -143,7 +122,7 @@ namespace Wire.Compilation
             if (serializer.Options.PreserveObjectReferences)
             {
                 var method =
-                    typeof(SerializerSession).GetTypeInfo().GetMethod(nameof(SerializerSession.TrackSerializedObject));
+                    typeof(SerializerSession).GetTypeInfo().GetMethod(nameof(SerializerSession.TrackSerializedObject))!;
 
                 c.EmitCall(method, session, target);
             }
@@ -155,7 +134,7 @@ namespace Wire.Compilation
 
             if (preallocatedBufferSize > 0)
                 EmitPreallocatedBuffer(c, preallocatedBufferSize, session,
-                    typeof(SerializerSession).GetTypeInfo().GetMethod("GetBuffer"));
+                    typeof(SerializerSession).GetMethod(nameof(SerializerSession.GetBuffer))!);
 
             for (var i = 0; i < fieldsArray.Length; i++)
             {
@@ -164,7 +143,7 @@ namespace Wire.Compilation
                 var valueSerializer = serializers[i];
                 //runtime Get a delegate that reads the content of the given field
 
-                var cast = c.CastOrUnbox(target, field.DeclaringType);
+                var cast = c.CastOrUnbox(target, field.DeclaringType!);
                 var readField = c.ReadField(field, cast);
 
                 //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
@@ -187,7 +166,7 @@ namespace Wire.Compilation
                     var vs = c.Constant(valueSerializer);
                     var vt = c.Constant(valueType);
 
-                    var method = typeof(StreamEx).GetTypeInfo().GetMethod(nameof(StreamEx.WriteObject));
+                    var method = typeof(StreamEx).GetTypeInfo().GetMethod(nameof(StreamEx.WriteObject))!;
 
                     c.EmitStaticCall(method, stream, converted, vt, vs, preserveReferences, session);
                 }
