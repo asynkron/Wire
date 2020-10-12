@@ -50,8 +50,7 @@ namespace Wire.Tests
 
             public override bool Equals(object obj)
             {
-                var msg = obj as ByteMessage;
-                return msg != null && Equals(msg);
+                return obj is ByteMessage msg && Equals(msg);
             }
 
             public bool Equals(ByteMessage other)

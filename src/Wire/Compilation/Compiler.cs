@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using FastExpressionCompiler;
 
 namespace Wire.Compilation
 {
@@ -142,8 +143,8 @@ namespace Wire.Compilation
         {
             var body = ToBlock();
             var parameters = _parameters.ToArray();
-            var res = Expression.Lambda<TDel>(body, parameters).Compile();
-            return res;
+            var res = Expression.Lambda<TDel>(body, parameters).CompileFast();
+            return (TDel)(object)res;
         }
 
         public int Convert<T>(int value)
