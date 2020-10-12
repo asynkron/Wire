@@ -205,3 +205,4 @@ FakesAssemblies/
 /.idea/.idea.Wire/.idea/riderModule.iml
 /.idea/.idea.Wire/.idea/vcs.xml
 /.idea/.idea.Wire/.idea/workspace.xml
+/tests/Wire.PerfTest/*.txt
