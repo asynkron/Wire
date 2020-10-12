@@ -17,15 +17,10 @@ namespace Wire.Compilation
     public class Compiler<TDel> 
     {
         private readonly List<Expression> _content = new List<Expression>();
-
         private readonly List<ParameterExpression> _parameters = new List<ParameterExpression>();
         private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
 
-        public Expression NewObject(Type type)
-        {
-            var exp = ExpressionEx.GetNewExpression(type);
-            return exp;
-        }
+        public Expression NewObject(Type type) => ExpressionEx.GetNewExpression(type);
 
         public Expression Parameter<T>(string name)
         {
@@ -41,13 +36,6 @@ namespace Wire.Compilation
             return exp;
         }
 
-        public Expression Variable(string name, Type type)
-        {
-            var exp = Expression.Variable(type, name);
-            _variables.Add(exp);
-            return exp;
-        }
-
         public Expression GetVariable<T>(string name)
         {
             var existing = _variables.First(v => v.Name == name && v.Type == typeof(T));
@@ -56,23 +44,14 @@ namespace Wire.Compilation
             return existing;
         }
 
-        public Expression Constant(object value)
-        {
-            var constant = value.ToConstant();
-            return constant;
-        }
+        public Expression Constant(object value) => value.ToConstant();
 
-        public Expression CastOrUnbox(Expression value, Type type)
-        {
-
-            var cast = type.IsValueType
+        public Expression CastOrUnbox(Expression value, Type type) =>
+            type.IsValueType
                 // ReSharper disable once AssignNullToNotNullAttribute
                 ? Expression.Unbox(value, type)
                 // ReSharper disable once AssignNullToNotNullAttribute
                 : Expression.Convert(value, type);
-            var exp = (Expression) cast;
-            return exp;
-        }
 
         public void EmitCall(MethodInfo method, Expression target, params Expression[] arguments)
         {
@@ -89,24 +68,11 @@ namespace Wire.Compilation
             _content.Add(call);
         }
 
-        public Expression Call(MethodInfo method, Expression target, params Expression[] arguments)
-        {
-            var call = Expression.Call(target, method, arguments);
-            return call;
-        }
+        public Expression Call(MethodInfo method, Expression target, params Expression[] arguments) => Expression.Call(target, method, arguments);
 
-        public Expression StaticCall(MethodInfo method, params Expression[] arguments)
-        {
-            var call = Expression.Call(null, method, arguments);
-            return call;
-        }
+        public Expression StaticCall(MethodInfo method, params Expression[] arguments) => Expression.Call(null, method, arguments);
 
-        public Expression ReadField(FieldInfo field, Expression target)
-        {
-
-            var accessExp = Expression.Field(target, field);
-            return accessExp;
-        }
+        public Expression ReadField(FieldInfo field, Expression target) => Expression.Field(target, field);
 
         public Expression WriteField(FieldInfo field, Expression typedTarget, Expression value)
         {
@@ -132,28 +98,16 @@ namespace Wire.Compilation
             return res;
         }
 
-        public Expression Convert<T>(Expression value)
-        {
-            var con = (Expression) Expression.Convert(value, typeof(T));
-            return con;
-        }
+        public Expression Convert<T>(Expression value) => Expression.Convert(value, typeof(T));
 
-        public Expression WriteVar(Expression variable, Expression value)
-        {
-            var assign = Expression.Assign(variable, value);
-            return assign;
-        }
+        public Expression WriteVar(Expression variable, Expression value) => Expression.Assign(variable, value);
 
         public void Emit(Expression expression)
         {
             _content.Add(expression);
         }
 
-        public Expression Convert(Expression value, Type type)
-        {
-            var conv = (Expression) Expression.Convert(value, type);
-            return conv;
-        }
+        public Expression Convert(Expression value, Type type) => Expression.Convert(value, type);
 
         public Expression ToBlock()
         {
