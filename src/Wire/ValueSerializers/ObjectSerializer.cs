@@ -14,7 +14,6 @@ namespace Wire.ValueSerializers
 {
     public class ObjectSerializer : ValueSerializer
     {
-        private const byte ManifestVersion = 251;
         public const byte ManifestFull = 255;
         public const byte ManifestIndex = 254;
 
@@ -34,9 +33,7 @@ namespace Wire.ValueSerializers
             // ReSharper disable once AssignNullToNotNullAttribute
             var typeNameBytes = typeName.ToUtf8Bytes();
 
-            var fields = type.GetFieldInfosForType();
-            var fieldNames = fields.Select(field => field.Name.ToUtf8Bytes()).ToList();
-            var versionInfo = TypeEx.GetTypeManifest(fieldNames);
+            
 
             //precalculate the entire manifest for this serializer
             //this helps us to minimize calls to Stream.Write/WriteByte 
@@ -45,17 +42,7 @@ namespace Wire.ValueSerializers
                     .Concat(BitConverter.GetBytes(typeNameBytes.Length))
                     .Concat(typeNameBytes)
                     .ToArray(); //serializer id 255 + assembly qualified name
-
-            //TODO: this should only work this way for standard poco objects
-            //custom object serializers should not emit their inner fields
-
-            //this is the same as the above, but including all field names of the type, in alphabetical order
-            new[] {ManifestVersion}
-                .Concat(BitConverter.GetBytes(typeNameBytes.Length))
-                .Concat(typeNameBytes)
-                .Concat(versionInfo)
-                .ToArray(); //serializer id 255 + assembly qualified name + versionInfo
-
+            
             //initialize reader and writer with dummy handlers that wait until the serializer is fully initialized
             _writer = (stream, o, session) =>
             {
