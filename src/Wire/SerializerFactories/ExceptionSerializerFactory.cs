@@ -15,7 +15,7 @@ namespace Wire.SerializerFactories
 {
     public class ExceptionSerializerFactory : ValueSerializerFactory
     {
-        private static readonly TypeInfo ExceptionTypeInfo = typeof(Exception).GetTypeInfo();
+        private static readonly Type ExceptionTypeInfo = typeof(Exception);
         private readonly FieldInfo _className;
         private readonly FieldInfo _innerException;
         private readonly FieldInfo _message;
