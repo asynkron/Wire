@@ -70,7 +70,7 @@ namespace Wire.Compilation
         public int CastOrUnbox(int value, Type type)
         {
             var tempQualifier = _expressions[value];
-            var cast = type.GetTypeInfo().IsValueType
+            var cast = type.IsValueType
                 // ReSharper disable once AssignNullToNotNullAttribute
                 ? Expression.Unbox(tempQualifier, type)
                 // ReSharper disable once AssignNullToNotNullAttribute
@@ -132,7 +132,7 @@ namespace Wire.Compilation
 
         public int WriteReadonlyField(FieldInfo field, int target, int value)
         {
-            var method = typeof(FieldInfo).GetTypeInfo()
+            var method = typeof(FieldInfo)
                 .GetMethod(nameof(FieldInfo.SetValue), new[] {typeof(object), typeof(object)})!;
             var fld = Constant(field);
             var valueToObject = Convert<object>(value);

@@ -33,7 +33,7 @@ namespace Wire.SerializerFactories
 
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            return ExceptionTypeInfo.IsAssignableFrom(type.GetTypeInfo());
+            return ExceptionTypeInfo.IsAssignableFrom(type);
         }
 
         public override bool CanDeserialize(Serializer serializer, Type type)

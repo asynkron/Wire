@@ -18,7 +18,7 @@ namespace Wire.SerializerFactories
     {
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            return type.GetTypeInfo().IsSubclassOf(typeof(MethodInfo));
+            return type.IsSubclassOf(typeof(MethodInfo));
         }
 
         public override bool CanDeserialize(Serializer serializer, Type type)
@@ -39,7 +39,7 @@ namespace Wire.SerializerFactories
                 var arguments = stream.ReadObject(session) as Type[];
 
 
-                var method = owner.GetTypeInfo().GetMethod(name,
+                var method = owner.GetMethod(name,
                     BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null,
                     CallingConventions.Any, arguments, null);
                 return method;

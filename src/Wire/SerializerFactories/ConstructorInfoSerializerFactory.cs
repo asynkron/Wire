@@ -18,7 +18,7 @@ namespace Wire.SerializerFactories
     {
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            return type.GetTypeInfo().IsSubclassOf(typeof(ConstructorInfo));
+            return type.IsSubclassOf(typeof(ConstructorInfo));
         }
 
         public override bool CanDeserialize(Serializer serializer, Type type)
@@ -37,7 +37,7 @@ namespace Wire.SerializerFactories
                 var owner = stream.ReadObject(session) as Type;
                 var arguments = stream.ReadObject(session) as Type[];
 
-                var ctor = owner.GetTypeInfo().GetConstructor(arguments);
+                var ctor = owner.GetConstructor(arguments);
                 return ctor;
             }
 

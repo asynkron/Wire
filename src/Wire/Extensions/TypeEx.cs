@@ -126,12 +126,12 @@ namespace Wire.Extensions
 
         public static bool IsNullable(this Type type)
         {
-            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
         public static Type GetNullableElement(this Type type)
         {
-            return type.GetTypeInfo().GetGenericArguments()[0];
+            return type.GetGenericArguments()[0];
         }
 
         public static bool IsFixedSizeType(this Type type)

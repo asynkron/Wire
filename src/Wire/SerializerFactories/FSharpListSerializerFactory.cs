@@ -30,13 +30,13 @@ namespace Wire.SerializerFactories
         private static Type GetEnumerableType(Type type)
         {
             return type
-                .GetTypeInfo()
+                
                 .GetInterfaces()
                 .Where(
                     intType =>
-                        intType.GetTypeInfo().IsGenericType &&
+                        intType.IsGenericType &&
                         intType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                .Select(intType => intType.GetTypeInfo().GetGenericArguments()[0])
+                .Select(intType => intType.GetGenericArguments()[0])
                 .FirstOrDefault();
         }
 
@@ -59,11 +59,11 @@ namespace Wire.SerializerFactories
 
             var elementType = GetEnumerableType(type);
             var arrType = elementType.MakeArrayType();
-            var listModule = type.GetTypeInfo().Assembly.GetType("Microsoft.FSharp.Collections.ListModule");
-            var ofArray = listModule.GetTypeInfo().GetMethod("OfArray");
+            var listModule = type.Assembly.GetType("Microsoft.FSharp.Collections.ListModule");
+            var ofArray = listModule.GetMethod("OfArray");
             var ofArrayConcrete = ofArray.MakeGenericMethod(elementType);
             var ofArrayCompiled = CompileToDelegate(ofArrayConcrete, arrType);
-            var toArray = listModule.GetTypeInfo().GetMethod("ToArray");
+            var toArray = listModule.GetMethod("ToArray");
             var toArrayConcrete = toArray.MakeGenericMethod(elementType);
             var toArrayCompiled = CompileToDelegate(toArrayConcrete, type);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;

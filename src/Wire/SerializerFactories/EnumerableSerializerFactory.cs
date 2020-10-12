@@ -22,14 +22,14 @@ namespace Wire.SerializerFactories
         {
             //TODO: check for constructor with IEnumerable<T> param
 
-            if (!type.GetTypeInfo().GetMethods().Any(m => m.Name == "AddRange" || m.Name == "Add")) return false;
+            if (!type.GetMethods().Any(m => m.Name == "AddRange" || m.Name == "Add")) return false;
 
-            if (type.GetTypeInfo().GetProperty("Count") == null) return false;
+            if (type.GetProperty("Count") == null) return false;
 
             var isGenericEnumerable = GetEnumerableType(type) != null;
             if (isGenericEnumerable) return true;
 
-            if (typeof(ICollection).GetTypeInfo().IsAssignableFrom(type)) return true;
+            if (typeof(ICollection).IsAssignableFrom(type)) return true;
 
             return false;
         }
@@ -42,13 +42,13 @@ namespace Wire.SerializerFactories
         private static Type GetEnumerableType(Type type)
         {
             return type
-                .GetTypeInfo()
+                
                 .GetInterfaces()
                 .Where(
                     intType =>
-                        intType.GetTypeInfo().IsGenericType &&
-                        intType.GetTypeInfo().GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                .Select(intType => intType.GetTypeInfo().GetGenericArguments()[0])
+                        intType.IsGenericType &&
+                        intType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                .Select(intType => intType.GetGenericArguments()[0])
                 .FirstOrDefault();
         }
 
@@ -62,9 +62,9 @@ namespace Wire.SerializerFactories
             var elementType = GetEnumerableType(type) ?? typeof(object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
-            var countProperty = type.GetTypeInfo().GetProperty("Count");
-            var addRange = type.GetTypeInfo().GetMethod("AddRange");
-            var add = type.GetTypeInfo().GetMethod("Add");
+            var countProperty = type.GetProperty("Count");
+            var addRange = type.GetMethod("AddRange");
+            var add = type.GetMethod("Add");
 
             int CountGetter(object o)
             {

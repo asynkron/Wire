@@ -35,7 +35,7 @@ namespace Wire
 
         public bool IsSurrogateFor(Type type)
         {
-            return From.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+            return From.IsAssignableFrom(type);
         }
     }
 }

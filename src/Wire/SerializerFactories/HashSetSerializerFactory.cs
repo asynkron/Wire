@@ -23,8 +23,8 @@ namespace Wire.SerializerFactories
 
         private static bool IsInterface(Type type)
         {
-            return type.GetTypeInfo().IsGenericType &&
-                   type.GetTypeInfo().GetGenericTypeDefinition() == typeof(HashSet<>);
+            return type.IsGenericType &&
+                   type.GetGenericTypeDefinition() == typeof(HashSet<>);
         }
 
         public override bool CanDeserialize(Serializer serializer, Type type)
@@ -38,12 +38,12 @@ namespace Wire.SerializerFactories
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
             var ser = new ObjectSerializer(type);
             typeMapping.TryAdd(type, ser);
-            var elementType = type.GetTypeInfo().GetGenericArguments()[0];
+            var elementType = type.GetGenericArguments()[0];
             var elementSerializer = serializer.GetSerializerByType(elementType);
-            var readGeneric = GetType().GetTypeInfo()
+            var readGeneric = GetType()
                 .GetMethod(nameof(ReadHashSet), BindingFlags.NonPublic | BindingFlags.Static)
                 .MakeGenericMethod(elementType);
-            var writeGeneric = GetType().GetTypeInfo()
+            var writeGeneric = GetType()
                 .GetMethod(nameof(WriteHashSet), BindingFlags.NonPublic | BindingFlags.Static)
                 .MakeGenericMethod(elementType);
 
