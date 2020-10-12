@@ -11,7 +11,7 @@ namespace Wire.Internal
         public readonly byte[] Bytes;
         private readonly int _hashCode;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = (ByteArrayKey) obj;
             return Compare(Bytes, other.Bytes);

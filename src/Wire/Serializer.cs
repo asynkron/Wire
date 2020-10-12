@@ -35,7 +35,7 @@ namespace Wire
         {
         }
 
-        public Serializer([NotNull] SerializerOptions options)
+        public Serializer(SerializerOptions options)
         {
             Options = options;
             AddSerializers();

@@ -49,8 +49,8 @@ namespace Wire
         internal readonly ValueSerializerFactory[] ValueSerializerFactories;
 
         public SerializerOptions(bool preserveObjectReferences = false,
-            IEnumerable<Surrogate> surrogates = null, IEnumerable<ValueSerializerFactory> serializerFactories = null,
-            IEnumerable<Type> knownTypes = null)
+            IEnumerable<Surrogate>? surrogates = null, IEnumerable<ValueSerializerFactory>? serializerFactories = null,
+            IEnumerable<Type>? knownTypes = null)
         {
             Surrogates = surrogates?.ToArray() ?? EmptySurrogates;
 

@@ -16,13 +16,13 @@ namespace Wire
         DeserializerSession
     {
         private const int MinBufferSize = 9;
-        private readonly IntToObjectLookup _objectById;
+        private readonly IntToObjectLookup _objectById = null!;
         private readonly int _offset;
         public readonly Serializer Serializer;
         private byte[] _buffer;
-        private IntToTypeLookup _identifierToType;
+        private IntToTypeLookup? _identifierToType;
 
-        public DeserializerSession([NotNull] Serializer serializer)
+        public DeserializerSession(Serializer serializer)
         {
             Serializer = serializer;
             _buffer = new byte[MinBufferSize];
@@ -42,7 +42,7 @@ namespace Wire
             return _buffer;
         }
 
-        public void TrackDeserializedObject([NotNull] object obj)
+        public void TrackDeserializedObject(object obj)
         {
             _objectById.Add(obj);
         }
@@ -52,7 +52,7 @@ namespace Wire
             return _objectById[id];
         }
 
-        public void TrackDeserializedType([NotNull] Type type)
+        public void TrackDeserializedType(Type type)
         {
             _identifierToType ??= new IntToTypeLookup(1);
             _identifierToType.Add(type);
@@ -66,9 +66,5 @@ namespace Wire
             return _identifierToType[typeId - _offset];
         }
 
-        public void TrackDeserializedTypeWithVersion([NotNull] Type type)
-        {
-            TrackDeserializedType(type);
-        }
     }
 }

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using Wire.Internal;
 
@@ -17,7 +18,7 @@ namespace Wire.Extensions
 {
     public static class TypeEx
     {
-        private const string VERSION_REGEX = @", Version=(\d+([.]\d+)?([.]\d+)?([.]\d+)?.*?)";
+        private const string VersionRegex = @", Version=(\d+([.]\d+)?([.]\d+)?([.]\d+)?.*?)";
 
         //Why not inline typeof you ask?
         //Because it actually generates calls to get the type.
@@ -40,8 +41,6 @@ namespace Wire.Extensions
         private static readonly Type CharType = typeof(char);
         public static readonly Type RuntimeType = Type.GetType("System.RuntimeType");
 
-        //HACK: the GetUnitializedObject actually exists in .NET Core, its just not public
-        private static readonly Func<Type, object> getUninitializedObjectDelegate = GetFormatterDelegate();
 
         private static readonly ConcurrentDictionary<ByteArrayKey, Type> TypeNameLookup =
             new ConcurrentDictionary<ByteArrayKey, Type>(ByteArrayKeyComparer.Instance);
@@ -69,29 +68,9 @@ namespace Wire.Extensions
             //add TypeSerializer with null support
         }
 
-        private static Func<Type, object> GetFormatterDelegate()
-        {
-            const string FormatterServices = "System.Runtime.Serialization.FormatterServices";
-
-            var formatterType = typeof(string)
-                .GetTypeInfo()
-                .Assembly
-                .GetType(FormatterServices);
-
-
-            if (formatterType == null)
-                // it's been moved to the Formatters assembly in .NET Core 3.x
-                formatterType = Assembly.Load("System.Runtime.Serialization.Formatters")?.GetType(FormatterServices);
-
-            return (Func<Type, object>) formatterType?.GetTypeInfo()
-                .GetMethod("GetUninitializedObject",
-                    BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
-                ?.CreateDelegate(typeof(Func<Type, object>));
-        }
-
         public static object GetEmptyObject(this Type type)
         {
-            return getUninitializedObjectDelegate(type);
+            return FormatterServices.GetUninitializedObject(type);
         }
 
         public static bool IsOneDimensionalArray(this Type type)
@@ -101,7 +80,7 @@ namespace Wire.Extensions
 
         public static bool IsOneDimensionalPrimitiveArray(this Type type)
         {
-            return type.IsArray && type.GetArrayRank() == 1 && type.GetElementType().IsWirePrimitive();
+            return type.IsArray && type.GetArrayRank() == 1 && type.GetElementType()!.IsWirePrimitive();
         }
 
         public static byte[] GetTypeManifest(IReadOnlyCollection<byte[]> fieldNames)
@@ -126,7 +105,7 @@ namespace Wire.Extensions
             {
                 var shortName = StringEx.FromUtf8Bytes(b.Bytes, 0, b.Bytes.Length);
                 var typename = ToQualifiedAssemblyName(shortName);
-                return Type.GetType(typename, true);
+                return Type.GetType(typename, true)!;
             });
         }
 
@@ -183,14 +162,14 @@ namespace Wire.Extensions
 
         private static string GetCoreAssemblyName()
         {
-            var name = 1.GetType().AssemblyQualifiedName;
+            var name = 1.GetType().AssemblyQualifiedName!;
             var part = name.Substring(name.IndexOf(", Version", StringComparison.Ordinal));
             return part;
         }
 
         public static string GetShortAssemblyQualifiedName(this Type self)
         {
-            var name = self.AssemblyQualifiedName;
+            var name = self.AssemblyQualifiedName!;
             return ReplaceTokens(name);
         }
 
@@ -212,7 +191,7 @@ namespace Wire.Extensions
 
         private static string ReplaceVersion(string input)
         {
-            var regex = new Regex(VERSION_REGEX);
+            var regex = new Regex(VersionRegex);
             return regex.Replace(input, "");
         }
     }

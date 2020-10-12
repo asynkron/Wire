@@ -24,9 +24,9 @@ namespace Wire.Compilation
 
         public int NewObject(Type type)
         {
-            var ctor = type.GetConstructor(new Type[] { });
+            var ctor = type.GetConstructor(new Type[] { })!;
             // ReSharper disable once PossibleNullReferenceException
-            if (ctor != null && ctor.GetMethodBody().GetILAsByteArray().Length <= 8)
+            if (ctor != null && ctor.GetMethodBody()!.GetILAsByteArray()!.Length <= 8)
             {
                 var @new = new IlNew(type);
                 _expressions.Add(@new);
@@ -35,7 +35,7 @@ namespace Wire.Compilation
             {
                 var typeExp = Constant(type);
                 var t = _expressions[typeExp]; //we need the type as a constant so we can load it in IlNew
-                var method = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
+                var method = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject))!;
                 var call = new IlCallStatic(method, t);
                 _expressions.Add(call);
             }
@@ -81,10 +81,10 @@ namespace Wire.Compilation
 
         public int Constant(object value)
         {
-            if (value is bool)
+            if (value is bool b)
             {
                 //doing this is faster than storing this as state
-                _expressions.Add(new IlBool((bool) value));
+                _expressions.Add(new IlBool(b));
                 return _expressions.Count - 1;
             }
 
@@ -152,8 +152,8 @@ namespace Wire.Compilation
 
         public int WriteVar(int variable, int value)
         {
-            var variableExp = _expressions[variable] as IlVariable;
-            var valueExp = _expressions[value];
+            var variableExp = (IlVariable)_expressions[variable]!;
+            var valueExp = _expressions[value]!;
             var exp = new IlWriteVariable(variableExp, valueExp);
             _expressions.Add(exp);
             return _expressions.Count - 1;
