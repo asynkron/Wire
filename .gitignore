@@ -206,3 +206,4 @@ FakesAssemblies/
 /.idea/.idea.Wire/.idea/vcs.xml
 /.idea/.idea.Wire/.idea/workspace.xml
 /tests/Wire.PerfTest/*.txt
+/tests/Wire.PerformanceTests/.idea/.idea.Wire.PerformanceTests.dir/.idea/workspace.xml
