@@ -32,7 +32,7 @@ namespace Wire.ValueSerializers
         public virtual void EmitWriteValue(ICompiler<ObjectWriter> c, int stream, int fieldValue, int session)
         {
             var converted = c.Convert<object>(fieldValue);
-            var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(WriteValue));
+            var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(WriteValue))!;
 
             //write it to the value serializer
             var vs = c.Constant(this);
@@ -42,7 +42,7 @@ namespace Wire.ValueSerializers
         public virtual int EmitReadValue([NotNull] ICompiler<ObjectReader> c, int stream, int session,
             [NotNull] FieldInfo field)
         {
-            var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(ReadValue));
+            var method = typeof(ValueSerializer).GetTypeInfo().GetMethod(nameof(ReadValue))!;
             var ss = c.Constant(this);
             var read = c.Call(method, ss, stream, session);
             read = c.Convert(read, field.FieldType);
@@ -53,7 +53,7 @@ namespace Wire.ValueSerializers
         {
             var unaryExpression = (UnaryExpression) expression.Body;
             var methodCallExpression = (MethodCallExpression) unaryExpression.Operand;
-            var methodCallObject = (ConstantExpression) methodCallExpression.Object;
+            var methodCallObject = (ConstantExpression) methodCallExpression.Object!;
             var method = (MethodInfo) methodCallObject.Value;
 
             if (method.IsStatic == false) throw new ArgumentException($"Method {method.Name} should be static.");

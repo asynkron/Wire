@@ -110,7 +110,7 @@ namespace Wire
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private ValueSerializer GetCustomDeserializer([NotNull] Type type)
+        private ValueSerializer GetCustomDeserializer( Type type)
         {
             //do we already have a deserializer for this type?
             if (_deserializers.TryGetValue(type, out var serializer)) return serializer;
@@ -131,7 +131,7 @@ namespace Wire
 
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
 
-        public void Serialize(object obj, [NotNull] Stream stream, SerializerSession session)
+        public void Serialize(object obj, Stream stream, SerializerSession session)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 
@@ -141,7 +141,7 @@ namespace Wire
             s.WriteValue(stream, obj, session);
         }
 
-        public void Serialize(object obj, [NotNull] Stream stream)
+        public void Serialize(object obj, Stream stream)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             var session = GetSerializerSession();
@@ -157,7 +157,7 @@ namespace Wire
             return new SerializerSession(this);
         }
 
-        public T Deserialize<T>([NotNull] Stream stream)
+        public T Deserialize<T>( Stream stream)
         {
             var session = GetDeserializerSession();
             var s = GetDeserializerByManifest(stream, session);
@@ -169,26 +169,26 @@ namespace Wire
             return new DeserializerSession(this);
         }
 
-        public T Deserialize<T>([NotNull] Stream stream, DeserializerSession session)
+        public T Deserialize<T>(Stream stream, DeserializerSession session)
         {
             var s = GetDeserializerByManifest(stream, session);
             return (T) s.ReadValue(stream, session);
         }
 
-        public object Deserialize([NotNull] Stream stream)
+        public object Deserialize( Stream stream)
         {
             var session = new DeserializerSession(this);
             var s = GetDeserializerByManifest(stream, session);
             return s.ReadValue(stream, session);
         }
 
-        public object Deserialize([NotNull] Stream stream, DeserializerSession session)
+        public object Deserialize(Stream stream, DeserializerSession session)
         {
             var s = GetDeserializerByManifest(stream, session);
             return s.ReadValue(stream, session);
         }
 
-        public ValueSerializer GetSerializerByType([NotNull] Type type)
+        public ValueSerializer GetSerializerByType( Type type)
         {
             //do we already have a serializer for this type?
             if (_serializers.TryGetValue(type, out var serializer)) return serializer;
@@ -242,7 +242,7 @@ namespace Wire
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ValueSerializer GetDeserializerByManifest([NotNull] Stream stream, [NotNull] DeserializerSession session)
+        public ValueSerializer GetDeserializerByManifest(Stream stream, DeserializerSession session)
         {
             var first = stream.ReadByte();
             if (first <= 250) return _deserializerLookup[first];

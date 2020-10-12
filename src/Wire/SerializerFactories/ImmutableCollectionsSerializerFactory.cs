@@ -35,9 +35,8 @@ namespace Wire.SerializerFactories
             return CanSerialize(serializer, type);
         }
 
-        private static Type GetEnumerableType(Type type)
-        {
-            return type
+        private static Type? GetEnumerableType(Type type) =>
+            type
                 .GetTypeInfo()
                 .GetInterfaces()
                 .Where(
@@ -46,7 +45,6 @@ namespace Wire.SerializerFactories
                         intType.GetTypeInfo().GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 .Select(intType => intType.GetTypeInfo().GetGenericArguments()[0])
                 .FirstOrDefault();
-        }
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
@@ -59,11 +57,11 @@ namespace Wire.SerializerFactories
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
             var typeName = type.Name;
-            var genericSufixIdx = typeName.IndexOf('`');
-            typeName = genericSufixIdx != -1 ? typeName.Substring(0, genericSufixIdx) : typeName;
+            var genericSuffixIdx = typeName.IndexOf('`');
+            typeName = genericSuffixIdx != -1 ? typeName.Substring(0, genericSuffixIdx) : typeName;
             var creatorType =
                 Type.GetType(
-                    ImmutableCollectionsNamespace + "." + typeName + ", " + ImmutableCollectionsAssembly, true);
+                    ImmutableCollectionsNamespace + "." + typeName + ", " + ImmutableCollectionsAssembly, true)!;
 
             var genericTypes = elementType.GetTypeInfo().IsGenericType
                 ? elementType.GetTypeInfo().GetGenericArguments()

@@ -6,10 +6,12 @@
 
 using System;
 using System.IO;
+using Wire.Internal;
 using Wire.ValueSerializers;
 
 namespace Wire.Extensions
 {
+    [PublicAPI]
     public static class StreamEx
     {
         public static uint ReadVarint32(this Stream stream)
@@ -97,7 +99,7 @@ namespace Wire.Extensions
             self.Write(bytes, 0, bytes.Length);
         }
 
-        public static void WriteObjectWithManifest(this Stream stream, object value, SerializerSession session)
+        public static void WriteObjectWithManifest(this Stream stream, object? value, SerializerSession session)
         {
             if (value == null) //value is null
             {
@@ -123,7 +125,7 @@ namespace Wire.Extensions
             }
         }
 
-        public static void WriteObject(this Stream stream, object value, Type valueType,
+        public static void WriteObject(this Stream stream, object? value, Type valueType,
             ValueSerializer valueSerializer,
             bool preserveObjectReferences, SerializerSession session)
         {
@@ -161,7 +163,7 @@ namespace Wire.Extensions
             return value;
         }
 
-        public static string ReadString(this Stream stream, DeserializerSession session)
+        public static string? ReadString(this Stream stream, DeserializerSession session)
         {
             var length = stream.ReadByte();
             switch (length)
