@@ -93,7 +93,7 @@ namespace Wire.PerfTest.Tests
             SerializeKnownTypesReuseSession();
             SerializeKnownTypes();
             SerializeDefault();
-            SerializeVersionTolerant();
+
             SerializeVersionPreserveObjects();
             SerializeNFXSlim();
             SerializeNFXSlimPreregister();
@@ -417,7 +417,7 @@ namespace Wire.PerfTest.Tests
 
         private void SerializeDefault()
         {
-            var serializer = new Serializer(new SerializerOptions(false));
+            var serializer = new Serializer(new SerializerOptions());
             var s = new MemoryStream();
             serializer.Serialize(Value, s);
             var bytes = s.ToArray();
@@ -441,25 +441,6 @@ namespace Wire.PerfTest.Tests
             RunTest("Wire - Object Identity", () =>
             {
                 var stream = new MemoryStream();
-                serializer.Serialize(Value, stream);
-            }, () =>
-            {
-                s.Position = 0;
-                serializer.Deserialize<T>(s);
-            }, bytes.Length);
-        }
-
-        private void SerializeVersionTolerant()
-        {
-            var serializer = new Serializer(new SerializerOptions(true));
-            var s = new MemoryStream();
-            serializer.Serialize(Value, s);
-            var bytes = s.ToArray();
-            s.Position = 0;
-            RunTest("Wire - Version Tolerant", () =>
-            {
-                var stream = new MemoryStream();
-
                 serializer.Serialize(Value, stream);
             }, () =>
             {
