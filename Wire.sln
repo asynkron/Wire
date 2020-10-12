@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wire", "src\Wire\Wire.cspro
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wire.Tests", "tests\Wire.Tests\Wire.Tests.csproj", "{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire.PerfTest", "tests\Wire.PerfTest\Wire.PerfTest.csproj", "{87DA9ABC-831A-4024-8781-D6CEF0C7F1FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87DA9ABC-831A-4024-8781-D6CEF0C7F1FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87DA9ABC-831A-4024-8781-D6CEF0C7F1FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87DA9ABC-831A-4024-8781-D6CEF0C7F1FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87DA9ABC-831A-4024-8781-D6CEF0C7F1FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,5 +38,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0E200D3D-224F-454D-80A9-CCC6CF1E577C} = {C75E620D-91F2-4AC3-8115-055E470A83E1}
 		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
+		{87DA9ABC-831A-4024-8781-D6CEF0C7F1FC} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
 	EndGlobalSection
 EndGlobal

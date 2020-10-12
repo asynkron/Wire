@@ -115,7 +115,7 @@ namespace Wire.PerfTest.Tests
                 sb.AppendLine(
                     $"{row.TestName} | {(long) row.RoundtripTime.TotalMilliseconds} | {(long) row.SerializationTime.TotalMilliseconds} | {(long) row.DeserializationTime.TotalMilliseconds} | {row.PayloadSize}");
             }
-            var file = testName + ".txt";
+            var file = testName + ".md";
             File.WriteAllText(file, sb.ToString());
         }
 
