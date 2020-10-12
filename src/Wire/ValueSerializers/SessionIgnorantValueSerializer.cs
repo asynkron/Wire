@@ -29,7 +29,7 @@ namespace Wire.ValueSerializers
             _read = GetStatic(readStaticMethod, typeof(TElementType));
 
 
-            var c = new IlCompiler<Action<Stream, object>>();
+            var c = new Compiler<Action<Stream, object>>();
 
 
             var stream = c.Parameter<Stream>("stream");
@@ -40,7 +40,7 @@ namespace Wire.ValueSerializers
             _writeCompiled = c.Compile();
 
 
-            var c2 = new IlCompiler<Func<Stream, TElementType>>();
+            var c2 = new Compiler<Func<Stream, TElementType>>();
 
 
             var stream2 = c2.Parameter<Stream>("stream");

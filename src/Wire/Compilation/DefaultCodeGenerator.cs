@@ -12,6 +12,7 @@ using System.Reflection;
 using Wire.Extensions;
 using Wire.Internal;
 using Wire.ValueSerializers;
+using FastExpressionCompiler;
 
 namespace Wire.Compilation
 {
