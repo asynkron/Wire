@@ -434,7 +434,7 @@ namespace Wire.PerfTest.Tests
 
         private void SerializeVersionPreserveObjects()
         {
-            var serializer = new Serializer(new SerializerOptions(false, true));
+            var serializer = new Serializer(new SerializerOptions(true));
             var s = new MemoryStream();
             serializer.Serialize(Value, s);
             var bytes = s.ToArray();

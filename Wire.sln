@@ -16,6 +16,8 @@ ProjectSection(SolutionItems) = preProject
 	README.md = README.md
 EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire.PerfTest", "tests\Wire.PerfTest\Wire.PerfTest.csproj", "{35352664-E867-48EC-A0B1-39013CA42FE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,10 @@ Global
 		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35352664-E867-48EC-A0B1-39013CA42FE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35352664-E867-48EC-A0B1-39013CA42FE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35352664-E867-48EC-A0B1-39013CA42FE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35352664-E867-48EC-A0B1-39013CA42FE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -37,5 +43,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0E200D3D-224F-454D-80A9-CCC6CF1E577C} = {C75E620D-91F2-4AC3-8115-055E470A83E1}
 		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
+		{35352664-E867-48EC-A0B1-39013CA42FE0} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
 	EndGlobalSection
 EndGlobal
