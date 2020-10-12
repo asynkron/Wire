@@ -59,7 +59,7 @@ namespace Wire.ValueSerializers
             _writeCompiled(stream, value, session.GetBuffer(PreallocatedByteBufferSize));
         }
 
-        public sealed override void EmitWriteValue(Compiler<ObjectWriter> c, int stream, int fieldValue, int session)
+        public sealed override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue, Expression session)
         {
             var byteArray = c.GetVariable<byte[]>(DefaultCodeGenerator.PreallocatedByteBuffer);
             c.EmitStaticCall(_write, stream, fieldValue, byteArray);
@@ -70,7 +70,7 @@ namespace Wire.ValueSerializers
             return _readCompiled(stream, session.GetBuffer(PreallocatedByteBufferSize));
         }
 
-        public sealed override int EmitReadValue(Compiler<ObjectReader> c, int stream, int session, FieldInfo field)
+        public sealed override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session, FieldInfo field)
         {
             var byteArray = c.GetVariable<byte[]>(DefaultCodeGenerator.PreallocatedByteBuffer);
             return c.StaticCall(_read, stream, byteArray);

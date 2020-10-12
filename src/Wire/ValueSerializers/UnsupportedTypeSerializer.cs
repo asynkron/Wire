@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using System.Linq.Expressions;
 using System.Reflection;
 using Wire.Compilation;
 using Wire.Internal;
@@ -34,13 +35,13 @@ namespace Wire.ValueSerializers
             _invalidType = t;
         }
 
-        public override int EmitReadValue([NotNull] Compiler<ObjectReader> c, int stream, int session,
+        public override Expression EmitReadValue([NotNull] Compiler<ObjectReader> c, Expression stream, Expression session,
             [NotNull] FieldInfo field)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }
 
-        public override void EmitWriteValue(Compiler<ObjectWriter> c, int stream, int fieldValue, int session)
+        public override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue, Expression session)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }

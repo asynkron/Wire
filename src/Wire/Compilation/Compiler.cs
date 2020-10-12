@@ -17,120 +17,105 @@ namespace Wire.Compilation
     public class Compiler<TDel> 
     {
         private readonly List<Expression> _content = new List<Expression>();
-        private readonly List<Expression> _expressions = new List<Expression>();
+
         private readonly List<ParameterExpression> _parameters = new List<ParameterExpression>();
         private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
 
-        public int NewObject(Type type)
+        public Expression NewObject(Type type)
         {
             var exp = ExpressionEx.GetNewExpression(type);
-            _expressions.Add(exp);
-            return _expressions.Count - 1;
+            return exp;
         }
 
-        public int Parameter<T>(string name)
+        public Expression Parameter<T>(string name)
         {
             var exp = Expression.Parameter(typeof(T), name);
             _parameters.Add(exp);
-            _expressions.Add(exp);
-            return _expressions.Count - 1;
+            return exp;
         }
 
-        public int Variable<T>(string name)
+        public Expression Variable<T>(string name)
         {
             var exp = Expression.Variable(typeof(T), name);
             _variables.Add(exp);
-            _expressions.Add(exp);
-            return _expressions.Count - 1;
+            return exp;
         }
 
-        public int Variable(string name, Type type)
+        public Expression Variable(string name, Type type)
         {
             var exp = Expression.Variable(type, name);
             _variables.Add(exp);
-            _expressions.Add(exp);
-            return _expressions.Count - 1;
+            return exp;
         }
 
-        public int GetVariable<T>(string name)
+        public Expression GetVariable<T>(string name)
         {
-            var existing = _expressions.OfType<ParameterExpression>().First(v => v.Name == name && v.Type == typeof(T));
+            var existing = _variables.First(v => v.Name == name && v.Type == typeof(T));
             if (existing == null) throw new Exception("Variable not found.");
 
-            return _expressions.IndexOf(existing);
+            return existing;
         }
 
-        public int Constant(object value)
+        public Expression Constant(object value)
         {
             var constant = value.ToConstant();
-            _expressions.Add(constant);
-            return _expressions.Count - 1;
+            return constant;
         }
 
-        public int CastOrUnbox(int value, Type type)
+        public Expression CastOrUnbox(Expression value, Type type)
         {
-            var tempQualifier = _expressions[value];
+
             var cast = type.IsValueType
                 // ReSharper disable once AssignNullToNotNullAttribute
-                ? Expression.Unbox(tempQualifier, type)
+                ? Expression.Unbox(value, type)
                 // ReSharper disable once AssignNullToNotNullAttribute
-                : Expression.Convert(tempQualifier, type);
+                : Expression.Convert(value, type);
             var exp = (Expression) cast;
-            _expressions.Add(exp);
-            return _expressions.Count - 1;
+            return exp;
         }
 
-        public void EmitCall(MethodInfo method, int target, params int[] arguments)
+        public void EmitCall(MethodInfo method, Expression target, params Expression[] arguments)
         {
-            var targetExp = _expressions[target];
-            var argumentsExp = arguments.Select(n => _expressions[n]).ToArray();
+            var targetExp = target;
+            var argumentsExp = arguments;
             var call = Expression.Call(targetExp, method, argumentsExp);
             _content.Add(call);
         }
 
-        public void EmitStaticCall(MethodInfo method, params int[] arguments)
+        public void EmitStaticCall(MethodInfo method, params Expression[] arguments)
         {
-            var argumentsExp = arguments.Select(n => _expressions[n]).ToArray();
+            var argumentsExp = arguments;
             var call = Expression.Call(null, method, argumentsExp);
             _content.Add(call);
         }
 
-        public int Call(MethodInfo method, int target, params int[] arguments)
+        public Expression Call(MethodInfo method, Expression target, params Expression[] arguments)
         {
-            var targetExp = _expressions[target];
-            var argumentsExp = arguments.Select(n => _expressions[n]).ToArray();
-            var call = Expression.Call(targetExp, method, argumentsExp);
-            _expressions.Add(call);
-            return _expressions.Count - 1;
+            var call = Expression.Call(target, method, arguments);
+            return call;
         }
 
-        public int StaticCall(MethodInfo method, params int[] arguments)
+        public Expression StaticCall(MethodInfo method, params Expression[] arguments)
         {
-            var argumentsExp = arguments.Select(n => _expressions[n]).ToArray();
-            var call = Expression.Call(null, method, argumentsExp);
-            _expressions.Add(call);
-            return _expressions.Count - 1;
+            var call = Expression.Call(null, method, arguments);
+            return call;
         }
 
-        public int ReadField(FieldInfo field, int target)
+        public Expression ReadField(FieldInfo field, Expression target)
         {
-            var targetExp = _expressions[target];
-            var accessExp = Expression.Field(targetExp, field);
-            _expressions.Add(accessExp);
-            return _expressions.Count - 1;
+
+            var accessExp = Expression.Field(target, field);
+            return accessExp;
         }
 
-        public int WriteField(FieldInfo field, int typedTarget, int value)
+        public Expression WriteField(FieldInfo field, Expression typedTarget, Expression value)
         {
-            var targetExp = _expressions[typedTarget];
-            var valueExp = _expressions[value];
-            var accessExp = Expression.Field(targetExp, field);
-            var writeExp = Expression.Assign(accessExp, valueExp);
-            _expressions.Add(writeExp);
-            return _expressions.Count - 1;
+            var accessExp = Expression.Field(typedTarget, field);
+            var writeExp = Expression.Assign(accessExp, value);
+            return writeExp;
         }
 
-        public int WriteReadonlyField(FieldInfo field, int target, int value)
+        public Expression WriteReadonlyField(FieldInfo field, Expression target, Expression value)
         {
             var method = typeof(FieldInfo)
                 .GetMethod(nameof(FieldInfo.SetValue), new[] {typeof(object), typeof(object)})!;
@@ -147,35 +132,27 @@ namespace Wire.Compilation
             return res;
         }
 
-        public int Convert<T>(int value)
+        public Expression Convert<T>(Expression value)
         {
-            var valueExp = _expressions[value];
-            var con = (Expression) Expression.Convert(valueExp, typeof(T));
-            _expressions.Add(con);
-            return _expressions.Count - 1;
+            var con = (Expression) Expression.Convert(value, typeof(T));
+            return con;
         }
 
-        public int WriteVar(int variable, int value)
+        public Expression WriteVar(Expression variable, Expression value)
         {
-            var varExp = _expressions[variable];
-            var valueExp = _expressions[value];
-            var assign = Expression.Assign(varExp, valueExp);
-            _expressions.Add(assign);
-            return _expressions.Count - 1;
+            var assign = Expression.Assign(variable, value);
+            return assign;
         }
 
-        public void Emit(int value)
+        public void Emit(Expression expression)
         {
-            var exp = _expressions[value];
-            _content.Add(exp);
+            _content.Add(expression);
         }
 
-        public int Convert(int value, Type type)
+        public Expression Convert(Expression value, Type type)
         {
-            var valueExp = _expressions[value];
-            var conv = (Expression) Expression.Convert(valueExp, type);
-            _expressions.Add(conv);
-            return _expressions.Count - 1;
+            var conv = (Expression) Expression.Convert(value, type);
+            return conv;
         }
 
         public Expression ToBlock()

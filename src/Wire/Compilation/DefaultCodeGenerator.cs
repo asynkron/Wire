@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Wire.Extensions;
 using Wire.Internal;
@@ -66,7 +67,7 @@ namespace Wire.Compilation
                 var field = fields[i];
                 var s = serializers[i];
 
-                int read;
+                Expression read;
                 if (field.FieldType.IsWirePrimitive())
                 {
                     read = s.EmitReadValue(c, stream, session, field);
@@ -97,7 +98,7 @@ namespace Wire.Compilation
             return readAllFields;
         }
 
-        private static void EmitPreallocatedBuffer<T>(Compiler<T> c, int preallocatedBufferSize, int session,
+        private static void EmitPreallocatedBuffer<T>(Compiler<T> c, int preallocatedBufferSize, Expression session,
             MethodInfo getBuffer)
         {
             var size = c.Constant(preallocatedBufferSize);

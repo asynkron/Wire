@@ -59,7 +59,7 @@ namespace Wire.ValueSerializers
             _writeCompiled(stream, value);
         }
 
-        public sealed override void EmitWriteValue(Compiler<ObjectWriter> c, int stream, int fieldValue, int session)
+        public sealed override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue, Expression session)
         {
             c.EmitStaticCall(_write, stream, fieldValue);
         }
@@ -69,7 +69,7 @@ namespace Wire.ValueSerializers
             return _readCompiled(stream);
         }
 
-        public sealed override int EmitReadValue(Compiler<ObjectReader> c, int stream, int session, FieldInfo field)
+        public sealed override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session, FieldInfo field)
         {
             return c.StaticCall(_read, stream);
         }
