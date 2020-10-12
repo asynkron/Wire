@@ -24,9 +24,9 @@ namespace Wire.ValueSerializers
         /// </summary>
         public virtual int PreallocatedByteBufferSize => 0;
 
-        public abstract void WriteManifest([NotNull] Stream stream, [NotNull] SerializerSession session);
-        public abstract void WriteValue([NotNull] Stream stream, object value, [NotNull] SerializerSession session);
-        public abstract object ReadValue([NotNull] Stream stream, [NotNull] DeserializerSession session);
+        public abstract void WriteManifest( Stream stream,  SerializerSession session);
+        public abstract void WriteValue( Stream stream, object value,  SerializerSession session);
+        public abstract object ReadValue( Stream stream,  DeserializerSession session);
         public abstract Type GetElementType();
 
         public virtual void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue, Expression session)
@@ -39,8 +39,8 @@ namespace Wire.ValueSerializers
             c.EmitCall(method, vs, stream, converted, session);
         }
 
-        public virtual Expression EmitReadValue([NotNull] Compiler<ObjectReader> c, Expression stream, Expression session,
-            [NotNull] FieldInfo field)
+        public virtual Expression EmitReadValue( Compiler<ObjectReader> c, Expression stream, Expression session,
+             FieldInfo field)
         {
             var method = typeof(ValueSerializer).GetMethod(nameof(ReadValue))!;
             var ss = c.Constant(this);
@@ -49,7 +49,7 @@ namespace Wire.ValueSerializers
             return read;
         }
 
-        protected static MethodInfo GetStatic([NotNull] LambdaExpression expression, [NotNull] Type expectedReturnType)
+        protected static MethodInfo GetStatic( LambdaExpression expression,  Type expectedReturnType)
         {
             var unaryExpression = (UnaryExpression) expression.Body;
             var methodCallExpression = (MethodCallExpression) unaryExpression.Operand;

@@ -98,7 +98,7 @@ namespace Wire.SerializerFactories
                     items.SetValue(value, i);
                 }
 
-                var instance = createRange.Invoke(null, new object[] {items});
+                var instance = createRange.Invoke(null, new object[] {items})!;
                 if (preserveObjectReferences) session.TrackDeserializedObject(instance);
                 return instance;
             }

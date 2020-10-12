@@ -35,8 +35,8 @@ namespace Wire.ValueSerializers
             _invalidType = t;
         }
 
-        public override Expression EmitReadValue([NotNull] Compiler<ObjectReader> c, Expression stream, Expression session,
-            [NotNull] FieldInfo field)
+        public override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session,
+             FieldInfo field)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }
@@ -46,17 +46,17 @@ namespace Wire.ValueSerializers
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }
 
-        public override object ReadValue([NotNull] Stream stream, [NotNull] DeserializerSession session)
+        public override object ReadValue(Stream stream,  DeserializerSession session)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }
 
-        public override void WriteManifest([NotNull] Stream stream, [NotNull] SerializerSession session)
+        public override void WriteManifest( Stream stream,  SerializerSession session)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }
 
-        public override void WriteValue([NotNull] Stream stream, object value, [NotNull] SerializerSession session)
+        public override void WriteValue( Stream stream, object value,  SerializerSession session)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }

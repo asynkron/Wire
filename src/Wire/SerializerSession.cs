@@ -13,12 +13,12 @@ namespace Wire
     {
         private const int MinBufferSize = 9;
         private readonly ushort _nextTypeId;
-        private readonly Dictionary<object, int> _objects;
+        private readonly Dictionary<object, int> _objects = null!;
         public readonly Serializer Serializer;
         private byte[] _buffer = new byte[MinBufferSize];
 
         private int _nextObjectId;
-        private LinkedList<Type> _trackedTypes;
+        private LinkedList<Type> _trackedTypes = null!;
 
         public SerializerSession(Serializer serializer)
         {

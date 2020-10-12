@@ -41,7 +41,7 @@ namespace Wire.SerializerFactories
                 foreach (var item in dict) info.AddValue(item.Key, item.Value);
 
                 var ctor = type.GetConstructor(BindingFlagsEx.All, null,
-                    new[] {typeof(SerializationInfo), typeof(StreamingContext)}, null);
+                    new[] {typeof(SerializationInfo), typeof(StreamingContext)}, null)!;
                 var instance = ctor.Invoke(new object[] {info, new StreamingContext()});
                 var deserializationCallback = instance as IDeserializationCallback;
                 deserializationCallback?.OnDeserialization(this);
@@ -53,9 +53,9 @@ namespace Wire.SerializerFactories
                 var info = new SerializationInfo(type, new FormatterConverter());
                 var serializable = o as ISerializable;
                 // ReSharper disable once PossibleNullReferenceException
-                serializable.GetObjectData(info, new StreamingContext());
+                serializable!.GetObjectData(info, new StreamingContext());
                 var dict = new Dictionary<string, object>();
-                foreach (var item in info) dict.Add(item.Name, item.Value);
+                foreach (var item in info) dict.Add(item.Name, item!.Value!);
                 stream.WriteObjectWithManifest(dict, session);
             }
 

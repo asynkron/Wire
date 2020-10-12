@@ -82,7 +82,7 @@ namespace Wire.ValueSerializers
             }
             else
             {
-                foreach (var value in array) elementSerializer.WriteValue(stream, value, session);
+                foreach (var value in array) elementSerializer.WriteValue(stream, value!, session);
             }
         }
     }

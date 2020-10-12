@@ -22,29 +22,14 @@ namespace Wire.ValueSerializers
             stream.Write(bytes, 0, byteCount);
         }
 
-        private static string ReadValueImpl(Stream stream, DeserializerSession session)
-        {
-            return stream.ReadString(session);
-        }
+        private static string ReadValueImpl(Stream stream, DeserializerSession session) => stream.ReadString(session!)!;
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
-        {
-            stream.WriteByte(Manifest);
-        }
+        public override void WriteManifest(Stream stream, SerializerSession session) => stream.WriteByte(Manifest);
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
-        {
-            WriteValueImpl(stream, (string) value, session);
-        }
+        public override void WriteValue(Stream stream, object value, SerializerSession session) => WriteValueImpl(stream, (string) value, session);
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
-        {
-            return ReadValueImpl(stream, session);
-        }
+        public override object ReadValue(Stream stream, DeserializerSession session) => ReadValueImpl(stream, session);
 
-        public override Type GetElementType()
-        {
-            return typeof(string);
-        }
+        public override Type GetElementType() => typeof(string);
     }
 }

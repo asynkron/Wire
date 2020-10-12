@@ -13,7 +13,8 @@ namespace Wire.Internal
 
         public override bool Equals(object? obj)
         {
-            var other = (ByteArrayKey) obj;
+            if (obj == null) return false;
+            var other = (ByteArrayKey)obj;
             return Compare(Bytes, other.Bytes);
         }
 
@@ -22,7 +23,7 @@ namespace Wire.Internal
             return _hashCode;
         }
 
-        private static int GetHashCode([NotNull] byte[] bytes)
+        private static int GetHashCode( byte[] bytes)
         {
             unchecked
             {
@@ -32,7 +33,7 @@ namespace Wire.Internal
             }
         }
 
-        public ByteArrayKey(byte[] bytes)
+        private ByteArrayKey(byte[] bytes)
         {
             Bytes = bytes;
             _hashCode = GetHashCode(bytes);
@@ -46,7 +47,7 @@ namespace Wire.Internal
 
         public static unsafe bool Compare(byte[] a1, byte[] a2)
         {
-            if (a1 == null || a2 == null || a1.Length != a2.Length) return false;
+            if (a1.Length != a2.Length) return false;
             fixed (byte* p1 = a1, p2 = a2)
             {
                 byte* x1 = p1, x2 = p2;
@@ -68,10 +69,8 @@ namespace Wire.Internal
                     x2 += 2;
                 }
 
-                if ((l & 1) != 0)
-                    if (*x1 != *x2)
-                        return false;
-                return true;
+                if ((l & 1) == 0) return true;
+                return *x1 == *x2;
             }
         }
     }

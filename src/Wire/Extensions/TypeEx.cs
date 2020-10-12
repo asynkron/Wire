@@ -39,7 +39,7 @@ namespace Wire.Extensions
         private static readonly Type DoubleType = typeof(double);
         private static readonly Type DecimalType = typeof(decimal);
         private static readonly Type CharType = typeof(char);
-        public static readonly Type RuntimeType = Type.GetType("System.RuntimeType");
+        public static readonly Type RuntimeType = Type.GetType("System.RuntimeType")!;
 
 
         private static readonly ConcurrentDictionary<ByteArrayKey, Type> TypeNameLookup =

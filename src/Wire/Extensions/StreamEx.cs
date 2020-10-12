@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using JetBrains.Annotations;
 using Wire.Internal;
 using Wire.ValueSerializers;
 
