@@ -143,8 +143,8 @@ namespace Wire.Compilation
         {
             var body = ToBlock();
             var parameters = _parameters.ToArray();
-            var res = Expression.Lambda<TDel>(body, parameters).CompileFast();
-            return (TDel)(object)res;
+            var res = Expression.Lambda<TDel>(body, parameters).Compile();
+            return res;
         }
 
         public int Convert<T>(int value)

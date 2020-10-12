@@ -2,16 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1595f128-382c-44ed-82f3-8c35e2da4cdd" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../.nuget/NuGet.Config" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../.nuget/NuGet.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../.nuget/NuGet.targets" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../.nuget/packages.config" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Wire.sln" beforeDir="false" afterPath="$PROJECT_DIR$/../../Wire.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Wire.FSharp.Tests/Library.fs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Wire.FSharp.Tests/tests.fsproj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Wire.PerfTest/App.config" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Wire.PerfTest/Tests/TestBase.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../Wire.PerfTest/Tests/TestBase.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Wire.PerfTest/Wire.PerfTest.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/../Wire.PerfTest/Wire.PerfTest.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/Wire/Compilation/Compiler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/Wire/Compilation/Compiler.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,6 +22,12 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
