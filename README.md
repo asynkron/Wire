@@ -57,14 +57,10 @@ This is essential for frameworks like Akka.NET where we need to be able to resol
 
 ## Version Tolerance
 
-Wire has been designed to work in multiple modes in terms of version tolerance vs. performance.
-
-1. Pre Register Types, when using "Pre registered types", Wire will only emit a type ID in the output stream.
-   This results in the best performance, but is also fragile if different clients have different versions of the contract types.
-2. Non Versioned, this is largely the same as the above, but the serializer does not need to know about your types up front. it will embed the fully qualified typename
-   in the outputstream. this results in a larger payload and some performance overhead.
-3. Versioned, in this mode, Wire will emit both type names and field information in the output stream.
-   This allows systems to have slightly different versions of the contract types where some fields may have been added or removed.
+Wire was initially intended to be version tolerant.
+This goal has since been dropped.
+In order to do proper version tolerance, you will need to have annotations and various constraints on what can be serialized.
+It is simply not compatible with the rich context bound nature of Wire.
 
 ### Durable persistence and version tolerance
 
