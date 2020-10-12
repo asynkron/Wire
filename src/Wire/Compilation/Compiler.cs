@@ -14,7 +14,7 @@ using FastExpressionCompiler;
 
 namespace Wire.Compilation
 {
-    public class Compiler<TDel> : ICompiler<TDel>
+    public class Compiler<TDel> 
     {
         private readonly List<Expression> _content = new List<Expression>();
         private readonly List<Expression> _expressions = new List<Expression>();

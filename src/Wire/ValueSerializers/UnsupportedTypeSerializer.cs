@@ -34,13 +34,13 @@ namespace Wire.ValueSerializers
             _invalidType = t;
         }
 
-        public override int EmitReadValue([NotNull] ICompiler<ObjectReader> c, int stream, int session,
+        public override int EmitReadValue([NotNull] Compiler<ObjectReader> c, int stream, int session,
             [NotNull] FieldInfo field)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }
 
-        public override void EmitWriteValue(ICompiler<ObjectWriter> c, int stream, int fieldValue, int session)
+        public override void EmitWriteValue(Compiler<ObjectWriter> c, int stream, int fieldValue, int session)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }

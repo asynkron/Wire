@@ -12,7 +12,6 @@ using System.Reflection;
 using Wire.Extensions;
 using Wire.Internal;
 using Wire.ValueSerializers;
-using FastExpressionCompiler;
 
 namespace Wire.Compilation
 {
@@ -98,7 +97,7 @@ namespace Wire.Compilation
             return readAllFields;
         }
 
-        private static void EmitPreallocatedBuffer<T>(ICompiler<T> c, int preallocatedBufferSize, int session,
+        private static void EmitPreallocatedBuffer<T>(Compiler<T> c, int preallocatedBufferSize, int session,
             MethodInfo getBuffer)
         {
             var size = c.Constant(preallocatedBufferSize);
