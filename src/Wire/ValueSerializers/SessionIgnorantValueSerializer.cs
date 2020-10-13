@@ -6,7 +6,7 @@
 
 using System;
 using System.IO;
-using FastExpressionCompiler.LightExpression;
+using System.Linq.Expressions;
 using System.Reflection;
 using Wire.Compilation;
 
@@ -21,8 +21,8 @@ namespace Wire.ValueSerializers
         private readonly Action<Stream, object> _writeCompiled;
 
         protected SessionIgnorantValueSerializer(byte manifest,
-            System.Linq.Expressions.Expression<Func<Action<Stream, TElementType>>> writeStaticMethod,
-            System.Linq.Expressions.Expression<Func<Func<Stream, TElementType>>> readStaticMethod)
+            Expression<Func<Action<Stream, TElementType>>> writeStaticMethod,
+            Expression<Func<Func<Stream, TElementType>>> readStaticMethod)
         {
             _manifest = manifest;
             _write = GetStatic(writeStaticMethod, typeof(void));
@@ -59,7 +59,10 @@ namespace Wire.ValueSerializers
             _writeCompiled(stream, value);
         }
 
-        public sealed override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue, Expression session)
+        public sealed override void EmitWriteValue(Compiler<ObjectWriter> c,
+            FastExpressionCompiler.LightExpression.Expression stream,
+            FastExpressionCompiler.LightExpression.Expression fieldValue,
+            FastExpressionCompiler.LightExpression.Expression session)
         {
             c.EmitStaticCall(_write, stream, fieldValue);
         }
@@ -69,7 +72,9 @@ namespace Wire.ValueSerializers
             return _readCompiled(stream);
         }
 
-        public sealed override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session, FieldInfo field)
+        public sealed override FastExpressionCompiler.LightExpression.Expression EmitReadValue(Compiler<ObjectReader> c,
+            FastExpressionCompiler.LightExpression.Expression stream,
+            FastExpressionCompiler.LightExpression.Expression session, FieldInfo field)
         {
             return c.StaticCall(_read, stream);
         }

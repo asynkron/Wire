@@ -30,7 +30,6 @@ namespace Wire.Extensions
             {
                 var tfields =
                     current
-                        
                         .GetFields(BindingFlagsEx.All)
                         .Where(f => !f.IsDefined(typeof(NonSerializedAttribute)))
                         .Where(f => !f.IsStatic)

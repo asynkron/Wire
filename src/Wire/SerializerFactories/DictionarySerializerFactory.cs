@@ -10,7 +10,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -26,7 +25,6 @@ namespace Wire.SerializerFactories
         private static bool IsInterface(Type type)
         {
             return type
-                
                 .GetInterfaces()
                 .Select(
                     t =>

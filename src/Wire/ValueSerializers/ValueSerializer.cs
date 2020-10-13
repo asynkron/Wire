@@ -6,11 +6,13 @@
 
 using System;
 using System.IO;
-
 using System.Reflection;
-using Wire.Compilation;
-using Wire.Internal;
 using FastExpressionCompiler.LightExpression;
+using Wire.Compilation;
+using ConstantExpression = System.Linq.Expressions.ConstantExpression;
+using LambdaExpression = System.Linq.Expressions.LambdaExpression;
+using MethodCallExpression = System.Linq.Expressions.MethodCallExpression;
+using UnaryExpression = System.Linq.Expressions.UnaryExpression;
 
 namespace Wire.ValueSerializers
 {
@@ -25,12 +27,13 @@ namespace Wire.ValueSerializers
         /// </summary>
         public virtual int PreallocatedByteBufferSize => 0;
 
-        public abstract void WriteManifest( Stream stream,  SerializerSession session);
-        public abstract void WriteValue( Stream stream, object value,  SerializerSession session);
-        public abstract object ReadValue( Stream stream,  DeserializerSession session);
+        public abstract void WriteManifest(Stream stream, SerializerSession session);
+        public abstract void WriteValue(Stream stream, object value, SerializerSession session);
+        public abstract object ReadValue(Stream stream, DeserializerSession session);
         public abstract Type GetElementType();
 
-        public virtual void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue, Expression session)
+        public virtual void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue,
+            Expression session)
         {
             var converted = c.Convert<object>(fieldValue);
             var method = typeof(ValueSerializer).GetMethod(nameof(WriteValue))!;
@@ -40,8 +43,8 @@ namespace Wire.ValueSerializers
             c.EmitCall(method, vs, stream, converted, session);
         }
 
-        public virtual Expression EmitReadValue( Compiler<ObjectReader> c, Expression stream, Expression session,
-             FieldInfo field)
+        public virtual Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session,
+            FieldInfo field)
         {
             var method = typeof(ValueSerializer).GetMethod(nameof(ReadValue))!;
             var ss = c.Constant(this);
@@ -50,11 +53,11 @@ namespace Wire.ValueSerializers
             return read;
         }
 
-        protected static MethodInfo GetStatic( System.Linq.Expressions.LambdaExpression expression,  Type expectedReturnType)
+        protected static MethodInfo GetStatic(LambdaExpression expression, Type expectedReturnType)
         {
-            var unaryExpression = (System.Linq.Expressions.UnaryExpression) expression.Body;
-            var methodCallExpression = (System.Linq.Expressions.MethodCallExpression) unaryExpression.Operand;
-            var methodCallObject = (System.Linq.Expressions.ConstantExpression) methodCallExpression.Object!;
+            var unaryExpression = (UnaryExpression) expression.Body;
+            var methodCallExpression = (MethodCallExpression) unaryExpression.Operand;
+            var methodCallObject = (ConstantExpression) methodCallExpression.Object!;
             var method = (MethodInfo) methodCallObject.Value;
 
             if (method.IsStatic == false) throw new ArgumentException($"Method {method.Name} should be static.");

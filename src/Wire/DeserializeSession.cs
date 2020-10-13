@@ -5,13 +5,11 @@
 // -----------------------------------------------------------------------
 
 using System;
-using Wire.Internal;
 using IntToObjectLookup = System.Collections.Generic.List<object>;
 using IntToTypeLookup = System.Collections.Generic.List<System.Type>;
 
 namespace Wire
 {
-
     public class
         DeserializerSession
     {
@@ -65,6 +63,5 @@ namespace Wire
 
             return _identifierToType[typeId - _offset];
         }
-
     }
 }

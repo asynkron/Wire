@@ -9,8 +9,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FastExpressionCompiler.LightExpression;
 using System.Reflection;
+using FastExpressionCompiler.LightExpression;
 using Wire.ValueSerializers;
 
 namespace Wire.SerializerFactories
@@ -30,7 +30,6 @@ namespace Wire.SerializerFactories
         private static Type GetEnumerableType(Type type)
         {
             return type
-                
                 .GetInterfaces()
                 .Where(
                     intType =>

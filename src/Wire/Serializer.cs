@@ -11,7 +11,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Wire.Compilation;
 using Wire.Extensions;
-using Wire.Internal;
 using Wire.ValueSerializers;
 
 namespace Wire
@@ -110,7 +109,7 @@ namespace Wire
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private ValueSerializer GetCustomDeserializer( Type type)
+        private ValueSerializer GetCustomDeserializer(Type type)
         {
             //do we already have a deserializer for this type?
             if (_deserializers.TryGetValue(type, out var serializer)) return serializer;
@@ -157,7 +156,7 @@ namespace Wire
             return new SerializerSession(this);
         }
 
-        public T Deserialize<T>( Stream stream)
+        public T Deserialize<T>(Stream stream)
         {
             var session = GetDeserializerSession();
             var s = GetDeserializerByManifest(stream, session);
@@ -175,7 +174,7 @@ namespace Wire
             return (T) s.ReadValue(stream, session);
         }
 
-        public object Deserialize( Stream stream)
+        public object Deserialize(Stream stream)
         {
             var session = new DeserializerSession(this);
             var s = GetDeserializerByManifest(stream, session);
@@ -188,7 +187,7 @@ namespace Wire
             return s.ReadValue(stream, session);
         }
 
-        public ValueSerializer GetSerializerByType( Type type)
+        public ValueSerializer GetSerializerByType(Type type)
         {
             //do we already have a serializer for this type?
             if (_serializers.TryGetValue(type, out var serializer)) return serializer;

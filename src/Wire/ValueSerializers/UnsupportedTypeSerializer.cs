@@ -6,10 +6,9 @@
 
 using System;
 using System.IO;
-using FastExpressionCompiler.LightExpression;
 using System.Reflection;
+using FastExpressionCompiler.LightExpression;
 using Wire.Compilation;
-using Wire.Internal;
 
 namespace Wire.ValueSerializers
 {
@@ -36,27 +35,28 @@ namespace Wire.ValueSerializers
         }
 
         public override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session,
-             FieldInfo field)
+            FieldInfo field)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }
 
-        public override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue, Expression session)
+        public override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue,
+            Expression session)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }
 
-        public override object ReadValue(Stream stream,  DeserializerSession session)
+        public override object ReadValue(Stream stream, DeserializerSession session)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }
 
-        public override void WriteManifest( Stream stream,  SerializerSession session)
+        public override void WriteManifest(Stream stream, SerializerSession session)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }
 
-        public override void WriteValue( Stream stream, object value,  SerializerSession session)
+        public override void WriteValue(Stream stream, object value, SerializerSession session)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }

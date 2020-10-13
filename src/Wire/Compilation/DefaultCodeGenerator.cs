@@ -8,13 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
 using System.Reflection;
-using Wire.Extensions;
-using Wire.Internal;
-using Wire.ValueSerializers;
 using FastExpressionCompiler.LightExpression;
-using FastExpressionCompiler;
+using Wire.Extensions;
+using Wire.ValueSerializers;
 
 namespace Wire.Compilation
 {
@@ -22,7 +19,7 @@ namespace Wire.Compilation
     {
         public const string PreallocatedByteBuffer = nameof(PreallocatedByteBuffer);
 
-        public void BuildSerializer( Serializer serializer, ObjectSerializer objectSerializer)
+        public void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer)
         {
             var type = objectSerializer.Type;
             var fields = type.GetFieldInfosForType();
@@ -33,14 +30,14 @@ namespace Wire.Compilation
             objectSerializer.Initialize(reader, writer, preallocatedBufferSize);
         }
 
-        private ObjectReader GetFieldsReader(Serializer serializer,  FieldInfo[] fields,
+        private ObjectReader GetFieldsReader(Serializer serializer, FieldInfo[] fields,
             Type type)
         {
             var c = new Compiler<ObjectReader>();
             var stream = c.Parameter<Stream>("stream");
             var session = c.Parameter<DeserializerSession>("session");
             var newExpression = c.NewObject(type);
-            var target = c.Variable("target",type);
+            var target = c.Variable("target", type);
             var assignNewObjectToTarget = c.WriteVar(target, newExpression);
 
             c.Emit(assignNewObjectToTarget);
@@ -53,7 +50,7 @@ namespace Wire.Compilation
 
                 c.EmitCall(trackDeserializedObjectMethod, session, target);
             }
-            
+
             var serializers = fields.Select(field => serializer.GetSerializerByType(field.FieldType)).ToArray();
 
             var bufferSize =
@@ -79,20 +76,11 @@ namespace Wire.Compilation
                     read = c.Convert(read, field.FieldType);
                 }
 
-                // if (field.IsInitOnly)
-                // {
-                //     //TODO: fix this
-                //     var assignReadToField = c.WriteReadonlyField(field, target, read);
-                //     c.Emit(assignReadToField);
-                // }
-                // else
-                // {
-                    var assignReadToField = c.WriteField(field, target, read);
-                    c.Emit(assignReadToField);
-                //}
+                var assignReadToField = c.WriteField(field, target, read);
+                c.Emit(assignReadToField);
             }
 
-            c.Emit(c.Convert(target,typeof(object)));
+            c.Emit(c.Convert(target, typeof(object)));
 
             var readAllFields = c.Compile();
             return readAllFields;
@@ -110,7 +98,7 @@ namespace Wire.Compilation
 
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
-        private ObjectWriter GetFieldsWriter(Serializer serializer,  IEnumerable<FieldInfo> fields,
+        private ObjectWriter GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields,
             out int preallocatedBufferSize)
         {
             var c = new Compiler<ObjectWriter>();

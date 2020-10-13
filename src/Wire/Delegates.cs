@@ -13,9 +13,7 @@ namespace Wire
 
     //Writes an entire object to a stream, including manifests
     public delegate void ObjectWriter(Stream stream, object obj, SerializerSession session);
-    
-    
 
-    
+
     public delegate object TypedArray(object obj);
 }

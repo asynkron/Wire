@@ -18,7 +18,6 @@ namespace Wire.ValueSerializers
 
         private CharSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
-
         }
 
         public override int PreallocatedByteBufferSize => Size;
