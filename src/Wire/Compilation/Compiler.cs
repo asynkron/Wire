@@ -120,17 +120,10 @@ namespace Wire.Compilation
         public TDel Compile()
         {
             var lambda = GetLambdaExpression();
-            var debug = lambda.ToCSharpString();
-            var debug2 = lambda.ToExpressionString();
-
-            if (debug.Length > 300)
-            {
-                
-            }
             
             try
             {
-                var res =  lambda.CompileFast<TDel>(); //TODO. does this work?
+                var res =  lambda.CompileFast<TDel>(); 
                 return res;
             }
             catch (Exception x)

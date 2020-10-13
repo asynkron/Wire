@@ -79,17 +79,17 @@ namespace Wire.Compilation
                     read = c.Convert(read, field.FieldType);
                 }
 
-                if (field.IsInitOnly)
-                {
-                    //TODO: fix this
-                    var assignReadToField = c.WriteReadonlyField(field, target, read);
-                    c.Emit(assignReadToField);
-                }
-                else
-                {
+                // if (field.IsInitOnly)
+                // {
+                //     //TODO: fix this
+                //     var assignReadToField = c.WriteReadonlyField(field, target, read);
+                //     c.Emit(assignReadToField);
+                // }
+                // else
+                // {
                     var assignReadToField = c.WriteField(field, target, read);
                     c.Emit(assignReadToField);
-                }
+                //}
             }
 
             c.Emit(c.Convert(target,typeof(object)));
