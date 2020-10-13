@@ -37,8 +37,9 @@ namespace Wire
             new DictionarySerializerFactory(),
             new HashSetSerializerFactory(),
             new ArraySerializerFactory(),
-            new ISerializableSerializerFactory(), //TODO: this will mess up the indexes in the serializer payload
-            new EnumerableSerializerFactory()
+            new ISerializableSerializerFactory(), 
+            new EnumerableSerializerFactory(),
+            new EnumSerializerFactory()
         };
 
         internal readonly Type[] KnownTypes;

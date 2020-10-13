@@ -14,7 +14,7 @@ namespace Wire.Internal
         public override bool Equals(object? obj)
         {
             if (obj == null) return false;
-            var other = (ByteArrayKey)obj;
+            var other = (ByteArrayKey) obj;
             return Compare(Bytes, other.Bytes);
         }
 
@@ -23,7 +23,7 @@ namespace Wire.Internal
             return _hashCode;
         }
 
-        private static int GetHashCode( byte[] bytes)
+        private static int GetHashCode(byte[] bytes)
         {
             unchecked
             {

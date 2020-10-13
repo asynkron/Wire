@@ -10,7 +10,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -42,7 +41,6 @@ namespace Wire.SerializerFactories
         private static Type GetEnumerableType(Type type)
         {
             return type
-                
                 .GetInterfaces()
                 .Where(
                     intType =>

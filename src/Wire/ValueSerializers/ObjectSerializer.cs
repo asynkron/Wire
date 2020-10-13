@@ -33,7 +33,6 @@ namespace Wire.ValueSerializers
             // ReSharper disable once AssignNullToNotNullAttribute
             var typeNameBytes = typeName.ToUtf8Bytes();
 
-            
 
             //precalculate the entire manifest for this serializer
             //this helps us to minimize calls to Stream.Write/WriteByte 
@@ -42,7 +41,7 @@ namespace Wire.ValueSerializers
                     .Concat(BitConverter.GetBytes(typeNameBytes.Length))
                     .Concat(typeNameBytes)
                     .ToArray(); //serializer id 255 + assembly qualified name
-            
+
             //initialize reader and writer with dummy handlers that wait until the serializer is fully initialized
             _writer = (stream, o, session) =>
             {

@@ -17,9 +17,15 @@ namespace Wire.SerializerFactories
 {
     public class ExpandoObjectSerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type) => type == typeof(ExpandoObject);
+        public override bool CanSerialize(Serializer serializer, Type type)
+        {
+            return type == typeof(ExpandoObject);
+        }
 
-        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
+        public override bool CanDeserialize(Serializer serializer, Type type)
+        {
+            return CanSerialize(serializer, type);
+        }
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
@@ -31,7 +37,7 @@ namespace Wire.SerializerFactories
 
             object Reader(Stream stream, DeserializerSession session)
             {
-                var instance = (IDictionary<string, object>)Activator.CreateInstance(type)!;
+                var instance = (IDictionary<string, object>) Activator.CreateInstance(type)!;
 
                 if (preserveObjectReferences) session.TrackDeserializedObject(instance);
                 var count = stream.ReadInt32(session);
@@ -47,7 +53,7 @@ namespace Wire.SerializerFactories
             void Writer(Stream stream, object obj, SerializerSession session)
             {
                 if (preserveObjectReferences) session.TrackSerializedObject(obj);
-                var dict = (IDictionary<string, object>)obj;
+                var dict = (IDictionary<string, object>) obj;
                 // ReSharper disable once PossibleNullReferenceException
                 Int32Serializer.WriteValueImpl(stream, dict.Count, session);
                 foreach (var item in dict)

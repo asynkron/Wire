@@ -22,14 +22,12 @@ namespace Wire.Tests
             var expr = Expression.Add(Expression.Constant(1), Expression.Constant(2));
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<BinaryExpression>(stream);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Method, deserialized.Method);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<BinaryExpression>(stream);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Method, deserialized.Method);
         }
 
         [Fact]
@@ -38,18 +36,16 @@ namespace Wire.Tests
             var expr = Expression.Block(new[] {Expression.Constant(1), Expression.Constant(2), Expression.Constant(3)});
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<BlockExpression>(stream);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.Expressions.Count, deserialized.Expressions.Count);
-                Assert.Equal(expr.Expressions[0].ConstantValue(), deserialized.Expressions[0].ConstantValue());
-                Assert.Equal(expr.Expressions[1].ConstantValue(), deserialized.Expressions[1].ConstantValue());
-                Assert.Equal(expr.Result.ConstantValue(), deserialized.Result.ConstantValue());
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<BlockExpression>(stream);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.Expressions.Count, deserialized.Expressions.Count);
+            Assert.Equal(expr.Expressions[0].ConstantValue(), deserialized.Expressions[0].ConstantValue());
+            Assert.Equal(expr.Expressions[1].ConstantValue(), deserialized.Expressions[1].ConstantValue());
+            Assert.Equal(expr.Result.ConstantValue(), deserialized.Result.ConstantValue());
         }
 
 
@@ -59,14 +55,12 @@ namespace Wire.Tests
             var expr = Expression.Catch(typeof(DummyException), Expression.Constant(2));
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<CatchBlock>(stream);
-                Assert.Equal(expr.Test, deserialized.Test);
-                Assert.Equal(expr.Body.ConstantValue(), deserialized.Body.ConstantValue());
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<CatchBlock>(stream);
+            Assert.Equal(expr.Test, deserialized.Test);
+            Assert.Equal(expr.Body.ConstantValue(), deserialized.Body.ConstantValue());
         }
 
 
@@ -76,17 +70,15 @@ namespace Wire.Tests
             var expr = Expression.Condition(Expression.Constant(true), Expression.Constant(1), Expression.Constant(2));
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<ConditionalExpression>(stream);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.Test.ConstantValue(), deserialized.Test.ConstantValue());
-                Assert.Equal(expr.IfTrue.ConstantValue(), deserialized.IfTrue.ConstantValue());
-                Assert.Equal(expr.IfFalse.ConstantValue(), deserialized.IfFalse.ConstantValue());
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<ConditionalExpression>(stream);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.Test.ConstantValue(), deserialized.Test.ConstantValue());
+            Assert.Equal(expr.IfTrue.ConstantValue(), deserialized.IfTrue.ConstantValue());
+            Assert.Equal(expr.IfFalse.ConstantValue(), deserialized.IfFalse.ConstantValue());
         }
 
         [Fact]
@@ -95,15 +87,13 @@ namespace Wire.Tests
             var expr = Expression.Constant(12);
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<ConstantExpression>(stream);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Value, deserialized.Value);
-                Assert.Equal(expr.Type, deserialized.Type);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<ConstantExpression>(stream);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Value, deserialized.Value);
+            Assert.Equal(expr.Type, deserialized.Type);
         }
 
         [Fact]
@@ -112,13 +102,11 @@ namespace Wire.Tests
             var constructorInfo = typeof(Dummy).GetConstructor(new[] {typeof(string)});
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(constructorInfo, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<ConstructorInfo>(stream);
-                Assert.Equal(constructorInfo, deserialized);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(constructorInfo, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<ConstructorInfo>(stream);
+            Assert.Equal(constructorInfo, deserialized);
         }
 
         [Fact]
@@ -128,19 +116,17 @@ namespace Wire.Tests
             var expr = Expression.DebugInfo(info, 1, 2, 3, 4);
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<DebugInfoExpression>(stream);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.Document.FileName, deserialized.Document.FileName);
-                Assert.Equal(expr.EndColumn, deserialized.EndColumn);
-                Assert.Equal(expr.StartColumn, deserialized.StartColumn);
-                Assert.Equal(expr.EndLine, deserialized.EndLine);
-                Assert.Equal(expr.StartLine, deserialized.StartLine);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<DebugInfoExpression>(stream);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.Document.FileName, deserialized.Document.FileName);
+            Assert.Equal(expr.EndColumn, deserialized.EndColumn);
+            Assert.Equal(expr.StartColumn, deserialized.StartColumn);
+            Assert.Equal(expr.EndLine, deserialized.EndLine);
+            Assert.Equal(expr.StartLine, deserialized.StartLine);
         }
 
         [Fact]
@@ -149,14 +135,12 @@ namespace Wire.Tests
             var expr = Expression.Default(typeof(int));
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<DefaultExpression>(stream);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<DefaultExpression>(stream);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
         }
 
         [Fact]
@@ -166,15 +150,13 @@ namespace Wire.Tests
             var expr = Expression.ElementInit(listAddMethod, Expression.Constant(1));
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<ElementInit>(stream);
-                Assert.Equal(expr.AddMethod, deserialized.AddMethod);
-                Assert.Equal(1, deserialized.Arguments.Count);
-                Assert.Equal(expr.Arguments[0].ConstantValue(), deserialized.Arguments[0].ConstantValue());
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<ElementInit>(stream);
+            Assert.Equal(expr.AddMethod, deserialized.AddMethod);
+            Assert.Equal(1, deserialized.Arguments.Count);
+            Assert.Equal(expr.Arguments[0].ConstantValue(), deserialized.Arguments[0].ConstantValue());
         }
 
         [Fact]
@@ -183,13 +165,11 @@ namespace Wire.Tests
             var fieldInfo = typeof(Dummy).GetField("TestField");
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(fieldInfo, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<FieldInfo>(stream);
-                Assert.Equal(fieldInfo, deserialized);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(fieldInfo, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<FieldInfo>(stream);
+            Assert.Equal(fieldInfo, deserialized);
         }
 
         [Fact]
@@ -199,16 +179,14 @@ namespace Wire.Tests
             var expr = Expression.Continue(label);
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<GotoExpression>(stream);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.Kind, deserialized.Kind);
-                Assert.Equal(expr.Target.Name, deserialized.Target.Name);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<GotoExpression>(stream);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.Kind, deserialized.Kind);
+            Assert.Equal(expr.Target.Name, deserialized.Target.Name);
         }
 
         [Fact]
@@ -219,21 +197,19 @@ namespace Wire.Tests
             var expr = Expression.ArrayAccess(arrayExpr, Expression.Constant(1));
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<IndexExpression>(stream);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.Indexer, deserialized.Indexer);
-                Assert.Equal(1, deserialized.Arguments.Count);
-                Assert.Equal(expr.Arguments[0].ConstantValue(), deserialized.Arguments[0].ConstantValue());
-                var actual = (int[]) deserialized.Object.ConstantValue();
-                Assert.Equal(value[0], actual[0]);
-                Assert.Equal(value[1], actual[1]);
-                Assert.Equal(value[2], actual[2]);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<IndexExpression>(stream);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.Indexer, deserialized.Indexer);
+            Assert.Equal(1, deserialized.Arguments.Count);
+            Assert.Equal(expr.Arguments[0].ConstantValue(), deserialized.Arguments[0].ConstantValue());
+            var actual = (int[]) deserialized.Object.ConstantValue();
+            Assert.Equal(value[0], actual[0]);
+            Assert.Equal(value[1], actual[1]);
+            Assert.Equal(value[2], actual[2]);
         }
 
         [Fact]
@@ -245,16 +221,14 @@ namespace Wire.Tests
             var expr = Expression.Invoke(lambda, Expression.Constant(new Dummy()));
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<InvocationExpression>(stream);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.Arguments.Count, deserialized.Arguments.Count);
-                Assert.Equal(expr.Arguments[0].ConstantValue(), deserialized.Arguments[0].ConstantValue());
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<InvocationExpression>(stream);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.Arguments.Count, deserialized.Arguments.Count);
+            Assert.Equal(expr.Arguments[0].ConstantValue(), deserialized.Arguments[0].ConstantValue());
         }
 
         [Fact]
@@ -264,16 +238,14 @@ namespace Wire.Tests
             var expr = Expression.Label(label, Expression.Constant(2));
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<LabelExpression>(stream);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Target.Name, deserialized.Target.Name);
-                Assert.Equal(expr.DefaultValue.ConstantValue(), deserialized.DefaultValue.ConstantValue());
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<LabelExpression>(stream);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Target.Name, deserialized.Target.Name);
+            Assert.Equal(expr.DefaultValue.ConstantValue(), deserialized.DefaultValue.ConstantValue());
         }
 
         [Fact]
@@ -282,14 +254,12 @@ namespace Wire.Tests
             var label = Expression.Label(typeof(int), "testLabel");
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(label, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<LabelTarget>(stream);
-                Assert.Equal(label.Name, deserialized.Name);
-                Assert.Equal(label.Type, deserialized.Type);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(label, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<LabelTarget>(stream);
+            Assert.Equal(label.Name, deserialized.Name);
+            Assert.Equal(label.Type, deserialized.Type);
         }
 
         [Fact]
@@ -300,19 +270,17 @@ namespace Wire.Tests
             var expr = Expression.Lambda(Expression.Call(param, methodInfo, Expression.Constant("s")), param);
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<LambdaExpression>(stream);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.Name, deserialized.Name);
-                Assert.Equal(expr.TailCall, deserialized.TailCall);
-                Assert.Equal(expr.ReturnType, deserialized.ReturnType);
-                Assert.Equal(expr.Parameters.Count, deserialized.Parameters.Count);
-                Assert.Equal(expr.Parameters[0].Name, deserialized.Parameters[0].Name);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<LambdaExpression>(stream);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.Name, deserialized.Name);
+            Assert.Equal(expr.TailCall, deserialized.TailCall);
+            Assert.Equal(expr.ReturnType, deserialized.ReturnType);
+            Assert.Equal(expr.Parameters.Count, deserialized.Parameters.Count);
+            Assert.Equal(expr.Parameters[0].Name, deserialized.Parameters[0].Name);
         }
 
         [Fact]
@@ -323,17 +291,15 @@ namespace Wire.Tests
             var expr = Expression.Loop(Expression.Constant(2), breakLabel, continueLabel);
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<LoopExpression>(stream);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.Body.ConstantValue(), deserialized.Body.ConstantValue());
-                Assert.Equal(expr.BreakLabel.Name, deserialized.BreakLabel.Name);
-                Assert.Equal(expr.ContinueLabel.Name, deserialized.ContinueLabel.Name);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<LoopExpression>(stream);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.Body.ConstantValue(), deserialized.Body.ConstantValue());
+            Assert.Equal(expr.BreakLabel.Name, deserialized.BreakLabel.Name);
+            Assert.Equal(expr.ContinueLabel.Name, deserialized.ContinueLabel.Name);
         }
 
         [Fact]
@@ -343,15 +309,13 @@ namespace Wire.Tests
             var expr = Expression.Bind(property.SetMethod, Expression.Constant(9));
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<MemberAssignment>(stream);
-                Assert.Equal(expr.BindingType, deserialized.BindingType);
-                Assert.Equal(expr.Member, deserialized.Member);
-                Assert.Equal(expr.Expression.ConstantValue(), deserialized.Expression.ConstantValue());
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<MemberAssignment>(stream);
+            Assert.Equal(expr.BindingType, deserialized.BindingType);
+            Assert.Equal(expr.Member, deserialized.Member);
+            Assert.Equal(expr.Expression.ConstantValue(), deserialized.Expression.ConstantValue());
         }
 
         [Fact]
@@ -362,18 +326,16 @@ namespace Wire.Tests
                 Expression.Constant("test string"));
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<MethodCallExpression>(stream);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Method, deserialized.Method);
-                Assert.Equal(expr.Object.ConstantValue(), deserialized.Object.ConstantValue());
-                Assert.Equal(1, deserialized.Arguments.Count);
-                Assert.Equal(expr.Arguments[0].ConstantValue(), deserialized.Arguments[0].ConstantValue());
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<MethodCallExpression>(stream);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Method, deserialized.Method);
+            Assert.Equal(expr.Object.ConstantValue(), deserialized.Object.ConstantValue());
+            Assert.Equal(1, deserialized.Arguments.Count);
+            Assert.Equal(expr.Arguments[0].ConstantValue(), deserialized.Arguments[0].ConstantValue());
         }
 
         [Fact]
@@ -382,13 +344,11 @@ namespace Wire.Tests
             var methodInfo = typeof(Dummy).GetMethod("Fact");
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(methodInfo, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<MethodInfo>(stream);
-                Assert.Equal(methodInfo, deserialized);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(methodInfo, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<MethodInfo>(stream);
+            Assert.Equal(methodInfo, deserialized);
         }
 
         [Fact]
@@ -398,17 +358,15 @@ namespace Wire.Tests
             var expr = Expression.New(ctor, Expression.Constant("test param"));
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<NewExpression>(stream);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.Constructor, deserialized.Constructor);
-                Assert.Equal(expr.Arguments.Count, deserialized.Arguments.Count);
-                Assert.Equal(expr.Arguments[0].ConstantValue(), deserialized.Arguments[0].ConstantValue());
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<NewExpression>(stream);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.Constructor, deserialized.Constructor);
+            Assert.Equal(expr.Arguments.Count, deserialized.Arguments.Count);
+            Assert.Equal(expr.Arguments[0].ConstantValue(), deserialized.Arguments[0].ConstantValue());
         }
 
         [Fact]
@@ -417,15 +375,13 @@ namespace Wire.Tests
             var expr = Expression.Parameter(typeof(int), "p1");
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<ParameterExpression>(stream);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Name, deserialized.Name);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<ParameterExpression>(stream);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Name, deserialized.Name);
         }
 
         [Fact]
@@ -434,13 +390,11 @@ namespace Wire.Tests
             var propertyInfo = typeof(Dummy).GetProperty("TestProperty");
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(propertyInfo, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<PropertyInfo>(stream);
-                Assert.Equal(propertyInfo, deserialized);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(propertyInfo, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<PropertyInfo>(stream);
+            Assert.Equal(propertyInfo, deserialized);
         }
 
         [Fact]
@@ -449,13 +403,11 @@ namespace Wire.Tests
             var info = Expression.SymbolDocument("testFile");
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(info, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<SymbolDocumentInfo>(stream);
-                Assert.Equal(info.FileName, deserialized.FileName);
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(info, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<SymbolDocumentInfo>(stream);
+            Assert.Equal(info.FileName, deserialized.FileName);
         }
 
         [Fact]
@@ -464,16 +416,14 @@ namespace Wire.Tests
             var expr = Expression.Decrement(Expression.Constant(1));
             var serializer = new Serializer();
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(expr, stream);
-                stream.Position = 0;
-                var deserialized = serializer.Deserialize<UnaryExpression>(stream);
-                Assert.Equal(expr.NodeType, deserialized.NodeType);
-                Assert.Equal(expr.Type, deserialized.Type);
-                Assert.Equal(expr.Method, deserialized.Method);
-                Assert.Equal(expr.Operand.ConstantValue(), deserialized.Operand.ConstantValue());
-            }
+            using var stream = new MemoryStream();
+            serializer.Serialize(expr, stream);
+            stream.Position = 0;
+            var deserialized = serializer.Deserialize<UnaryExpression>(stream);
+            Assert.Equal(expr.NodeType, deserialized.NodeType);
+            Assert.Equal(expr.Type, deserialized.Type);
+            Assert.Equal(expr.Method, deserialized.Method);
+            Assert.Equal(expr.Operand.ConstantValue(), deserialized.Operand.ConstantValue());
         }
 
         public struct Dummy

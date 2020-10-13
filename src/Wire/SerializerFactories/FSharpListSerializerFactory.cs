@@ -9,8 +9,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
+using FastExpressionCompiler.LightExpression;
 using Wire.ValueSerializers;
 
 namespace Wire.SerializerFactories
@@ -30,7 +30,6 @@ namespace Wire.SerializerFactories
         private static Type GetEnumerableType(Type type)
         {
             return type
-                
                 .GetInterfaces()
                 .Where(
                     intType =>
@@ -47,7 +46,7 @@ namespace Wire.SerializerFactories
             var call = Expression.Call(method, new Expression[] {castArg});
             var castRes = Expression.Convert(call, typeof(object));
             var lambda = Expression.Lambda<TypedArray>(castRes, arg);
-            var compiled = lambda.Compile();
+            var compiled = lambda.CompileFast();
             return compiled;
         }
 

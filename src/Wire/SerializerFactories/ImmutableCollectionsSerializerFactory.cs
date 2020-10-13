@@ -35,9 +35,9 @@ namespace Wire.SerializerFactories
             return CanSerialize(serializer, type);
         }
 
-        private static Type? GetEnumerableType(Type type) =>
-            type
-                
+        private static Type? GetEnumerableType(Type type)
+        {
+            return type
                 .GetInterfaces()
                 .Where(
                     intType =>
@@ -45,6 +45,7 @@ namespace Wire.SerializerFactories
                         intType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 .Select(intType => intType.GetGenericArguments()[0])
                 .FirstOrDefault();
+        }
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
