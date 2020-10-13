@@ -19,7 +19,7 @@ namespace Wire.SerializerFactories
     {
         public override bool CanSerialize(Serializer serializer, Type type)
         {
-            return type.FullName.StartsWith("Microsoft.FSharp.Collections.FSharpMap`2");
+            return type.FullName!.StartsWith("Microsoft.FSharp.Collections.FSharpMap`2");
         }
 
         public override bool CanDeserialize(Serializer serializer, Type type)

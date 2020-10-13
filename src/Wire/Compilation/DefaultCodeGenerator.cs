@@ -100,7 +100,7 @@ namespace Wire.Compilation
         }
 
         private static void EmitPreallocatedBuffer<T>(Compiler<T> c, int preallocatedBufferSize, Expression session,
-            MethodInfo getBuffer)
+            MethodInfo getBuffer) where T : class
         {
             var size = c.Constant(preallocatedBufferSize);
             var buffer = c.Variable<byte[]>(PreallocatedByteBuffer);

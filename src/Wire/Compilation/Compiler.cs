@@ -10,11 +10,10 @@ using System.Collections.Generic;
 using System.Linq;
 using FastExpressionCompiler.LightExpression;
 using System.Reflection;
-using FastExpressionCompiler;
 
 namespace Wire.Compilation
 {
-    public class Compiler<TDel> 
+    public class Compiler<TDel> where TDel:class
     {
         private readonly List<Expression> _content = new List<Expression>();
         private readonly List<ParameterExpression> _parameters = new List<ParameterExpression>();
@@ -49,7 +48,7 @@ namespace Wire.Compilation
         public Expression CastOrUnbox(Expression value, Type type) =>
             type.IsValueType
                 // ReSharper disable once AssignNullToNotNullAttribute
-                ? Expression.Convert(value, type)
+                ? Expression.Unbox(value, type) //unbox Expression.Unbox(value, type) //TODO fix
                 // ReSharper disable once AssignNullToNotNullAttribute
                 : Expression.Convert(value, type);
 
@@ -94,8 +93,19 @@ namespace Wire.Compilation
         {
             var body = ToBlock();
             var parameters = _parameters.ToArray();
-            var res = (TDel)(object)Expression.Lambda<TDel>(body, parameters).CompileFast();
-            return res;
+            var lambda = Expression.Lambda(body, parameters);
+            var debug = lambda.ToCSharpString();
+            var debug2 = lambda.ToExpressionString();
+
+            try
+            {
+                var res =  lambda.CompileFast<TDel>(); //TODO. does this work?
+                return res;
+            }
+            catch (Exception x)
+            {
+                throw;
+            }
         }
 
         public Expression Convert<T>(Expression value) => Expression.Convert(value, typeof(T));
