@@ -7,7 +7,6 @@
 using System;
 using System.Runtime.Serialization;
 using ProtoBuf;
-using ZeroFormatter;
 
 namespace Wire.PerfTest.Types
 {
@@ -25,164 +24,132 @@ namespace Wire.PerfTest.Types
     [ProtoContract]
     [DataContract]
     [Serializable]
-    [ZeroFormattable]
     public class TypicalPersonData
     {
         private static int counter;
 
         [ProtoMember(1)]
         [DataMember]
-        [Index(0)]
         public virtual string Address1 { get; set; }
 
         [ProtoMember(2)]
         [DataMember]
-        [Index(1)]
         public virtual string Address2 { get; set; }
 
         [ProtoMember(3)]
         [DataMember]
-        [Index(2)]
         public virtual string AddressCity { get; set; }
 
         [ProtoMember(4)]
         [DataMember]
-        [Index(3)]
         public virtual string AddressState { get; set; }
 
         [ProtoMember(5)]
         [DataMember]
-        [Index(4)]
         public virtual string AddressZip { get; set; }
 
         [ProtoMember(6)]
         [DataMember]
-        [Index(5)]
         public virtual double CreditScore { get; set; }
 
         [ProtoMember(7)]
         [DataMember]
-        [Index(6)]
         public virtual DateTime DOB { get; set; }
 
         [ProtoMember(8)]
         [DataMember]
-        [Index(7)]
         public virtual string EMail { get; set; }
 
         [ProtoMember(9)]
         [DataMember]
-        [Index(8)]
         public virtual string FirstName { get; set; }
 
         [ProtoMember(10)]
         [DataMember]
-        [Index(9)]
         public virtual string HomePhone { get; set; }
 
         [ProtoMember(11)]
         [DataMember]
-        [Index(10)]
         public virtual string LastName { get; set; }
 
         [ProtoMember(12)]
         [DataMember]
-        [Index(11)]
         public virtual MaritalStatus MaritalStatus { get; set; }
 
         [ProtoMember(13)]
         [DataMember]
-        [Index(12)]
         public virtual string MiddleName { get; set; }
 
         [ProtoMember(14)]
         [DataMember]
-        [Index(13)]
         public virtual string MobilePhone { get; set; }
 
         [ProtoMember(15)]
         [DataMember]
-        [Index(14)]
         public virtual bool RegisteredToVote { get; set; }
 
         [ProtoMember(16)]
         [DataMember]
-        [Index(15)]
         public virtual decimal Salary { get; set; }
 
         [ProtoMember(17)]
         [DataMember]
-        [Index(16)]
         public virtual int YearsOfService { get; set; }
 
         [ProtoMember(18)]
         [DataMember]
-        [Index(17)]
         public virtual string SkypeID { get; set; }
 
         [ProtoMember(19)]
         [DataMember]
-        [Index(18)]
         public virtual string YahooID { get; set; }
 
         [ProtoMember(20)]
         [DataMember]
-        [Index(19)]
         public virtual string GoogleID { get; set; }
 
         [ProtoMember(21)]
         [DataMember]
-        [Index(20)]
         public virtual string Notes { get; set; }
 
         [ProtoMember(22)]
         [DataMember]
-        [Index(21)]
         public virtual bool? IsSmoker { get; set; }
 
         [ProtoMember(23)]
         [DataMember]
-        [Index(22)]
         public virtual bool? IsLoving { get; set; }
 
         [ProtoMember(24)]
         [DataMember]
-        [Index(23)]
         public virtual bool? IsLoved { get; set; }
 
         [ProtoMember(25)]
         [DataMember]
-        [Index(24)]
         public virtual bool? IsDangerous { get; set; }
 
         [ProtoMember(26)]
         [DataMember]
-        [Index(25)]
         public virtual bool? IsEducated { get; set; }
 
         [ProtoMember(27)]
         [DataMember]
-        [Index(26)]
         public virtual DateTime? LastSmokingDate { get; set; }
 
         [ProtoMember(28)]
         [DataMember]
-        [Index(27)]
         public virtual decimal? DesiredSalary { get; set; }
 
         [ProtoMember(29)]
         [DataMember]
-        [Index(28)]
         public virtual double? ProbabilityOfSpaceFlight { get; set; }
 
         [ProtoMember(30)]
         [DataMember]
-        [Index(29)]
         public virtual int? CurrentFriendCount { get; set; }
 
         [ProtoMember(31)]
         [DataMember]
-        [Index(30)]
         public virtual int? DesiredFriendCount { get; set; }
 
         public static TypicalPersonData MakeRandom()

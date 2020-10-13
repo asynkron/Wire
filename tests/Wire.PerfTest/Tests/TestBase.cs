@@ -18,20 +18,9 @@ using Newtonsoft.Json;
 using NFX.IO;
 using NFX.Serialization.Slim;
 using ServiceStack.Text;
-using ZeroFormatter;
 
 namespace Wire.PerfTest.Tests
 {
-    internal class TestResult
-    {
-        public string TestName { get; set; }
-        public TimeSpan SerializationTime { get; set; }
-        public TimeSpan DeserializationTime { get; set; }
-        public TimeSpan RoundtripTime => SerializationTime + DeserializationTime;
-        public int PayloadSize { get; set; }
-        public bool Success { get; set; }
-    }
-
     //Commented out serializers fail in different ways, throw or produce no output
 
     internal abstract class TestBase<T>
@@ -91,20 +80,18 @@ namespace Wire.PerfTest.Tests
 
         protected virtual void TestAll()
         {
-            SerializeZeroFormatter();
-          //  SerializeZeroFormatterWithPooling();
             SerializeKnownTypesReuseSession();
             SerializeKnownTypes();
             SerializeDefault();
 
             SerializeVersionPreserveObjects();
-            SerializeNFXSlim();
-            SerializeNFXSlimPreregister();
+            // SerializeNFXSlim();
+            // SerializeNFXSlimPreregister();
             SerializeSSText();
             SerializeNetSerializer();
             SerializeProtoBufNet();
-            SerializeJsonNet();
-            SerializeBinaryFormatter();
+            // SerializeJsonNet();
+            // SerializeBinaryFormatter();
         }
 
         private void SaveTestResult(string testName, IEnumerable<TestResult> result)
@@ -118,7 +105,7 @@ namespace Wire.PerfTest.Tests
                 sb.AppendLine(
                     $"{row.TestName} | {(long) row.RoundtripTime.TotalMilliseconds} | {(long) row.SerializationTime.TotalMilliseconds} | {(long) row.DeserializationTime.TotalMilliseconds} | {row.PayloadSize}");
             }
-            var file = testName + ".md";
+            var file = testName + ".MD";
             File.WriteAllText(file, sb.ToString());
         }
 
@@ -345,38 +332,6 @@ namespace Wire.PerfTest.Tests
                 var o = bf.Deserialize(s);
             }, bytes.Length);
         }
-
-        private void SerializeZeroFormatter()
-        {
-            var s = new MemoryStream();
-            ZeroFormatterSerializer.Serialize(s, Value);
-            var bytes = s.ToArray();
-            RunTest("ZeroFormatter", () =>
-                    {
-                        var stream = new MemoryStream();
-                        ZeroFormatterSerializer.Serialize(stream, Value);
-                    },
-                    () =>
-                    {
-                        s.Position = 0;
-                        ZeroFormatterSerializer.Deserialize<T>(s);
-                    }, bytes.Length);
-        }
-
-        // Serializes directly into an array of bytes, which is of faster than a stream
-        // apples vs pears
-        //private void SerializeZeroFormatterWithPooling()
-        //{
-        //    var bytes = ZeroFormatterSerializer.Serialize(Value);
-        //    RunTest("ZeroFormatterWithPooling", () =>
-        //            {
-        //                ZeroFormatterSerializer.Serialize(ref bytes, 0, Value);
-        //            },
-        //            () =>
-        //            {
-        //                ZeroFormatterSerializer.Deserialize<T>(bytes);
-        //            }, bytes.Length);
-        //}
 
         private void SerializeKnownTypesReuseSession()
         {

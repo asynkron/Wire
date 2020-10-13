@@ -24,6 +24,9 @@ namespace Wire.PerfTest
 
         private static void Run()
         {
+            var typicalMessageTest = new TypicalMessageTest();
+            typicalMessageTest.Run(1000000);
+            
             var largeStructTest = new LargeStructTest();
             largeStructTest.Run(1000000);
 
@@ -41,8 +44,7 @@ namespace Wire.PerfTest
             var typicalMessageArrayTest = new TypicalMessageArrayTest();
             typicalMessageArrayTest.Run(10000);
 
-            var typicalMessageTest = new TypicalMessageTest();
-            typicalMessageTest.Run(1000000);
+
 
             Console.ReadLine();
         }

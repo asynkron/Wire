@@ -6,29 +6,18 @@
 
 using System;
 using ProtoBuf;
-using ZeroFormatter;
 
 namespace Wire.PerfTest.Types
 {
-    [ProtoContract]
-    [Serializable]
-    [ZeroFormattable]
+    [ProtoContract, Serializable]
     public class TypicalMessage
     {
-        [ProtoMember(1)]
-        [Index(0)]
-        public virtual string StringProp { get; set; }
+        [ProtoMember(1)] public virtual string StringProp { get; set; }
 
-        [ProtoMember(2)]
-        [Index(1)]
-        public virtual int IntProp { get; set; }
+        [ProtoMember(2)] public virtual int IntProp { get; set; }
 
-        [ProtoMember(3)]
-        [Index(2)]
-        public virtual Guid GuidProp { get; set; }
+        [ProtoMember(3)] public virtual Guid GuidProp { get; set; }
 
-        [ProtoMember(4)]
-        [Index(3)]
-        public virtual DateTime DateProp { get; set; }
+        [ProtoMember(4)] public virtual DateTime DateProp { get; set; }
     }
 }

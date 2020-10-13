@@ -6,13 +6,11 @@
 
 using System;
 using ProtoBuf;
-using ZeroFormatter;
 
 namespace Wire.PerfTest.Types
 {
     [Serializable]
     [ProtoContract]
-    [ZeroFormattable]
     public struct LargeStruct
     {
         private static void A(bool b)
@@ -22,17 +20,13 @@ namespace Wire.PerfTest.Types
                 throw new Exception();
             }
         }
-
-        [Index(0)]
+        
         [ProtoMember(1)]
         public ulong m_val1;
-        [Index(1)]
         [ProtoMember(2)]
         public ulong m_val2;
-        [Index(2)]
         [ProtoMember(3)]
         public ulong m_val3;
-        [Index(3)]
         [ProtoMember(4)]
         public ulong m_val4;
 
