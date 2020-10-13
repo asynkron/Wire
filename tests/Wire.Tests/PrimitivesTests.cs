@@ -164,5 +164,17 @@ namespace Wire.Tests
         {
             SerializeAndAssert((ulong) 123);
         }
+        [Fact]
+        public void CanSerializeEnum()
+        {
+            SerializeAndAssert(Fruit.Banana);
+        }
+    }
+
+    public enum Fruit
+    {
+        Apple,
+        Banana,
+        Cheese
     }
 }
