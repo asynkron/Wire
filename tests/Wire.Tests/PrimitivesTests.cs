@@ -164,7 +164,7 @@ namespace Wire.Tests
         {
             SerializeAndAssert((ulong) 123);
         }
-        
+
         [Fact]
         public void CanSerializeEnum()
         {
