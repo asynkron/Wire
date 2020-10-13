@@ -6,7 +6,7 @@
 
 using System;
 using System.IO;
-using System.Linq.Expressions;
+using FastExpressionCompiler.LightExpression;
 using System.Reflection;
 using Wire.Compilation;
 using Wire.Internal;

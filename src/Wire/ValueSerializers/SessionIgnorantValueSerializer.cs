@@ -6,7 +6,7 @@
 
 using System;
 using System.IO;
-using System.Linq.Expressions;
+using FastExpressionCompiler.LightExpression;
 using System.Reflection;
 using Wire.Compilation;
 
@@ -21,8 +21,8 @@ namespace Wire.ValueSerializers
         private readonly Action<Stream, object> _writeCompiled;
 
         protected SessionIgnorantValueSerializer(byte manifest,
-            Expression<Func<Action<Stream, TElementType>>> writeStaticMethod,
-            Expression<Func<Func<Stream, TElementType>>> readStaticMethod)
+            System.Linq.Expressions.Expression<Func<Action<Stream, TElementType>>> writeStaticMethod,
+            System.Linq.Expressions.Expression<Func<Func<Stream, TElementType>>> readStaticMethod)
         {
             _manifest = manifest;
             _write = GetStatic(writeStaticMethod, typeof(void));

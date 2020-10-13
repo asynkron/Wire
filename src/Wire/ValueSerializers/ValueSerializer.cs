@@ -6,10 +6,11 @@
 
 using System;
 using System.IO;
-using System.Linq.Expressions;
+
 using System.Reflection;
 using Wire.Compilation;
 using Wire.Internal;
+using FastExpressionCompiler.LightExpression;
 
 namespace Wire.ValueSerializers
 {
@@ -49,11 +50,11 @@ namespace Wire.ValueSerializers
             return read;
         }
 
-        protected static MethodInfo GetStatic( LambdaExpression expression,  Type expectedReturnType)
+        protected static MethodInfo GetStatic( System.Linq.Expressions.LambdaExpression expression,  Type expectedReturnType)
         {
-            var unaryExpression = (UnaryExpression) expression.Body;
-            var methodCallExpression = (MethodCallExpression) unaryExpression.Operand;
-            var methodCallObject = (ConstantExpression) methodCallExpression.Object!;
+            var unaryExpression = (System.Linq.Expressions.UnaryExpression) expression.Body;
+            var methodCallExpression = (System.Linq.Expressions.MethodCallExpression) unaryExpression.Operand;
+            var methodCallObject = (System.Linq.Expressions.ConstantExpression) methodCallExpression.Object!;
             var method = (MethodInfo) methodCallObject.Value;
 
             if (method.IsStatic == false) throw new ArgumentException($"Method {method.Name} should be static.");

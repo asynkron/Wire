@@ -5,7 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Linq.Expressions;
+using FastExpressionCompiler.LightExpression;
 using System.Reflection;
 using Wire.Extensions;
 
@@ -22,9 +22,9 @@ namespace Wire.Compilation
         {
             if (type.IsValueType)
             {
-                var x = Expression.Constant(Activator.CreateInstance(type));
-                var convert = Expression.Convert(x, typeof(object));
-                return convert;
+                var x = Expression.Constant(Activator.CreateInstance(type),typeof(object));
+                // var convert = Expression.Convert(x, typeof(object));
+                return x;
             }
 
             var defaultCtor = type.GetConstructor(new Type[] { });

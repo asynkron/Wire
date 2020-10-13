@@ -8,7 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
+using FastExpressionCompiler.LightExpression;
 using System.Reflection;
 using FastExpressionCompiler;
 
@@ -49,7 +49,7 @@ namespace Wire.Compilation
         public Expression CastOrUnbox(Expression value, Type type) =>
             type.IsValueType
                 // ReSharper disable once AssignNullToNotNullAttribute
-                ? Expression.Unbox(value, type)
+                ? Expression.Convert(value, type)
                 // ReSharper disable once AssignNullToNotNullAttribute
                 : Expression.Convert(value, type);
 
@@ -113,7 +113,7 @@ namespace Wire.Compilation
         {
             if (!_content.Any()) _content.Add(Expression.Empty());
 
-            return Expression.Block(_variables.ToArray(), _content);
+            return Expression.Block(_variables.ToArray(), _content.ToArray());
         }
     }
 }
