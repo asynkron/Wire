@@ -23,7 +23,7 @@ namespace Wire.Compilation
         {
             var type = objectSerializer.Type;
             var fields = type.GetFieldInfosForType();
-            var writer = GetFieldsWriter(serializer, fields, out var bufferSize);
+            var writer = GetFieldsWriter(serializer, fields,type, out var bufferSize);
             var reader = GetFieldsReader(serializer, fields, type);
 
             objectSerializer.Initialize(reader, writer, bufferSize);
@@ -93,6 +93,7 @@ namespace Wire.Compilation
                 }
                 catch
                 {
+                    Console.WriteLine(type);
                     Console.WriteLine(debug);
                     throw;
                 }
@@ -116,6 +117,7 @@ namespace Wire.Compilation
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
         private ObjectWriter GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields,
+            Type type,
             out int bufferSize)
         {
             var c = new Compiler<ObjectWriter>();
@@ -191,6 +193,11 @@ namespace Wire.Compilation
                 }
                 catch
                 {
+                    Console.WriteLine(type);
+                    foreach (var f in fields)
+                    {
+                        Console.WriteLine(f);
+                    }
                     Console.WriteLine(debug);
                     throw;
                 }
