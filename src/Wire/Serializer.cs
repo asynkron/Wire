@@ -243,9 +243,10 @@ namespace Wire
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ValueSerializer GetDeserializerByManifest(Stream stream, DeserializerSession session)
         {
-            var first = stream.ReadByte();
-            if (first <= 250) return _deserializerLookup[first];
-            switch (first)
+            //magic byte, a homage to Apache Kafka
+            var magicByte = stream.ReadByte();
+            if (magicByte <= 250) return _deserializerLookup[magicByte];
+            switch (magicByte)
             {
                 case ConsistentArraySerializer.Manifest:
                     return ConsistentArraySerializer.Instance;

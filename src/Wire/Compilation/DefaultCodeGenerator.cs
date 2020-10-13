@@ -23,11 +23,10 @@ namespace Wire.Compilation
         {
             var type = objectSerializer.Type;
             var fields = type.GetFieldInfosForType();
-            int preallocatedBufferSize;
-            var writer = GetFieldsWriter(serializer, fields, out preallocatedBufferSize);
+            var writer = GetFieldsWriter(serializer, fields, out var bufferSize);
             var reader = GetFieldsReader(serializer, fields, type);
 
-            objectSerializer.Initialize(reader, writer, preallocatedBufferSize);
+            objectSerializer.Initialize(reader, writer, bufferSize);
         }
 
         private ObjectReader GetFieldsReader(Serializer serializer, FieldInfo[] fields,
@@ -56,7 +55,7 @@ namespace Wire.Compilation
             var bufferSize =
                 serializers.Length != 0 ? serializers.Max(s => s.PreallocatedByteBufferSize) : 0;
             if (bufferSize > 0)
-                EmitPreallocatedBuffer(c, bufferSize, session,
+                EmitBuffer(c, bufferSize, session,
                     typeof(DeserializerSession).GetMethod(nameof(DeserializerSession.GetBuffer))!);
 
             for (var i = 0; i < fields.Length; i++)
@@ -82,14 +81,32 @@ namespace Wire.Compilation
 
             c.Emit(c.Convert(target, typeof(object)));
 
-            var readAllFields = c.Compile();
-            return readAllFields;
+            var del = c.Compile();
+#if DEBUG
+            var tmp = del;
+            var debug = c.GetLambdaExpression().ToCSharpString();
+            del = (tStream, tSession) =>
+            {
+                try
+                {
+                    return tmp(tStream, tSession);
+                }
+                catch
+                {
+                    Console.WriteLine(debug);
+                    throw;
+                }
+            };
+
+#endif
+            
+            return del;
         }
 
-        private static void EmitPreallocatedBuffer<T>(Compiler<T> c, int preallocatedBufferSize, Expression session,
+        private static void EmitBuffer<T>(Compiler<T> c, int bufferSize, Expression session,
             MethodInfo getBuffer) where T : class
         {
-            var size = c.Constant(preallocatedBufferSize);
+            var size = c.Constant(bufferSize);
             var buffer = c.Variable<byte[]>(PreallocatedByteBuffer);
             var bufferValue = c.Call(getBuffer, session, size);
             var assignBuffer = c.WriteVar(buffer, bufferValue);
@@ -99,7 +116,7 @@ namespace Wire.Compilation
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
         private ObjectWriter GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields,
-            out int preallocatedBufferSize)
+            out int bufferSize)
         {
             var c = new Compiler<ObjectWriter>();
 
@@ -119,10 +136,10 @@ namespace Wire.Compilation
             var fieldsArray = fields.ToArray();
             var serializers = fieldsArray.Select(field => serializer.GetSerializerByType(field.FieldType)).ToArray();
 
-            preallocatedBufferSize = serializers.Length != 0 ? serializers.Max(s => s.PreallocatedByteBufferSize) : 0;
+            bufferSize = serializers.Length != 0 ? serializers.Max(s => s.PreallocatedByteBufferSize) : 0;
 
-            if (preallocatedBufferSize > 0)
-                EmitPreallocatedBuffer(c, preallocatedBufferSize, session,
+            if (bufferSize > 0)
+                EmitBuffer(c, bufferSize, session,
                     typeof(SerializerSession).GetMethod(nameof(SerializerSession.GetBuffer))!);
 
             for (var i = 0; i < fieldsArray.Length; i++)
@@ -160,8 +177,26 @@ namespace Wire.Compilation
                     c.EmitStaticCall(method, stream, converted, vt, vs, preserveReferences, session);
                 }
             }
+            
 
-            return c.Compile();
+            var del = c.Compile();
+#if DEBUG
+            var debug = c.GetLambdaExpression().ToCSharpString();
+            var tmp = del;
+            del = ( tStream,  tObj,  tSession) =>
+            {
+                try
+                {
+                    tmp(tStream, tObj, tSession);
+                }
+                catch
+                {
+                    Console.WriteLine(debug);
+                    throw;
+                }
+            };
+#endif
+            return del;
         }
     }
 }

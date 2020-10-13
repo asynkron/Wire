@@ -80,7 +80,7 @@ namespace Wire.Compilation
         {
             return type.IsValueType
                 // ReSharper disable once AssignNullToNotNullAttribute
-                ? Expression.Unbox(value, type) //unbox Expression.Unbox(value, type) //TODO fix
+                ? Expression.Unbox(value, type)
                 // ReSharper disable once AssignNullToNotNullAttribute
                 : Expression.Convert(value, type);
         }
@@ -122,18 +122,18 @@ namespace Wire.Compilation
             return writeExp;
         }
 
-        public Expression WriteReadonlyField(FieldInfo field, Expression target, Expression value)
-        {
-            var method = typeof(FieldInfo)
-                .GetMethod(nameof(FieldInfo.SetValue), new[] {typeof(object), typeof(object)})!;
-            var fld = Constant(field);
-            var valueToObject = Convert<object>(value);
-            return Call(method, fld, target, valueToObject);
-        }
-
         public TDel Compile()
         {
             var lambda = GetLambdaExpression();
+            var debug = lambda.ToCSharpString();
+            if (debug.Length > 300)
+            {
+                if (debug.Contains("Empty"))
+                {
+                    
+                }
+                
+            }
 
             var res = lambda.CompileFast<TDel>();
             return res;

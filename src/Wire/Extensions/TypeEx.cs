@@ -6,9 +6,7 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using Wire.Internal;
@@ -69,7 +67,8 @@ namespace Wire.Extensions
 
         public static object GetEmptyObject(this Type type)
         {
-            return FormatterServices.GetUninitializedObject(type);
+            var obj = FormatterServices.GetUninitializedObject(type);
+            return obj;
         }
 
         public static bool IsOneDimensionalArray(this Type type)
@@ -80,20 +79,6 @@ namespace Wire.Extensions
         public static bool IsOneDimensionalPrimitiveArray(this Type type)
         {
             return type.IsArray && type.GetArrayRank() == 1 && type.GetElementType()!.IsWirePrimitive();
-        }
-
-        public static byte[] GetTypeManifest(IReadOnlyCollection<byte[]> fieldNames)
-        {
-            IEnumerable<byte> result = new[] {(byte) fieldNames.Count};
-            foreach (var name in fieldNames)
-            {
-                var encodedLength = BitConverter.GetBytes(name.Length);
-                result = result.Concat(encodedLength);
-                result = result.Concat(name);
-            }
-
-            var versionTolerantHeader = result.ToArray();
-            return versionTolerantHeader;
         }
 
         private static Type GetTypeFromManifestName(Stream stream, DeserializerSession session)
