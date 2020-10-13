@@ -10,7 +10,7 @@ namespace Wire.Tests
 {
     public struct StuctValue
     {
-        public string Prop1 { get; set; }
+
         public int Prop2 { get; set; }
     }
 

@@ -14,6 +14,7 @@ using Wire.Extensions;
 using Wire.Internal;
 using Wire.ValueSerializers;
 using FastExpressionCompiler.LightExpression;
+using FastExpressionCompiler;
 
 namespace Wire.Compilation
 {
@@ -39,7 +40,7 @@ namespace Wire.Compilation
             var stream = c.Parameter<Stream>("stream");
             var session = c.Parameter<DeserializerSession>("session");
             var newExpression = c.NewObject(type);
-            var target = c.Variable<object>("target");
+            var target = c.Variable("target",type);
             var assignNewObjectToTarget = c.WriteVar(target, newExpression);
 
             c.Emit(assignNewObjectToTarget);
@@ -52,9 +53,7 @@ namespace Wire.Compilation
 
                 c.EmitCall(trackDeserializedObjectMethod, session, target);
             }
-
-
-            var typedTarget = c.CastOrUnbox(target, type);
+            
             var serializers = fields.Select(field => serializer.GetSerializerByType(field.FieldType)).ToArray();
 
             var bufferSize =
@@ -88,12 +87,12 @@ namespace Wire.Compilation
                 }
                 else
                 {
-                    var assignReadToField = c.WriteField(field, typedTarget, read);
+                    var assignReadToField = c.WriteField(field, target, read);
                     c.Emit(assignReadToField);
                 }
             }
 
-            c.Emit(target);
+            c.Emit(c.Convert(target,typeof(object)));
 
             var readAllFields = c.Compile();
             return readAllFields;

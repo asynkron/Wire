@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FastExpressionCompiler.LightExpression;
 using System.Reflection;
+using Wire.Extensions;
 
 namespace Wire.Compilation
 {
@@ -19,7 +20,27 @@ namespace Wire.Compilation
         private readonly List<ParameterExpression> _parameters = new List<ParameterExpression>();
         private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
 
-        public Expression NewObject(Type type) => ExpressionEx.GetNewExpression(type);
+        public Expression NewObject(Type type)
+        {
+            if (type.IsValueType)
+            {
+                var x = Expression.Constant(Activator.CreateInstance(type),type);
+                // var convert = Expression.Convert(x, typeof(object));
+                return x;
+            }
+
+            var defaultCtor = type.GetConstructor(new Type[] { });
+            var il = defaultCtor?.GetMethodBody()?.GetILAsByteArray();
+            var sideEffectFreeCtor = il != null && il.Length <= 8; //this is the size of an empty ctor
+            if (sideEffectFreeCtor)
+                //the ctor exists and the size is empty. lets use the New operator
+                return Expression.New(defaultCtor);
+
+            var emptyObjectMethod = typeof(TypeEx).GetMethod(nameof(TypeEx.GetEmptyObject));
+            var emptyObject = Expression.Call(null, emptyObjectMethod, Expression.Constant((object) type));
+
+            return emptyObject;
+        }
 
         public Expression Parameter<T>(string name)
         {
@@ -34,6 +55,13 @@ namespace Wire.Compilation
             _variables.Add(exp);
             return exp;
         }
+        
+        public Expression Variable(string name,Type type)
+        {
+            var exp = Expression.Variable(type, name);
+            _variables.Add(exp);
+            return exp;
+        }
 
         public Expression GetVariable<T>(string name)
         {
@@ -43,7 +71,7 @@ namespace Wire.Compilation
             return existing;
         }
 
-        public Expression Constant(object value) => value.ToConstant();
+        public Expression Constant(object value) => Expression.Constant(value);
 
         public Expression CastOrUnbox(Expression value, Type type) =>
             type.IsValueType
@@ -91,12 +119,15 @@ namespace Wire.Compilation
 
         public TDel Compile()
         {
-            var body = ToBlock();
-            var parameters = _parameters.ToArray();
-            var lambda = Expression.Lambda(body, parameters);
+            var lambda = GetLambdaExpression();
             var debug = lambda.ToCSharpString();
             var debug2 = lambda.ToExpressionString();
 
+            if (debug.Length > 300)
+            {
+                
+            }
+            
             try
             {
                 var res =  lambda.CompileFast<TDel>(); //TODO. does this work?
@@ -106,6 +137,14 @@ namespace Wire.Compilation
             {
                 throw;
             }
+        }
+
+        public LambdaExpression GetLambdaExpression()
+        {
+            var body = ToBlock();
+            var parameters = _parameters.ToArray();
+            var lambda = Expression.Lambda(body, parameters);
+            return lambda;
         }
 
         public Expression Convert<T>(Expression value) => Expression.Convert(value, typeof(T));

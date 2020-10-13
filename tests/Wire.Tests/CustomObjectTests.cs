@@ -151,7 +151,7 @@ namespace Wire.Tests
         {
             var expected = new StuctValue
             {
-                Prop1 = "hello",
+                //Prop1 = "hello",
                 Prop2 = 123
             };
 
