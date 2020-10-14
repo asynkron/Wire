@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wire", "src\Wire\Wire.cspro
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wire.Tests", "tests\Wire.Tests\Wire.Tests.csproj", "{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire.PerfTest", "tests\Wire.PerfTest\Wire.PerfTest.csproj", "{87DA9ABC-831A-4024-8781-D6CEF0C7F1FC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", "{CC15E48C-2BA5-4584-AADC-3EBC46EE0739}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire.CompareToMarket", "benchmarks\Wire.CompareToMarket\Wire.CompareToMarket.csproj", "{BBD1D864-4EB1-4B5C-9E31-B8253F997F9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +29,10 @@ Global
 		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{87DA9ABC-831A-4024-8781-D6CEF0C7F1FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{87DA9ABC-831A-4024-8781-D6CEF0C7F1FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{87DA9ABC-831A-4024-8781-D6CEF0C7F1FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{87DA9ABC-831A-4024-8781-D6CEF0C7F1FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBD1D864-4EB1-4B5C-9E31-B8253F997F9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBD1D864-4EB1-4B5C-9E31-B8253F997F9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBD1D864-4EB1-4B5C-9E31-B8253F997F9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBD1D864-4EB1-4B5C-9E31-B8253F997F9A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -38,6 +40,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0E200D3D-224F-454D-80A9-CCC6CF1E577C} = {C75E620D-91F2-4AC3-8115-055E470A83E1}
 		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
-		{87DA9ABC-831A-4024-8781-D6CEF0C7F1FC} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
+		{BBD1D864-4EB1-4B5C-9E31-B8253F997F9A} = {CC15E48C-2BA5-4584-AADC-3EBC46EE0739}
 	EndGlobalSection
 EndGlobal
