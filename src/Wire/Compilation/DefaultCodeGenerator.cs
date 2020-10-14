@@ -70,9 +70,9 @@ namespace Wire.Compilation
                 }
                 else
                 {
-                    var method = typeof(StreamEx).GetMethod(nameof(StreamEx.ReadObject))!;
-                    read = c.StaticCall(method, stream, session);
-                    read = c.Convert(read, field.FieldType);
+                    var readMethod = typeof(StreamEx).GetMethod(nameof(StreamEx.ReadObject))!;
+                    var callReadMethod = c.StaticCall(readMethod, stream, session);
+                    read = c.Convert(callReadMethod, field.FieldType);
                 }
 
                 var assignReadToField = c.WriteField(field, target, read);
