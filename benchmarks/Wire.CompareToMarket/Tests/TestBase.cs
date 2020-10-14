@@ -87,7 +87,7 @@ namespace Wire.PerfTest.Tests
             SerializeVersionPreserveObjects();
             // SerializeNFXSlim();
             // SerializeNFXSlimPreregister();
-            SerializeSSText();
+            // SerializeSSText();
             SerializeNetSerializer();
             SerializeProtoBufNet();
             // SerializeJsonNet();
@@ -337,8 +337,8 @@ namespace Wire.PerfTest.Tests
         {
             var types = typeof(T).Namespace.StartsWith("System") ? null : new[] {typeof(T)};
             var serializer = new Serializer(new SerializerOptions(knownTypes: types));
-            var ss = serializer.GetSerializerSession();
-            var ds = serializer.GetDeserializerSession();
+            using var ss = serializer.GetSerializerSession();
+            using var ds = serializer.GetDeserializerSession();
             var s = new MemoryStream();
             serializer.Serialize(Value, s, ss);
             var bytes = s.ToArray();

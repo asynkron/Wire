@@ -143,8 +143,7 @@ namespace Wire
         public void Serialize(object obj, Stream stream)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
-            var session = GetSerializerSession();
-
+            using var session = GetSerializerSession();
             var type = obj.GetType();
             var s = GetSerializerByType(type);
             s.WriteManifest(stream, session);
@@ -158,7 +157,7 @@ namespace Wire
 
         public T Deserialize<T>(Stream stream)
         {
-            var session = GetDeserializerSession();
+            using var session = GetDeserializerSession();
             var s = GetDeserializerByManifest(stream, session);
             return (T) s.ReadValue(stream, session);
         }

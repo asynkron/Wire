@@ -5,25 +5,24 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using IntToObjectLookup = System.Collections.Generic.List<object>;
 using IntToTypeLookup = System.Collections.Generic.List<System.Type>;
 
 namespace Wire
 {
     public class
-        DeserializerSession
+        DeserializerSession : IDisposable
     {
-        private const int MinBufferSize = 9;
         private readonly IntToObjectLookup _objectById = null!;
         private readonly int _offset;
         public readonly Serializer Serializer;
-        private byte[] _buffer;
+        private byte[] _buffer = ArrayPool<byte>.Shared.Rent(256);
         private IntToTypeLookup? _identifierToType;
 
         public DeserializerSession(Serializer serializer)
         {
             Serializer = serializer;
-            _buffer = new byte[MinBufferSize];
             if (serializer.Options.PreserveObjectReferences) _objectById = new IntToObjectLookup(1);
 
             _offset = serializer.Options.KnownTypes.Length;
@@ -34,8 +33,9 @@ namespace Wire
             if (length <= _buffer.Length) return _buffer;
 
             length = Math.Max(length, _buffer.Length * 2);
-
-            _buffer = new byte[length];
+            
+            ArrayPool<byte>.Shared.Return(_buffer);
+            _buffer = ArrayPool<byte>.Shared.Rent(length);
 
             return _buffer;
         }
@@ -62,6 +62,11 @@ namespace Wire
             if (_identifierToType == null) throw new ArgumentException(nameof(typeId));
 
             return _identifierToType[typeId - _offset];
+        }
+
+        public void Dispose()
+        {
+            ArrayPool<byte>.Shared.Return(_buffer);
         }
     }
 }

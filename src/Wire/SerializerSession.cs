@@ -5,20 +5,20 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 
 namespace Wire
 {
-    public class SerializerSession
+    public class SerializerSession : IDisposable
     {
-        private const int MinBufferSize = 9;
         private readonly ushort _nextTypeId;
         private readonly Dictionary<object, int> _objects = null!;
         public readonly Serializer Serializer;
-        private byte[] _buffer = new byte[MinBufferSize];
+        private byte[] _buffer = ArrayPool<byte>.Shared.Rent(256);
 
         private int _nextObjectId;
-        private LinkedList<Type> _trackedTypes = null!;
+        private LinkedList<Type>? _trackedTypes;
 
         public SerializerSession(Serializer serializer)
         {
@@ -54,8 +54,9 @@ namespace Wire
             if (length <= _buffer.Length) return _buffer;
 
             length = Math.Max(length, _buffer.Length * 2);
-
-            _buffer = new byte[length];
+            
+            ArrayPool<byte>.Shared.Return(_buffer);
+            _buffer = ArrayPool<byte>.Shared.Rent(length);
 
             return _buffer;
         }
@@ -88,6 +89,11 @@ namespace Wire
         {
             _trackedTypes ??= new LinkedList<Type>();
             _trackedTypes.AddLast(type);
+        }
+
+        public void Dispose()
+        {
+            ArrayPool<byte>.Shared.Return(_buffer);
         }
     }
 }

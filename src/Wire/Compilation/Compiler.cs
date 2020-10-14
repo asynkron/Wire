@@ -24,9 +24,7 @@ namespace Wire.Compilation
         {
             if (type.IsValueType)
             {
-                var x = Expression.Constant(Activator.CreateInstance(type), type);
-                // var convert = Expression.Convert(x, typeof(object));
-                return x;
+                return Expression.Default(type);
             }
 
             var defaultCtor = type.GetConstructor(new Type[] { });
@@ -122,22 +120,7 @@ namespace Wire.Compilation
             return writeExp;
         }
 
-        public TDel Compile()
-        {
-            var lambda = GetLambdaExpression();
-            var debug = lambda.ToCSharpString();
-            if (debug.Length > 300)
-            {
-                if (debug.Contains("Empty"))
-                {
-                    
-                }
-                
-            }
-
-            var res = lambda.CompileFast<TDel>();
-            return res;
-        }
+        public TDel Compile() => GetLambdaExpression().CompileFast<TDel>();
 
         public LambdaExpression GetLambdaExpression()
         {

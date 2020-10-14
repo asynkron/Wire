@@ -44,6 +44,7 @@
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2020.2.0-eap" />
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="5.0.0-rc.2.20475.17" />
   </ItemGroup>
 
   <ItemGroup>
