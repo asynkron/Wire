@@ -85,7 +85,8 @@ namespace Wire.Compilation
 #if DEBUG
             var tmp = del;
             var debug = c.GetLambdaExpression().ToCSharpString();
-            del = (tStream, tSession) =>
+
+            object Del(Stream tStream, DeserializerSession tSession)
             {
                 try
                 {
@@ -97,7 +98,9 @@ namespace Wire.Compilation
                     Console.WriteLine(debug);
                     throw;
                 }
-            };
+            }
+
+            del = Del;
 
 #endif
             
@@ -185,7 +188,8 @@ namespace Wire.Compilation
 #if DEBUG
             var debug = c.GetLambdaExpression().ToCSharpString();
             var tmp = del;
-            del = ( tStream,  tObj,  tSession) =>
+
+            void Del(Stream tStream, object tObj, SerializerSession tSession)
             {
                 try
                 {
@@ -198,10 +202,13 @@ namespace Wire.Compilation
                     {
                         Console.WriteLine(f);
                     }
+
                     Console.WriteLine(debug);
                     throw;
                 }
-            };
+            }
+
+            del = Del;
 #endif
             return del;
         }
