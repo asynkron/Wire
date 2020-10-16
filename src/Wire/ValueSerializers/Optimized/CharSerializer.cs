@@ -30,7 +30,7 @@ namespace Wire.ValueSerializers
 
         private static void WriteValueImpl(Stream stream, char ch, byte[] bytes)
         {
-            NoAllocBitConverter.GetBytes(ch, bytes);
+            BitConverter.TryWriteBytes( bytes,ch);
             stream.Write(bytes, 0, Size);
         }
     }

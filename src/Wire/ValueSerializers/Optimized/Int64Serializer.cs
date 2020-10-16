@@ -24,7 +24,7 @@ namespace Wire.ValueSerializers
 
         private static void WriteValueImpl(Stream stream, long l, byte[] bytes)
         {
-            NoAllocBitConverter.GetBytes(l, bytes);
+            BitConverter.TryWriteBytes(bytes, l);
             stream.Write(bytes, 0, Size);
         }
 
