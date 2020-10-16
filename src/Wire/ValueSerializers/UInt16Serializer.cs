@@ -10,7 +10,7 @@ using Wire.Internal;
 
 namespace Wire.ValueSerializers
 {
-    public class UInt16Serializer : SessionAwareByteArrayRequiringValueSerializer<ushort>
+    public class UInt16Serializer : SessionAwareValueSerializer<ushort>
     {
         public const byte Manifest = 17;
         private const int Size = sizeof(ushort);

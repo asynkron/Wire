@@ -10,7 +10,7 @@ using Wire.Internal;
 
 namespace Wire.ValueSerializers
 {
-    public class UInt64Serializer : SessionAwareByteArrayRequiringValueSerializer<ulong>
+    public class UInt64Serializer : SessionAwareValueSerializer<ulong>
     {
         public const byte Manifest = 19;
         private const int Size = sizeof(ulong);

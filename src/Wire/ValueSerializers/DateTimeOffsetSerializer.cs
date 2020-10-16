@@ -10,7 +10,7 @@ using Wire.Internal;
 
 namespace Wire.ValueSerializers
 {
-    public class DateTimeOffsetSerializer : SessionAwareByteArrayRequiringValueSerializer<DateTimeOffset>
+    public class DateTimeOffsetSerializer : SessionAwareValueSerializer<DateTimeOffset>
     {
         public const byte Manifest = 10;
         public const int Size = sizeof(long) + sizeof(byte) + sizeof(short);

@@ -12,7 +12,7 @@ using Wire.Compilation;
 
 namespace Wire.ValueSerializers
 {
-    public abstract class SessionAwareByteArrayRequiringValueSerializer<TElementType> : ValueSerializer
+    public abstract class SessionAwareValueSerializer<TElementType> : ValueSerializer
     {
         private readonly byte _manifest;
         private readonly MethodInfo _read;
@@ -20,7 +20,7 @@ namespace Wire.ValueSerializers
         private readonly MethodInfo _write;
         private readonly Action<Stream, object, byte[]> _writeCompiled;
 
-        protected SessionAwareByteArrayRequiringValueSerializer(byte manifest,
+        protected SessionAwareValueSerializer(byte manifest,
             Expression<Func<Action<Stream, TElementType, byte[]>>> writeStaticMethod,
             Expression<Func<Func<Stream, byte[], TElementType>>> readStaticMethod)
         {
