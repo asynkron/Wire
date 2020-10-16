@@ -27,7 +27,7 @@ namespace Wire
         private readonly ConcurrentDictionary<Type, ValueSerializer> _serializers =
             new ConcurrentDictionary<Type, ValueSerializer>();
 
-        public readonly ICodeGenerator CodeGenerator = new DefaultCodeGenerator();
+        public readonly SerializerCompiler CodeGenerator = new SerializerCompiler();
         public readonly SerializerOptions Options;
 
         public Serializer() : this(new SerializerOptions())

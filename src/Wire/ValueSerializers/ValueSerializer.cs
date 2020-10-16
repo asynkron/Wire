@@ -23,7 +23,7 @@ namespace Wire.ValueSerializers
         ///     The byte[] value will be accessible in <see cref="ValueSerializer.EmitWriteValue" /> and
         ///     <see cref="ValueSerializer.EmitReadValue" /> in the <see cref="ICompiler{TDel}" /> with
         ///     <see cref="ICompiler{TDel}.GetVariable{T}" /> under following name
-        ///     <see cref="DefaultCodeGenerator.PreallocatedByteBuffer" />.
+        ///     <see cref="SerializerCompiler.PreallocatedByteBuffer" />.
         /// </summary>
         public virtual int PreallocatedByteBufferSize => 0;
 

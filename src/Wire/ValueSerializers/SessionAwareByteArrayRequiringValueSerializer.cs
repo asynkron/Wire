@@ -64,7 +64,7 @@ namespace Wire.ValueSerializers
             FastExpressionCompiler.LightExpression.Expression fieldValue,
             FastExpressionCompiler.LightExpression.Expression session)
         {
-            var byteArray = c.GetVariable<byte[]>(DefaultCodeGenerator.PreallocatedByteBuffer);
+            var byteArray = c.GetVariable<byte[]>(SerializerCompiler.PreallocatedByteBuffer);
             c.EmitStaticCall(_write, stream, fieldValue, byteArray);
         }
 
@@ -77,7 +77,7 @@ namespace Wire.ValueSerializers
             FastExpressionCompiler.LightExpression.Expression stream,
             FastExpressionCompiler.LightExpression.Expression session, FieldInfo field)
         {
-            var byteArray = c.GetVariable<byte[]>(DefaultCodeGenerator.PreallocatedByteBuffer);
+            var byteArray = c.GetVariable<byte[]>(SerializerCompiler.PreallocatedByteBuffer);
             return c.StaticCall(_read, stream, byteArray);
         }
 

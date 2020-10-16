@@ -15,7 +15,7 @@ using Wire.ValueSerializers;
 
 namespace Wire.Compilation
 {
-    public class DefaultCodeGenerator : ICodeGenerator
+    public class SerializerCompiler 
     {
         public const string PreallocatedByteBuffer = nameof(PreallocatedByteBuffer);
 
@@ -85,6 +85,9 @@ namespace Wire.Compilation
 #if DEBUG
             var tmp = del;
             var debug = c.GetLambdaExpression().ToCSharpString();
+            Console.WriteLine($"{type.Name}----");
+            Console.WriteLine(debug);
+            Console.WriteLine($"------------");
 
             object Del(Stream tStream, DeserializerSession tSession)
             {
@@ -187,6 +190,10 @@ namespace Wire.Compilation
             var del = c.Compile();
 #if DEBUG
             var debug = c.GetLambdaExpression().ToCSharpString();
+            Console.WriteLine($"{type.Name}----");
+            Console.WriteLine(debug);
+            Console.WriteLine($"------------");
+            
             var tmp = del;
 
             void Del(Stream tStream, object tObj, SerializerSession tSession)
