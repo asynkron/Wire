@@ -163,11 +163,11 @@ namespace Wire.Extensions
             return value;
         }
         
-        public static object ReadObjectTyped<T>(this Stream stream, DeserializerSession session)
+        public static T ReadObjectTyped<T>(this Stream stream, DeserializerSession session)
         {
             var s = session.Serializer.GetDeserializerByManifest(stream, session);
             var value = s.ReadValue(stream, session); //read the element value
-            return (T)value!;
+            return (T)value;
         }
 
         public static string? ReadString(this Stream stream, DeserializerSession session)
