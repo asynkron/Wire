@@ -6,6 +6,9 @@
 
 using System;
 using System.IO;
+using System.Reflection;
+using FastExpressionCompiler.LightExpression;
+using Wire.Compilation;
 using Wire.Extensions;
 using Wire.Internal;
 
@@ -22,7 +25,7 @@ namespace Wire.ValueSerializers
             stream.Write(bytes, 0, byteCount);
         }
 
-        private static string ReadValueImpl(Stream stream, DeserializerSession session)
+        public static string ReadValueImpl(Stream stream, DeserializerSession session)
         {
             return stream.ReadString(session!)!;
         }
@@ -37,9 +40,22 @@ namespace Wire.ValueSerializers
             WriteValueImpl(stream, (string) value, session);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public override object? ReadValue(Stream stream, DeserializerSession session)
         {
             return ReadValueImpl(stream, session);
+        }
+
+        public override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session, FieldInfo field)
+        {
+            var readMethod =  typeof(StringSerializer).GetMethod(nameof(ReadValueImpl),BindingFlagsEx.Static)!;
+            var read = c.StaticCall(readMethod, stream, session);
+            return read;
+        }
+
+        public override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue, Expression session)
+        {
+            var writeMethod =  typeof(StringSerializer).GetMethod(nameof(WriteValueImpl),BindingFlagsEx.Static)!;
+            c.EmitStaticCall(writeMethod, stream, fieldValue, session);
         }
 
         public override Type GetElementType()

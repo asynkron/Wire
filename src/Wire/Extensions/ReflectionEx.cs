@@ -14,6 +14,7 @@ namespace Wire.Extensions
     public static class BindingFlagsEx
     {
         public const BindingFlags All = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+        public const BindingFlags Static = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static;
     }
 
     public static class ReflectionEx
