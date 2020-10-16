@@ -74,7 +74,7 @@ namespace Wire.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe byte[] GetBytes(string str, SerializerSession session, out int byteCount)
+        internal static unsafe byte[] GetLengthEncodedBytes(string? str, SerializerSession session, out int byteCount)
         {
             //if first byte is 0 = null
             //if first byte is 254 or less, then length is value - 1
@@ -84,6 +84,7 @@ namespace Wire.Internal
                 byteCount = 1;
                 return new[] {(byte) 0};
             }
+            
 
             byteCount = Utf8.GetByteCount(str);
             if (byteCount < 254) //short string

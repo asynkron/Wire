@@ -21,7 +21,7 @@ namespace Wire.ValueSerializers
 
         public static void WriteValueImpl(Stream stream, string s, SerializerSession session)
         {
-            var bytes = NoAllocBitConverter.GetBytes(s, session, out var byteCount);
+            var bytes = NoAllocBitConverter.GetLengthEncodedBytes(s, session, out var byteCount);
             stream.Write(bytes, 0, byteCount);
         }
 
@@ -52,11 +52,11 @@ namespace Wire.ValueSerializers
             return read;
         }
 
-        // public override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue, Expression session)
-        // {
-        //     var writeMethod =  typeof(StringSerializer).GetMethod(nameof(WriteValueImpl),BindingFlagsEx.Static)!;
-        //     c.EmitStaticCall(writeMethod, stream, fieldValue, session);
-        // }
+        public override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue, Expression session)
+        {
+            var writeMethod =  typeof(StringSerializer).GetMethod(nameof(WriteValueImpl),BindingFlagsEx.Static)!;
+            c.EmitStaticCall(writeMethod, stream, fieldValue, session);
+        }
 
         public override Type GetElementType()
         {
