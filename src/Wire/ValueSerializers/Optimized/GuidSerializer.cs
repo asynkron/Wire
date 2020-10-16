@@ -9,7 +9,7 @@ using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class GuidSerializer : SessionIgnorantValueSerializer<Guid>
+    public class GuidSerializer : SessionAwareValueSerializer<Guid>
     {
         public const byte Manifest = 11;
         public static readonly GuidSerializer Instance = new GuidSerializer();
@@ -18,17 +18,20 @@ namespace Wire.ValueSerializers
         {
         }
 
-        private static void WriteValueImpl(Stream stream, Guid g)
+        public override int PreallocatedByteBufferSize => 16;
+
+        private static void WriteValueImpl(Stream stream, Guid g, byte[] bytes)
         {
-            var bytes = g.ToByteArray();
-            stream.Write(bytes);
+            var span = bytes.AsSpan(0, 16);
+            g.TryWriteBytes(span);
+            stream.Write(span);
         }
 
-        private static Guid ReadValueImpl(Stream stream)
+        private static Guid ReadValueImpl(Stream stream,byte[] bytes)
         {
-            var buffer = new byte[16];
-            stream.Read(buffer, 0, 16);
-            return new Guid(buffer);
+            stream.Read(bytes, 0, 16);
+            var span = bytes.AsSpan(0, 16);
+            return new Guid(span);
         }
     }
 }
