@@ -17,7 +17,7 @@ namespace Wire.Extensions
         {
             var span = self.GetSpan(b.Length);
             b.CopyTo(span);
-            self.Advance(1);
+            self.Advance(b.Length);
         }
         
         public static void WriteLengthEncodedByteArray(this IBufferWriter<byte> self, byte[] bytes)
