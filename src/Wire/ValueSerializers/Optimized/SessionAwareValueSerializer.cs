@@ -66,7 +66,7 @@ namespace Wire.ValueSerializers
             FastExpressionCompiler.LightExpression.Expression fieldValue,
             FastExpressionCompiler.LightExpression.Expression session)
         {
-            var size = c.GetVariable<int>(SerializerCompiler.PreallocatedByteBuffer);
+            var size = c.Constant(PreallocatedByteBufferSize);
             c.EmitStaticCall(_write, stream, fieldValue, size);
         }
 

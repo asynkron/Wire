@@ -63,8 +63,8 @@ namespace Wire.Compilation
 
         public Expression GetVariable<T>(string name)
         {
-            var existing = _variables.First(v => v.Name == name && v.Type == typeof(T));
-            if (existing == null) throw new Exception("Variable not found.");
+            var existing = _variables.FirstOrDefault(v => v.Name == name && v.Type == typeof(T));
+            if (existing == null) throw new Exception("Variable not found " + name);
 
             return existing;
         }

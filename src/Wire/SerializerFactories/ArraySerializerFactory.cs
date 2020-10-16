@@ -26,9 +26,13 @@ namespace Wire.SerializerFactories
             return CanSerialize(serializer, type);
         }
 
-        private static void WriteValueImpl<T>(IBufferWriter<byte> stream, T[] array, Type elementType,
+        private static void WriteValueImpl<T>( 
+            T[] array,
+            IBufferWriter<byte> stream, 
+            Type elementType,
             ValueSerializer elementSerializer,
-            SerializerSession session, bool preserveObjectReferences)
+            SerializerSession session, 
+            bool preserveObjectReferences)
         {
             if (preserveObjectReferences) session.TrackSerializedObject(array);
 
@@ -76,9 +80,17 @@ namespace Wire.SerializerFactories
 
             void Writer(IBufferWriter<byte> stream, object arr, SerializerSession session)
             {
+                var parameters = new[]
+                {
+                    arr, 
+                    stream, 
+                    elementType, 
+                    elementSerializer, 
+                    session, 
+                    preserveObjectReferences
+                };
                 //T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer, SerializerSession session, bool preserveObjectReferences
-                writeGeneric.Invoke(null,
-                    new[] {arr, stream, elementType, elementSerializer, session, preserveObjectReferences});
+                writeGeneric.Invoke(null, parameters);
             }
 
             arraySerializer.Initialize(Reader, Writer);
