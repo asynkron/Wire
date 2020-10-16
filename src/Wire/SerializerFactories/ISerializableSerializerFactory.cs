@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -48,7 +49,7 @@ namespace Wire.SerializerFactories
                 return instance;
             }
 
-            void Writer(Stream stream, object o, SerializerSession session)
+            void Writer(IBufferWriter<byte> stream, object o, SerializerSession session)
             {
                 var info = new SerializationInfo(type, new FormatterConverter());
                 var serializable = o as ISerializable;

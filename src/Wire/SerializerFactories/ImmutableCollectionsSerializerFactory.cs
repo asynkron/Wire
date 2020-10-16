@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -71,7 +72,7 @@ namespace Wire.SerializerFactories
                 .First(methodInfo => methodInfo.Name == "CreateRange" && methodInfo.GetParameters().Length == 1)
                 .MakeGenericMethod(genericTypes);
 
-            void Writer(Stream stream, object o, SerializerSession session)
+            void Writer(IBufferWriter<byte> stream, object o, SerializerSession session)
             {
                 var enumerable = o as ICollection;
                 if (enumerable == null)

@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
@@ -43,7 +44,7 @@ namespace Wire.SerializerFactories
                 return field;
             }
 
-            static void Writer(Stream stream, object obj, SerializerSession session)
+            static void Writer(IBufferWriter<byte> stream, object obj, SerializerSession session)
             {
                 var field = (FieldInfo) obj;
                 var name = field.Name;

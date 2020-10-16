@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
 using Wire.Extensions;
 
@@ -15,16 +16,15 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 9;
         public static readonly ByteArraySerializer Instance = new ByteArraySerializer();
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
             var bytes = (byte[]) value;
-            stream.WriteLengthEncodedByteArray(bytes, session);
-
+            stream.WriteLengthEncodedByteArray(bytes);
             if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(bytes);
         }
 

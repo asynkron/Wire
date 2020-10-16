@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
@@ -63,7 +64,7 @@ namespace Wire.SerializerFactories
                 return exception;
             }
 
-            void Writer(Stream stream, object exception, SerializerSession session)
+            void Writer(IBufferWriter<byte> stream, object exception, SerializerSession session)
             {
                 //        var className = (string) _className.GetValue(exception);
                 var message = (string) _message.GetValue(exception);

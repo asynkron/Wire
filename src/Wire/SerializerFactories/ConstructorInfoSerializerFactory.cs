@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace Wire.SerializerFactories
                 return ctor;
             }
 
-            static void Writer(Stream stream, object obj, SerializerSession session)
+            static void Writer(IBufferWriter<byte> stream, object obj, SerializerSession session)
             {
                 var ctor = (ConstructorInfo) obj;
                 var owner = ctor.DeclaringType;

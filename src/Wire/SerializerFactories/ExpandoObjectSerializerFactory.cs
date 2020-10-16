@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -50,7 +51,7 @@ namespace Wire.SerializerFactories
                 return instance;
             }
 
-            void Writer(Stream stream, object obj, SerializerSession session)
+            void Writer(IBufferWriter<byte> stream, object obj, SerializerSession session)
             {
                 if (preserveObjectReferences) session.TrackSerializedObject(obj);
                 var dict = (IDictionary<string, object>) obj;

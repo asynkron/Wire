@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -95,7 +96,7 @@ namespace Wire.SerializerFactories
                 return instance;
             }
 
-            void Writer(Stream stream, object o, SerializerSession session)
+            void Writer(IBufferWriter<byte> stream, object o, SerializerSession session)
             {
                 if (preserveObjectReferences) session.TrackSerializedObject(o);
                 Int32Serializer.WriteValueImpl(stream, CountGetter(o));

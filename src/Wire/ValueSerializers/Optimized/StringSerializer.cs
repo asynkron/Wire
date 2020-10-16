@@ -22,8 +22,8 @@ namespace Wire.ValueSerializers
 
         public static void WriteValueImpl(IBufferWriter<byte> stream, string s, SerializerSession session)
         {
-            var bytes = BitConverterEx.GetLengthEncodedBytes(s, session, out var byteCount);
-            stream.Write(bytes, 0, byteCount);
+            BitConverterEx.GetLengthEncodedBytes(s, stream, out var byteCount);
+            stream.Advance(byteCount);
         }
 
         private static string ReadValueImpl(Stream stream, DeserializerSession session)

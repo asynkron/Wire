@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
@@ -45,7 +46,7 @@ namespace Wire.SerializerFactories
                 return method;
             }
 
-            static void Writer(Stream stream, object obj, SerializerSession session)
+            static void Writer(IBufferWriter<byte> stream, object obj, SerializerSession session)
             {
                 var method = (MethodInfo) obj;
                 var name = method.Name;

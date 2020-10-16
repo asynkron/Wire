@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -26,7 +27,7 @@ namespace Wire.SerializerFactories
             return CanSerialize(serializer, type);
         }
 
-        private static void WriteValues<T>(LinkedList<T> llist, Stream stream, Type elementType,
+        private static void WriteValues<T>(LinkedList<T> llist, IBufferWriter<byte> stream, Type elementType,
             ValueSerializer elementSerializer,
             SerializerSession session, bool preserveObjectReferences)
         {
@@ -74,7 +75,7 @@ namespace Wire.SerializerFactories
                 return res;
             }
 
-            void Writer(Stream stream, object arr, SerializerSession session)
+            void Writer(IBufferWriter<byte> stream, object arr, SerializerSession session)
             {
                 //T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer, SerializerSession session, bool preserveObjectReferences
                 writeGeneric.Invoke(null,

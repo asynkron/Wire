@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using Wire.ValueSerializers;
@@ -21,7 +22,7 @@ namespace Wire.SerializerFactories
                 return Enum.ToObject(type, intValue);
             }
 
-            void Writer(Stream stream, object enumValue, SerializerSession session)
+            static void Writer(IBufferWriter<byte> stream, object enumValue, SerializerSession session)
             {
                 Int32Serializer.Instance.WriteValue(stream,enumValue,session);
             }

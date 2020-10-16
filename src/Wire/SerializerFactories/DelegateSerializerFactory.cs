@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
@@ -41,7 +42,7 @@ namespace Wire.SerializerFactories
                 return del;
             }
 
-            void Writer(Stream stream, object value, SerializerSession session)
+            void Writer(IBufferWriter<byte> stream, object value, SerializerSession session)
             {
                 var d = (Delegate) value;
                 var method = d.GetMethodInfo();

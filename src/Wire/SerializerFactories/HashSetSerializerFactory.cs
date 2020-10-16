@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -53,7 +54,7 @@ namespace Wire.SerializerFactories
                 return res;
             }
 
-            void Writer(Stream stream, object obj, SerializerSession session)
+            void Writer(IBufferWriter<byte> stream, object obj, SerializerSession session)
             {
                 writeGeneric.Invoke(null,
                     new[] {obj, stream, session, elementType, elementSerializer, preserveObjectReferences});
@@ -79,7 +80,7 @@ namespace Wire.SerializerFactories
             return set;
         }
 
-        private static void WriteHashSet<T>(HashSet<T> set, Stream stream, SerializerSession session, Type elementType,
+        private static void WriteHashSet<T>(HashSet<T> set, IBufferWriter<byte> stream, SerializerSession session, Type elementType,
             ValueSerializer elementSerializer, bool preserveObjectReferences)
         {
             if (preserveObjectReferences) session.TrackSerializedObject(set);

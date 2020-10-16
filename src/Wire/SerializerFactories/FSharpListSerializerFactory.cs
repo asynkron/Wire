@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -67,7 +68,7 @@ namespace Wire.SerializerFactories
             var toArrayCompiled = CompileToDelegate(toArrayConcrete, type);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
-            void Writer(Stream stream, object o, SerializerSession session)
+            void Writer(IBufferWriter<byte> stream, object o, SerializerSession session)
             {
                 var arr = toArrayCompiled(o);
                 var arrSerializer = serializer.GetSerializerByType(arrType);

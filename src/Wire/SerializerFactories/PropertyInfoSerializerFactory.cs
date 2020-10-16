@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
@@ -42,7 +43,7 @@ namespace Wire.SerializerFactories
                 return property;
             }
 
-            static void Writer(Stream stream, object obj, SerializerSession session)
+            static void Writer(IBufferWriter<byte> stream, object obj, SerializerSession session)
             {
                 var property = (PropertyInfo) obj;
                 var name = property.Name;

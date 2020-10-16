@@ -19,12 +19,12 @@ namespace Wire.Extensions
             b.CopyTo(span);
             self.Advance(1);
         }
-        //
-        // public static void WriteLengthEncodedByteArray(this IBufferWriter<byte> self, byte[] bytes)
-        // {
-        //     Int32Serializer.WriteValueImpl(self, bytes.Length);
-        //     self.Write(bytes, 0, bytes.Length);
-        // }
+        
+        public static void WriteLengthEncodedByteArray(this IBufferWriter<byte> self, byte[] bytes)
+        {
+            Int32Serializer.WriteValueImpl(self, bytes.Length);
+            self.Write(bytes);
+        }
         
          public static void WriteObjectWithManifest(this IBufferWriter<byte> stream, object? value, SerializerSession session)
         {
