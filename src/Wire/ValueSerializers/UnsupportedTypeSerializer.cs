@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
 using System.Reflection;
 using FastExpressionCompiler.LightExpression;
@@ -51,12 +52,12 @@ namespace Wire.ValueSerializers
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
             throw new UnsupportedTypeException(_invalidType, _errorMessage);
         }

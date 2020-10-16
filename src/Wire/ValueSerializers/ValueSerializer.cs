@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
 using System.Reflection;
 using FastExpressionCompiler.LightExpression;
@@ -27,8 +28,8 @@ namespace Wire.ValueSerializers
         /// </summary>
         public virtual int PreallocatedByteBufferSize => 0;
 
-        public abstract void WriteManifest(Stream stream, SerializerSession session);
-        public abstract void WriteValue(Stream stream, object value, SerializerSession session);
+        public abstract void WriteManifest(IBufferWriter<byte> stream, SerializerSession session);
+        public abstract void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session);
         public abstract object ReadValue(Stream stream, DeserializerSession session);
         public abstract Type GetElementType();
 

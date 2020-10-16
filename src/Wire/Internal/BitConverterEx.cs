@@ -5,9 +5,9 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Wire.ValueSerializers;
 
 namespace Wire.Internal
 {
@@ -20,68 +20,56 @@ namespace Wire.Internal
         internal static readonly UTF8Encoding Utf8 = (UTF8Encoding) Encoding.UTF8;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe byte[] GetLengthEncodedBytes(string? str, SerializerSession session, out int byteCount)
+        internal static unsafe void GetLengthEncodedBytes(string? str, IBufferWriter<byte> stream, out int byteCount)
         {
             //if first byte is 0 = null
             //if first byte is 254 or less, then length is value - 1
             //if first byte is 255 then the next 4 bytes are an int32 for length
             if (str == null)
             {
+                var span = stream.GetSpan(1);
+                span[0] = 0;
+                stream.Advance(1);
                 byteCount = 1;
-                return new[] {(byte) 0};
+                return;
             }
             
 
             byteCount = Utf8.GetByteCount(str);
             if (byteCount < 254) //short string
             {
-                var bytes = session.GetBuffer(byteCount + 1);
-                Utf8.GetBytes(str, 0, str.Length, bytes, 1);
-                bytes[0] = (byte) (byteCount + 1);
-                byteCount += 1;
-                return bytes;
+                var span = stream.GetSpan(byteCount + 1);
+                span[0] = (byte) (byteCount + 1);
+                Utf8.GetBytes(str, span[1..]);
+                byteCount+=1;
             }
             else //long string
             {
-                var bytes = session.GetBuffer(byteCount + 1 + 4);
-                Utf8.GetBytes(str, 0, str.Length, bytes, 1 + 4);
-                bytes[0] = 255;
-
-
-                fixed (byte* b = bytes)
-                {
-                    *(int*) (b + 1) = byteCount;
-                }
-
+                var span = stream.GetSpan(byteCount + 1 + 4);
+                
+                //signal int count
+                span[0] = 255;
+                //int count
+                BitConverter.TryWriteBytes(span[1..], byteCount);
+                //write actual string content
+                Utf8.GetBytes(str, span[(1+4)..]);
                 byteCount += 1 + 4;
-
-                return bytes;
             }
         }
 
-        public static unsafe void TryWriteBytes(byte[] bytes, DateTime dateTime)
+        public static void TryWriteBytes(Span<byte> span, DateTime dateTime)
         {
-            //datetime size is 9 ticks + kind
-            fixed (byte* b = bytes)
-            {
-                *(long*) b = dateTime.Ticks;
-            }
-
-            bytes[DateTimeSerializer.Size - 1] = (byte) dateTime.Kind;
+            BitConverter.TryWriteBytes(span, dateTime.Ticks);
+            BitConverter.TryWriteBytes(span[8..],  (byte) dateTime.Kind);
         }
 
-        public static unsafe void TryWriteBytes(byte[] bytes, DateTimeOffset dateTimeOffset)
+        public static void TryWriteBytes(Span<byte> span, DateTimeOffset dateTimeOffset)
         {
-            //datetimeoffset size is 11 bytes, ticks + kind + offset seconds
-            fixed (byte* b = bytes)
-            fixed (byte* offset = &bytes[8])
-            {
-                *(long*) b = dateTimeOffset.Ticks;
-                var minutes = (short) (dateTimeOffset.Offset.Ticks / TimeSpan.TicksPerMinute);
-                *(short*) offset = minutes;
-            }
-
-            bytes[DateTimeOffsetSerializer.Size - 1] = (byte) dateTimeOffset.DateTime.Kind;
+            var minutes = (short) (dateTimeOffset.Offset.Ticks / TimeSpan.TicksPerMinute);
+            
+            BitConverter.TryWriteBytes(span, dateTimeOffset.Ticks);
+            BitConverter.TryWriteBytes(span[8..], minutes);
+            BitConverter.TryWriteBytes(span[10..],  (byte) dateTimeOffset.DateTime.Kind);
         }
     }
 }

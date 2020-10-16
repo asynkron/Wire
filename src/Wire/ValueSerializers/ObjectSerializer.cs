@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -60,7 +61,7 @@ namespace Wire.ValueSerializers
 
         public override int PreallocatedByteBufferSize => _preallocatedBufferSize;
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
             if (session.ShouldWriteTypeManifest(Type, out var typeIdentifier))
             {
@@ -73,11 +74,11 @@ namespace Wire.ValueSerializers
             else
             {
                 stream.WriteByte(ManifestIndex);
-                UInt16Serializer.WriteValueImpl(stream, typeIdentifier, session);
+                UInt16Serializer.WriteValueImpl(stream, typeIdentifier);
             }
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
             _writer(stream, value, session);
         }

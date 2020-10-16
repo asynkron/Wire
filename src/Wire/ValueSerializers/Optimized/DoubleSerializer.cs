@@ -5,8 +5,8 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
-using Wire.Internal;
 
 namespace Wire.ValueSerializers
 {
@@ -22,11 +22,11 @@ namespace Wire.ValueSerializers
 
         public override int PreallocatedByteBufferSize => Size;
 
-        private static void WriteValueImpl(Stream stream, double d, byte[] bytes)
+        private static void WriteValueImpl(IBufferWriter<byte> stream, double value,int size)
         {
-            
-            BitConverter.TryWriteBytes(bytes, d);
-            stream.Write(bytes, 0, Size);
+            var span = stream.GetSpan(size);   
+            BitConverter.TryWriteBytes(span, value);
+            stream.Advance(size);
         }
 
         private static double ReadValueImpl(Stream stream, byte[] bytes)

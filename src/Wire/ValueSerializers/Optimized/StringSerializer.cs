@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
 using System.Reflection;
 using FastExpressionCompiler.LightExpression;
@@ -19,7 +20,7 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 7;
         public static readonly StringSerializer Instance = new StringSerializer();
 
-        public static void WriteValueImpl(Stream stream, string s, SerializerSession session)
+        public static void WriteValueImpl(IBufferWriter<byte> stream, string s, SerializerSession session)
         {
             var bytes = BitConverterEx.GetLengthEncodedBytes(s, session, out var byteCount);
             stream.Write(bytes, 0, byteCount);
@@ -30,12 +31,12 @@ namespace Wire.ValueSerializers
             return stream.ReadString(session!)!;
         }
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
             WriteValueImpl(stream, (string) value, session);
         }

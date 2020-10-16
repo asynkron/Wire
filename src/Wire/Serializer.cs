@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
@@ -130,7 +131,7 @@ namespace Wire
 
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
 
-        public void Serialize(object obj, Stream stream, SerializerSession session)
+        public void Serialize(object obj, IBufferWriter<byte> stream, SerializerSession session)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 
@@ -140,7 +141,7 @@ namespace Wire
             s.WriteValue(stream, obj, session);
         }
 
-        public void Serialize(object obj, Stream stream)
+        public void Serialize(object obj, IBufferWriter<byte> stream)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             using var session = GetSerializerSession();

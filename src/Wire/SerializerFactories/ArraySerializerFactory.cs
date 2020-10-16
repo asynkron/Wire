@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
@@ -25,13 +26,13 @@ namespace Wire.SerializerFactories
             return CanSerialize(serializer, type);
         }
 
-        private static void WriteValues<T>(T[] array, Stream stream, Type elementType,
+        private static void WriteValueImpl<T>(IBufferWriter<byte> stream, T[] array, Type elementType,
             ValueSerializer elementSerializer,
             SerializerSession session, bool preserveObjectReferences)
         {
             if (preserveObjectReferences) session.TrackSerializedObject(array);
 
-            Int32Serializer.WriteValueImpl(stream, array.Length, session);
+            Int32Serializer.WriteValueImpl(stream, array.Length);
             foreach (var value in array)
                 stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
         }
@@ -63,7 +64,7 @@ namespace Wire.SerializerFactories
                 .GetMethod(nameof(ReadValues), BindingFlags.NonPublic | BindingFlags.Static)
                 .MakeGenericMethod(elementType);
             var writeGeneric = GetType()
-                .GetMethod(nameof(WriteValues), BindingFlags.NonPublic | BindingFlags.Static)
+                .GetMethod(nameof(WriteValueImpl), BindingFlags.NonPublic | BindingFlags.Static)
                 .MakeGenericMethod(elementType);
 
             object Reader(Stream stream, DeserializerSession session)
@@ -73,7 +74,7 @@ namespace Wire.SerializerFactories
                 return res;
             }
 
-            void Writer(Stream stream, object arr, SerializerSession session)
+            void Writer(IBufferWriter<byte> stream, object arr, SerializerSession session)
             {
                 //T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer, SerializerSession session, bool preserveObjectReferences
                 writeGeneric.Invoke(null,

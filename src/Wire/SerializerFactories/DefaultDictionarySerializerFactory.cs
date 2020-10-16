@@ -59,7 +59,7 @@ namespace Wire.SerializerFactories
                 if (preserveObjectReferences) session.TrackSerializedObject(obj);
                 var dict = obj as IDictionary;
                 // ReSharper disable once PossibleNullReferenceException
-                Int32Serializer.WriteValueImpl(stream, dict.Count, session);
+                Int32Serializer.WriteValueImpl(stream, dict.Count);
                 foreach (DictionaryEntry item in dict)
                     stream.WriteObject(item, typeof(DictionaryEntry), elementSerializer,
                         serializer.Options.PreserveObjectReferences, session);

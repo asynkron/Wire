@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
 
 namespace Wire.ValueSerializers
@@ -20,12 +21,12 @@ namespace Wire.ValueSerializers
             _surrogateSerializer = surrogateSerializer;
         }
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
             throw new NotSupportedException();
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
             throw new NotSupportedException();
         }

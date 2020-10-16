@@ -84,7 +84,7 @@ namespace Wire.SerializerFactories
         {
             if (preserveObjectReferences) session.TrackSerializedObject(set);
             // ReSharper disable once PossibleNullReferenceException
-            Int32Serializer.WriteValueImpl(stream, set.Count, session);
+            Int32Serializer.WriteValueImpl(stream, set.Count);
             foreach (var item in set)
                 stream.WriteObject(item, elementType, elementSerializer, preserveObjectReferences, session);
         }

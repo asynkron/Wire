@@ -4,7 +4,9 @@
 //   </copyright>
 // -----------------------------------------------------------------------
 
+using System.Buffers;
 using System.IO;
+using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
@@ -17,7 +19,7 @@ namespace Wire.ValueSerializers
         {
         }
 
-        private static void WriteValueImpl(Stream stream, byte b)
+        private static void WriteValueImpl(IBufferWriter<byte> stream, byte b)
         {
             stream.WriteByte(b);
         }

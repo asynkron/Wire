@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
 using Wire.Extensions;
 
@@ -19,12 +20,12 @@ namespace Wire.ValueSerializers
             _translator = translator;
         }
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
             //intentionally left blank
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
             var surrogateValue = _translator(value);
             stream.WriteObjectWithManifest(surrogateValue, session);

@@ -4,7 +4,9 @@
 //   </copyright>
 // -----------------------------------------------------------------------
 
+using System.Buffers;
 using System.IO;
+using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
@@ -24,7 +26,7 @@ namespace Wire.ValueSerializers
             return b != 0;
         }
 
-        private static void WriteValueImpl(Stream stream, bool b)
+        private static void WriteValueImpl(IBufferWriter<byte> stream, bool b)
         {
             stream.WriteByte((byte) (b ? 1 : 0));
         }

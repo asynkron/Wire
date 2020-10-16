@@ -5,7 +5,9 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
+using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
@@ -20,13 +22,13 @@ namespace Wire.ValueSerializers
             _typeIdentifierBytes = BitConverter.GetBytes(typeIdentifier);
         }
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
             stream.WriteByte(ObjectSerializer.ManifestIndex);
-            stream.Write(_typeIdentifierBytes, 0, _typeIdentifierBytes.Length);
+            stream.Write(_typeIdentifierBytes);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
             _serializer.WriteValue(stream, value, session);
         }

@@ -98,7 +98,7 @@ namespace Wire.SerializerFactories
             void Writer(Stream stream, object o, SerializerSession session)
             {
                 if (preserveObjectReferences) session.TrackSerializedObject(o);
-                Int32Serializer.WriteValueImpl(stream, CountGetter(o), session);
+                Int32Serializer.WriteValueImpl(stream, CountGetter(o));
                 var enumerable = (IEnumerable)o;
                 // ReSharper disable once PossibleNullReferenceException
                 foreach (var value in enumerable)

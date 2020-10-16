@@ -4,6 +4,7 @@
 //   </copyright>
 // -----------------------------------------------------------------------
 
+using System.Buffers;
 using System.IO;
 
 namespace Wire
@@ -12,7 +13,7 @@ namespace Wire
     public delegate object ObjectReader(Stream stream, DeserializerSession session);
 
     //Writes an entire object to a stream, including manifests
-    public delegate void ObjectWriter(Stream stream, object obj, SerializerSession session);
+    public delegate void ObjectWriter(IBufferWriter<byte> stream, object obj, SerializerSession session);
 
 
     public delegate object TypedArray(object obj);

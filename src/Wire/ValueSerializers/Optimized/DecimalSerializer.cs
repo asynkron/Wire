@@ -4,6 +4,7 @@
 //   </copyright>
 // -----------------------------------------------------------------------
 
+using System.Buffers;
 using System.IO;
 
 namespace Wire.ValueSerializers
@@ -19,13 +20,14 @@ namespace Wire.ValueSerializers
         
         public override int PreallocatedByteBufferSize => Int32Serializer.Size;
 
-        private static void WriteValueImpl(Stream stream, decimal value, byte[] bytes)
+        private static void WriteValueImpl(IBufferWriter<byte> stream, decimal value, int size)
         {
             var data = decimal.GetBits(value);
-            Int32Serializer.WriteValueImpl(stream, data[0], bytes);
-            Int32Serializer.WriteValueImpl(stream, data[1], bytes);
-            Int32Serializer.WriteValueImpl(stream, data[2], bytes);
-            Int32Serializer.WriteValueImpl(stream, data[3], bytes);
+            
+            Int32Serializer.WriteValueImpl(stream, data[0]);
+            Int32Serializer.WriteValueImpl(stream, data[1]);
+            Int32Serializer.WriteValueImpl(stream, data[2]);
+            Int32Serializer.WriteValueImpl(stream, data[3]);
         }
 
         private static decimal ReadValueImpl(Stream stream, byte[] bytes)

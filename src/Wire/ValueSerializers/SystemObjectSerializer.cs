@@ -5,7 +5,9 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
+using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
@@ -14,12 +16,12 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 1;
         public static readonly SystemObjectSerializer Instance = new SystemObjectSerializer();
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
         }
 

@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
 using Wire.Internal;
 
@@ -28,10 +29,11 @@ namespace Wire.ValueSerializers
             return BitConverter.ToChar(bytes, 0);
         }
 
-        private static void WriteValueImpl(Stream stream, char ch, byte[] bytes)
+        private static void WriteValueImpl(IBufferWriter<byte> stream, char ch, int size)
         {
-            BitConverter.TryWriteBytes( bytes,ch);
-            stream.Write(bytes, 0, Size);
+            var span = stream.GetSpan(size);
+            BitConverter.TryWriteBytes(span,ch);
+            stream.Advance(size);
         }
     }
 }

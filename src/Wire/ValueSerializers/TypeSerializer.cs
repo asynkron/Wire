@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
 using Wire.Extensions;
 
@@ -15,7 +16,7 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 16;
         public static readonly TypeSerializer Instance = new TypeSerializer();
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
             if (session.ShouldWriteTypeManifest(TypeEx.RuntimeType, out var typeIdentifier))
             {
@@ -24,11 +25,11 @@ namespace Wire.ValueSerializers
             else
             {
                 stream.Write(new[] {ObjectSerializer.ManifestIndex});
-                UInt16Serializer.WriteValueImpl(stream, typeIdentifier, session);
+                UInt16Serializer.WriteValueImpl(stream, typeIdentifier);
             }
         }
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
             if (value == null)
             {

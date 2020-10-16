@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -134,7 +135,7 @@ namespace Wire.Compilation
         {
             var c = new Compiler<ObjectWriter>();
 
-            var stream = c.Parameter<Stream>("stream");
+            var stream = c.Parameter<IBufferWriter<byte>>("stream");
             var target = c.Parameter<object>("target");
             var session = c.Parameter<SerializerSession>("session");
             var preserveReferences = c.Constant(serializer.Options.PreserveObjectReferences);
@@ -186,7 +187,7 @@ namespace Wire.Compilation
                     var vs = c.Constant(valueSerializer);
                     var vt = c.Constant(valueType);
 
-                    var method = typeof(StreamEx).GetMethod(nameof(StreamEx.WriteObject))!;
+                    var method = typeof(BufferExtensions).GetMethod(nameof(BufferExtensions.WriteObject))!;
 
                     c.EmitStaticCall(method, stream, converted, vt, vs, preserveReferences, session);
                 }
@@ -202,7 +203,7 @@ namespace Wire.Compilation
             
             var tmp = del;
 
-            void Del(Stream tStream, object tObj, SerializerSession tSession)
+            void Del(IBufferWriter<byte> tStream, object tObj, SerializerSession tSession)
             {
                 try
                 {

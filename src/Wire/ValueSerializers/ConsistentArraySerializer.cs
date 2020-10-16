@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
 using Wire.Extensions;
 
@@ -50,7 +51,7 @@ namespace Wire.ValueSerializers
             throw new NotSupportedException();
         }
 
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
             stream.WriteByte(Manifest);
         }
@@ -58,7 +59,7 @@ namespace Wire.ValueSerializers
         // private static void WriteValues<T>(T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer,
         // private static object ReadValues<T>(Stream stream, DeserializerSession session, bool preserveObjectReferences)
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
             if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(value);
             var elementType = value.GetType().GetElementType();
@@ -69,10 +70,10 @@ namespace Wire.ValueSerializers
             WriteValues((dynamic) value, stream, elementSerializer, session);
         }
 
-        private static void WriteValues<T>(T[] array, Stream stream, ValueSerializer elementSerializer,
+        private static void WriteValues<T>(T[] array, IBufferWriter<byte> stream, ValueSerializer elementSerializer,
             SerializerSession session)
         {
-            Int32Serializer.WriteValueImpl(stream, array.Length, session);
+            Int32Serializer.WriteValueImpl(stream, array.Length);
             if (typeof(T).IsFixedSizeType())
             {
                 var size = typeof(T).GetTypeSize();

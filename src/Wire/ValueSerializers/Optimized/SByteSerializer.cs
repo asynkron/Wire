@@ -4,7 +4,9 @@
 //   </copyright>
 // -----------------------------------------------------------------------
 
+using System.Buffers;
 using System.IO;
+using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
@@ -17,7 +19,7 @@ namespace Wire.ValueSerializers
         {
         }
 
-        private static unsafe void WriteValueImpl(Stream stream, sbyte @sbyte)
+        private static unsafe void WriteValueImpl(IBufferWriter<byte> stream, sbyte @sbyte)
         {
             stream.WriteByte(*(byte*) &@sbyte);
         }

@@ -5,10 +5,12 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
 using Wire.Compilation;
+using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
@@ -18,10 +20,10 @@ namespace Wire.ValueSerializers
         private readonly MethodInfo _read;
         private readonly Func<Stream, TElementType> _readCompiled;
         private readonly MethodInfo _write;
-        private readonly Action<Stream, object> _writeCompiled;
+        private readonly Action<IBufferWriter<byte>, object> _writeCompiled;
 
         protected SessionIgnorantValueSerializer(byte manifest,
-            Expression<Func<Action<Stream, TElementType>>> writeStaticMethod,
+            Expression<Func<Action<IBufferWriter<byte>, TElementType>>> writeStaticMethod,
             Expression<Func<Func<Stream, TElementType>>> readStaticMethod)
         {
             _manifest = manifest;
@@ -29,10 +31,10 @@ namespace Wire.ValueSerializers
             _read = GetStatic(readStaticMethod, typeof(TElementType));
 
 
-            var c = new Compiler<Action<Stream, object>>();
+            var c = new Compiler<Action<IBufferWriter<byte>, object>>();
 
 
-            var stream = c.Parameter<Stream>("stream");
+            var stream = c.Parameter<IBufferWriter<byte>>("stream");
             var value = c.Parameter<object>("value");
             var valueTyped = c.CastOrUnbox(value, typeof(TElementType));
             c.EmitStaticCall(_write, stream, valueTyped);
@@ -49,12 +51,12 @@ namespace Wire.ValueSerializers
             _readCompiled = c2.Compile();
         }
 
-        public sealed override void WriteManifest(Stream stream, SerializerSession session)
+        public sealed override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
             stream.WriteByte(_manifest);
         }
 
-        public sealed override void WriteValue(Stream stream, object value, SerializerSession session)
+        public sealed override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
             _writeCompiled(stream, value);
         }
