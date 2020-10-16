@@ -33,14 +33,10 @@ namespace Wire.SerializerFactories
             return false;
         }
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return CanSerialize(serializer, type);
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
-        private static Type GetEnumerableType(Type type)
-        {
-            return type
+        private static Type? GetEnumerableType(Type type) =>
+            type
                 .GetInterfaces()
                 .Where(
                     intType =>
@@ -48,7 +44,6 @@ namespace Wire.SerializerFactories
                         intType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 .Select(intType => intType.GetGenericArguments()[0])
                 .FirstOrDefault();
-        }
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
@@ -60,18 +55,18 @@ namespace Wire.SerializerFactories
             var elementType = GetEnumerableType(type) ?? typeof(object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
-            var countProperty = type.GetProperty("Count");
+            var countProperty = type.GetProperty("Count")!;
             var addRange = type.GetMethod("AddRange");
             var add = type.GetMethod("Add");
 
             int CountGetter(object o)
             {
-                return (int) countProperty.GetValue(o);
+                return (int) countProperty.GetValue(o)!;
             }
 
             object Reader(Stream stream, DeserializerSession session)
             {
-                var instance = Activator.CreateInstance(type);
+                var instance = Activator.CreateInstance(type)!;
                 if (preserveObjectReferences) session.TrackDeserializedObject(instance);
 
                 var count = stream.ReadInt32(session);
@@ -104,7 +99,7 @@ namespace Wire.SerializerFactories
             {
                 if (preserveObjectReferences) session.TrackSerializedObject(o);
                 Int32Serializer.WriteValueImpl(stream, CountGetter(o), session);
-                var enumerable = o as IEnumerable;
+                var enumerable = (IEnumerable)o;
                 // ReSharper disable once PossibleNullReferenceException
                 foreach (var value in enumerable)
                     stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
