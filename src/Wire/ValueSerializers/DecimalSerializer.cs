@@ -4,36 +4,32 @@
 //   </copyright>
 // -----------------------------------------------------------------------
 
-using System;
 using System.IO;
 
 namespace Wire.ValueSerializers
 {
-    public class DecimalSerializer : ValueSerializer
+    public class DecimalSerializer : SessionAwareValueSerializer<decimal>
     {
         public const byte Manifest = 14;
         public static readonly DecimalSerializer Instance = new DecimalSerializer();
-
-        public override void WriteManifest(Stream stream, SerializerSession session)
+        
+        public DecimalSerializer() : base(Manifest, () => WriteValueImpl, () => ReadValueImpl)
         {
-            stream.WriteByte(Manifest);
         }
+        
+        public override int PreallocatedByteBufferSize => Int32Serializer.Size;
 
-        public override void WriteValue(Stream stream, object value, SerializerSession session)
+        private static void WriteValueImpl(Stream stream, decimal value, byte[] bytes)
         {
-            var bytes = session.GetBuffer(Int32Serializer.Size);
-
-            var data = decimal.GetBits((decimal) value);
+            var data = decimal.GetBits(value);
             Int32Serializer.WriteValueImpl(stream, data[0], bytes);
             Int32Serializer.WriteValueImpl(stream, data[1], bytes);
             Int32Serializer.WriteValueImpl(stream, data[2], bytes);
             Int32Serializer.WriteValueImpl(stream, data[3], bytes);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        private static decimal ReadValueImpl(Stream stream, byte[] bytes)
         {
-            var bytes = session.GetBuffer(Int32Serializer.Size);
-
             var parts = new[]
             {
                 Int32Serializer.ReadValueImpl(stream, bytes),
@@ -46,11 +42,6 @@ namespace Wire.ValueSerializers
             var scale = (byte) ((parts[3] >> 16) & 0x7F);
             var newValue = new decimal(parts[0], parts[1], parts[2], sign, scale);
             return newValue;
-        }
-
-        public override Type GetElementType()
-        {
-            return typeof(decimal);
         }
     }
 }
