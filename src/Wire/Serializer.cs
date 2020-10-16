@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Wire.Buffers;
 using Wire.Compilation;
 using Wire.Extensions;
 using Wire.ValueSerializers;
@@ -130,6 +131,10 @@ namespace Wire
         }
 
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
+        public void Serialize(object obj, Stream stream, SerializerSession session)
+        {
+            Serialize(obj, new ArrayStreamBufferWriter(stream),session);
+        }
 
         public void Serialize(object obj, IBufferWriter<byte> stream, SerializerSession session)
         {
@@ -139,6 +144,11 @@ namespace Wire
             var s = GetSerializerByType(type);
             s.WriteManifest(stream, session);
             s.WriteValue(stream, obj, session);
+        }
+
+        public void Serialize(object obj, Stream stream)
+        {
+            Serialize(obj,new ArrayStreamBufferWriter(stream));
         }
 
         public void Serialize(object obj, IBufferWriter<byte> stream)

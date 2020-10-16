@@ -29,8 +29,7 @@ namespace Wire.ValueSerializers
             _manifest = manifest;
             _write = GetStatic(writeStaticMethod, typeof(void));
             _read = GetStatic(readStaticMethod, typeof(TElementType));
-
-
+            
             var c = new Compiler<Action<IBufferWriter<byte>, object, int>>();
             
             var stream = c.Parameter<IBufferWriter<byte>>("stream");
@@ -67,8 +66,8 @@ namespace Wire.ValueSerializers
             FastExpressionCompiler.LightExpression.Expression fieldValue,
             FastExpressionCompiler.LightExpression.Expression session)
         {
-            var byteArray = c.GetVariable<byte[]>(SerializerCompiler.PreallocatedByteBuffer);
-            c.EmitStaticCall(_write, stream, fieldValue, byteArray);
+            var size = c.GetVariable<int>(SerializerCompiler.PreallocatedByteBuffer);
+            c.EmitStaticCall(_write, stream, fieldValue, size);
         }
 
         public sealed override object ReadValue(Stream stream, DeserializerSession session)
