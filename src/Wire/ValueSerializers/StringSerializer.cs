@@ -25,7 +25,7 @@ namespace Wire.ValueSerializers
             stream.Write(bytes, 0, byteCount);
         }
 
-        public static string ReadValueImpl(Stream stream, DeserializerSession session)
+        private static string ReadValueImpl(Stream stream, DeserializerSession session)
         {
             return stream.ReadString(session!)!;
         }
@@ -52,11 +52,11 @@ namespace Wire.ValueSerializers
             return read;
         }
 
-        public override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue, Expression session)
-        {
-            var writeMethod =  typeof(StringSerializer).GetMethod(nameof(WriteValueImpl),BindingFlagsEx.Static)!;
-            c.EmitStaticCall(writeMethod, stream, fieldValue, session);
-        }
+        // public override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue, Expression session)
+        // {
+        //     var writeMethod =  typeof(StringSerializer).GetMethod(nameof(WriteValueImpl),BindingFlagsEx.Static)!;
+        //     c.EmitStaticCall(writeMethod, stream, fieldValue, session);
+        // }
 
         public override Type GetElementType()
         {
