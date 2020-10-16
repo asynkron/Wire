@@ -200,7 +200,7 @@ namespace Wire
         public ValueSerializer GetSerializerByType(Type type)
         {
             //do we already have a serializer for this type?
-            if (_serializers.TryGetValue(type, out var serializer)) return serializer;
+            if (_serializers.TryGetValue(type, out var existingSerializer)) return existingSerializer;
 
             //is there a serializer factory that can handle this type?
             foreach (var valueSerializerFactory in Options.ValueSerializerFactories)
@@ -208,7 +208,7 @@ namespace Wire
                     return valueSerializerFactory.BuildSerializer(this, type, _serializers);
 
             //none of the above, lets create a POCO object serializer
-            serializer = new ObjectSerializer(type);
+            var serializer = new ObjectSerializer(type);
             if (Options.KnownTypesDict.TryGetValue(type, out var index))
             {
                 var wrapper = new KnownTypeObjectSerializer((ObjectSerializer) serializer, index);
@@ -235,7 +235,7 @@ namespace Wire
             try
             {
                 //build the serializer IL code
-                CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
+                CodeGenerator.BuildSerializer(this, serializer);
             }
             catch (Exception exp)
             {

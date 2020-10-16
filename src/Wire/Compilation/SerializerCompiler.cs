@@ -71,11 +71,7 @@ namespace Wire.Compilation
                 }
                 else
                 {
-                    // var readMethod = typeof(StreamEx).GetMethod(nameof(StreamEx.ReadObject))!;
-                    // var callReadMethod = c.StaticCall(readMethod, stream, session);
-                    // read = c.Convert(callReadMethod, field.FieldType);
-                    // //
-                     var readMethod = typeof(StreamEx)
+                    var readMethod = typeof(StreamEx)
                              .GetMethod(nameof(StreamEx.ReadObjectTyped))!
                          .MakeGenericMethod(field.FieldType);
                      
