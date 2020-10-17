@@ -284,12 +284,12 @@ namespace Wire
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
         public void Serialize(object obj, MemoryStream stream, SerializerSession session)
         {
-            Serialize(obj, new ArrayStreamBufferWriter(stream,9),session);
+            Serialize(obj, new MemoryStreamBufferWriter(stream),session);
         }
 
         public void Serialize(object obj, MemoryStream stream)
         {
-            Serialize(obj,new ArrayStreamBufferWriter(stream,9));
+            Serialize(obj,new MemoryStreamBufferWriter(stream));
         }
     }
 }

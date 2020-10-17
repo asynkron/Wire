@@ -24,8 +24,11 @@ namespace Wire.ValueSerializers
 
         public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
-            stream.WriteByte(ObjectSerializer.ManifestIndex);
-            stream.Write(_typeIdentifierBytes);
+            var size = 1 + _typeIdentifierBytes.Length;
+            var span = stream.GetSpan(size);
+            span[0] = ObjectSerializer.ManifestIndex;
+            _typeIdentifierBytes.CopyTo(span[1..]);
+            stream.Advance(size);
         }
 
         public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)

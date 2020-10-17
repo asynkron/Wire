@@ -29,7 +29,6 @@ namespace Wire.Internal
             {
                 var span = stream.GetSpan(1);
                 span[0] = 0;
-                stream.Advance(1);
                 byteCount = 1;
                 return;
             }
