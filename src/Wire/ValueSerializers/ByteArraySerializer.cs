@@ -25,7 +25,9 @@ namespace Wire.ValueSerializers
         {
             var bytes = (byte[]) value;
             Int32Serializer.WriteValueImpl(stream,bytes.Length);
-            stream.Write(bytes);
+            var destination = stream.GetSpan(bytes.Length);
+            bytes.CopyTo(destination);
+            stream.Advance(bytes.Length);
             if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(bytes);
         }
 

@@ -24,7 +24,10 @@ namespace Wire.ValueSerializers
             }
             else
             {
-                stream.Write(new[] {ObjectSerializer.ManifestIndex});
+                byte[] source = {ObjectSerializer.ManifestIndex};
+                var destination = stream.GetSpan(source.Length);
+                source.CopyTo(destination);
+                stream.Advance(source.Length);
                 UInt16Serializer.WriteValueImpl(stream, typeIdentifier);
             }
         }

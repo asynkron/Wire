@@ -66,7 +66,9 @@ namespace Wire.ValueSerializers
             if (session.ShouldWriteTypeManifest(Type, out var typeIdentifier))
             {
                 session.TrackSerializedType(Type);
-                stream.Write(_manifest);
+                var destination = stream.GetSpan(_manifest.Length);
+                _manifest.CopyTo(destination);
+                stream.Advance(_manifest.Length);
             }
             else
             {

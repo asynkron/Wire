@@ -14,14 +14,6 @@ namespace Wire.Extensions
             span[0] = b;
             self.Advance(1);
         }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Write(this IBufferWriter<byte> self, Span<byte> source)
-        {
-            var destination = self.GetSpan(source.Length);
-            source.CopyTo(destination);
-            self.Advance(source.Length);
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
          public static void WriteObjectWithManifest(this IBufferWriter<byte> stream, object? value, SerializerSession session)

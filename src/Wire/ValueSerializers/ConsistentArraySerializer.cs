@@ -80,7 +80,9 @@ namespace Wire.ValueSerializers
                 
                 var result = new byte[array.Length * size];
                 Buffer.BlockCopy(array, 0, result, 0, result.Length);
-                stream.Write(result);
+                var destination = stream.GetSpan(result.Length);
+                result.CopyTo(destination);
+                stream.Advance(result.Length);
             }
             else
             {
