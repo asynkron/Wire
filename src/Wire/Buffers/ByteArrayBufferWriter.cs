@@ -7,13 +7,13 @@ namespace Wire.Buffers
     /// <summary>
     /// A special-purpose <see cref="IBufferWriter{T}"/> implementation for supporting <see cref="Span{T}"/> in <see cref="Writer{TBufferWriter}"/>.
     /// </summary>
-    public struct SpanBufferWriter : IBufferWriter<byte>
+    public struct ByteArrayBufferWriter : IBufferWriter<byte>
     {
         private readonly int _maxLength;
         private int _bytesWritten;
         private readonly byte[] _buffer;
 
-        public SpanBufferWriter(byte[] buffer)
+        public ByteArrayBufferWriter(byte[] buffer)
         {
             _maxLength = buffer.Length;
             _bytesWritten = 0;

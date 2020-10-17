@@ -294,7 +294,7 @@ namespace Wire
         
         public void Serialize(object obj, byte[] destination, SerializerSession session)
         {
-            var b = new SpanBufferWriter(destination);
+            var b = new ByteArrayBufferWriter(destination);
             Serialize(obj, b,session);
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Wire;
 using Wire.Buffers;
@@ -38,13 +39,16 @@ namespace Playground
             // var ms = new MemoryStream();
             // var bufferWriter = new MemoryStreamBufferWriter(ms);
 
-            var bufferWriter = new SpanBufferWriter(new byte[20000]);
+            var bytes = new byte[20000];
 
-            // for (var i = 0; i < 20_000_000; i++)
-            // {
-            //     ms.Position = 0;
+
+            var sw = Stopwatch.StartNew();
+            for (var i = 0; i < 20_000_000; i++)
+            {
+                var bufferWriter = new ByteArrayBufferWriter(bytes);
                 s.Serialize(some,bufferWriter);    
-            //}
+            }
+            Console.WriteLine(sw.Elapsed.TotalMilliseconds);
             
 
           //  var bytes = ms.ToArray();

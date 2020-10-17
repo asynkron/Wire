@@ -82,16 +82,17 @@ namespace Wire.PerfTest.Tests
 
         protected virtual void TestAll()
         {
-            SerializeKnownTypesReuseSession();
-        //    SerializeKnownTypes();
-        //    SerializeDefault();
+            SerializeKnownTypesReuseSessionByteArray();
+            SerializeKnownTypesReuseSessionMemoryStream();
+            //    SerializeKnownTypes();
+            //    SerializeDefault();
 
-      //      SerializePreserveObjects();
+            //      SerializePreserveObjects();
             // SerializeNFXSlim();
             // SerializeNFXSlimPreregister();
             // SerializeSSText();
-          //  SerializeNetSerializer();
-          //  SerializeProtoBufNet();
+            //  SerializeNetSerializer();
+            //  SerializeProtoBufNet();
             // SerializeJsonNet();
             // SerializeBinaryFormatter();
         }
@@ -337,7 +338,7 @@ namespace Wire.PerfTest.Tests
             }, bytes.Length);
         }
 
-        private void SerializeKnownTypesReuseSession()
+        private void SerializeKnownTypesReuseSessionByteArray()
         {
             var types = typeof(T).Namespace.StartsWith("System") ? null : new[] {typeof(T)};
             var serializer = new Serializer(new SerializerOptions(knownTypes: types));
@@ -350,9 +351,34 @@ namespace Wire.PerfTest.Tests
             var bytes = new byte[100];
             // var b = new Wire.Buffers.SpanBufferWriter(new Span<byte>(new byte[1000]));
             
-            RunTest("Wire - KnownTypes + Reuse Sessions", () =>
+            RunTest("Wire - KnownTypes + Reuse Sessions + byte[]", () =>
             {
-                var b = new Buffers.SpanBufferWriter(bytes);
+                var b = new Buffers.ByteArrayBufferWriter(bytes);
+                serializer.Serialize(Value, b, ss);
+            }, () =>
+            {
+                s.Position = 0;
+                serializer.Deserialize<T>(s, ds);
+            }, size);
+        }
+        
+        private void SerializeKnownTypesReuseSessionMemoryStream()
+        {
+            var types = typeof(T).Namespace.StartsWith("System") ? null : new[] {typeof(T)};
+            var serializer = new Serializer(new SerializerOptions(knownTypes: types));
+            using var ss = serializer.GetSerializerSession();
+            using var ds = serializer.GetDeserializerSession();
+            var s = new MemoryStream();
+            serializer.Serialize(Value, s, ss);
+            var size = (int)s.Position;
+
+            var ms = new MemoryStream(1000);
+            // var b = new Wire.Buffers.SpanBufferWriter(new Span<byte>(new byte[1000]));
+            
+            RunTest("Wire - KnownTypes + Reuse Sessions + MemoryStream", () =>
+            {
+                ms.Position = 0;
+                var b = new Buffers.MemoryStreamBufferWriter(ms);
                 serializer.Serialize(Value, b, ss);
             }, () =>
             {

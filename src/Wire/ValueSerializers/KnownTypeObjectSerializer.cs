@@ -7,6 +7,7 @@
 using System;
 using System.Buffers;
 using System.IO;
+using System.Linq;
 using Wire.Extensions;
 
 namespace Wire.ValueSerializers
@@ -19,15 +20,14 @@ namespace Wire.ValueSerializers
         public KnownTypeObjectSerializer(ObjectSerializer serializer, ushort typeIdentifier)
         {
             _serializer = serializer;
-            _typeIdentifierBytes = BitConverter.GetBytes(typeIdentifier);
+            _typeIdentifierBytes = new[] {ObjectSerializer.ManifestIndex}.Concat(BitConverter.GetBytes(typeIdentifier)).ToArray();
         }
 
         public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
-            var size = 1 + _typeIdentifierBytes.Length;
+            var size = _typeIdentifierBytes.Length;
             var span = stream.GetSpan(size);
-            span[0] = ObjectSerializer.ManifestIndex;
-            _typeIdentifierBytes.CopyTo(span[1..]);
+            _typeIdentifierBytes.CopyTo(span);
             stream.Advance(size);
         }
 

@@ -16,15 +16,15 @@ namespace Wire.Extensions
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Write(this IBufferWriter<byte> self, byte[] b)
+        public static void Write(this IBufferWriter<byte> self, Span<byte> source)
         {
-            var span = self.GetSpan(b.Length);
-            b.CopyTo(span);
-            self.Advance(b.Length);
+            var destination = self.GetSpan(source.Length);
+            source.CopyTo(destination);
+            self.Advance(source.Length);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteLengthEncodedByteArray(this IBufferWriter<byte> self, byte[] bytes)
+        public static void WriteLengthEncodedByteArray(this IBufferWriter<byte> self, Span<byte> bytes)
         {
             Int32Serializer.WriteValueImpl(self, bytes.Length);
             self.Write(bytes);

@@ -66,7 +66,6 @@ namespace Wire.ValueSerializers
             if (session.ShouldWriteTypeManifest(Type, out var typeIdentifier))
             {
                 session.TrackSerializedType(Type);
-
                 stream.Write(_manifest);
             }
             else
