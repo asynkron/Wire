@@ -86,7 +86,7 @@ namespace Wire.PerfTest.Tests
             SerializeKnownTypes();
             SerializeDefault();
 
-            SerializeVersionPreserveObjects();
+            SerializePreserveObjects();
             // SerializeNFXSlim();
             // SerializeNFXSlimPreregister();
             // SerializeSSText();
@@ -202,9 +202,10 @@ namespace Wire.PerfTest.Tests
             var s = new MemoryStream();
             ProtoBuf.Serializer.Serialize(s, Value);
             var bytes = s.ToArray();
+            var stream = new MemoryStream();
             RunTest("Protobuf.NET", () =>
             {
-                var stream = new MemoryStream();
+                stream.Position = 0;
                 ProtoBuf.Serializer.Serialize(stream, Value);
             }, () =>
             {
@@ -259,9 +260,10 @@ namespace Wire.PerfTest.Tests
             serializer.Serialize(s, Value);
             var bytes = s.ToArray();
 
+            var stream = new MemoryStream();
             RunTest("NFX Slim Serializer", () =>
             {
-                var stream = new MemoryStream();
+                stream.Position = 0;
                 serializer.Serialize(stream, Value);
             }, () =>
             {
@@ -345,15 +347,13 @@ namespace Wire.PerfTest.Tests
             serializer.Serialize(Value, s, ss);
             var size = (int)s.Position;
             
-            var ms2 = new MemoryStream();
-            var b = new Wire.Buffers.MemoryStreamBufferWriter(ms2);
+            var ms = new MemoryStream();
             // var b = new Wire.Buffers.SpanBufferWriter(new Span<byte>(new byte[1000]));
             
             RunTest("Wire - KnownTypes + Reuse Sessions", () =>
             {
-                ms2.Position = 0;
-                
-                serializer.Serialize(Value, b, ss);
+                ms.Position = 0;
+                serializer.Serialize(Value, ms, ss);
             }, () =>
             {
                 s.Position = 0;
@@ -369,9 +369,10 @@ namespace Wire.PerfTest.Tests
             serializer.Serialize(Value, s);
             var bytes = s.ToArray();
 
+            var stream = new MemoryStream();
             RunTest("Wire - KnownTypes", () =>
             {
-                var stream = new MemoryStream();
+                stream.Position = 0;
                 serializer.Serialize(Value, stream);
             }, () =>
             {
@@ -386,9 +387,10 @@ namespace Wire.PerfTest.Tests
             var s = new MemoryStream();
             serializer.Serialize(Value, s);
             var bytes = s.ToArray();
+            var stream = new MemoryStream();
             RunTest("Wire - Default", () =>
             {
-                var stream = new MemoryStream();
+                stream.Position = 0;
                 serializer.Serialize(Value, stream);
             }, () =>
             {
@@ -397,15 +399,16 @@ namespace Wire.PerfTest.Tests
             }, bytes.Length);
         }
 
-        private void SerializeVersionPreserveObjects()
+        private void SerializePreserveObjects()
         {
             var serializer = new Serializer(new SerializerOptions(true));
             var s = new MemoryStream();
             serializer.Serialize(Value, s);
             var bytes = s.ToArray();
+            var stream = new MemoryStream();
             RunTest("Wire - Object Identity", () =>
             {
-                var stream = new MemoryStream();
+                stream.Position = 0;
                 serializer.Serialize(Value, stream);
             }, () =>
             {
