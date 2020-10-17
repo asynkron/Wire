@@ -20,7 +20,7 @@ namespace Wire.Internal
         internal static readonly UTF8Encoding Utf8 = (UTF8Encoding) Encoding.UTF8;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void GetLengthEncodedBytes(string? str, IBufferWriter<byte> stream, out int byteCount)
+        internal static void WriteLengthEncodedString(string? str, IBufferWriter<byte> stream, out int byteCount)
         {
             //if first byte is 0 = null
             //if first byte is 254 or less, then length is value - 1
@@ -57,12 +57,15 @@ namespace Wire.Internal
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void TryWriteBytes(Span<byte> span, DateTime dateTime)
         {
             BitConverter.TryWriteBytes(span, dateTime.Ticks);
             BitConverter.TryWriteBytes(span[8..],  (byte) dateTime.Kind);
         }
 
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void TryWriteBytes(Span<byte> span, DateTimeOffset dateTimeOffset)
         {
             var minutes = (short) (dateTimeOffset.Offset.Ticks / TimeSpan.TicksPerMinute);

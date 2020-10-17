@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Wire;
 using Wire.Buffers;
@@ -22,7 +23,9 @@ namespace Playground
     {
         static void Main(string[] args)
         {
-            var s = new Serializer();
+            var s = new Serializer(new SerializerOptions(
+                knownTypes:new List<Type> {typeof(SomeClass),typeof(SomeOther)})
+            );
             var some = new SomeClass
             {
                 Prop1 = "hello",
@@ -32,8 +35,17 @@ namespace Playground
                     BoolProp = false
                 }
             };
-            var stream = new MemoryStreamBufferWriter(new MemoryStream());
-            s.Serialize(some,stream);
+            var ms = new MemoryStream();
+            var bufferWriter = new MemoryStreamBufferWriter(ms);
+
+            for (var i = 0; i < 20_000_000; i++)
+            {
+                ms.Position = 0;
+                s.Serialize(some,bufferWriter);    
+            }
+            
+
+            var bytes = ms.ToArray();
         }
     }
 }

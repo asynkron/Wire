@@ -67,9 +67,7 @@ namespace Wire.ValueSerializers
             {
                 session.TrackSerializedType(Type);
 
-                var manifestToWrite = _manifest;
-
-                stream.Write(manifestToWrite);
+                stream.Write(_manifest);
             }
             else
             {

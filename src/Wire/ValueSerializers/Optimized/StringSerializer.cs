@@ -22,7 +22,7 @@ namespace Wire.ValueSerializers
 
         public static void WriteValueImpl(IBufferWriter<byte> stream, string s, SerializerSession session)
         {
-            BitConverterEx.GetLengthEncodedBytes(s, stream, out var byteCount);
+            BitConverterEx.WriteLengthEncodedString(s, stream, out var byteCount);
             stream.Advance(byteCount);
         }
 

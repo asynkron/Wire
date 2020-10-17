@@ -43,7 +43,7 @@ namespace Wire.Buffers
             }
 
             _index += count;
-            _stream.Write(_buffer, 0, _index);
+         //   _stream.Write(_buffer, 0, _index);
             _index = 0;
         }
 

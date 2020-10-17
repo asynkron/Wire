@@ -347,8 +347,11 @@ namespace Wire.PerfTest.Tests
             
             var ms2 = new MemoryStream();
             var b = new Wire.Buffers.MemoryStreamBufferWriter(ms2);
+            // var b = new Wire.Buffers.SpanBufferWriter(new Span<byte>(new byte[1000]));
+            
             RunTest("Wire - KnownTypes + Reuse Sessions", () =>
             {
+                ms2.Position = 0;
                 
                 serializer.Serialize(Value, b, ss);
             }, () =>

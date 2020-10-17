@@ -15,6 +15,10 @@ namespace Wire.Buffers
         public MemoryStreamBufferWriter(MemoryStream stream)
         {
             _stream = stream;
+            if (_stream.Capacity < MinRequestSize)
+            {
+                _stream.Capacity += MinRequestSize;
+            }
         }
 
         /// <inheritdoc />
@@ -48,14 +52,9 @@ namespace Wire.Buffers
         /// <inheritdoc />
         public Span<byte> GetSpan(int sizeHint = 0)
         {
-            if (sizeHint < MinRequestSize)
-            {
-                sizeHint = MinRequestSize;
-            }
-
             if (_stream.Capacity - _stream.Position < sizeHint)
             {
-                _stream.Capacity += sizeHint;
+                _stream.Capacity += MinRequestSize;
                 _stream.SetLength(_stream.Capacity);
             }
 

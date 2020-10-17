@@ -77,6 +77,7 @@ namespace Wire.ValueSerializers
             if (typeof(T).IsFixedSizeType())
             {
                 var size = typeof(T).GetTypeSize();
+                
                 var result = new byte[array.Length * size];
                 Buffer.BlockCopy(array, 0, result, 0, result.Length);
                 stream.Write(result);

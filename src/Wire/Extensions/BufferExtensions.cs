@@ -1,11 +1,13 @@
 using System;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 using Wire.ValueSerializers;
 
 namespace Wire.Extensions
 {
     public static class BufferExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteByte(this IBufferWriter<byte> self, byte b)
         {
             var span = self.GetSpan(1);
@@ -13,6 +15,7 @@ namespace Wire.Extensions
             self.Advance(1);
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Write(this IBufferWriter<byte> self, byte[] b)
         {
             var span = self.GetSpan(b.Length);
@@ -20,12 +23,14 @@ namespace Wire.Extensions
             self.Advance(b.Length);
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteLengthEncodedByteArray(this IBufferWriter<byte> self, byte[] bytes)
         {
             Int32Serializer.WriteValueImpl(self, bytes.Length);
             self.Write(bytes);
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
          public static void WriteObjectWithManifest(this IBufferWriter<byte> stream, object? value, SerializerSession session)
         {
             if (value == null) //value is null
@@ -52,6 +57,7 @@ namespace Wire.Extensions
             }
         }
 
+         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteObject(this IBufferWriter<byte> stream, object? value, Type valueType,
             ValueSerializer valueSerializer,
             bool preserveObjectReferences, SerializerSession session)
