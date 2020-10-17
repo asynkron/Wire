@@ -45,7 +45,7 @@ namespace Playground
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < 20_000_000; i++)
             {
-                var bufferWriter = new ByteArrayBufferWriter(bytes);
+                var bufferWriter = new SingleSegmentBuffer(bytes);
                 s.Serialize(some,bufferWriter);    
             }
             Console.WriteLine(sw.Elapsed.TotalMilliseconds);

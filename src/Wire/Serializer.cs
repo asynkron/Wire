@@ -202,13 +202,13 @@ namespace Wire
             var serializer = new ObjectSerializer(type);
             if (Options.KnownTypesDict.TryGetValue(type, out var index))
             {
-                var wrapper = new KnownTypeObjectSerializer((ObjectSerializer) serializer, index);
+                var wrapper = new KnownTypeObjectSerializer(serializer, index);
                 if (!_serializers.TryAdd(type, wrapper)) return _serializers[type];
 
                 try
                 {
                     //build the serializer IL code
-                    CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
+                    CodeGenerator.BuildSerializer(this, serializer);
                 }
                 catch (Exception exp)
                 {
@@ -221,7 +221,8 @@ namespace Wire
                 return wrapper;
             }
 
-            if (!_serializers.TryAdd(type, serializer)) return _serializers[type];
+            if (!_serializers.TryAdd(type, serializer)) 
+                return _serializers[type];
 
             try
             {
@@ -294,7 +295,7 @@ namespace Wire
         
         public void Serialize(object obj, byte[] destination, SerializerSession session)
         {
-            var b = new ByteArrayBufferWriter(destination);
+            var b = new SingleSegmentBuffer(destination);
             Serialize(obj, b,session);
         }
     }

@@ -1,59 +1,39 @@
 using System;
 using System.Buffers;
-using System.Runtime.CompilerServices;
+using System.Diagnostics.Contracts;
+using System.Text;
 
 namespace Wire.Buffers
 {
-    /// <summary>
-    /// A special-purpose <see cref="IBufferWriter{T}"/> implementation for supporting <see cref="Span{T}"/> in <see cref="Writer{TBufferWriter}"/>.
-    /// </summary>
-    public struct ByteArrayBufferWriter : IBufferWriter<byte>
+    public struct SingleSegmentBuffer : IBufferWriter<byte>
     {
-        private readonly int _maxLength;
-        private int _bytesWritten;
         private readonly byte[] _buffer;
+        private int _written;
 
-        public ByteArrayBufferWriter(byte[] buffer)
+        public SingleSegmentBuffer(byte[] buffer)
         {
-            _maxLength = buffer.Length;
-            _bytesWritten = 0;
             _buffer = buffer;
+            _written = 0;
         }
 
-        public int BytesWritten => _bytesWritten;
+        public void Advance(int bytes) => _written += bytes;
 
-        /// <inheritdoc />
-        public void Advance(int count) => _bytesWritten += count;
+        [Pure]
+        public Memory<byte> GetMemory(int sizeHint = 0) => _buffer.AsMemory(_written);
 
-        /// <inheritdoc />
-        public Memory<byte> GetMemory(int sizeHint = 0)
-        {
-            if (_bytesWritten + sizeHint > _maxLength)
-            {
-                ThrowInsufficientCapacity(sizeHint);
-            }
+        [Pure]
+        public Span<byte> GetSpan(int sizeHint) => _buffer.AsSpan(_written);
 
-            return _buffer.AsMemory()[_bytesWritten..];
+        public byte[] ToArray() => _buffer.AsSpan(0, _written).ToArray();
 
-            [MethodImpl(MethodImplOptions.NoInlining)]
-            static void ThrowNotSupported() => throw new NotSupportedException("Method is not supported on this instance");
-        }
+        public void Reset() => _written = 0;
 
-        /// <inheritdoc />
-        public Span<byte> GetSpan(int sizeHint = 0)
-        {
-            if (_bytesWritten + sizeHint > _maxLength)
-            {
-                ThrowInsufficientCapacity(sizeHint);
-            }
+        [Pure]
+        public int Length => _written;
 
-            return _buffer.AsSpan()[_bytesWritten..];
+        [Pure]
+        public ReadOnlySequence<byte> GetReadOnlySequence() => new ReadOnlySequence<byte>(_buffer, 0, _written);
 
-            [MethodImpl(MethodImplOptions.NoInlining)]
-            static void ThrowNotSupported() => throw new NotSupportedException("Method is not supported on this instance");
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private void ThrowInsufficientCapacity(int sizeHint) => throw new InvalidOperationException($"Insufficient capacity to perform the requested operation. Buffer size is {_maxLength}. Current length is {_bytesWritten} and requested size increase is {sizeHint}");
+        public override string ToString() => Encoding.UTF8.GetString(_buffer.AsSpan(0, _written).ToArray());
     }
 }

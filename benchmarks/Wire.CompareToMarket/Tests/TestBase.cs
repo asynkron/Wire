@@ -209,7 +209,7 @@ namespace Wire.PerfTest.Tests
             
             RunTest("Protobuf.NET + byte[] writer", () =>
             {
-                var buffer = new ByteArrayBufferWriter(bytes2);
+                var buffer = new SingleSegmentBuffer(bytes2);
                 ProtoBuf.Serializer.Serialize(buffer, Value);
             }, () =>
             {
@@ -356,7 +356,7 @@ namespace Wire.PerfTest.Tests
             
             RunTest("Wire - KnownTypes + Reuse Sessions + byte[] writer", () =>
             {
-                var b = new Buffers.ByteArrayBufferWriter(bytes);
+                var b = new Buffers.SingleSegmentBuffer(bytes);
                 serializer.Serialize(Value, b, ss);
             }, () =>
             {
