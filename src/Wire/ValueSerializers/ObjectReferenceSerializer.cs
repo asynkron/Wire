@@ -25,7 +25,7 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
-            Int32Serializer.WriteValueImpl(stream, (int) value);
+            Int32Serializer.WriteValue(stream, (int) value);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)

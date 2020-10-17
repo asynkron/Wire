@@ -7,7 +7,18 @@ using Wire.Buffers;
 
 namespace Playground
 {
+    
+    public class TypicalMessage
+    {
+       public  string StringProp { get; set; }
 
+        public  int IntProp { get; set; }
+
+        public  Guid GuidProp { get; set; }
+
+        public  DateTime DateProp { get; set; }
+    }
+    
     public sealed class SomeClass
     {
         public string Prop1 { get; set; }
@@ -25,7 +36,7 @@ namespace Playground
         static void Main(string[] args)
         {
             var s = new Serializer(new SerializerOptions(
-                knownTypes:new List<Type> {typeof(SomeClass),typeof(SomeOther)})
+                knownTypes:new List<Type> {typeof(SomeClass),typeof(SomeOther),typeof(TypicalMessage)})
             );
             var some = new SomeClass
             {
@@ -35,6 +46,14 @@ namespace Playground
                 {
                     BoolProp = false
                 }
+            };
+
+            var msg = new TypicalMessage()
+            {
+                DateProp = DateTime.Now,
+                GuidProp = Guid.NewGuid(),
+                IntProp = 12,
+                StringProp = "fskdjfksjkfjsdklfjslkfjslkfjslkfjsldkjflsj"
             };
             // var ms = new MemoryStream();
             // var bufferWriter = new MemoryStreamBufferWriter(ms);
@@ -46,7 +65,7 @@ namespace Playground
             for (var i = 0; i < 50_000_000; i++)
             {
                 var bufferWriter = new SingleSegmentBuffer(bytes);
-                s.Serialize(some,bufferWriter);    
+                s.Serialize(msg,bufferWriter);    
             }
             Console.WriteLine(sw.Elapsed.TotalMilliseconds);
             

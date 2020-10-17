@@ -24,10 +24,10 @@ namespace Wire.ValueSerializers
         {
             var data = decimal.GetBits(value);
             
-            Int32Serializer.WriteValueImpl(stream, data[0]);
-            Int32Serializer.WriteValueImpl(stream, data[1]);
-            Int32Serializer.WriteValueImpl(stream, data[2]);
-            Int32Serializer.WriteValueImpl(stream, data[3]);
+            Int32Serializer.WriteValue(stream, data[0]);
+            Int32Serializer.WriteValue(stream, data[1]);
+            Int32Serializer.WriteValue(stream, data[2]);
+            Int32Serializer.WriteValue(stream, data[3]);
         }
 
         private static decimal ReadValueImpl(Stream stream, byte[] bytes)

@@ -31,9 +31,9 @@ namespace Wire.ValueSerializers
             stream.Advance(size);
         }
 
-        public static void WriteValueImpl(IBufferWriter<byte> stream, int i)
+        public static void WriteValue(IBufferWriter<byte> stream, int value)
         {
-            WriteValueImpl(stream, i, Size);
+            WriteValueImpl(stream, value, Size);
         }
 
         public static int ReadValueImpl(Stream stream, byte[] bytes)

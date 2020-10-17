@@ -18,13 +18,14 @@ namespace Wire.SerializerFactories
 
             object Reader(Stream stream, DeserializerSession session)
             {
-                var intValue = Int32Serializer.Instance.ReadValue(stream,session);
+                var bytes = session.GetBuffer(4);
+                var intValue = Int32Serializer.ReadValueImpl(stream,bytes);
                 return Enum.ToObject(type, intValue);
             }
 
             static void Writer(IBufferWriter<byte> stream, object enumValue, SerializerSession session)
             {
-                Int32Serializer.Instance.WriteValue(stream,enumValue,session);
+                Int32Serializer.WriteValue(stream,(int)enumValue);
             }
 
             enumSerializer.Initialize(Reader, Writer);

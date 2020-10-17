@@ -36,7 +36,7 @@ namespace Wire.SerializerFactories
         {
             if (preserveObjectReferences) session.TrackSerializedObject(array);
 
-            Int32Serializer.WriteValueImpl(stream, array.Length);
+            Int32Serializer.WriteValue(stream, array.Length);
             foreach (var value in array)
                 stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
         }
