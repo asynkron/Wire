@@ -15,7 +15,7 @@ namespace Wire.Buffers
         private int _bytesWritten;
         private const int MinRequestSize = 256;
 
-        internal PoolingStreamBufferWriter(Stream stream, int sizeHint)
+        public PoolingStreamBufferWriter(Stream stream, int sizeHint)
         {
             _stream = stream;
             _buffer = ArrayPool<byte>.Shared.Rent(Math.Max(sizeHint, MinRequestSize));
@@ -77,7 +77,18 @@ namespace Wire.Buffers
 
         private void Resize(int sizeHint)
         {
-            var newBuffer = ArrayPool<byte>.Shared.Rent(_bytesWritten + sizeHint);
+            if (sizeHint < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(sizeHint));
+            }
+            
+            var newBuffer = ArrayPool<byte>.Shared.Rent(_buffer.Length + sizeHint);
+
+            if (_buffer.Length > newBuffer.Length)
+            {
+                throw new Exception("What!?");
+            }
+            
             _buffer.CopyTo(newBuffer, 0);
             ArrayPool<byte>.Shared.Return(_buffer);
             _buffer = newBuffer;
