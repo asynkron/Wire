@@ -122,6 +122,13 @@ namespace Wire.Compilation
             var assignBuffer = c.WriteVar(buffer, bufferValue);
             c.Emit(assignBuffer);
         }
+        
+        private static void EmitBuffer2<T>(Compiler<T> c,Expression stream, int bufferSize, MethodInfo getBuffer) where T : class
+        {
+            var size = c.Constant(bufferSize);
+            var allocateBuffer = c.Call(getBuffer,stream, size);
+            c.Emit(allocateBuffer);
+        }
 
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
@@ -150,8 +157,9 @@ namespace Wire.Compilation
             bufferSize = serializers.Length != 0 ? serializers.Max(s => s.PreallocatedByteBufferSize) : 0;
 
             // if (bufferSize > 0)
-            //     EmitBuffer(c, bufferSize, session,
-            //         typeof(SerializerSession).GetMethod(nameof(SerializerSession.GetBuffer))!);
+            //     EmitBuffer2(c,stream, bufferSize,
+            //         typeof(IBufferWriter<byte>)
+            //             .GetMethod(nameof(IBufferWriter<byte>.GetSpan))!);
 
             for (var i = 0; i < fieldsArray.Length; i++)
             {

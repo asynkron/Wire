@@ -35,8 +35,8 @@ namespace Wire.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteObject(this IBufferWriter<byte> stream, object? value, Type valueType,
-            ValueSerializer valueSerializer,
+        public static void WriteObject(this IBufferWriter<byte> stream, object? value, Type expectedType,
+            ValueSerializer expectedValueSerializer,
             bool preserveObjectReferences, SerializerSession session)
         {
             if (value == null) //value is null
@@ -55,8 +55,8 @@ namespace Wire.Extensions
             }
 
             var vType = value.GetType();
-            var s2 = valueSerializer;
-            if (vType != valueType)
+            var s2 = expectedValueSerializer;
+            if (vType != expectedType)
                 //value is of subtype, lookup the serializer for that type
                 s2 = session.Serializer.GetSerializerByType(vType);
             //lookup serializer for subtype
