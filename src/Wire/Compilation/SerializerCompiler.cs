@@ -149,9 +149,9 @@ namespace Wire.Compilation
 
             bufferSize = serializers.Length != 0 ? serializers.Max(s => s.PreallocatedByteBufferSize) : 0;
 
-            if (bufferSize > 0)
-                EmitBuffer(c, bufferSize, session,
-                    typeof(SerializerSession).GetMethod(nameof(SerializerSession.GetBuffer))!);
+            // if (bufferSize > 0)
+            //     EmitBuffer(c, bufferSize, session,
+            //         typeof(SerializerSession).GetMethod(nameof(SerializerSession.GetBuffer))!);
 
             for (var i = 0; i < fieldsArray.Length; i++)
             {

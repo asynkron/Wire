@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Wire;
+using Wire.Buffers;
 
 namespace Playground
 {
@@ -31,7 +32,7 @@ namespace Playground
                     BoolProp = false
                 }
             };
-            var stream = new MemoryStream();
+            var stream = new MemoryStreamBufferWriter(new MemoryStream());
             s.Serialize(some,stream);
         }
     }

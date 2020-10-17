@@ -25,10 +25,10 @@ namespace Wire.PerfTest
         private static void Run()
         {
             var typicalMessageTest = new TypicalMessageTest();
-            typicalMessageTest.Run(10000000);
+            typicalMessageTest.Run(1000000);
             
             var largeStructTest = new LargeStructTest();
-            largeStructTest.Run(10000000);
+            largeStructTest.Run(1000000);
 
             var guidArrayTest = new GuidArrayTest();
             guidArrayTest.Run(30000);

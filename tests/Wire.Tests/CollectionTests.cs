@@ -155,6 +155,23 @@ namespace Wire.Tests
         }
 
         [Fact]
+        public void CanSerializeListOfStrings()
+        {
+            var expected = new[]
+            {
+               "aaaa",
+               "bbbb",
+               "cccc",
+               "dddd"
+            }.ToList();
+
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<List<string>>();
+            Assert.Equal(expected, actual);
+        }
+        
+        [Fact]
         public void CanSerializeList()
         {
             var expected = new[]

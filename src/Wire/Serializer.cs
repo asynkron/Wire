@@ -130,11 +130,7 @@ namespace Wire
             return serializer;
         }
 
-        //this returns a delegate for serializing a specific "field" of an instance of type "type"
-        public void Serialize(object obj, Stream stream, SerializerSession session)
-        {
-            Serialize(obj, new ArrayStreamBufferWriter(stream),session);
-        }
+
 
         public void Serialize(object obj, IBufferWriter<byte> stream, SerializerSession session)
         {
@@ -144,11 +140,6 @@ namespace Wire
             var s = GetSerializerByType(type);
             s.WriteManifest(stream, session);
             s.WriteValue(stream, obj, session);
-        }
-
-        public void Serialize(object obj, Stream stream)
-        {
-            Serialize(obj,new ArrayStreamBufferWriter(stream));
         }
 
         public void Serialize(object obj, IBufferWriter<byte> stream)
@@ -277,6 +268,28 @@ namespace Wire
                 default:
                     throw new NotSupportedException("Unknown manifest value");
             }
+        }
+        
+        //this returns a delegate for serializing a specific "field" of an instance of type "type"
+        public void Serialize(object obj, Stream stream, SerializerSession session)
+        {
+            Serialize(obj, new ArrayStreamBufferWriter(stream),session);
+        }
+
+        public void Serialize(object obj, Stream stream)
+        {
+            Serialize(obj,new ArrayStreamBufferWriter(stream));
+        }
+        
+        //this returns a delegate for serializing a specific "field" of an instance of type "type"
+        public void Serialize(object obj, MemoryStream stream, SerializerSession session)
+        {
+            Serialize(obj, new ArrayStreamBufferWriter(stream,9),session);
+        }
+
+        public void Serialize(object obj, MemoryStream stream)
+        {
+            Serialize(obj,new ArrayStreamBufferWriter(stream,9));
         }
     }
 }

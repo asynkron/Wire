@@ -12,12 +12,14 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Hagar;
+using Hagar.Buffers.Adaptors;
 using Hagar.Serializers;
 using Hagar.Session;
 using Newtonsoft.Json;
 using NFX.IO;
 using NFX.Serialization.Slim;
 using ServiceStack.Text;
+using Wire.Buffers;
 
 namespace Wire.PerfTest.Tests
 {
@@ -341,17 +343,19 @@ namespace Wire.PerfTest.Tests
             using var ds = serializer.GetDeserializerSession();
             var s = new MemoryStream();
             serializer.Serialize(Value, s, ss);
-            var bytes = s.ToArray();
-
+            var size = (int)s.Position;
+            
+            var ms2 = new MemoryStream();
+            var b = new Wire.Buffers.MemoryStreamBufferWriter(ms2);
             RunTest("Wire - KnownTypes + Reuse Sessions", () =>
             {
-                var stream = new MemoryStream();
-                serializer.Serialize(Value, stream, ss);
+                
+                serializer.Serialize(Value, b, ss);
             }, () =>
             {
                 s.Position = 0;
                 serializer.Deserialize<T>(s, ds);
-            }, bytes.Length);
+            }, size);
         }
 
         private void SerializeKnownTypes()

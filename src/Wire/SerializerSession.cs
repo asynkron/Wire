@@ -15,7 +15,6 @@ namespace Wire
         private readonly ushort _nextTypeId;
         private readonly Dictionary<object, int> _objects = null!;
         public readonly Serializer Serializer;
-        private byte[] _buffer = ArrayPool<byte>.Shared.Rent(256);
 
         private int _nextObjectId;
         private LinkedList<Type>? _trackedTypes;
@@ -47,18 +46,6 @@ namespace Wire
         public bool ShouldWriteTypeManifest(Type type, out ushort index)
         {
             return !TryGetValue(type, out index);
-        }
-
-        public byte[] GetBuffer(int length)
-        {
-            if (length <= _buffer.Length) return _buffer;
-
-            length = Math.Max(length, _buffer.Length * 2);
-            
-            ArrayPool<byte>.Shared.Return(_buffer);
-            _buffer = ArrayPool<byte>.Shared.Rent(length);
-
-            return _buffer;
         }
 
         private bool TryGetValue(Type key, out ushort value)
@@ -93,7 +80,7 @@ namespace Wire
 
         public void Dispose()
         {
-            ArrayPool<byte>.Shared.Return(_buffer);
+
         }
     }
 }
