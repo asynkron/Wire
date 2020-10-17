@@ -8,14 +8,14 @@ using Wire.Buffers;
 namespace Playground
 {
 
-    public class SomeClass
+    public sealed class SomeClass
     {
         public string Prop1 { get; set; }
         public int Prop2 { get; set; }
         public SomeOther Prop3 { get; set; }
     }
 
-    public class SomeOther
+    public sealed class SomeOther
     {
         public bool BoolProp { get; set; }
     }
@@ -43,7 +43,7 @@ namespace Playground
 
 
             var sw = Stopwatch.StartNew();
-            for (var i = 0; i < 20_000_000; i++)
+            for (var i = 0; i < 50_000_000; i++)
             {
                 var bufferWriter = new SingleSegmentBuffer(bytes);
                 s.Serialize(some,bufferWriter);    

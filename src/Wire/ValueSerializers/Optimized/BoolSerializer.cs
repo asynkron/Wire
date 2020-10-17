@@ -28,7 +28,7 @@ namespace Wire.ValueSerializers
 
         private static void WriteValueImpl(IBufferWriter<byte> stream, bool b)
         {
-            stream.WriteByte((byte) (b ? 1 : 0));
+            stream.WriteByte(b ? 1 : 0);
         }
     }
 }

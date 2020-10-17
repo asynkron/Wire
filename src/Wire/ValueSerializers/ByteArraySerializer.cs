@@ -24,7 +24,8 @@ namespace Wire.ValueSerializers
         public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
             var bytes = (byte[]) value;
-            stream.WriteLengthEncodedByteArray(bytes);
+            Int32Serializer.WriteValueImpl(stream,bytes.Length);
+            stream.Write(bytes);
             if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(bytes);
         }
 

@@ -22,14 +22,7 @@ namespace Wire.Extensions
             source.CopyTo(destination);
             self.Advance(source.Length);
         }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteLengthEncodedByteArray(this IBufferWriter<byte> self, Span<byte> bytes)
-        {
-            Int32Serializer.WriteValueImpl(self, bytes.Length);
-            self.Write(bytes);
-        }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
          public static void WriteObjectWithManifest(this IBufferWriter<byte> stream, object? value, SerializerSession session)
         {
