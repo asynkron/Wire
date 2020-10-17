@@ -21,7 +21,9 @@ namespace Wire.ValueSerializers
 
         private static void WriteValueImpl(IBufferWriter<byte> stream, byte b)
         {
-            stream.WriteByte(b);
+            var span = stream.GetSpan(1);
+            span[0] = b;
+            stream.Advance(1);
         }
 
         private static byte ReadValueImpl(Stream stream)

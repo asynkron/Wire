@@ -72,7 +72,9 @@ namespace Wire.ValueSerializers
             }
             else
             {
-                stream.WriteByte(ManifestIndex);
+                var span = stream.GetSpan(1);
+                span[0] = ManifestIndex;
+                stream.Advance(1);
                 UInt16Serializer.WriteValueImpl(stream, typeIdentifier);
             }
         }

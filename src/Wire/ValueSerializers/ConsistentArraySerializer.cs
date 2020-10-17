@@ -53,7 +53,9 @@ namespace Wire.ValueSerializers
 
         public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
-            stream.WriteByte(Manifest);
+            var span = stream.GetSpan(1);
+            span[0] = Manifest;
+            stream.Advance(1);
         }
 
         // private static void WriteValues<T>(T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer,

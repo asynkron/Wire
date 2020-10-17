@@ -21,7 +21,10 @@ namespace Wire.ValueSerializers
 
         private static unsafe void WriteValueImpl(IBufferWriter<byte> stream, sbyte @sbyte)
         {
-            stream.WriteByte(*(byte*) &@sbyte);
+            byte b = *(byte*) &@sbyte;
+            var span = stream.GetSpan(1);
+            span[0] = b;
+            stream.Advance(1);
         }
 
         private static unsafe sbyte ReadValueImpl(Stream stream)

@@ -20,7 +20,9 @@ namespace Wire.ValueSerializers
         {
             if (session.ShouldWriteTypeManifest(TypeEx.RuntimeType, out var typeIdentifier))
             {
-                stream.WriteByte(Manifest);
+                var span = stream.GetSpan(1);
+                span[0] = Manifest;
+                stream.Advance(1);
             }
             else
             {

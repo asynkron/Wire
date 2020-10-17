@@ -8,14 +8,6 @@ namespace Wire.Extensions
     public static class BufferExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteByte(this IBufferWriter<byte> self, byte b)
-        {
-            var span = self.GetSpan(1);
-            span[0] = b;
-            self.Advance(1);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
          public static void WriteObjectWithManifest(this IBufferWriter<byte> stream, object? value, SerializerSession session)
         {
             if (value == null) //value is null

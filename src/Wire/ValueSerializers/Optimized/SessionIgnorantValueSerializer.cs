@@ -53,7 +53,9 @@ namespace Wire.ValueSerializers
 
         public sealed override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
-            stream.WriteByte(_manifest);
+            var span = stream.GetSpan(1);
+            span[0] = _manifest;
+            stream.Advance(1);
         }
 
         public sealed override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
