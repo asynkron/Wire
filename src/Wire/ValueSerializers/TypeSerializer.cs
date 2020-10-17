@@ -46,8 +46,8 @@ namespace Wire.ValueSerializers
                 if (session.Serializer.Options.PreserveObjectReferences &&
                     session.TryGetObjectId(type, out var existingId))
                 {
-                    ObjectReferenceSerializer.Instance.WriteManifest(stream, session);
-                    ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
+                    ObjectReferenceSerializer.WriteManifestImpl(stream, session);
+                    ObjectReferenceSerializer.WriteValueImpl(stream, existingId, session);
                 }
                 else
                 {

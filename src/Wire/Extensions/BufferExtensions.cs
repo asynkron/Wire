@@ -13,7 +13,7 @@ namespace Wire.Extensions
         {
             if (value == null) //value is null
             {
-                NullSerializer.Instance.WriteManifest(stream, session);
+                NullSerializer.WriteManifestImpl(stream, session);
                 return;
             }
 
@@ -21,9 +21,9 @@ namespace Wire.Extensions
                 session.TryGetObjectId(value, out var existingId))
             {
                 //write the serializer manifest
-                ObjectReferenceSerializer.Instance.WriteManifest(stream, session);
+                ObjectReferenceSerializer.WriteManifestImpl(stream, session);
                 //write the object reference id
-                ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
+                ObjectReferenceSerializer.WriteValueImpl(stream, existingId, session);
                 return;
             }
 
@@ -41,16 +41,16 @@ namespace Wire.Extensions
         {
             if (value == null) //value is null
             {
-                NullSerializer.Instance.WriteManifest(stream, session);
+                NullSerializer.WriteManifestImpl(stream, session);
                 return;
             }
 
             if (preserveObjectReferences && session.TryGetObjectId(value, out var existingId))
             {
                 //write the serializer manifest
-                ObjectReferenceSerializer.Instance.WriteManifest(stream, session);
+                ObjectReferenceSerializer.WriteManifestImpl(stream, session);
                 //write the object reference id
-                ObjectReferenceSerializer.Instance.WriteValue(stream, existingId, session);
+                ObjectReferenceSerializer.WriteValueImpl(stream, existingId, session);
                 return;
             }
 

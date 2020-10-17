@@ -22,6 +22,13 @@ namespace Wire.ValueSerializers
             span[0] = Manifest;
             stream.Advance(1);
         }
+        
+        public static void WriteManifestImpl(IBufferWriter<byte> stream, SerializerSession session)
+        {
+            var span = stream.GetSpan(1);
+            span[0] = Manifest;
+            stream.Advance(1);
+        }
 
         public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
