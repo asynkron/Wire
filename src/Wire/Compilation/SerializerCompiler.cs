@@ -65,7 +65,7 @@ namespace Wire.Compilation
                 var s = serializers[i];
 
                 Expression read;
-                if (field.FieldType.IsWirePrimitive())
+                if (field.FieldType.IsWirePrimitive() || field.FieldType.IsSealed)
                 {
                     read = s.EmitReadValue(c, stream, session, field);
                 }
@@ -164,7 +164,7 @@ namespace Wire.Compilation
                 var readField = c.ReadField(field, cast);
 
                 //if the type is one of our special primitives, ignore manifest as the content will always only be of this type
-                if (field.FieldType.IsWirePrimitive())
+                if (field.FieldType.IsWirePrimitive() || field.FieldType.IsSealed)
                 {
                     //primitive types does not need to write any manifest, if the field type is known
                     valueSerializer.EmitWriteValue(c, stream, readField, session);
