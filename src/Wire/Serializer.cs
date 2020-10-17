@@ -291,5 +291,11 @@ namespace Wire
         {
             Serialize(obj,new MemoryStreamBufferWriter(stream));
         }
+        
+        public void Serialize(object obj, byte[] destination, SerializerSession session)
+        {
+            var b = new SpanBufferWriter(destination);
+            Serialize(obj, b,session);
+        }
     }
 }

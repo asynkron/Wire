@@ -83,15 +83,15 @@ namespace Wire.PerfTest.Tests
         protected virtual void TestAll()
         {
             SerializeKnownTypesReuseSession();
-            SerializeKnownTypes();
-            SerializeDefault();
+        //    SerializeKnownTypes();
+        //    SerializeDefault();
 
-            SerializePreserveObjects();
+      //      SerializePreserveObjects();
             // SerializeNFXSlim();
             // SerializeNFXSlimPreregister();
             // SerializeSSText();
-            SerializeNetSerializer();
-            SerializeProtoBufNet();
+          //  SerializeNetSerializer();
+          //  SerializeProtoBufNet();
             // SerializeJsonNet();
             // SerializeBinaryFormatter();
         }
@@ -346,14 +346,14 @@ namespace Wire.PerfTest.Tests
             var s = new MemoryStream();
             serializer.Serialize(Value, s, ss);
             var size = (int)s.Position;
-            
-            var ms = new MemoryStream();
+
+            var bytes = new byte[100];
             // var b = new Wire.Buffers.SpanBufferWriter(new Span<byte>(new byte[1000]));
             
             RunTest("Wire - KnownTypes + Reuse Sessions", () =>
             {
-                ms.Position = 0;
-                serializer.Serialize(Value, ms, ss);
+                var b = new Buffers.SpanBufferWriter(bytes);
+                serializer.Serialize(Value, b, ss);
             }, () =>
             {
                 s.Position = 0;

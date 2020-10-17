@@ -35,17 +35,19 @@ namespace Playground
                     BoolProp = false
                 }
             };
-            var ms = new MemoryStream();
-            var bufferWriter = new MemoryStreamBufferWriter(ms);
+            // var ms = new MemoryStream();
+            // var bufferWriter = new MemoryStreamBufferWriter(ms);
 
-            for (var i = 0; i < 20_000_000; i++)
-            {
-                ms.Position = 0;
+            var bufferWriter = new SpanBufferWriter(new byte[20000]);
+
+            // for (var i = 0; i < 20_000_000; i++)
+            // {
+            //     ms.Position = 0;
                 s.Serialize(some,bufferWriter);    
-            }
+            //}
             
 
-            var bytes = ms.ToArray();
+          //  var bytes = ms.ToArray();
         }
     }
 }

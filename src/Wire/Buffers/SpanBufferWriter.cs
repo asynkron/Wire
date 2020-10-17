@@ -11,11 +11,13 @@ namespace Wire.Buffers
     {
         private readonly int _maxLength;
         private int _bytesWritten;
+        private readonly byte[] _buffer;
 
-        public SpanBufferWriter(Span<byte> buffer)
+        public SpanBufferWriter(byte[] buffer)
         {
             _maxLength = buffer.Length;
             _bytesWritten = 0;
+            _buffer = buffer;
         }
 
         public int BytesWritten => _bytesWritten;
@@ -46,8 +48,7 @@ namespace Wire.Buffers
                 ThrowInsufficientCapacity(sizeHint);
             }
 
-            ThrowNotSupported();
-            return default;
+            return _buffer.AsSpan()[_bytesWritten..];
 
             [MethodImpl(MethodImplOptions.NoInlining)]
             static void ThrowNotSupported() => throw new NotSupportedException("Method is not supported on this instance");
