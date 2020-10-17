@@ -33,8 +33,7 @@ namespace Wire.Buffers
                 ThrowInsufficientCapacity(sizeHint);
             }
 
-            ThrowNotSupported();
-            return default;
+            return _buffer.AsMemory()[_bytesWritten..];
 
             [MethodImpl(MethodImplOptions.NoInlining)]
             static void ThrowNotSupported() => throw new NotSupportedException("Method is not supported on this instance");

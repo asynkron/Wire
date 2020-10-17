@@ -22,7 +22,11 @@ namespace Wire.Buffers
         }
 
         /// <inheritdoc />
-        public void Advance(int count) => _bytesWritten += count;
+        public void Advance(int count)
+        {
+            _bytesWritten += count;
+            _stream.Position += count;
+        }
 
         /// <inheritdoc />
         public Memory<byte> GetMemory(int sizeHint = 0)
@@ -38,7 +42,7 @@ namespace Wire.Buffers
                 sizeHint = MinRequestSize;
             }
 
-            if (_stream.Capacity - _bytesWritten < sizeHint)
+            if (_bytes.Length - _bytesWritten < sizeHint)
             {
                 _stream.Capacity += sizeHint;
                 _stream.SetLength(_stream.Capacity);

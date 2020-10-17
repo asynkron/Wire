@@ -92,7 +92,7 @@ namespace Wire.PerfTest.Tests
             // SerializeNFXSlimPreregister();
             // SerializeSSText();
             //  SerializeNetSerializer();
-            //  SerializeProtoBufNet();
+            SerializeProtoBufNet();
             // SerializeJsonNet();
             // SerializeBinaryFormatter();
         }
@@ -180,9 +180,10 @@ namespace Wire.PerfTest.Tests
                 };
                 _results.Add(testResult);
             }
-            catch
+            catch(Exception x)
             {
                 Console.WriteLine($"    FAILURE");
+                Console.WriteLine(x);
             }
         }
 
@@ -203,11 +204,13 @@ namespace Wire.PerfTest.Tests
             var s = new MemoryStream();
             ProtoBuf.Serializer.Serialize(s, Value);
             var bytes = s.ToArray();
-            var stream = new MemoryStream();
-            RunTest("Protobuf.NET", () =>
+            var bytes2 = new byte[20000];
+           
+            
+            RunTest("Protobuf.NET + byte[] writer", () =>
             {
-                stream.Position = 0;
-                ProtoBuf.Serializer.Serialize(stream, Value);
+                var buffer = new ByteArrayBufferWriter(bytes2);
+                ProtoBuf.Serializer.Serialize(buffer, Value);
             }, () =>
             {
                 s.Position = 0;
@@ -351,7 +354,7 @@ namespace Wire.PerfTest.Tests
             var bytes = new byte[100];
             // var b = new Wire.Buffers.SpanBufferWriter(new Span<byte>(new byte[1000]));
             
-            RunTest("Wire - KnownTypes + Reuse Sessions + byte[]", () =>
+            RunTest("Wire - KnownTypes + Reuse Sessions + byte[] writer", () =>
             {
                 var b = new Buffers.ByteArrayBufferWriter(bytes);
                 serializer.Serialize(Value, b, ss);
@@ -375,7 +378,7 @@ namespace Wire.PerfTest.Tests
             var ms = new MemoryStream(1000);
             // var b = new Wire.Buffers.SpanBufferWriter(new Span<byte>(new byte[1000]));
             
-            RunTest("Wire - KnownTypes + Reuse Sessions + MemoryStream", () =>
+            RunTest("Wire - KnownTypes + Reuse Sessions + MemoryStream writer", () =>
             {
                 ms.Position = 0;
                 var b = new Buffers.MemoryStreamBufferWriter(ms);
