@@ -7,6 +7,7 @@
 using System;
 using System.Buffers;
 using System.IO;
+using Wire.Buffers;
 using Wire.Extensions;
 
 namespace Wire.ValueSerializers
@@ -16,29 +17,24 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 16;
         public static readonly TypeSerializer Instance = new TypeSerializer();
 
-        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
+        public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
         {
             if (session.ShouldWriteTypeManifest(TypeEx.RuntimeType, out var typeIdentifier))
             {
-                var span = stream.GetSpan(1);
-                span[0] = Manifest;
-                stream.Advance(1);
+                writer.Write(Manifest);
             }
             else
             {
-                byte[] source = {ObjectSerializer.ManifestIndex};
-                var destination = stream.GetSpan(source.Length);
-                source.CopyTo(destination);
-                stream.Advance(source.Length);
-                UInt16Serializer.WriteValueImpl(stream, typeIdentifier);
+                writer.Write(ObjectSerializer.ManifestIndex);
+                writer.Write(typeIdentifier);
             }
         }
 
-        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
         {
             if (value == null)
             {
-                StringSerializer.WriteValueImpl(stream, null, session);
+                StringSerializer.WriteValueImpl(writer, null, session);
             }
             else
             {
@@ -46,15 +42,15 @@ namespace Wire.ValueSerializers
                 if (session.Serializer.Options.PreserveObjectReferences &&
                     session.TryGetObjectId(type, out var existingId))
                 {
-                    ObjectReferenceSerializer.WriteManifestImpl(stream, session);
-                    ObjectReferenceSerializer.WriteValueImpl(stream, existingId, session);
+                    ObjectReferenceSerializer.WriteManifestImpl(writer, session);
+                    ObjectReferenceSerializer.WriteValueImpl(writer, existingId, session);
                 }
                 else
                 {
                     if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(type);
                     //type was not written before, add it to the tacked object list
                     var name = type.GetShortAssemblyQualifiedName();
-                    StringSerializer.WriteValueImpl(stream, name, session);
+                    StringSerializer.WriteValueImpl(writer, name, session);
                 }
             }
         }

@@ -7,6 +7,7 @@
 using System;
 using System.Buffers;
 using System.IO;
+using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers.Optimized;
 
@@ -17,23 +18,19 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 253;
         public static readonly ObjectReferenceSerializer Instance = new ObjectReferenceSerializer();
 
-        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
+        public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
         {
-            var span = stream.GetSpan(1);
-            span[0] = Manifest;
-            stream.Advance(1);
+            writer.Write(Manifest);
         }
         
-        public static void WriteManifestImpl(IBufferWriter<byte> stream, SerializerSession session)
+        public static void WriteManifestImpl<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session) where TBufferWriter : IBufferWriter<byte>
         {
-            var span = stream.GetSpan(1);
-            span[0] = Manifest;
-            stream.Advance(1);
+            writer.Write(Manifest);
         }
         
-        public static void WriteValueImpl(IBufferWriter<byte> stream, object value, SerializerSession session)
+        private static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, int value) where TBufferWriter:IBufferWriter<byte>
         {
-            Int32Serializer.WriteValue(stream, (int) value);
+            writer.Write(value);
         }
 
         public static object ReadValueImpl(Stream stream, DeserializerSession session)
@@ -43,10 +40,7 @@ namespace Wire.ValueSerializers
             return obj;
         }
 
-        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
-        {
-            Int32Serializer.WriteValue(stream, (int) value);
-        }
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session) => WriteValueImpl(writer, (int) value);
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {

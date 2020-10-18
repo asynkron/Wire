@@ -11,14 +11,18 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using FastExpressionCompiler.LightExpression;
+using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
 namespace Wire.Compilation
 {
-    public class SerializerCompiler 
+    public static class SerializerCompiler
     {
         public const string PreallocatedByteBuffer = nameof(PreallocatedByteBuffer);
+    }
+    public class SerializerCompiler<TBufferWriter> where TBufferWriter : IBufferWriter<byte>
+    {
 
         public void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer)
         {
@@ -117,7 +121,7 @@ namespace Wire.Compilation
             MethodInfo getBuffer) where T : class
         {
             var size = c.Constant(bufferSize);
-            var buffer = c.Variable<byte[]>(PreallocatedByteBuffer);
+            var buffer = c.Variable<byte[]>(SerializerCompiler.PreallocatedByteBuffer);
             var bufferValue = c.Call(getBuffer, session, size);
             var assignBuffer = c.WriteVar(buffer, bufferValue);
             c.Emit(assignBuffer);
@@ -132,11 +136,11 @@ namespace Wire.Compilation
 
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
-        private ObjectWriter GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields,
+        private ObjectWriter<TBufferWriter> GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields,
             Type type,
             out int bufferSize)
         {
-            var c = new Compiler<ObjectWriter>();
+            var c = new Compiler<ObjectWriter<TBufferWriter>>();
 
             var stream = c.Parameter<IBufferWriter<byte>>("stream");
             var target = c.Parameter<object>("target");
@@ -207,11 +211,11 @@ namespace Wire.Compilation
             
             var tmp = del;
 
-            void Del(IBufferWriter<byte> tStream, object tObj, SerializerSession tSession)
+            void Del(ref Writer<TBufferWriter> tWriter, object tObj, SerializerSession tSession)
             {
                 try
                 {
-                    tmp(tStream, tObj, tSession);
+                    tmp(ref tWriter, tObj, tSession);
                 }
                 catch
                 {
