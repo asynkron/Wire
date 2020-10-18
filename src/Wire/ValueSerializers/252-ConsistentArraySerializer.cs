@@ -5,10 +5,9 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.IO;
+using Wire.Buffers;
 using Wire.Extensions;
-using Wire.ValueSerializers.Optimized;
 
 namespace Wire.ValueSerializers
 {
@@ -26,22 +25,11 @@ namespace Wire.ValueSerializers
             var length = stream.ReadInt32(session);
             var array = Array.CreateInstance(elementType, length); //create the array
             if (session.Serializer.Options.PreserveObjectReferences) session.TrackDeserializedObject(array);
-
-            if (elementType.IsFixedSizeType())
+            
+            for (var i = 0; i < length; i++)
             {
-                var size = elementType.GetTypeSize();
-                var totalSize = size * length;
-                var buffer = session.GetBuffer(totalSize);
-                stream.Read(buffer, 0, totalSize);
-                Buffer.BlockCopy(buffer, 0, array, 0, totalSize);
-            }
-            else
-            {
-                for (var i = 0; i < length; i++)
-                {
-                    var value = elementSerializer.ReadValue(stream, session); //read the element value
-                    array.SetValue(value, i); //set the element value
-                }
+                var value = elementSerializer.ReadValue(stream, session); //read the element value
+                array.SetValue(value, i); //set the element value
             }
 
             return array;
@@ -52,44 +40,22 @@ namespace Wire.ValueSerializers
             throw new NotSupportedException();
         }
 
-        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
+        public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
         {
-            var span = stream.GetSpan(1);
-            span[0] = Manifest;
-            stream.Advance(1);
+            writer.Write(Manifest);
         }
 
-        // private static void WriteValues<T>(T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer,
-        // private static object ReadValues<T>(Stream stream, DeserializerSession session, bool preserveObjectReferences)
-
-        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
         {
+            var array = (Array) value;
             if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(value);
             var elementType = value.GetType().GetElementType();
             var elementSerializer = session.Serializer.GetSerializerByType(elementType);
-            elementSerializer.WriteManifest(stream, session); //write array element type
-            // ReSharper disable once PossibleNullReferenceException
-            //TODO fix this
-            WriteValues((dynamic) value, stream, elementSerializer, session);
-        }
+            elementSerializer.WriteManifest(writer, session); //write array element type
 
-        private static void WriteValues<T>(T[] array, IBufferWriter<byte> stream, ValueSerializer elementSerializer,
-            SerializerSession session)
-        {
-            Int32Serializer.WriteValue(stream, array.Length);
-            if (typeof(T).IsFixedSizeType())
+            foreach (var element in array)
             {
-                var size = typeof(T).GetTypeSize();
-                
-                var result = new byte[array.Length * size];
-                Buffer.BlockCopy(array, 0, result, 0, result.Length);
-                var destination = stream.GetSpan(result.Length);
-                result.CopyTo(destination);
-                stream.Advance(result.Length);
-            }
-            else
-            {
-                foreach (var value in array) elementSerializer.WriteValue(stream, value!, session);
+                elementSerializer.WriteValue(writer, element, session);
             }
         }
     }

@@ -21,25 +21,24 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 7;
         public static readonly StringSerializer Instance = new StringSerializer();
 
-        public static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, string s,
-            SerializerSession session) where TBufferWriter : IBufferWriter<byte>
+        public static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, string? value) where TBufferWriter : IBufferWriter<byte>
         {
             //if first byte is 0 = null
             //if first byte is 254 or less, then length is value - 1
             //if first byte is 255 then the next 4 bytes are an int32 for length
-            if (s == null)
+            if (value == null)
             {
                 writer.Write((byte) 0);
                 return;
             }
 
-            var byteCount = BitConverterEx.Utf8.GetByteCount(s);
+            var byteCount = BitConverterEx.Utf8.GetByteCount(value);
             if (byteCount < 254) //short string
             {
                 writer.Allocate(byteCount + 1);
                 var span = writer.WritableSpan;
                 span[0] = (byte) (byteCount + 1);
-                BitConverterEx.Utf8.GetBytes(s, span[1..]);
+                BitConverterEx.Utf8.GetBytes(value, span[1..]);
                 writer.AdvanceSpan(byteCount + 1);
                 return;
             }
@@ -52,7 +51,7 @@ namespace Wire.ValueSerializers
             //int count
             BitConverter.TryWriteBytes(span2[1..], byteCount);
             //write actual string content
-            BitConverterEx.Utf8.GetBytes(s, span2[(1 + 4)..]);
+            BitConverterEx.Utf8.GetBytes(value, span2[(1 + 4)..]);
             writer.AdvanceSpan(byteCount + 1 + 4);
         }
 
@@ -68,7 +67,7 @@ namespace Wire.ValueSerializers
 
         public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
         {
-            WriteValueImpl(writer, (string) value, session);
+            WriteValueImpl(writer, (string) value);
         }
 
         public override object? ReadValue(Stream stream, DeserializerSession session)

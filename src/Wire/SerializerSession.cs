@@ -19,11 +19,10 @@ namespace Wire
         private int _nextObjectId;
         private LinkedList<Type>? _trackedTypes;
 
-        public SerializerSession(Serializer serializer)
+        public SerializerSession(SerializerOptions options)
         {
-            Serializer = serializer;
-            if (serializer.Options.PreserveObjectReferences) _objects = new Dictionary<object, int>();
-            _nextTypeId = (ushort) serializer.Options.KnownTypes.Length;
+            if (options.PreserveObjectReferences) _objects = new Dictionary<object, int>();
+            _nextTypeId = (ushort) options.KnownTypes.Length;
         }
 
         public void TrackSerializedObject(object obj)

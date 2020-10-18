@@ -18,7 +18,7 @@ using Wire.ValueSerializers.Optimized;
 
 namespace Wire
 {
-    public class Serializer
+    public class Serializer 
     {
         private readonly ValueSerializer[] _deserializerLookup = new ValueSerializer[256];
 
@@ -29,8 +29,7 @@ namespace Wire
 
         private readonly ConcurrentDictionary<Type, ValueSerializer> _serializers =
             new ConcurrentDictionary<Type, ValueSerializer>();
-
-        public readonly SerializerCompiler CodeGenerator = new SerializerCompiler();
+        
         public readonly SerializerOptions Options;
 
         public Serializer() : this(new SerializerOptions())
@@ -127,7 +126,7 @@ namespace Wire
             //add it to the serializer lookup in case of recursive serialization
             if (!_deserializers.TryAdd(type, serializer)) return _deserializers[type];
             //build the serializer IL code
-            CodeGenerator.BuildSerializer(this, (ObjectSerializer) serializer);
+            SerializerCompiler<TBufferWriter>.BuildSerializer(this, (ObjectSerializer) serializer);
             return serializer;
         }
 
@@ -153,10 +152,8 @@ namespace Wire
             s.WriteValue(writer, obj, session);
         }
 
-        public SerializerSession GetSerializerSession()
-        {
-            return new SerializerSession(this);
-        }
+        public SerializerSession GetSerializerSession() => 
+            new SerializerSession(Options);
 
         public T Deserialize<T>(Stream stream)
         {
@@ -209,7 +206,7 @@ namespace Wire
                 try
                 {
                     //build the serializer IL code
-                    CodeGenerator.BuildSerializer(this, serializer);
+                    SerializerCompiler<TBufferWriter>.BuildSerializer(this, serializer);
                 }
                 catch (Exception exp)
                 {
@@ -228,7 +225,7 @@ namespace Wire
             try
             {
                 //build the serializer IL code
-                CodeGenerator.BuildSerializer(this, serializer);
+                SerializerCompiler<TBufferWriter>.BuildSerializer(this, serializer);
             }
             catch (Exception exp)
             {
@@ -236,7 +233,6 @@ namespace Wire
                 _serializers[type] = invalidSerializer;
                 return invalidSerializer;
             }
-
 
             //just ignore if this fails, another thread have already added an identical serializer
             return serializer;
@@ -281,7 +277,7 @@ namespace Wire
 
         public void Serialize(object obj, Stream stream)
         {
-            var writer = Writer.Create(stream, new SerializerSession(this));
+            var writer = Writer.Create(stream, new SerializerSession(Options));
             Serialize(obj,writer);
         }
         
@@ -294,7 +290,7 @@ namespace Wire
 
         public void Serialize(object obj, MemoryStream stream)
         {
-            var writer = Writer.Create(stream,new SerializerSession(this));
+            var writer = Writer.Create(stream,new SerializerSession(Options));
             Serialize(obj,writer);
         }
         

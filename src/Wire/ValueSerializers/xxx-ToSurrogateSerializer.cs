@@ -7,6 +7,7 @@
 using System;
 using System.Buffers;
 using System.IO;
+using Wire.Buffers;
 using Wire.Extensions;
 
 namespace Wire.ValueSerializers
@@ -20,15 +21,15 @@ namespace Wire.ValueSerializers
             _translator = translator;
         }
 
-        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
+        public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
         {
             //intentionally left blank
         }
 
-        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
         {
             var surrogateValue = _translator(value);
-            stream.WriteObjectWithManifest(surrogateValue, session);
+            writer.WriteObjectWithManifest(surrogateValue, session);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)

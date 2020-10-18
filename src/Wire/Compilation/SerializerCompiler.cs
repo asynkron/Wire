@@ -21,10 +21,10 @@ namespace Wire.Compilation
     {
         public const string PreallocatedByteBuffer = nameof(PreallocatedByteBuffer);
     }
-    public class SerializerCompiler<TBufferWriter> where TBufferWriter : IBufferWriter<byte>
+    public static class SerializerCompiler<TBufferWriter> where TBufferWriter : IBufferWriter<byte>
     {
 
-        public void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer)
+        public static void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer)
         {
             var type = objectSerializer.Type;
             var fields = type.GetFieldInfosForType();
@@ -34,7 +34,7 @@ namespace Wire.Compilation
             objectSerializer.Initialize(reader, writer, bufferSize);
         }
 
-        private ObjectReader GetFieldsReader(Serializer serializer, FieldInfo[] fields,
+        private static ObjectReader GetFieldsReader(Serializer serializer, FieldInfo[] fields,
             Type type)
         {
             var c = new Compiler<ObjectReader>();
@@ -136,7 +136,7 @@ namespace Wire.Compilation
 
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
-        private ObjectWriter<TBufferWriter> GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields,
+        private static ObjectWriter<TBufferWriter> GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields,
             Type type,
             out int bufferSize)
         {

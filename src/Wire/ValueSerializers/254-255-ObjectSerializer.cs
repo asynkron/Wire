@@ -24,7 +24,7 @@ namespace Wire.ValueSerializers
         private volatile bool _isInitialized;
         private int _preallocatedBufferSize;
         private ObjectReader _reader;
-        private ObjectWriter _writer;
+        private ObjectWriter<TBufferWriter> _writer;
 
         public ObjectSerializer(Type type)
         {
@@ -45,44 +45,41 @@ namespace Wire.ValueSerializers
                     .ToArray(); //serializer id 255 + assembly qualified name
 
             //initialize reader and writer with dummy handlers that wait until the serializer is fully initialized
-            _writer = (stream, o, session) =>
-            {
-                SpinWait.SpinUntil(() => _isInitialized);
-                WriteValue(stream, o, session);
-            };
+            _writer = writer;
 
             _reader = (stream, session) =>
             {
                 SpinWait.SpinUntil(() => _isInitialized);
                 return ReadValue(stream, session);
             };
+            
+            void writer<TBufferWriter>(ref Writer<TBufferWriter> stream, object o, SerializerSession session) where TBufferWriter:IBufferWriter<byte>
+            {
+                SpinWait.SpinUntil(() => _isInitialized);
+                WriteValue(stream, o, session);
+            }
         }
 
         public Type Type { get; }
 
         public override int PreallocatedByteBufferSize => _preallocatedBufferSize;
 
-        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
+        public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
         {
             if (session.ShouldWriteTypeManifest(Type, out var typeIdentifier))
             {
                 session.TrackSerializedType(Type);
-                var destination = stream.GetSpan(_manifest.Length);
-                _manifest.CopyTo(destination);
-                stream.Advance(_manifest.Length);
+                writer.Write(_manifest);
             }
             else
             {
-                var span = stream.GetSpan(1);
-                span[0] = ManifestIndex;
-                stream.Advance(1);
-                UInt16Serializer.WriteValueImpl(stream, typeIdentifier);
+                writer.Write(ManifestIndex);
             }
         }
 
-        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
         {
-            _writer(stream, value, session);
+            _writer(writer, value, session);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)

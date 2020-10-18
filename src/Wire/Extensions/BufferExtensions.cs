@@ -23,7 +23,7 @@ namespace Wire.Extensions
                 session.TryGetObjectId(value, out var existingId))
             {
                 //write the serializer manifest
-                ObjectReferenceSerializer.WriteManifestImpl(writer, session);
+                ObjectReferenceSerializer.WriteManifestImpl(writer);
                 //write the object reference id
                 ObjectReferenceSerializer.WriteValueImpl(writer, existingId, session);
                 return;
@@ -50,7 +50,7 @@ namespace Wire.Extensions
             if (preserveObjectReferences && session.TryGetObjectId(value, out var existingId))
             {
                 //write the serializer manifest
-                ObjectReferenceSerializer.WriteManifestImpl(writer, session);
+                ObjectReferenceSerializer.WriteManifestImpl(writer);
                 //write the object reference id
                 ObjectReferenceSerializer.WriteValueImpl(writer, existingId, session);
                 return;

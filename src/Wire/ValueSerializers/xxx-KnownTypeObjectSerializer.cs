@@ -8,6 +8,7 @@ using System;
 using System.Buffers;
 using System.IO;
 using System.Linq;
+using Wire.Buffers;
 using Wire.Extensions;
 
 namespace Wire.ValueSerializers
@@ -23,17 +24,14 @@ namespace Wire.ValueSerializers
             _typeIdentifierBytes = new[] {ObjectSerializer.ManifestIndex}.Concat(BitConverter.GetBytes(typeIdentifier)).ToArray();
         }
 
-        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
+        public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
         {
-            var size = _typeIdentifierBytes.Length;
-            var span = stream.GetSpan(size);
-            _typeIdentifierBytes.CopyTo(span);
-            stream.Advance(size);
+            writer.Write(_typeIdentifierBytes);
         }
 
-        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
         {
-            _serializer.WriteValue(stream, value, session);
+            _serializer.WriteValue(writer, value, session);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)

@@ -5,7 +5,6 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.IO;
 using Wire.Buffers;
 using Wire.Extensions;
@@ -34,7 +33,7 @@ namespace Wire.ValueSerializers
         {
             if (value == null)
             {
-                StringSerializer.WriteValueImpl(writer, null, session);
+                StringSerializer.WriteValueImpl(writer, null);
             }
             else
             {
@@ -42,15 +41,15 @@ namespace Wire.ValueSerializers
                 if (session.Serializer.Options.PreserveObjectReferences &&
                     session.TryGetObjectId(type, out var existingId))
                 {
-                    ObjectReferenceSerializer.WriteManifestImpl(writer, session);
-                    ObjectReferenceSerializer.WriteValueImpl(writer, existingId, session);
+                    ObjectReferenceSerializer.WriteManifestImpl(writer);
+                    ObjectReferenceSerializer.WriteValueImpl(writer, existingId);
                 }
                 else
                 {
                     if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(type);
                     //type was not written before, add it to the tacked object list
                     var name = type.GetShortAssemblyQualifiedName();
-                    StringSerializer.WriteValueImpl(writer, name, session);
+                    StringSerializer.WriteValueImpl(writer, name);
                 }
             }
         }

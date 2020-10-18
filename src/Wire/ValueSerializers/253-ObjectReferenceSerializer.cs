@@ -23,12 +23,12 @@ namespace Wire.ValueSerializers
             writer.Write(Manifest);
         }
         
-        public static void WriteManifestImpl<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session) where TBufferWriter : IBufferWriter<byte>
+        public static void WriteManifestImpl<TBufferWriter>(Writer<TBufferWriter> writer) where TBufferWriter : IBufferWriter<byte>
         {
             writer.Write(Manifest);
         }
         
-        private static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, int value) where TBufferWriter:IBufferWriter<byte>
+        public static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, int value) where TBufferWriter:IBufferWriter<byte>
         {
             writer.Write(value);
         }

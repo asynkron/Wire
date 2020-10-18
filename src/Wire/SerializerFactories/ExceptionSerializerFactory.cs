@@ -72,9 +72,9 @@ namespace Wire.SerializerFactories
                 var stackTraceString = (string) _stackTraceString.GetValue(exception);
                 var innerException = _innerException.GetValue(exception);
                 //      StringSerializer.WriteValueImpl(stream, className, session);
-                StringSerializer.WriteValueImpl(stream, message, session);
-                StringSerializer.WriteValueImpl(stream, remoteStackTraceString, session);
-                StringSerializer.WriteValueImpl(stream, stackTraceString, session);
+                StringSerializer.WriteValueImpl(stream, message);
+                StringSerializer.WriteValueImpl(stream, remoteStackTraceString);
+                StringSerializer.WriteValueImpl(stream, stackTraceString);
                 stream.WriteObjectWithManifest(innerException, session);
             }
 
