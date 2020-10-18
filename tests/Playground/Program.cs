@@ -63,10 +63,12 @@ namespace Playground
 
 
             var sw = Stopwatch.StartNew();
+            var session = new SerializerSession(s);
             for (var i = 0; i < 50_000_000; i++)
             {
                 var bufferWriter = new SingleSegmentBuffer(bytes);
-                s.Serialize(msg,bufferWriter);    
+                var writer = new Writer<SingleSegmentBuffer>(bufferWriter, session);
+                s.Serialize(msg,writer);    
             }
             Console.WriteLine(sw.Elapsed.TotalMilliseconds);
             

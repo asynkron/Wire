@@ -21,11 +21,9 @@ namespace Wire.ValueSerializers
             writer.Write(Manifest);
         }
         
-        public static void WriteManifestImpl(IBufferWriter<byte> stream, SerializerSession session)
+        public static void WriteManifestImpl<TBufferWriter>(Writer<TBufferWriter> writer) where TBufferWriter : IBufferWriter<byte>
         {
-            var span = stream.GetSpan(1);
-            span[0] = Manifest;
-            stream.Advance(1);
+            writer.Write(Manifest);
         }
 
         public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
