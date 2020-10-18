@@ -4,10 +4,7 @@
 //   </copyright>
 // -----------------------------------------------------------------------
 
-using System.Buffers;
 using System.IO;
-using Wire.Buffers;
-using Wire.Buffers.Adaptors;
 using Xunit;
 
 namespace Wire.Tests
@@ -16,13 +13,11 @@ namespace Wire.Tests
     {
         private readonly MemoryStream _stream;
         private Serializer _serializer;
-        private readonly IBufferWriter<byte> _buffer;
 
         protected TestBase()
         {
             _serializer = new Serializer();
             _stream = new MemoryStream();
-            _buffer = new PoolingStreamBufferWriter(_stream,256);
         }
 
         protected void CustomInit(Serializer serializer)
@@ -37,7 +32,7 @@ namespace Wire.Tests
 
         public void Serialize(object o)
         {
-            _serializer.Serialize(o, _buffer);
+            _serializer.Serialize(o, _stream);
         }
 
         public T Deserialize<T>()
