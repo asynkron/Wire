@@ -20,6 +20,8 @@ using NFX.IO;
 using NFX.Serialization.Slim;
 using ServiceStack.Text;
 using Wire.Buffers;
+using Wire.Buffers.Adaptors;
+using MemoryStreamBufferWriter = Wire.Buffers.Adaptors.MemoryStreamBufferWriter;
 
 namespace Wire.PerfTest.Tests
 {
@@ -356,7 +358,7 @@ namespace Wire.PerfTest.Tests
             
             RunTest("Wire - KnownTypes + Reuse Sessions + byte[] writer", () =>
             {
-                var b = new Buffers.SingleSegmentBuffer(bytes);
+                var b = new SingleSegmentBuffer(bytes);
                 serializer.Serialize(Value, b, ss);
             }, () =>
             {
@@ -381,7 +383,7 @@ namespace Wire.PerfTest.Tests
             RunTest("Wire - KnownTypes + Reuse Sessions + MemoryStream writer", () =>
             {
                 ms.Position = 0;
-                var b = new Buffers.MemoryStreamBufferWriter(ms);
+                var b = new MemoryStreamBufferWriter(ms);
                 serializer.Serialize(Value, b, ss);
             }, () =>
             {

@@ -7,6 +7,7 @@
 using System.Buffers;
 using System.IO;
 using Wire.Buffers;
+using Wire.Buffers.Adaptors;
 using Xunit;
 
 namespace Wire.Tests

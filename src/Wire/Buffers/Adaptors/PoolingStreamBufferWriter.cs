@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Buffers;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace Wire.Buffers
+namespace Wire.Buffers.Adaptors
 {
     /// <summary>
     /// An implementation of <see cref="IBufferWriter{T}"/> for writing to a <see cref="Stream"/>, using pooled arrays as an intermediate buffer.
@@ -77,18 +77,7 @@ namespace Wire.Buffers
 
         private void Resize(int sizeHint)
         {
-            if (sizeHint < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(sizeHint));
-            }
-            
-            var newBuffer = ArrayPool<byte>.Shared.Rent(_buffer.Length + sizeHint);
-
-            if (_buffer.Length > newBuffer.Length)
-            {
-                throw new Exception("What!?");
-            }
-            
+            var newBuffer = ArrayPool<byte>.Shared.Rent(_bytesWritten + sizeHint);
             _buffer.CopyTo(newBuffer, 0);
             ArrayPool<byte>.Shared.Return(_buffer);
             _buffer = newBuffer;

@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Buffers;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace Wire.Buffers
+namespace Wire.Buffers.Adaptors
 {
     /// <summary>
     /// An implementation of <see cref="IBufferWriter{T}"/> which writes to a <see cref="Stream"/>, using an array as an intermediate buffer.
@@ -43,7 +43,7 @@ namespace Wire.Buffers
             }
 
             _index += count;
-         //   _stream.Write(_buffer, 0, _index);
+            _stream.Write(_buffer, 0, _index);
             _index = 0;
         }
 

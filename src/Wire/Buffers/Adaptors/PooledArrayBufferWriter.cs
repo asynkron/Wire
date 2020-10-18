@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.Buffers;
 using System.Runtime.CompilerServices;
 
-namespace Wire.Buffers
+namespace Wire.Buffers.Adaptors
 {
     /// <summary>
     /// A <see cref="IBufferWriter{T}"/> implementation implemented using pooled arrays.

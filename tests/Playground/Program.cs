@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using Wire;
 using Wire.Buffers;
+using Wire.Buffers.Adaptors;
 
 namespace Playground
 {

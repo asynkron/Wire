@@ -3,7 +3,7 @@ using System.Buffers;
 using System.Diagnostics.Contracts;
 using System.Text;
 
-namespace Wire.Buffers
+namespace Wire.Buffers.Adaptors
 {
     public struct SingleSegmentBuffer : IBufferWriter<byte>
     {
