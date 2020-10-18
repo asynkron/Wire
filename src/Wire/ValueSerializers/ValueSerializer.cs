@@ -33,10 +33,10 @@ namespace Wire.ValueSerializers
         public abstract object ReadValue(Stream stream, DeserializerSession session);
         public abstract Type GetElementType();
 
-        public virtual void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue,
+        public virtual void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression value,
             Expression session)
         {
-            var converted = c.Convert<object>(fieldValue);
+            var converted = c.Convert<object>(value);
             var method = typeof(ValueSerializer).GetMethod(nameof(WriteValue))!;
 
             //write it to the value serializer
@@ -59,7 +59,7 @@ namespace Wire.ValueSerializers
             var unaryExpression = (UnaryExpression) expression.Body;
             var methodCallExpression = (MethodCallExpression) unaryExpression.Operand;
             var methodCallObject = (ConstantExpression) methodCallExpression.Object!;
-            var method = (MethodInfo) methodCallObject.Value;
+            var method = (MethodInfo) methodCallObject.Value!;
 
             if (method.IsStatic == false) throw new ArgumentException($"Method {method.Name} should be static.");
 

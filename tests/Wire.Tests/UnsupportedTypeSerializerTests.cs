@@ -31,7 +31,7 @@ namespace Wire.Tests
                     {
                         serializer.Serialize(t, new MemoryStream());
                     }
-                    catch (UnsupportedTypeException)
+                    catch (Exception)
                     {
                     }
                 }
@@ -49,7 +49,7 @@ namespace Wire.Tests
             {
                 serializer.Serialize(t, new MemoryStream());
             }
-            catch (UnsupportedTypeException)
+            catch (Exception)
             {
                 Assert.True(true);
             }

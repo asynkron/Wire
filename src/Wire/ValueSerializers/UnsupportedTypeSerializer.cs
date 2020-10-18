@@ -15,56 +15,47 @@ namespace Wire.ValueSerializers
 {
     //https://github.com/AsynkronIT/Wire/issues/115
 
-    public class UnsupportedTypeException : Exception
-    {
-        public Type Type;
-
-        public UnsupportedTypeException(Type t, string msg) : base(msg)
-        {
-        }
-    }
-
     public class UnsupportedTypeSerializer : ValueSerializer
     {
-        private readonly string _errorMessage;
+        private readonly Exception _exception;
         private readonly Type _invalidType;
 
-        public UnsupportedTypeSerializer(Type t, string msg)
+        public UnsupportedTypeSerializer(Type t, Exception exception)
         {
-            _errorMessage = msg;
+            _exception = exception;
             _invalidType = t;
         }
 
         public override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session,
             FieldInfo field)
         {
-            throw new UnsupportedTypeException(_invalidType, _errorMessage);
+            throw _exception;
         }
 
-        public override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue,
+        public override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression value,
             Expression session)
         {
-            throw new UnsupportedTypeException(_invalidType, _errorMessage);
+            throw _exception;
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
-            throw new UnsupportedTypeException(_invalidType, _errorMessage);
+            throw _exception;
         }
 
         public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
-            throw new UnsupportedTypeException(_invalidType, _errorMessage);
+            throw _exception;
         }
 
         public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
-            throw new UnsupportedTypeException(_invalidType, _errorMessage);
+            throw _exception;
         }
 
         public override Type GetElementType()
         {
-            throw new UnsupportedTypeException(_invalidType, _errorMessage);
+            throw _exception;
         }
     }
 }

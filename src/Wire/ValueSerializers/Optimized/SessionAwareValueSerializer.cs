@@ -51,33 +51,33 @@ namespace Wire.ValueSerializers
             _readCompiled = c2.Compile();
         }
 
-        public sealed override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
+        public  override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
         {
             var span = stream.GetSpan(1);
             span[0] = _manifest;
             stream.Advance(1);
         }
 
-        public sealed override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
+        public  override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
         {
             _writeCompiled(stream, value, PreallocatedByteBufferSize);
         }
 
-        public sealed override void EmitWriteValue(Compiler<ObjectWriter> c,
+        public  override void EmitWriteValue(Compiler<ObjectWriter> c,
             FastExpressionCompiler.LightExpression.Expression stream,
-            FastExpressionCompiler.LightExpression.Expression fieldValue,
+            FastExpressionCompiler.LightExpression.Expression value,
             FastExpressionCompiler.LightExpression.Expression session)
         {
             var size = c.Constant(PreallocatedByteBufferSize);
-            c.EmitStaticCall(_write, stream, fieldValue, size);
+            c.EmitStaticCall(_write, stream, value, size);
         }
 
-        public sealed override object ReadValue(Stream stream, DeserializerSession session)
+        public  override object ReadValue(Stream stream, DeserializerSession session)
         {
             return _readCompiled(stream, session.GetBuffer(PreallocatedByteBufferSize));
         }
 
-        public sealed override FastExpressionCompiler.LightExpression.Expression EmitReadValue(Compiler<ObjectReader> c,
+        public  override FastExpressionCompiler.LightExpression.Expression EmitReadValue(Compiler<ObjectReader> c,
             FastExpressionCompiler.LightExpression.Expression stream,
             FastExpressionCompiler.LightExpression.Expression session, FieldInfo field)
         {
@@ -85,7 +85,7 @@ namespace Wire.ValueSerializers
             return c.StaticCall(_read, stream, byteArray);
         }
 
-        public sealed override Type GetElementType()
+        public  override Type GetElementType()
         {
             return typeof(TElementType);
         }

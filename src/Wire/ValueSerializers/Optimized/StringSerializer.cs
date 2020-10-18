@@ -55,10 +55,10 @@ namespace Wire.ValueSerializers
             return read;
         }
 
-        public override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression fieldValue, Expression session)
+        public override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression value, Expression session)
         {
             var writeMethod =  typeof(StringSerializer).GetMethod(nameof(WriteValueImpl),BindingFlagsEx.Static)!;
-            c.EmitStaticCall(writeMethod, stream, fieldValue, session);
+            c.EmitStaticCall(writeMethod, stream, value, session);
         }
 
         public override Type GetElementType()

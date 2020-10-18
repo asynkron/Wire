@@ -120,7 +120,20 @@ namespace Wire.Compilation
             return writeExp;
         }
 
-        public TDel Compile() => GetLambdaExpression().CompileFast<TDel>();
+        public TDel Compile()
+        {
+            var lambda = GetLambdaExpression();
+            try
+            {
+                return lambda.CompileFast<TDel>();
+            }
+            catch
+            {
+                var cs = lambda.ToExpressionString();
+                
+                throw;
+            }
+        }
 
         public LambdaExpression GetLambdaExpression()
         {

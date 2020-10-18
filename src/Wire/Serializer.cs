@@ -212,7 +212,7 @@ namespace Wire
                 }
                 catch (Exception exp)
                 {
-                    var invalidSerializer = new UnsupportedTypeSerializer(type, exp.Message);
+                    var invalidSerializer = new UnsupportedTypeSerializer(type, exp);
                     _serializers[type] = invalidSerializer;
                     return invalidSerializer;
                 }
@@ -231,7 +231,7 @@ namespace Wire
             }
             catch (Exception exp)
             {
-                var invalidSerializer = new UnsupportedTypeSerializer(type, exp.Message);
+                var invalidSerializer = new UnsupportedTypeSerializer(type, exp);
                 _serializers[type] = invalidSerializer;
                 return invalidSerializer;
             }
