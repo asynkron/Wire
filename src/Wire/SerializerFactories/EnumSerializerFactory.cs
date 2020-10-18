@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using Wire.ValueSerializers;
+using Wire.ValueSerializers.Optimized;
 
 namespace Wire.SerializerFactories
 {

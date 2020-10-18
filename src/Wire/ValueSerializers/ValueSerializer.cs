@@ -9,6 +9,7 @@ using System.Buffers;
 using System.IO;
 using System.Reflection;
 using FastExpressionCompiler.LightExpression;
+using Wire.Buffers;
 using Wire.Compilation;
 using ConstantExpression = System.Linq.Expressions.ConstantExpression;
 using LambdaExpression = System.Linq.Expressions.LambdaExpression;
@@ -28,20 +29,23 @@ namespace Wire.ValueSerializers
         /// </summary>
         public virtual int PreallocatedByteBufferSize => 0;
 
-        public abstract void WriteManifest(IBufferWriter<byte> stream, SerializerSession session);
-        public abstract void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session);
+        public abstract void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
+            where TBufferWriter : IBufferWriter<byte>;
+
+        public abstract void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+            SerializerSession session) where TBufferWriter : IBufferWriter<byte>;
         public abstract object ReadValue(Stream stream, DeserializerSession session);
         public abstract Type GetElementType();
 
-        public virtual void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression value,
-            Expression session)
+        public virtual void EmitWriteValue<TBufferWriter> (Compiler<ObjectWriter<TBufferWriter>> c, Expression writer, Expression value,
+            Expression session) where TBufferWriter : IBufferWriter<byte>
         {
             var converted = c.Convert<object>(value);
             var method = typeof(ValueSerializer).GetMethod(nameof(WriteValue))!;
 
             //write it to the value serializer
             var vs = c.Constant(this);
-            c.EmitCall(method, vs, stream, converted, session);
+            c.EmitCall(method, vs, writer, converted, session);
         }
 
         public virtual Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session,

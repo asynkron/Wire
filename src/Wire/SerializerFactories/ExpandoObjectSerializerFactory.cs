@@ -13,6 +13,7 @@ using System.Dynamic;
 using System.IO;
 using Wire.Extensions;
 using Wire.ValueSerializers;
+using Wire.ValueSerializers.Optimized;
 
 namespace Wire.SerializerFactories
 {

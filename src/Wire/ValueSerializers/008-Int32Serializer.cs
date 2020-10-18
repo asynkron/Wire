@@ -9,50 +9,50 @@ using System.Buffers;
 using System.IO;
 using System.Reflection;
 using FastExpressionCompiler.LightExpression;
+using Wire.Buffers;
 using Wire.Compilation;
 using Wire.Extensions;
+using T = System.Int32;
 
 namespace Wire.ValueSerializers
 {
     public class Int32Serializer : ValueSerializer
     {
         public const byte Manifest = 8;
-        public const int Size = sizeof(int);
+        public const int Size = sizeof(T);
         public static readonly Int32Serializer Instance = new Int32Serializer();
 
         private Int32Serializer()
         {
         }
         
-        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
+        public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
         {
-            var span = stream.GetSpan(1);
-            span[0] = Manifest;
-            stream.Advance(1);
+            writer.Write(Manifest);
         }
         
         //used by the serializer, going from virtual calls to static calls
 
-        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session) => WriteValueImpl(stream,(int)value);
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session) =>
+            WriteValueImpl(writer,(T)value);
 
         public override object ReadValue(Stream stream, DeserializerSession session) => ReadValueImpl(stream, session.GetBuffer(Size));
 
         public override int PreallocatedByteBufferSize => Size;
 
-        public override Type GetElementType() => typeof(int);
+        public override Type GetElementType() => typeof(T);
 
         //used from other serializers
-        public static void WriteValue(IBufferWriter<byte> stream, int value) => WriteValueImpl(stream, value);
+        public static void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, T value) where TBufferWriter:IBufferWriter<byte> =>
+            WriteValueImpl(writer, value);
 
         //the actual impls
-        private static void WriteValueImpl(IBufferWriter<byte> stream, int value)
+        private static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, T value) where TBufferWriter:IBufferWriter<byte>
         {
-            var span = stream.GetSpan(Size);   
-            BitConverter.TryWriteBytes(span, value);
-            stream.Advance(Size);
+            writer.Write(value);
         }
         
-        public static int ReadValueImpl(Stream stream, byte[] bytes)
+        public static T ReadValueImpl(Stream stream, byte[] bytes)
         {
             stream.Read(bytes, 0, Size);
             return BitConverter.ToInt32(bytes, 0);
@@ -60,15 +60,16 @@ namespace Wire.ValueSerializers
         
         //core generation
         
-        public override void EmitWriteValue(Compiler<ObjectWriter> c, Expression stream, Expression value, Expression session)
+        public override void EmitWriteValue<TBufferWriter> (Compiler<ObjectWriter<TBufferWriter>> c, Expression writer, Expression value,
+            Expression session) 
         {
-            var method = typeof(Int32Serializer).GetMethod(nameof(WriteValueImpl), BindingFlagsEx.Static)!;
-            c.EmitStaticCall(method, stream, value);
+            var method = GetType().GetMethod(nameof(WriteValueImpl), BindingFlagsEx.Static)!;
+            c.EmitStaticCall(method, writer, value);
         }
 
         public override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session, FieldInfo field)
         {
-            var method = typeof(Int32Serializer).GetMethod(nameof(ReadValueImpl), BindingFlagsEx.Static)!;
+            var method = GetType().GetMethod(nameof(ReadValueImpl), BindingFlagsEx.Static)!;
             var byteArray = c.GetVariable<byte[]>(SerializerCompiler.PreallocatedByteBuffer);
             return c.StaticCall(method, stream, byteArray);
         }

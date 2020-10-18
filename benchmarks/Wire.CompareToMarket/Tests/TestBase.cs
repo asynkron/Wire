@@ -359,7 +359,9 @@ namespace Wire.PerfTest.Tests
             RunTest("Wire - KnownTypes + Reuse Sessions + byte[] writer", () =>
             {
                 var b = new SingleSegmentBuffer(bytes);
-                serializer.Serialize(Value, b, ss);
+                var writer = new Writer<SingleSegmentBuffer>(b,ss);
+                
+                serializer.Serialize(Value, writer, ss);
             }, () =>
             {
                 s.Position = 0;
@@ -383,7 +385,7 @@ namespace Wire.PerfTest.Tests
             RunTest("Wire - KnownTypes + Reuse Sessions + MemoryStream writer", () =>
             {
                 ms.Position = 0;
-                var b = new MemoryStreamBufferWriter(ms);
+                var b = Writer.Create(ms,ss);
                 serializer.Serialize(Value, b, ss);
             }, () =>
             {

@@ -9,6 +9,7 @@ using System.Buffers;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Wire.Buffers;
 using Wire.Extensions;
 
 namespace Wire.ValueSerializers

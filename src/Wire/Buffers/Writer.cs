@@ -47,7 +47,7 @@ namespace Wire.Buffers
         private int _previousBuffersSize;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Writer(TBufferWriter output, SerializerSession session)
+        public Writer(TBufferWriter output, SerializerSession session)
         {
             if (typeof(TBufferWriter) == typeof(SpanBufferWriter))
             {

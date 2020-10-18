@@ -16,6 +16,7 @@ using Wire.Buffers.Adaptors;
 using Wire.Compilation;
 using Wire.Extensions;
 using Wire.ValueSerializers;
+using Wire.ValueSerializers.Optimized;
 
 namespace Wire
 {
@@ -134,24 +135,24 @@ namespace Wire
 
 
 
-        public void Serialize(object obj, IBufferWriter<byte> stream, SerializerSession session)
+        public void Serialize<TBufferWriter>(object obj, Writer<TBufferWriter> writer, SerializerSession session) where TBufferWriter: IBufferWriter<byte>
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 
             var type = obj.GetType();
             var s = GetSerializerByType(type);
-            s.WriteManifest(stream, session);
-            s.WriteValue(stream, obj, session);
+            s.WriteManifest(writer, session);
+            s.WriteValue(writer, obj, session);
         }
 
-        public void Serialize(object obj, IBufferWriter<byte> stream)
+        public void Serialize<TBufferWriter>(object obj, Writer<TBufferWriter> writer) where TBufferWriter : IBufferWriter<byte>
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             using var session = GetSerializerSession();
             var type = obj.GetType();
             var s = GetSerializerByType(type);
-            s.WriteManifest(stream, session);
-            s.WriteValue(stream, obj, session);
+            s.WriteManifest(writer, session);
+            s.WriteValue(writer, obj, session);
         }
 
         public SerializerSession GetSerializerSession()
@@ -276,29 +277,33 @@ namespace Wire
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
         public void Serialize(object obj, Stream stream, SerializerSession session)
         {
-            Serialize(obj, new ArrayStreamBufferWriter(stream),session);
+            var writer = Writer.Create(stream, session);
+            Serialize(obj,writer);
         }
 
         public void Serialize(object obj, Stream stream)
         {
-            Serialize(obj,new ArrayStreamBufferWriter(stream));
+            var writer = Writer.Create(stream, new SerializerSession(this));
+            Serialize(obj,writer);
         }
         
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
         public void Serialize(object obj, MemoryStream stream, SerializerSession session)
         {
-            Serialize(obj, new MemoryStreamBufferWriter(stream),session);
+            var writer = Writer.Create(stream,session);
+            Serialize(obj,writer);
         }
 
         public void Serialize(object obj, MemoryStream stream)
         {
-            Serialize(obj,new MemoryStreamBufferWriter(stream));
+            var writer = Writer.Create(stream,new SerializerSession(this));
+            Serialize(obj,writer);
         }
         
         public void Serialize(object obj, byte[] destination, SerializerSession session)
         {
-            var b = new SingleSegmentBuffer(destination);
-            Serialize(obj, b,session);
+            var writer = Writer.Create(destination,session);
+            Serialize(obj,writer);
         }
     }
 }

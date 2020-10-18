@@ -10,7 +10,7 @@ using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
-    public class BoolSerializer : SessionIgnorantValueSerializer<bool>
+    public class BoolSerializer : ValueSerializer
     {
         public const byte Manifest = 6;
         public static readonly BoolSerializer Instance = new BoolSerializer();

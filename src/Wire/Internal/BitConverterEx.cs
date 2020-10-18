@@ -20,43 +20,6 @@ namespace Wire.Internal
         internal static readonly UTF8Encoding Utf8 = (UTF8Encoding) Encoding.UTF8;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void WriteLengthEncodedString(string? str, IBufferWriter<byte> stream, out int byteCount)
-        {
-            //if first byte is 0 = null
-            //if first byte is 254 or less, then length is value - 1
-            //if first byte is 255 then the next 4 bytes are an int32 for length
-            if (str == null)
-            {
-                var span = stream.GetSpan(1);
-                span[0] = 0;
-                byteCount = 1;
-                return;
-            }
-            
-
-            byteCount = Utf8.GetByteCount(str);
-            if (byteCount < 254) //short string
-            {
-                var span = stream.GetSpan(byteCount + 1);
-                span[0] = (byte) (byteCount + 1);
-                Utf8.GetBytes(str, span[1..]);
-                byteCount+=1;
-            }
-            else //long string
-            {
-                var span = stream.GetSpan(byteCount + 1 + 4);
-                
-                //signal int count
-                span[0] = 255;
-                //int count
-                BitConverter.TryWriteBytes(span[1..], byteCount);
-                //write actual string content
-                Utf8.GetBytes(str, span[(1+4)..]);
-                byteCount += 1 + 4;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void TryWriteBytes(Span<byte> span, DateTime dateTime)
         {
             BitConverter.TryWriteBytes(span, dateTime.Ticks);

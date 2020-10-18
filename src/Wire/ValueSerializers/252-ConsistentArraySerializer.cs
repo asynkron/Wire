@@ -8,6 +8,7 @@ using System;
 using System.Buffers;
 using System.IO;
 using Wire.Extensions;
+using Wire.ValueSerializers.Optimized;
 
 namespace Wire.ValueSerializers
 {

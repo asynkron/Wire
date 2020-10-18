@@ -7,7 +7,7 @@
 using System;
 using System.Buffers;
 using System.IO;
-using Wire.Extensions;
+using Wire.Buffers;
 
 namespace Wire.ValueSerializers
 {
@@ -16,11 +16,9 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 0;
         public static readonly NullSerializer Instance = new NullSerializer();
 
-        public override void WriteManifest(IBufferWriter<byte> stream, SerializerSession session)
+        public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
         {
-            var span = stream.GetSpan(1);
-            span[0] = Manifest;
-            stream.Advance(1);
+            writer.Write(Manifest);
         }
         
         public static void WriteManifestImpl(IBufferWriter<byte> stream, SerializerSession session)
@@ -30,7 +28,7 @@ namespace Wire.ValueSerializers
             stream.Advance(1);
         }
 
-        public override void WriteValue(IBufferWriter<byte> stream, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
         {
         }
 

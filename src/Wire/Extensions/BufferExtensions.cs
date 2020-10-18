@@ -2,6 +2,7 @@ using System;
 using System.Buffers;
 using System.Runtime.CompilerServices;
 using Wire.ValueSerializers;
+using Wire.ValueSerializers.Optimized;
 
 namespace Wire.Extensions
 {
