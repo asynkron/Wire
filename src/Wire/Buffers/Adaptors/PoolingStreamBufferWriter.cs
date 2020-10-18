@@ -77,7 +77,13 @@ namespace Wire.Buffers.Adaptors
 
         private void Resize(int sizeHint)
         {
-            var newBuffer = ArrayPool<byte>.Shared.Rent(_bytesWritten + sizeHint);
+            if (sizeHint < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(sizeHint));
+            }
+            
+            var newBuffer = ArrayPool<byte>.Shared.Rent(_buffer.Length + sizeHint);
+
             _buffer.CopyTo(newBuffer, 0);
             ArrayPool<byte>.Shared.Return(_buffer);
             _buffer = newBuffer;
