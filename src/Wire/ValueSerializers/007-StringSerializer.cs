@@ -21,7 +21,8 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 7;
         public static readonly StringSerializer Instance = new StringSerializer();
 
-        public static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, string? value) where TBufferWriter : IBufferWriter<byte>
+        public static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, string? value)
+            where TBufferWriter : IBufferWriter<byte>
         {
             //if first byte is 0 = null
             //if first byte is 254 or less, then length is value - 1
@@ -65,7 +66,8 @@ namespace Wire.ValueSerializers
             writer.Write(Manifest);
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+            SerializerSession session)
         {
             WriteValueImpl(writer, (string) value);
         }
@@ -75,14 +77,16 @@ namespace Wire.ValueSerializers
             return ReadValueImpl(stream, session);
         }
 
-        public override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session, FieldInfo field)
+        public override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session,
+            FieldInfo field)
         {
             var method = GetType().GetMethod(nameof(ReadValueImpl), BindingFlagsEx.Static)!;
-            return c.StaticCall(method, stream,session);
+            return c.StaticCall(method, stream, session);
         }
 
-        public override void EmitWriteValue<TBufferWriter> (Compiler<ObjectWriter<TBufferWriter>> c, Expression writer, Expression value,
-            Expression session) 
+        public override void EmitWriteValue<TBufferWriter>(Compiler<ObjectWriter<TBufferWriter>> c, Expression writer,
+            Expression value,
+            Expression session)
         {
             var method = GetType().GetMethod(nameof(WriteValueImpl), BindingFlagsEx.Static)!;
             c.EmitStaticCall(method, writer, value);

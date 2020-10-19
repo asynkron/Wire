@@ -5,11 +5,9 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.IO;
 using Wire.Buffers;
 using Wire.Extensions;
-using Wire.ValueSerializers.Optimized;
 
 namespace Wire.ValueSerializers
 {
@@ -23,10 +21,11 @@ namespace Wire.ValueSerializers
             writer.Write(Manifest);
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+            SerializerSession session)
         {
             var bytes = (byte[]) value;
-            Int32Serializer.WriteValue(writer,bytes.Length);
+            Int32Serializer.WriteValue(writer, bytes.Length);
             writer.EnsureContiguous(bytes.Length);
             var destination = writer.WritableSpan;
             bytes.CopyTo(destination);

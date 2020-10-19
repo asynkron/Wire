@@ -34,10 +34,12 @@ namespace Wire.ValueSerializers
 
         public abstract void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
             SerializerSession session) where TBufferWriter : IBufferWriter<byte>;
+
         public abstract object ReadValue(Stream stream, DeserializerSession session);
         public abstract Type GetElementType();
 
-        public virtual void EmitWriteValue<TBufferWriter> (Compiler<ObjectWriter<TBufferWriter>> c, Expression writer, Expression value,
+        public virtual void EmitWriteValue<TBufferWriter>(Compiler<ObjectWriter<TBufferWriter>> c, Expression writer,
+            Expression value,
             Expression session) where TBufferWriter : IBufferWriter<byte>
         {
             var converted = c.Convert<object>(value);

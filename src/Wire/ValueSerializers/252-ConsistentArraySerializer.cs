@@ -25,7 +25,7 @@ namespace Wire.ValueSerializers
             var length = stream.ReadInt32(session);
             var array = Array.CreateInstance(elementType, length); //create the array
             if (session.Serializer.Options.PreserveObjectReferences) session.TrackDeserializedObject(array);
-            
+
             for (var i = 0; i < length; i++)
             {
                 var value = elementSerializer.ReadValue(stream, session); //read the element value
@@ -45,7 +45,8 @@ namespace Wire.ValueSerializers
             writer.Write(Manifest);
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+            SerializerSession session)
         {
             var array = (Array) value;
             if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(value);
@@ -53,10 +54,7 @@ namespace Wire.ValueSerializers
             var elementSerializer = session.Serializer.GetSerializerByType(elementType);
             elementSerializer.WriteManifest(writer, session); //write array element type
 
-            foreach (var element in array)
-            {
-                elementSerializer.WriteValue(writer, element, session);
-            }
+            foreach (var element in array) elementSerializer.WriteValue(writer, element, session);
         }
     }
 }

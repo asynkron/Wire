@@ -19,41 +19,51 @@ namespace Wire.ValueSerializers
     public class DecimalSerializer : ValueSerializer
     {
         public const byte Manifest = 14;
-        public const int Size = sizeof(T);
+        public const int Size = sizeof(decimal);
         public static readonly DecimalSerializer Instance = new DecimalSerializer();
 
         private DecimalSerializer()
         {
         }
-        
+
+        public override int PreallocatedByteBufferSize => Size;
+
         public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
         {
             writer.Write(Manifest);
         }
-        
+
         //used by the serializer, going from virtual calls to static calls
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session) =>
-            WriteValueImpl(writer,(T)value);
-
-        public override object ReadValue(Stream stream, DeserializerSession session) => ReadValueImpl(stream, session.GetBuffer(Size));
-
-        public override int PreallocatedByteBufferSize => Size;
-
-        public override Type GetElementType() => typeof(T);
-
-        //the actual impls
-        private static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, T value) where TBufferWriter:IBufferWriter<byte>
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+            SerializerSession session)
         {
-            var data = decimal.GetBits(value);
-            
-            writer.Write( data[0]);
-            writer.Write( data[1]);
-            writer.Write( data[2]);
-            writer.Write( data[3]);
+            WriteValueImpl(writer, (decimal) value);
         }
 
-        public static T ReadValueImpl(Stream stream, byte[] bytes)
+        public override object ReadValue(Stream stream, DeserializerSession session)
+        {
+            return ReadValueImpl(stream, session.GetBuffer(Size));
+        }
+
+        public override Type GetElementType()
+        {
+            return typeof(decimal);
+        }
+
+        //the actual impls
+        private static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, decimal value)
+            where TBufferWriter : IBufferWriter<byte>
+        {
+            var data = decimal.GetBits(value);
+
+            writer.Write(data[0]);
+            writer.Write(data[1]);
+            writer.Write(data[2]);
+            writer.Write(data[3]);
+        }
+
+        public static decimal ReadValueImpl(Stream stream, byte[] bytes)
         {
             var parts = new[]
             {
@@ -68,17 +78,19 @@ namespace Wire.ValueSerializers
             var newValue = new decimal(parts[0], parts[1], parts[2], sign, scale);
             return newValue;
         }
-        
+
         //core generation
-        
-        public override void EmitWriteValue<TBufferWriter> (Compiler<ObjectWriter<TBufferWriter>> c, Expression writer, Expression value,
-            Expression session) 
+
+        public override void EmitWriteValue<TBufferWriter>(Compiler<ObjectWriter<TBufferWriter>> c, Expression writer,
+            Expression value,
+            Expression session)
         {
             var method = GetType().GetMethod(nameof(WriteValueImpl), BindingFlagsEx.Static)!;
             c.EmitStaticCall(method, writer, value);
         }
 
-        public override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session, FieldInfo field)
+        public override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session,
+            FieldInfo field)
         {
             var method = GetType().GetMethod(nameof(ReadValueImpl), BindingFlagsEx.Static)!;
             var byteArray = c.GetVariable<byte[]>(SerializerCompiler.PreallocatedByteBuffer);

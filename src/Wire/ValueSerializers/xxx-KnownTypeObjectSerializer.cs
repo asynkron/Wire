@@ -5,11 +5,9 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.IO;
 using System.Linq;
 using Wire.Buffers;
-using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
@@ -21,7 +19,8 @@ namespace Wire.ValueSerializers
         public KnownTypeObjectSerializer(ObjectSerializer serializer, ushort typeIdentifier)
         {
             _serializer = serializer;
-            _typeIdentifierBytes = new[] {ObjectSerializer.ManifestIndex}.Concat(BitConverter.GetBytes(typeIdentifier)).ToArray();
+            _typeIdentifierBytes = new[] {ObjectSerializer.ManifestIndex}.Concat(BitConverter.GetBytes(typeIdentifier))
+                .ToArray();
         }
 
         public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
@@ -29,7 +28,8 @@ namespace Wire.ValueSerializers
             writer.Write(_typeIdentifierBytes);
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+            SerializerSession session)
         {
             _serializer.WriteValue(writer, value, session);
         }

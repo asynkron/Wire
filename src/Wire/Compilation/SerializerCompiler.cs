@@ -20,9 +20,6 @@ namespace Wire.Compilation
     public static class SerializerCompiler
     {
         public const string PreallocatedByteBuffer = nameof(PreallocatedByteBuffer);
-    }
-    public static class SerializerCompiler<TBufferWriter> where TBufferWriter : IBufferWriter<byte>
-    {
 
         public static void BuildSerializer(Serializer serializer, ObjectSerializer objectSerializer)
         {

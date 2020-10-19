@@ -9,7 +9,6 @@ using System.Buffers;
 using System.IO;
 using Wire.Buffers;
 using Wire.Extensions;
-using Wire.ValueSerializers.Optimized;
 
 namespace Wire.ValueSerializers
 {
@@ -22,13 +21,15 @@ namespace Wire.ValueSerializers
         {
             writer.Write(Manifest);
         }
-        
-        public static void WriteManifestImpl<TBufferWriter>(Writer<TBufferWriter> writer) where TBufferWriter : IBufferWriter<byte>
+
+        public static void WriteManifestImpl<TBufferWriter>(Writer<TBufferWriter> writer)
+            where TBufferWriter : IBufferWriter<byte>
         {
             writer.Write(Manifest);
         }
-        
-        public static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, int value) where TBufferWriter:IBufferWriter<byte>
+
+        public static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, int value)
+            where TBufferWriter : IBufferWriter<byte>
         {
             writer.Write(value);
         }
@@ -40,7 +41,11 @@ namespace Wire.ValueSerializers
             return obj;
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session) => WriteValueImpl(writer, (int) value);
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+            SerializerSession session)
+        {
+            WriteValueImpl(writer, (int) value);
+        }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {

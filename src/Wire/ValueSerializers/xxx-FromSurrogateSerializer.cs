@@ -5,7 +5,6 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.IO;
 using Wire.Buffers;
 
@@ -27,7 +26,8 @@ namespace Wire.ValueSerializers
             throw new NotSupportedException();
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+            SerializerSession session)
         {
             throw new NotSupportedException();
         }

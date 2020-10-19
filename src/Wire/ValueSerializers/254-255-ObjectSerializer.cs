@@ -5,12 +5,13 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using Wire.Buffers;
+using Wire.Compilation;
 using Wire.Extensions;
+using Writer = Wire.Compilation.Writer;
 
 namespace Wire.ValueSerializers
 {
@@ -23,8 +24,8 @@ namespace Wire.ValueSerializers
 
         private volatile bool _isInitialized;
         private int _preallocatedBufferSize;
-        private ObjectReader _reader;
-        private ObjectWriter<TBufferWriter> _writer;
+        private Reader _reader;
+        private Writer _writer;
 
         public ObjectSerializer(Type type)
         {
@@ -43,21 +44,6 @@ namespace Wire.ValueSerializers
                     .Concat(BitConverter.GetBytes(typeNameBytes.Length))
                     .Concat(typeNameBytes)
                     .ToArray(); //serializer id 255 + assembly qualified name
-
-            //initialize reader and writer with dummy handlers that wait until the serializer is fully initialized
-            _writer = writer;
-
-            _reader = (stream, session) =>
-            {
-                SpinWait.SpinUntil(() => _isInitialized);
-                return ReadValue(stream, session);
-            };
-            
-            void writer<TBufferWriter>(ref Writer<TBufferWriter> stream, object o, SerializerSession session) where TBufferWriter:IBufferWriter<byte>
-            {
-                SpinWait.SpinUntil(() => _isInitialized);
-                WriteValue(stream, o, session);
-            }
         }
 
         public Type Type { get; }
@@ -77,14 +63,25 @@ namespace Wire.ValueSerializers
             }
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+            SerializerSession session)
         {
-            _writer(writer, value, session);
+            if (!_isInitialized)
+            {
+                SpinWait.SpinUntil(() => _isInitialized);
+            }
+            
+            _writer.ObjectWriter(ref writer, value, session);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
-            return _reader(stream, session);
+            if (!_isInitialized)
+            {
+                SpinWait.SpinUntil(() => _isInitialized);
+            }
+            
+            return _reader.Read(stream, session);
         }
 
         public override Type GetElementType()
@@ -92,7 +89,7 @@ namespace Wire.ValueSerializers
             return Type;
         }
 
-        public void Initialize(ObjectReader reader, ObjectWriter writer, int preallocatedBufferSize = 0)
+        public void Initialize(Reader reader, Writer writer, int preallocatedBufferSize = 0)
         {
             _preallocatedBufferSize = preallocatedBufferSize;
             _reader = reader;

@@ -20,13 +20,15 @@ namespace Wire.ValueSerializers
         {
             writer.Write(Manifest);
         }
-        
-        public static void WriteManifestImpl<TBufferWriter>(Writer<TBufferWriter> writer) where TBufferWriter : IBufferWriter<byte>
+
+        public static void WriteManifestImpl<TBufferWriter>(Writer<TBufferWriter> writer)
+            where TBufferWriter : IBufferWriter<byte>
         {
             writer.Write(Manifest);
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+            SerializerSession session)
         {
         }
 

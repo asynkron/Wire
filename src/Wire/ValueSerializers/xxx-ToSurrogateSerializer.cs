@@ -5,7 +5,6 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.IO;
 using Wire.Buffers;
 using Wire.Extensions;
@@ -26,7 +25,8 @@ namespace Wire.ValueSerializers
             //intentionally left blank
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+            SerializerSession session)
         {
             var surrogateValue = _translator(value);
             writer.WriteObjectWithManifest(surrogateValue, session);

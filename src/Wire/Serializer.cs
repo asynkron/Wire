@@ -15,6 +15,7 @@ using Wire.Compilation;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 using Wire.ValueSerializers.Optimized;
+using Writer = Wire.Buffers.Writer;
 
 namespace Wire
 {
@@ -126,7 +127,7 @@ namespace Wire
             //add it to the serializer lookup in case of recursive serialization
             if (!_deserializers.TryAdd(type, serializer)) return _deserializers[type];
             //build the serializer IL code
-            SerializerCompiler<TBufferWriter>.BuildSerializer(this, (ObjectSerializer) serializer);
+            SerializerCompiler.BuildSerializer(this, (ObjectSerializer) serializer);
             return serializer;
         }
 
@@ -206,7 +207,7 @@ namespace Wire
                 try
                 {
                     //build the serializer IL code
-                    SerializerCompiler<TBufferWriter>.BuildSerializer(this, serializer);
+                    SerializerCompiler.BuildSerializer(this, serializer);
                 }
                 catch (Exception exp)
                 {
@@ -225,7 +226,7 @@ namespace Wire
             try
             {
                 //build the serializer IL code
-                SerializerCompiler<TBufferWriter>.BuildSerializer(this, serializer);
+                SerializerCompiler.BuildSerializer(this, serializer);
             }
             catch (Exception exp)
             {

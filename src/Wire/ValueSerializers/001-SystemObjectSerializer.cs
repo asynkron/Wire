@@ -5,10 +5,8 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.IO;
 using Wire.Buffers;
-using Wire.Extensions;
 
 namespace Wire.ValueSerializers
 {
@@ -22,7 +20,8 @@ namespace Wire.ValueSerializers
             writer.Write(Manifest);
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+            SerializerSession session)
         {
         }
 

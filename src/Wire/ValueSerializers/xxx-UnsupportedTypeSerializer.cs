@@ -5,7 +5,6 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.IO;
 using System.Reflection;
 using FastExpressionCompiler.LightExpression;
@@ -33,8 +32,9 @@ namespace Wire.ValueSerializers
             throw _exception;
         }
 
-        public override void EmitWriteValue<TBufferWriter> (Compiler<ObjectWriter<TBufferWriter>> c, Expression writer, Expression value,
-            Expression session) 
+        public override void EmitWriteValue<TBufferWriter>(Compiler<ObjectWriter<TBufferWriter>> c, Expression writer,
+            Expression value,
+            Expression session)
         {
             throw _exception;
         }
@@ -49,7 +49,8 @@ namespace Wire.ValueSerializers
             throw _exception;
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+            SerializerSession session)
         {
             throw _exception;
         }
