@@ -31,10 +31,10 @@ namespace Wire.Compilation
             objectSerializer.Initialize(reader, writer, bufferSize);
         }
 
-        private static ObjectReader GetFieldsReader(Serializer serializer, FieldInfo[] fields,
+        private static Reader GetFieldsReader(Serializer serializer, FieldInfo[] fields,
             Type type)
         {
-            var c = new Compiler<ObjectReader>();
+            var c = new Compiler();
             var stream = c.Parameter<Stream>("stream");
             var session = c.Parameter<DeserializerSession>("session");
             var newExpression = c.NewObject(type);
@@ -85,7 +85,7 @@ namespace Wire.Compilation
 
             c.Emit(c.Convert(target, typeof(object)));
 
-            var del = c.Compile();
+            Reader del = c.Compile<Reader>();
 #if DEBUG
             var tmp = del;
             var debug = c.GetLambdaExpression().ToCSharpString();
@@ -97,7 +97,7 @@ namespace Wire.Compilation
             {
                 try
                 {
-                    return tmp(tStream, tSession);
+                    return tmp.Read(tStream, tSession);
                 }
                 catch
                 {
@@ -114,8 +114,8 @@ namespace Wire.Compilation
             return del;
         }
 
-        private static void EmitBuffer<T>(Compiler<T> c, int bufferSize, Expression session,
-            MethodInfo getBuffer) where T : class
+        private static void EmitBuffer(Compiler c, int bufferSize, Expression session,
+            MethodInfo getBuffer)
         {
             var size = c.Constant(bufferSize);
             var buffer = c.Variable<byte[]>(SerializerCompiler.PreallocatedByteBuffer);
@@ -123,21 +123,14 @@ namespace Wire.Compilation
             var assignBuffer = c.WriteVar(buffer, bufferValue);
             c.Emit(assignBuffer);
         }
-        
-        private static void EmitBuffer2<T>(Compiler<T> c,Expression stream, int bufferSize, MethodInfo getBuffer) where T : class
-        {
-            var size = c.Constant(bufferSize);
-            var allocateBuffer = c.Call(getBuffer,stream, size);
-            c.Emit(allocateBuffer);
-        }
 
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
-        private static ObjectWriter<TBufferWriter> GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields,
+        private static Writer GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields,
             Type type,
             out int bufferSize)
         {
-            var c = new Compiler<ObjectWriter<TBufferWriter>>();
+            var c = new Compiler();
 
             var stream = c.Parameter<IBufferWriter<byte>>("stream");
             var target = c.Parameter<object>("target");

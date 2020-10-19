@@ -14,7 +14,7 @@ using Wire.Compilation;
 using Wire.Extensions;
 using T = System.Guid;
 
-namespace Wire.ValueSerializers.Optimized
+namespace Wire.ValueSerializers
 {
     public class GuidSerializer : ValueSerializer
     {
@@ -68,7 +68,7 @@ namespace Wire.ValueSerializers.Optimized
 
         //core generation
 
-        public override void EmitWriteValue<TBufferWriter>(Compiler<ObjectWriter<TBufferWriter>> c, Expression writer,
+        public override void EmitWriteValue(Compiler c, Expression writer,
             Expression value,
             Expression session)
         {
@@ -76,7 +76,7 @@ namespace Wire.ValueSerializers.Optimized
             c.EmitStaticCall(method, writer, value);
         }
 
-        public override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session,
+        public override Expression EmitReadValue(Compiler c, Expression stream, Expression session,
             FieldInfo field)
         {
             var method = GetType().GetMethod(nameof(ReadValueImpl), BindingFlagsEx.Static)!;

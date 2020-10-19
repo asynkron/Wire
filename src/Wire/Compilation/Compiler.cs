@@ -14,7 +14,7 @@ using Wire.Extensions;
 
 namespace Wire.Compilation
 {
-    public class Compiler<TDel> where TDel : class
+    public class Compiler
     {
         private readonly List<Expression> _content = new List<Expression>();
         private readonly List<ParameterExpression> _parameters = new List<ParameterExpression>();
@@ -120,7 +120,7 @@ namespace Wire.Compilation
             return writeExp;
         }
 
-        public TDel Compile()
+        public T Compile<T>()
         {
             var lambda = GetLambdaExpression();
             try

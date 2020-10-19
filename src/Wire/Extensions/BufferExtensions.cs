@@ -3,7 +3,6 @@ using System.Buffers;
 using System.Runtime.CompilerServices;
 using Wire.Buffers;
 using Wire.ValueSerializers;
-using Wire.ValueSerializers.Optimized;
 
 namespace Wire.Extensions
 {
@@ -25,7 +24,7 @@ namespace Wire.Extensions
                 //write the serializer manifest
                 ObjectReferenceSerializer.WriteManifestImpl(writer);
                 //write the object reference id
-                ObjectReferenceSerializer.WriteValueImpl(writer, existingId, session);
+                ObjectReferenceSerializer.WriteValueImpl(writer, existingId);
                 return;
             }
 
@@ -52,7 +51,7 @@ namespace Wire.Extensions
                 //write the serializer manifest
                 ObjectReferenceSerializer.WriteManifestImpl(writer);
                 //write the object reference id
-                ObjectReferenceSerializer.WriteValueImpl(writer, existingId, session);
+                ObjectReferenceSerializer.WriteValueImpl(writer, existingId);
                 return;
             }
 

@@ -38,9 +38,9 @@ namespace Wire.ValueSerializers
         public abstract object ReadValue(Stream stream, DeserializerSession session);
         public abstract Type GetElementType();
 
-        public virtual void EmitWriteValue<TBufferWriter>(Compiler<ObjectWriter<TBufferWriter>> c, Expression writer,
+        public virtual void EmitWriteValue(Compiler c, Expression writer,
             Expression value,
-            Expression session) where TBufferWriter : IBufferWriter<byte>
+            Expression session)
         {
             var converted = c.Convert<object>(value);
             var method = typeof(ValueSerializer).GetMethod(nameof(WriteValue))!;
@@ -50,7 +50,7 @@ namespace Wire.ValueSerializers
             c.EmitCall(method, vs, writer, converted, session);
         }
 
-        public virtual Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session,
+        public virtual Expression EmitReadValue(Compiler c, Expression stream, Expression session,
             FieldInfo field)
         {
             var method = typeof(ValueSerializer).GetMethod(nameof(ReadValue))!;

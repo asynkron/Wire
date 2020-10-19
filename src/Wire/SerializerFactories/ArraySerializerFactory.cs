@@ -11,7 +11,6 @@ using System.IO;
 using System.Reflection;
 using Wire.Extensions;
 using Wire.ValueSerializers;
-using Wire.ValueSerializers.Optimized;
 
 namespace Wire.SerializerFactories
 {

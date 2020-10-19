@@ -14,7 +14,6 @@ using Wire.Buffers;
 using Wire.Compilation;
 using Wire.Extensions;
 using Wire.ValueSerializers;
-using Wire.ValueSerializers.Optimized;
 using Writer = Wire.Buffers.Writer;
 
 namespace Wire

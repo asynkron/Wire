@@ -26,13 +26,13 @@ namespace Wire.ValueSerializers
             _invalidType = t;
         }
 
-        public override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session,
+        public override Expression EmitReadValue(Compiler c, Expression stream, Expression session,
             FieldInfo field)
         {
             throw _exception;
         }
 
-        public override void EmitWriteValue<TBufferWriter>(Compiler<ObjectWriter<TBufferWriter>> c, Expression writer,
+        public override void EmitWriteValue(Compiler c, Expression writer,
             Expression value,
             Expression session)
         {

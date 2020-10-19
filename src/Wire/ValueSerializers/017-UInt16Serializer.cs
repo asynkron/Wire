@@ -66,7 +66,7 @@ namespace Wire.ValueSerializers
 
         //core generation
 
-        public override void EmitWriteValue<TBufferWriter>(Compiler<ObjectWriter<TBufferWriter>> c, Expression writer,
+        public override void EmitWriteValue(Compiler c, Expression writer,
             Expression value,
             Expression session)
         {
@@ -74,7 +74,7 @@ namespace Wire.ValueSerializers
             c.EmitStaticCall(method, writer, value);
         }
 
-        public override Expression EmitReadValue(Compiler<ObjectReader> c, Expression stream, Expression session,
+        public override Expression EmitReadValue(Compiler c, Expression stream, Expression session,
             FieldInfo field)
         {
             var method = GetType().GetMethod(nameof(ReadValueImpl), BindingFlagsEx.Static)!;
