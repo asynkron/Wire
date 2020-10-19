@@ -11,7 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using FastExpressionCompiler.LightExpression;
-using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -86,31 +85,6 @@ namespace Wire.Compilation
             c.Emit(c.Convert(target, typeof(object)));
 
             Reader del = c.Compile<Reader>();
-#if DEBUG
-            var tmp = del;
-            var debug = c.GetLambdaExpression().ToCSharpString();
-            Console.WriteLine($"{type.Name}----");
-            Console.WriteLine(debug);
-            Console.WriteLine($"------------");
-
-            object Del(Stream tStream, DeserializerSession tSession)
-            {
-                try
-                {
-                    return tmp.Read(tStream, tSession);
-                }
-                catch
-                {
-                    Console.WriteLine(type);
-                    Console.WriteLine(debug);
-                    throw;
-                }
-            }
-
-            del = Del;
-
-#endif
-            
             return del;
         }
 
@@ -192,36 +166,7 @@ namespace Wire.Compilation
             }
             
 
-            var del = c.Compile();
-#if DEBUG
-            var debug = c.GetLambdaExpression().ToCSharpString();
-            Console.WriteLine($"{type.Name}----");
-            Console.WriteLine(debug);
-            Console.WriteLine($"------------");
-            
-            var tmp = del;
-
-            void Del(ref Writer<TBufferWriter> tWriter, object tObj, SerializerSession tSession)
-            {
-                try
-                {
-                    tmp(ref tWriter, tObj, tSession);
-                }
-                catch
-                {
-                    Console.WriteLine(type);
-                    foreach (var f in fields)
-                    {
-                        Console.WriteLine(f);
-                    }
-
-                    Console.WriteLine(debug);
-                    throw;
-                }
-            }
-
-            del = Del;
-#endif
+            var del = c.Compile<Writer>();
             return del;
         }
     }
