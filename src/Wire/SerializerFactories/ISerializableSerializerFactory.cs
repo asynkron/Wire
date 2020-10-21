@@ -19,21 +19,15 @@ namespace Wire.SerializerFactories
     // ReSharper disable once InconsistentNaming
     public class ISerializableSerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type)
-        {
-            return typeof(ISerializable).IsAssignableFrom(type);
-        }
+        public override bool CanSerialize(Serializer serializer, Type type) => typeof(ISerializable).IsAssignableFrom(type);
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return CanSerialize(serializer, type);
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
             var serializableSerializer = new ISerializableSerializer(type);
-
+            typeMapping.TryAdd(type, serializableSerializer);
             return serializableSerializer;
         }
         
@@ -51,7 +45,8 @@ namespace Wire.SerializerFactories
             {
                 var dict = stream.ReadObject(session) as Dictionary<string, object>;
                 var info = new SerializationInfo(Type, new FormatterConverter());
-                // ReSharper disable once PossibleNullReferenceException
+                
+                // ReSharper disable once UseDeconstruction
                 foreach (var item in dict) info.AddValue(item.Key, item.Value);
                 
                 var instance = _ctor.Invoke(new object[] {info, new StreamingContext()});
