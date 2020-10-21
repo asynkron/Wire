@@ -1,5 +1,4 @@
 using System;
-using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using Wire.Buffers;
@@ -15,22 +14,29 @@ namespace Wire.SerializerFactories
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type, ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var enumSerializer = new ObjectSerializer(type);
-
-            object Reader(Stream stream, DeserializerSession session)
-            {
-                var bytes = session.GetBuffer(4);
-                var intValue = Int32Serializer.ReadValueImpl(stream,bytes);
-                return Enum.ToObject(type, intValue);
-            }
-            void Writer<TBufferWriter>(Writer<TBufferWriter> writer, object enumValue, SerializerSession session) where TBufferWriter:IBufferWriter<byte>
-            {
-                Int32Serializer.WriteValue(writer,(int)enumValue);
-            }
-
-            enumSerializer.Initialize(null, Writer);
+            var enumSerializer = new EnumSerializer(type);
             typeMapping.TryAdd(type, enumSerializer);
             return enumSerializer;
         }
+        
+        private class EnumSerializer : ObjectSerializer
+        {
+            public EnumSerializer(Type type) : base(type)
+            {
+            }
+
+            public override object ReadValue(Stream stream, DeserializerSession session)
+            {
+                var bytes = session.GetBuffer(4);
+                var intValue = Int32Serializer.ReadValueImpl(stream,bytes);
+                return Enum.ToObject(Type, intValue);
+            }
+
+            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+            {
+                Int32Serializer.WriteValue(writer,(int)value);
+            }
+        }
     }
+    
 }
