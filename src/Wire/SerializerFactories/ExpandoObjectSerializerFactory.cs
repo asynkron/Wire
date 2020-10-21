@@ -11,6 +11,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
+using System.Reflection;
+using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -32,15 +34,28 @@ namespace Wire.SerializerFactories
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
-            var ser = new ObjectSerializer(type);
-            typeMapping.TryAdd(type, ser);
             var elementSerializer = serializer.GetSerializerByType(typeof(DictionaryEntry));
+            var expandoObjectSerializer = new ExpandoObjectSerializer(preserveObjectReferences, elementSerializer,type);
+            typeMapping.TryAdd(type, expandoObjectSerializer);
+            return expandoObjectSerializer;
+        }
+        
+        private class ExpandoObjectSerializer : ObjectSerializer
+        {
+            private readonly bool _preserveObjectReferences;
+            private readonly ValueSerializer _elementSerializer;
 
-            object Reader(Stream stream, DeserializerSession session)
+            public ExpandoObjectSerializer(bool preserveObjectReferences, ValueSerializer elementSerializer ,Type type) : base(type)
             {
-                var instance = (IDictionary<string, object>) Activator.CreateInstance(type)!;
+                _preserveObjectReferences = preserveObjectReferences;
+                _elementSerializer = elementSerializer;
+            }
 
-                if (preserveObjectReferences) session.TrackDeserializedObject(instance);
+            public override object ReadValue(Stream stream, DeserializerSession session)
+            {
+                var instance = (IDictionary<string, object>) Activator.CreateInstance(Type)!;
+
+                if (_preserveObjectReferences) session.TrackDeserializedObject(instance);
                 var count = stream.ReadInt32(session);
                 for (var i = 0; i < count; i++)
                 {
@@ -51,21 +66,17 @@ namespace Wire.SerializerFactories
                 return instance;
             }
 
-            void Writer(IBufferWriter<byte> stream, object obj, SerializerSession session)
+            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
             {
-                if (preserveObjectReferences) session.TrackSerializedObject(obj);
-                var dict = (IDictionary<string, object>) obj;
+                if (_preserveObjectReferences) session.TrackSerializedObject(value);
+                var dict = (IDictionary<string, object>) value;
                 // ReSharper disable once PossibleNullReferenceException
-                Int32Serializer.WriteValue(stream, dict.Count);
+                Int32Serializer.WriteValue(writer, dict.Count);
                 foreach (var item in dict)
-                    stream.WriteObject(item, typeof(DictionaryEntry), elementSerializer,
-                        serializer.Options.PreserveObjectReferences, session);
+                    writer.WriteObject(item, typeof(DictionaryEntry), _elementSerializer,
+                        _preserveObjectReferences, session);
                 // elementSerializer.WriteValue(stream,item,session);
             }
-
-            ser.Initialize(Reader, Writer);
-
-            return ser;
         }
     }
 }

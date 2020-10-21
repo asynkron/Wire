@@ -26,16 +26,16 @@ namespace Wire.SerializerFactories
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var serializableSerializer = new ISerializableSerializer(type);
+            var serializableSerializer = new SerializableSerializer(type);
             typeMapping.TryAdd(type, serializableSerializer);
             return serializableSerializer;
         }
         
-        private class ISerializableSerializer : ObjectSerializer
+        private class SerializableSerializer : ObjectSerializer
         {
             private readonly ConstructorInfo _ctor;
 
-            public ISerializableSerializer(Type type) : base(type)
+            public SerializableSerializer(Type type) : base(type)
             {
                 _ctor = Type.GetConstructor(BindingFlagsEx.All, null,
                     new[] {typeof(SerializationInfo), typeof(StreamingContext)}, null)!;
