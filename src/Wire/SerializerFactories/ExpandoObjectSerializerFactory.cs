@@ -5,13 +5,11 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
-using System.Reflection;
 using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
@@ -20,15 +18,9 @@ namespace Wire.SerializerFactories
 {
     public class ExpandoObjectSerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type)
-        {
-            return type == typeof(ExpandoObject);
-        }
+        public override bool CanSerialize(Serializer serializer, Type type) => type == typeof(ExpandoObject);
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return CanSerialize(serializer, type);
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)

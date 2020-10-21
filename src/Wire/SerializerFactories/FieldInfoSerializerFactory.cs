@@ -9,6 +9,7 @@ using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
+using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -16,46 +17,44 @@ namespace Wire.SerializerFactories
 {
     public class FieldInfoSerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type)
-        {
-            return type.IsSubclassOf(typeof(FieldInfo));
-        }
+        public override bool CanSerialize(Serializer serializer, Type type) => type.IsSubclassOf(typeof(FieldInfo));
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return CanSerialize(serializer, type);
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var os = new ObjectSerializer(type);
-            typeMapping.TryAdd(type, os);
+            var fieldInfoSerializer = new FieldInfoSerializer(type);
+            typeMapping.TryAdd(type, fieldInfoSerializer);
 
-            static object Reader(Stream stream, DeserializerSession session)
+            return fieldInfoSerializer;
+        }
+        
+        private class FieldInfoSerializer : ObjectSerializer
+        {
+            public FieldInfoSerializer(Type type) : base(type)
+            {
+            }
+
+            public override object ReadValue(Stream stream, DeserializerSession session)
             {
                 var name = stream.ReadString(session);
                 var owner = stream.ReadObject(session) as Type;
-
-
-                var field = owner
-                    .GetField(name,
-                        BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                
+                var field = owner!
+                    .GetField(name!,
+                        BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!;
                 return field;
             }
 
-            static void Writer(IBufferWriter<byte> stream, object obj, SerializerSession session)
+            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
             {
-                var field = (FieldInfo) obj;
+                var field = (FieldInfo) value;
                 var name = field.Name;
                 var owner = field.DeclaringType;
-                StringSerializer.WriteValueImpl(stream, name);
-                stream.WriteObjectWithManifest(owner, session);
+                StringSerializer.WriteValueImpl(writer, name);
+                writer.WriteObjectWithManifest(owner, session);
             }
-
-            os.Initialize(Reader, Writer);
-
-            return os;
         }
     }
 }
