@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -30,10 +31,19 @@ namespace Wire.SerializerFactories
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var os = new ObjectSerializer(type);
+            var os = new MethodInfoSerializer(type);
             typeMapping.TryAdd(type, os);
+            
+            return os;
+        }
+        
+        private class MethodInfoSerializer : ObjectSerializer
+        {
+            public MethodInfoSerializer(Type type) : base(type)
+            {
+            }
 
-            static object Reader(Stream stream, DeserializerSession session)
+            public override object ReadValue(Stream stream, DeserializerSession session)
             {
                 var name = stream.ReadString(session);
                 var owner = stream.ReadObject(session) as Type;
@@ -46,20 +56,16 @@ namespace Wire.SerializerFactories
                 return method;
             }
 
-            static void Writer(IBufferWriter<byte> stream, object obj, SerializerSession session)
+            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
             {
-                var method = (MethodInfo) obj;
+                var method = (MethodInfo) value;
                 var name = method.Name;
                 var owner = method.DeclaringType;
                 var arguments = method.GetParameters().Select(p => p.ParameterType).ToArray();
-                StringSerializer.WriteValueImpl(stream, name);
-                stream.WriteObjectWithManifest(owner, session);
-                stream.WriteObjectWithManifest(arguments, session);
+                StringSerializer.WriteValueImpl(writer, name);
+                writer.WriteObjectWithManifest(owner, session);
+                writer.WriteObjectWithManifest(arguments, session);
             }
-
-            os.Initialize(Reader, Writer);
-
-            return os;
         }
     }
 }

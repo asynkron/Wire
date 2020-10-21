@@ -125,7 +125,8 @@ namespace Wire.Compilation
             var lambda = GetLambdaExpression();
             try
             {
-                return lambda.CompileFast<TDel>();
+                return default;
+                //return lambda.CompileFast<TDel>();
             }
             catch
             {

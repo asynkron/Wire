@@ -5,11 +5,10 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
+using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -27,64 +26,57 @@ namespace Wire.SerializerFactories
             return CanSerialize(serializer, type);
         }
 
-        private static void WriteValues<T>(LinkedList<T> llist, IBufferWriter<byte> stream, Type elementType,
-            ValueSerializer elementSerializer,
-            SerializerSession session, bool preserveObjectReferences)
-        {
-            if (preserveObjectReferences) session.TrackSerializedObject(llist);
-
-            Int32Serializer.WriteValue(stream, llist.Count);
-            foreach (var value in llist)
-                stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
-        }
-
-        private static object ReadValues<T>(Stream stream, DeserializerSession session, bool preserveObjectReferences)
-        {
-            var length = stream.ReadInt32(session);
-            var llist = new LinkedList<T>();
-            if (preserveObjectReferences) session.TrackDeserializedObject(llist);
-            for (var i = 0; i < length; i++)
-            {
-                var value = (T) stream.ReadObject(session);
-                llist.AddLast(value);
-            }
-
-            return llist;
-        }
-
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var arraySerializer = new ObjectSerializer(type);
-
             var elementType = type.GetGenericArguments()[0];
             var elementSerializer = serializer.GetSerializerByType(elementType);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
+            var linkedListSerializer =
+                new LinkedListSerializer<T>(preserveObjectReferences, type, elementType, elementSerializer);
 
-            var readGeneric = GetType()
-                .GetMethod(nameof(ReadValues), BindingFlags.NonPublic | BindingFlags.Static)
-                .MakeGenericMethod(elementType);
-            var writeGeneric = GetType()
-                .GetMethod(nameof(WriteValues), BindingFlags.NonPublic | BindingFlags.Static)
-                .MakeGenericMethod(elementType);
+            typeMapping.TryAdd(type, linkedListSerializer);
+            return linkedListSerializer;
+        }
 
-            object Reader(Stream stream, DeserializerSession session)
+        private class LinkedListSerializer<T> : ObjectSerializer
+        {
+            private readonly ValueSerializer _elementSerializer;
+            private readonly Type _elementType;
+            private readonly bool _preserveObjectReferences;
+
+            public LinkedListSerializer(bool preserveObjectReferences, Type type, Type elementType,
+                ValueSerializer elementSerializer) : base(type)
             {
-                //Stream stream, DeserializerSession session, bool preserveObjectReferences
-                var res = readGeneric.Invoke(null, new object[] {stream, session, preserveObjectReferences});
-                return res;
+                _preserveObjectReferences = preserveObjectReferences;
+                _elementType = elementType;
+                _elementSerializer = elementSerializer;
             }
 
-            void Writer(IBufferWriter<byte> stream, object arr, SerializerSession session)
+            public override object ReadValue(Stream stream, DeserializerSession session)
             {
-                //T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer, SerializerSession session, bool preserveObjectReferences
-                writeGeneric.Invoke(null,
-                    new[] {arr, stream, elementType, elementSerializer, session, preserveObjectReferences});
+                var length = stream.ReadInt32(session);
+                var linkedList = new LinkedList<T>();
+                if (_preserveObjectReferences) session.TrackDeserializedObject(linkedList);
+                for (var i = 0; i < length; i++)
+                {
+                    var value = (T) stream.ReadObject(session);
+                    linkedList.AddLast(value);
+                }
+
+                return linkedList;
             }
 
-            arraySerializer.Initialize(Reader, Writer);
-            typeMapping.TryAdd(type, arraySerializer);
-            return arraySerializer;
+            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+                SerializerSession session)
+            {
+                if (_preserveObjectReferences) session.TrackSerializedObject(value);
+                var linkedList = (LinkedList<T>) value;
+
+                Int32Serializer.WriteValue(writer, linkedList.Count);
+                foreach (var element in linkedList)
+                    writer.WriteObject(element, _elementType, _elementSerializer, _preserveObjectReferences, session);
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
+using Wire.Buffers;
 using Wire.ValueSerializers;
 
 namespace Wire.SerializerFactories
@@ -22,13 +23,12 @@ namespace Wire.SerializerFactories
                 var intValue = Int32Serializer.ReadValueImpl(stream,bytes);
                 return Enum.ToObject(type, intValue);
             }
-
-            static void Writer(IBufferWriter<byte> stream, object enumValue, SerializerSession session)
+            void Writer<TBufferWriter>(Writer<TBufferWriter> writer, object enumValue, SerializerSession session) where TBufferWriter:IBufferWriter<byte>
             {
-                Int32Serializer.WriteValue(stream,(int)enumValue);
+                Int32Serializer.WriteValue(writer,(int)enumValue);
             }
 
-            enumSerializer.Initialize(Reader, Writer);
+            enumSerializer.Initialize(null, Writer);
             typeMapping.TryAdd(type, enumSerializer);
             return enumSerializer;
         }

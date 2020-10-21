@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using Wire.Compilation;
 using Wire.ValueSerializers;
 
 namespace Wire.SerializerFactories
@@ -36,7 +37,7 @@ namespace Wire.SerializerFactories
             var toSurrogateSerializer = new ToSurrogateSerializer(surrogate.ToSurrogate);
             typeMapping.TryAdd(type, toSurrogateSerializer);
 
-            serializer.CodeGenerator.BuildSerializer(serializer, objectSerializer);
+            SerializerCompiler.BuildSerializer(serializer, objectSerializer);
             return toSurrogateSerializer;
         }
     }

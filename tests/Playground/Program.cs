@@ -36,7 +36,7 @@ namespace Playground
     {
         static void Main(string[] args)
         {
-            var s = new Serializer<SingleSegmentBuffer>(new SerializerOptions(
+            var s = new Serializer(new SerializerOptions(
                 knownTypes:new List<Type> {typeof(SomeClass),typeof(SomeOther),typeof(TypicalMessage)})
             );
             var some = new SomeClass

@@ -5,10 +5,10 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
+using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -29,10 +29,18 @@ namespace Wire.SerializerFactories
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var os = new ObjectSerializer(type);
+            var os = new PropertyInfoSerializer(type);
             typeMapping.TryAdd(type, os);
+            return os;
+        }
 
-            static object Reader(Stream stream, DeserializerSession session)
+        private class PropertyInfoSerializer : ObjectSerializer
+        {
+            public PropertyInfoSerializer(Type type) : base(type)
+            {
+            }
+
+            public override object ReadValue(Stream stream, DeserializerSession session)
             {
                 var name = stream.ReadString(session);
                 var owner = stream.ReadObject(session) as Type;
@@ -43,18 +51,14 @@ namespace Wire.SerializerFactories
                 return property;
             }
 
-            static void Writer(IBufferWriter<byte> stream, object obj, SerializerSession session)
+            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
             {
-                var property = (PropertyInfo) obj;
+                var property = (PropertyInfo) value;
                 var name = property.Name;
                 var owner = property.DeclaringType;
-                StringSerializer.WriteValueImpl(stream, name);
-                stream.WriteObjectWithManifest(owner, session);
+                StringSerializer.WriteValueImpl(writer, name);
+                writer.WriteObjectWithManifest(owner, session);
             }
-
-            os.Initialize(Reader, Writer);
-
-            return os;
         }
     }
 }

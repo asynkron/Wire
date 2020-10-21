@@ -9,6 +9,7 @@ using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
+using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -77,6 +78,8 @@ namespace Wire.SerializerFactories
                 var res = readGeneric.Invoke(null, new object[] {stream, session, preserveObjectReferences});
                 return res;
             }
+
+    
 
             void Writer(IBufferWriter<byte> stream, object arr, SerializerSession session)
             {
