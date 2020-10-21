@@ -5,12 +5,12 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -49,26 +49,34 @@ namespace Wire.SerializerFactories
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var x = new ObjectSerializer(type);
-            typeMapping.TryAdd(type, x);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
 
             var elementType = GetEnumerableType(type) ?? typeof(object);
             var elementSerializer = serializer.GetSerializerByType(elementType);
 
-            var countProperty = type.GetProperty("Count")!;
-            var addRange = type.GetMethod("AddRange");
-            var add = type.GetMethod("Add");
+            var enumerableSerializer = new EnumerableSerializer<T>(preserveObjectReferences,elementType,elementSerializer,type);
+            typeMapping.TryAdd(type, enumerableSerializer);
 
-            int CountGetter(object o)
+            return enumerableSerializer;
+        }
+        
+        private class EnumerableSerializer<T> : ObjectSerializer
+        {
+            private readonly bool _preserveObjectReferences;
+            private readonly ValueSerializer _elementSerializer;
+            private readonly Type _elementType;
+
+            public EnumerableSerializer(bool preserveObjectReferences, Type elementType, ValueSerializer elementSerializer ,Type type) : base(type)
             {
-                return (int) countProperty.GetValue(o)!;
+                _preserveObjectReferences = preserveObjectReferences;
+                _elementSerializer = elementSerializer;
+                _elementType = elementType;
             }
 
-            object Reader(Stream stream, DeserializerSession session)
+            public override object ReadValue(Stream stream, DeserializerSession session)
             {
-                var instance = Activator.CreateInstance(type)!;
-                if (preserveObjectReferences) session.TrackDeserializedObject(instance);
+                var instance = Activator.CreateInstance(Type)!;
+                if (_preserveObjectReferences) session.TrackDeserializedObject(instance);
 
                 var count = stream.ReadInt32(session);
 
@@ -96,18 +104,17 @@ namespace Wire.SerializerFactories
                 return instance;
             }
 
-            void Writer(IBufferWriter<byte> stream, object o, SerializerSession session)
+            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
             {
-                if (preserveObjectReferences) session.TrackSerializedObject(o);
-                Int32Serializer.WriteValue(stream, CountGetter(o));
-                var enumerable = (IEnumerable)o;
-                // ReSharper disable once PossibleNullReferenceException
-                foreach (var value in enumerable)
-                    stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
-            }
+                if (_preserveObjectReferences) session.TrackSerializedObject(value);
+                IEnumerable<T> typed = (IEnumerable<T>)value;
+                Int32Serializer.WriteValue(writer, typed.Count());
 
-            x.Initialize(Reader, Writer);
-            return x;
+                // ReSharper disable once PossibleNullReferenceException
+                foreach (var element in typed)
+                    writer.WriteObject(element, _elementType, _elementSerializer, _preserveObjectReferences, session);
+
+            }
         }
     }
 }

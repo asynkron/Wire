@@ -34,7 +34,7 @@ namespace Wire
             new ExpandoObjectSerializerFactory(),
             new DictionarySerializerFactory(),
             new LinkedListSerializerFactory(),
-            new GenericIDictionarySerializerFactory(),
+        //    new GenericIDictionarySerializerFactory(),
             new HashSetSerializerFactory(),
             new ArraySerializerFactory(),
             new ISerializableSerializerFactory(), 

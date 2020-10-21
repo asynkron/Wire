@@ -12,6 +12,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using FastExpressionCompiler.LightExpression;
+using Wire.Buffers;
+using Wire.Extensions;
 using Wire.ValueSerializers;
 
 namespace Wire.SerializerFactories
@@ -54,8 +56,7 @@ namespace Wire.SerializerFactories
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var x = new ObjectSerializer(type);
-            typeMapping.TryAdd(type, x);
+
 
             var elementType = GetEnumerableType(type);
             var arrType = elementType.MakeArrayType();
@@ -67,26 +68,44 @@ namespace Wire.SerializerFactories
             var toArrayConcrete = toArray.MakeGenericMethod(elementType);
             var toArrayCompiled = CompileToDelegate(toArrayConcrete, type);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
+            var arrSerializer = serializer.GetSerializerByType(arrType);
+            
+            var x = new ObjectSerializer(type);
+            typeMapping.TryAdd(type, x);
+            
+            return x;
+        }
+        
+        private class FSharpListSerializer<T> : ObjectSerializer
+        {
+            private readonly ValueSerializer _elementSerializer;
+            private readonly Type _elementType;
+            private readonly bool _preserveObjectReferences;
 
-            void Writer(IBufferWriter<byte> stream, object o, SerializerSession session)
+            public FSharpListSerializer(bool preserveObjectReferences, Type type, Type elementType,
+                ValueSerializer elementSerializer) : base(type)
             {
-                var arr = toArrayCompiled(o);
-                var arrSerializer = serializer.GetSerializerByType(arrType);
-                arrSerializer.WriteValue(stream, arr, session);
-                if (preserveObjectReferences) session.TrackSerializedObject(o);
+                _preserveObjectReferences = preserveObjectReferences;
+                _elementType = elementType;
+                _elementSerializer = elementSerializer;
             }
 
-            object Reader(Stream stream, DeserializerSession session)
+            public override object ReadValue(Stream stream, DeserializerSession session)
             {
-                var arrSerializer = serializer.GetSerializerByType(arrType);
-                var items = (Array) arrSerializer.ReadValue(stream, session);
-                var res = ofArrayCompiled(items);
-                if (preserveObjectReferences) session.TrackDeserializedObject(res);
+                var items = (T[]) arrSerializer.ReadValue(stream, session);
+
+                if (_preserveObjectReferences) session.TrackDeserializedObject(items);
                 return res;
             }
 
-            x.Initialize(Reader, Writer);
-            return x;
+            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+                SerializerSession session)
+            {
+                var typed = (IEnumerable<T>) value;
+                var arr = typed.ToArray();
+                
+                arrSerializer.WriteValue(stream, arr, session);
+                if (preserveObjectReferences) session.TrackSerializedObject(o);            }
         }
     }
 }

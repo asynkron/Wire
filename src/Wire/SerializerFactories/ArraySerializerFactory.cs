@@ -5,10 +5,8 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Buffers;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Reflection;
 using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
