@@ -7,16 +7,14 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using Wire.Compilation;
 using Wire.ValueSerializers;
 
 namespace Wire.SerializerFactories
 {
     public class FromSurrogateSerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type)
-        {
-            return false;
-        }
+        public override bool CanSerialize(Serializer serializer, Type type) => false;
 
         public override bool CanDeserialize(Serializer serializer, Type type)
         {
@@ -37,7 +35,7 @@ namespace Wire.SerializerFactories
             typeMapping.TryAdd(type, fromSurrogateSerializer);
 
 
-            serializer.CodeGenerator.BuildSerializer(serializer, objectSerializer);
+            SerializerCompiler.BuildSerializer(serializer, objectSerializer);
             return fromSurrogateSerializer;
         }
     }

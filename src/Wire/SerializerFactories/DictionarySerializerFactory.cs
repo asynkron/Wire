@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-//   <copyright file="DictionarySerializerFactory.cs" company="Asynkron HB">
+//   <copyright file="DefaultDictionarySerializerFactory.cs" company="Asynkron HB">
 //       Copyright (C) 2015-2017 Asynkron HB All rights reserved
 //   </copyright>
 // -----------------------------------------------------------------------
@@ -10,7 +10,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -18,69 +18,60 @@ namespace Wire.SerializerFactories
 {
     public class DictionarySerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type)
-        {
-            return IsInterface(type);
-        }
+        public override bool CanSerialize(Serializer serializer, Type type) => IsDictionary(type);
 
-        private static bool IsInterface(Type type)
-        {
-            return type
-                .GetInterfaces()
-                .Select(
-                    t =>
-                        t.IsGenericType &&
-                        t.GetGenericTypeDefinition() == typeof(IDictionary<,>))
-                .Any(isDict => isDict);
-        }
+        private static bool IsDictionary(Type type) => 
+            type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return IsInterface(type);
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => IsDictionary(type);
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
-            var ser = new ObjectSerializer(type);
-            typeMapping.TryAdd(type, ser);
             var elementSerializer = serializer.GetSerializerByType(typeof(DictionaryEntry));
+            var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
+            var ser = new DictionarySerializer(preserveObjectReferences,elementSerializer, type);
+            typeMapping.TryAdd(type, ser);
 
-            object Reader(Stream stream, DeserializerSession session)
+            return ser;
+        }
+        
+        private class DictionarySerializer : ObjectSerializer
+        {
+            private readonly bool _preserveObjectReferences;
+            private readonly ValueSerializer _elementSerializer;
+
+            public DictionarySerializer(bool preserveObjectReferences, ValueSerializer elementSerializer ,Type type) : base(type)
             {
-                throw new NotSupportedException("Generic IDictionary<TKey,TValue> are not yet supported");
-#pragma warning disable CS0162 // Unreachable code detected
-                var instance = Activator.CreateInstance(type);
-#pragma warning restore CS0162 // Unreachable code detected
-                if (preserveObjectReferences) session.TrackDeserializedObject(instance);
+                _preserveObjectReferences = preserveObjectReferences;
+                _elementSerializer = elementSerializer;
+            }
+
+            public override object ReadValue(Stream stream, DeserializerSession session)
+            {
                 var count = stream.ReadInt32(session);
-                var entries = new DictionaryEntry[count];
+                var instance = (IDictionary) Activator.CreateInstance(Type, count)!;
+                if (_preserveObjectReferences) session.TrackDeserializedObject(instance);
+
                 for (var i = 0; i < count; i++)
                 {
                     var entry = (DictionaryEntry) stream.ReadObject(session);
-                    entries[i] = entry;
+                    instance.Add(entry.Key, entry.Value);
                 }
 
-                //TODO: populate dictionary
                 return instance;
             }
 
-            void Writer(IBufferWriter<byte> stream, object obj, SerializerSession session)
+            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
             {
-                if (preserveObjectReferences) session.TrackSerializedObject(obj);
-                var dict = obj as IDictionary;
+                if (_preserveObjectReferences) session.TrackSerializedObject(value);
+                var dict = value as IDictionary;
                 // ReSharper disable once PossibleNullReferenceException
-                Int32Serializer.WriteValue(stream, dict.Count);
-                foreach (var item in dict)
-                    stream.WriteObject(item, typeof(DictionaryEntry), elementSerializer,
-                        serializer.Options.PreserveObjectReferences, session);
-                // elementSerializer.WriteValue(stream,item,session);
+                Int32Serializer.WriteValue(writer, dict.Count);
+                foreach (DictionaryEntry item in dict)
+                    writer.WriteObject(item, typeof(DictionaryEntry), _elementSerializer,
+                        _preserveObjectReferences, session);
             }
-
-            ser.Initialize(Reader, Writer);
-
-            return ser;
         }
     }
 }
