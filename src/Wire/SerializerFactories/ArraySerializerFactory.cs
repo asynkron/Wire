@@ -17,88 +17,60 @@ namespace Wire.SerializerFactories
 {
     public class ArraySerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type)
-        {
-            return type.IsOneDimensionalArray();
-        }
+        public override bool CanSerialize(Serializer serializer, Type type) => type.IsOneDimensionalArray();
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return CanSerialize(serializer, type);
-        }
-
-        private static void WriteValueImpl<T>( 
-            T[] array,
-            IBufferWriter<byte> stream, 
-            Type elementType,
-            ValueSerializer elementSerializer,
-            SerializerSession session, 
-            bool preserveObjectReferences)
-        {
-            if (preserveObjectReferences) session.TrackSerializedObject(array);
-
-            Int32Serializer.WriteValue(stream, array.Length);
-            foreach (var value in array)
-                stream.WriteObject(value, elementType, elementSerializer, preserveObjectReferences, session);
-        }
-
-        private static object ReadValues<T>(Stream stream, DeserializerSession session, bool preserveObjectReferences)
-        {
-            var length = stream.ReadInt32(session);
-            var array = new T[length];
-            if (preserveObjectReferences) session.TrackDeserializedObject(array);
-            for (var i = 0; i < length; i++)
-            {
-                var value = (T) stream.ReadObject(session);
-                array[i] = value;
-            }
-
-            return array;
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var arraySerializer = new ObjectSerializer(type);
-
             var elementType = type.GetElementType();
             var elementSerializer = serializer.GetSerializerByType(elementType);
             var preserveObjectReferences = serializer.Options.PreserveObjectReferences;
-
-            var readGeneric = GetType()
-                .GetMethod(nameof(ReadValues), BindingFlags.NonPublic | BindingFlags.Static)
-                .MakeGenericMethod(elementType);
-            var writeGeneric = GetType()
-                .GetMethod(nameof(WriteValueImpl), BindingFlags.NonPublic | BindingFlags.Static)
-                .MakeGenericMethod(elementType);
-
-            object Reader(Stream stream, DeserializerSession session)
-            {
-                //Stream stream, DeserializerSession session, bool preserveObjectReferences
-                var res = readGeneric.Invoke(null, new object[] {stream, session, preserveObjectReferences});
-                return res;
-            }
-
-    
-
-            void Writer(IBufferWriter<byte> stream, object arr, SerializerSession session)
-            {
-                var parameters = new[]
-                {
-                    arr, 
-                    stream, 
-                    elementType, 
-                    elementSerializer, 
-                    session, 
-                    preserveObjectReferences
-                };
-                //T[] array, Stream stream, Type elementType, ValueSerializer elementSerializer, SerializerSession session, bool preserveObjectReferences
-                writeGeneric.Invoke(null, parameters);
-            }
-
-            arraySerializer.Initialize(Reader, Writer);
+            
+            var arraySerializer = new ArraySerializer<T>(preserveObjectReferences, type, elementType, elementSerializer);
             typeMapping.TryAdd(type, arraySerializer);
             return arraySerializer;
+        }
+        
+        private class ArraySerializer<T> : ObjectSerializer
+        {
+            private readonly ValueSerializer _elementSerializer;
+            private readonly Type _elementType;
+            private readonly bool _preserveObjectReferences;
+
+            public ArraySerializer(bool preserveObjectReferences, Type type, Type elementType,
+                ValueSerializer elementSerializer) : base(type)
+            {
+                _preserveObjectReferences = preserveObjectReferences;
+                _elementType = elementType;
+                _elementSerializer = elementSerializer;
+            }
+
+            public override object ReadValue(Stream stream, DeserializerSession session)
+            {
+                var length = stream.ReadInt32(session);
+                var array = new T[length];
+                if (_preserveObjectReferences) session.TrackDeserializedObject(array);
+                for (var i = 0; i < length; i++)
+                {
+                    var value = (T) stream.ReadObject(session);
+                    array[i]=value;
+                }
+
+                return array;
+            }
+
+            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+                SerializerSession session)
+            {
+                if (_preserveObjectReferences) session.TrackSerializedObject(value);
+                var array = (T[]) value;
+
+                Int32Serializer.WriteValue(writer, array.Length);
+                foreach (var element in array)
+                    writer.WriteObject(element, _elementType, _elementSerializer, _preserveObjectReferences, session);
+            }
         }
     }
 }

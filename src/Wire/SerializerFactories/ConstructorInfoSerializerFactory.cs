@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -17,43 +18,41 @@ namespace Wire.SerializerFactories
 {
     public class ConstructorInfoSerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type)
-        {
-            return type.IsSubclassOf(typeof(ConstructorInfo));
-        }
+        public override bool CanSerialize(Serializer serializer, Type type) => type.IsSubclassOf(typeof(ConstructorInfo));
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return CanSerialize(serializer, type);
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
         {
-            var os = new ObjectSerializer(type);
-            typeMapping.TryAdd(type, os);
+            var constructorInfoSerializer = new ConstructorInfoSerializer(type);
+            typeMapping.TryAdd(type, constructorInfoSerializer);
 
-            static object Reader(Stream stream, DeserializerSession session)
+            return constructorInfoSerializer;
+        }
+        
+        private class ConstructorInfoSerializer : ObjectSerializer
+        {
+            public ConstructorInfoSerializer(Type type) : base(type)
+            {
+            }
+
+            public override object ReadValue(Stream stream, DeserializerSession session)
             {
                 var owner = stream.ReadObject(session) as Type;
                 var arguments = stream.ReadObject(session) as Type[];
-
                 var ctor = owner.GetConstructor(arguments);
                 return ctor;
             }
 
-            static void Writer(IBufferWriter<byte> stream, object obj, SerializerSession session)
+            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
             {
-                var ctor = (ConstructorInfo) obj;
+                var ctor = (ConstructorInfo) value;
                 var owner = ctor.DeclaringType;
                 var arguments = ctor.GetParameters().Select(p => p.ParameterType).ToArray();
-                stream.WriteObjectWithManifest(owner, session);
-                stream.WriteObjectWithManifest(arguments, session);
+                writer.WriteObjectWithManifest(owner, session);
+                writer.WriteObjectWithManifest(arguments, session);
             }
-
-            os.Initialize(Reader, Writer);
-
-            return os;
         }
     }
 }

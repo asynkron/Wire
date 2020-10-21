@@ -13,15 +13,9 @@ namespace Wire.SerializerFactories
 {
     public class ConsistentArraySerializerFactory : ValueSerializerFactory
     {
-        public override bool CanSerialize(Serializer serializer, Type type)
-        {
-            return type.IsOneDimensionalPrimitiveArray();
-        }
+        public override bool CanSerialize(Serializer serializer, Type type) => type.IsOneDimensionalPrimitiveArray();
 
-        public override bool CanDeserialize(Serializer serializer, Type type)
-        {
-            return CanSerialize(serializer, type);
-        }
+        public override bool CanDeserialize(Serializer serializer, Type type) => CanSerialize(serializer, type);
 
         public override ValueSerializer BuildSerializer(Serializer serializer, Type type,
             ConcurrentDictionary<Type, ValueSerializer> typeMapping)
