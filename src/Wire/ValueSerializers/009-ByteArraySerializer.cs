@@ -25,7 +25,7 @@ namespace Wire.ValueSerializers
             SerializerSession session)
         {
             var bytes = (byte[]) value;
-            Int32Serializer.WriteValue(writer, bytes.Length);
+            Int32Serializer.WriteValue(ref writer, bytes.Length);
             writer.EnsureContiguous(bytes.Length);
             var destination = writer.WritableSpan;
             bytes.CopyTo(destination);

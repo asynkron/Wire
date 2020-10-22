@@ -35,7 +35,7 @@ namespace Wire.SerializerFactories
             public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
                 SerializerSession session)
             {
-                Int32Serializer.WriteValue(writer,(int)value);
+                Int32Serializer.WriteValue(ref writer,(int)value);
             }
         }
     }

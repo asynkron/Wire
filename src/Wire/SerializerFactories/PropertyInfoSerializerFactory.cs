@@ -57,7 +57,7 @@ namespace Wire.SerializerFactories
                 var property = (PropertyInfo) value;
                 var name = property.Name;
                 var owner = property.DeclaringType;
-                StringSerializer.WriteValueImpl(writer, name);
+                StringSerializer.WriteValueImpl(ref writer, name);
                 writer.WriteObjectWithManifest(owner, session);
             }
         }

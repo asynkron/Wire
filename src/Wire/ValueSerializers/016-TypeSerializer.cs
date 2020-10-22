@@ -34,7 +34,7 @@ namespace Wire.ValueSerializers
         {
             if (value == null)
             {
-                StringSerializer.WriteValueImpl(writer, null);
+                StringSerializer.WriteValueImpl(ref writer, null);
             }
             else
             {
@@ -50,7 +50,7 @@ namespace Wire.ValueSerializers
                     if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(type);
                     //type was not written before, add it to the tacked object list
                     var name = type.GetShortAssemblyQualifiedName();
-                    StringSerializer.WriteValueImpl(writer, name);
+                    StringSerializer.WriteValueImpl(ref writer, name);
                 }
             }
         }

@@ -63,7 +63,7 @@ namespace Wire.SerializerFactories
                 var name = method.Name;
                 var owner = method.DeclaringType;
                 var arguments = method.GetParameters().Select(p => p.ParameterType).ToArray();
-                StringSerializer.WriteValueImpl(writer, name);
+                StringSerializer.WriteValueImpl(ref writer, name);
                 writer.WriteObjectWithManifest(owner, session);
                 writer.WriteObjectWithManifest(arguments, session);
             }

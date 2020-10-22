@@ -21,7 +21,7 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 7;
         public static readonly StringSerializer Instance = new StringSerializer();
 
-        public static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, string? value)
+        public static void WriteValueImpl<TBufferWriter>(ref Writer<TBufferWriter> writer, string? value)
             where TBufferWriter : IBufferWriter<byte>
         {
             //if first byte is 0 = null
@@ -69,7 +69,7 @@ namespace Wire.ValueSerializers
         public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
             SerializerSession session)
         {
-            WriteValueImpl(writer, (string) value);
+            WriteValueImpl(ref writer, (string) value);
         }
 
         public override object? ReadValue(Stream stream, DeserializerSession session)

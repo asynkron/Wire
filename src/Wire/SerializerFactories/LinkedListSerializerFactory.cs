@@ -43,7 +43,6 @@ namespace Wire.SerializerFactories
                         elementSerializer);
             });
 
-
             typeMapping.TryAdd(type, linkedListSerializer);
             return linkedListSerializer;
         }
@@ -82,7 +81,7 @@ namespace Wire.SerializerFactories
                 if (_preserveObjectReferences) session.TrackSerializedObject(value);
                 var linkedList = (LinkedList<T>) value;
 
-                Int32Serializer.WriteValue(writer, linkedList.Count);
+                Int32Serializer.WriteValue(ref writer, linkedList.Count);
                 foreach (var element in linkedList)
                    writer.WriteObject(element, _elementType, _elementSerializer, _preserveObjectReferences, session);
             }

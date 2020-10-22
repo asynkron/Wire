@@ -53,7 +53,7 @@ namespace Wire.SerializerFactories
                 var field = (FieldInfo) value;
                 var name = field.Name;
                 var owner = field.DeclaringType;
-                StringSerializer.WriteValueImpl(writer, name);
+                StringSerializer.WriteValueImpl(ref writer, name);
                 writer.WriteObjectWithManifest(owner, session);
             }
         }

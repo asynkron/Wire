@@ -9,7 +9,7 @@ namespace Wire.Extensions
     public static class BufferExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteObjectWithManifest<TBufferWriter>(this Writer<TBufferWriter> writer, object? value,
+        public static void WriteObjectWithManifest<TBufferWriter>(this ref Writer<TBufferWriter> writer, object? value,
             SerializerSession session) where TBufferWriter : IBufferWriter<byte>
         {
             if (value == null) //value is null
@@ -36,7 +36,7 @@ namespace Wire.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteObject<TBufferWriter>(this Writer<TBufferWriter> writer, object? value, Type expectedType,
+        public static void WriteObject<TBufferWriter>(this ref Writer<TBufferWriter> writer, object? value, Type expectedType,
             ValueSerializer expectedValueSerializer,
             bool preserveObjectReferences, SerializerSession session)  where TBufferWriter : IBufferWriter<byte>
         {
