@@ -273,12 +273,14 @@ namespace Wire
         {
             var writer = Writer.Create(stream, session);
             Serialize(obj,writer);
+            writer.Commit();
         }
 
         public void Serialize(object obj, Stream stream)
         {
             var writer = Writer.Create(stream, new SerializerSession(Options));
             Serialize(obj,writer);
+            writer.Commit();
         }
         
         //this returns a delegate for serializing a specific "field" of an instance of type "type"
@@ -286,18 +288,21 @@ namespace Wire
         {
             var writer = Writer.Create(stream,session);
             Serialize(obj,writer);
+            writer.Commit();
         }
 
         public void Serialize(object obj, MemoryStream stream)
         {
             var writer = Writer.Create(stream,new SerializerSession(Options));
             Serialize(obj,writer);
+            writer.Commit();
         }
         
         public void Serialize(object obj, byte[] destination, SerializerSession session)
         {
             var writer = Writer.Create(destination,session);
             Serialize(obj,writer);
+            writer.Commit();
         }
     }
 }
