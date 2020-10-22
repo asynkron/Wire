@@ -37,7 +37,7 @@ namespace Wire.ValueSerializers
         public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
             SerializerSession session)
         {
-            WriteValueImpl(writer, (short) value);
+            WriteValueImpl(ref writer, (short) value);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
@@ -51,7 +51,7 @@ namespace Wire.ValueSerializers
         }
 
         //the actual impls
-        private static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, short value)
+        private static void WriteValueImpl<TBufferWriter>(ref Writer<TBufferWriter> writer, short value)
             where TBufferWriter : IBufferWriter<byte>
         {
             writer.Write(value);

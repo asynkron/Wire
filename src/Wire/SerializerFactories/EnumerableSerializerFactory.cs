@@ -104,11 +104,11 @@
 //                 return instance;
 //             }
 //
-//             public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+//             public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value, SerializerSession session)
 //             {
 //                 if (_preserveObjectReferences) session.TrackSerializedObject(value);
 //                 IEnumerable<T> typed = (IEnumerable<T>)value;
-//                 Int32Serializer.WriteValue(writer, typed.Count());
+//                 Int32Serializer.WriteValue(ref writer, typed.Count());
 //
 //                 // ReSharper disable once PossibleNullReferenceException
 //                 foreach (var element in typed)

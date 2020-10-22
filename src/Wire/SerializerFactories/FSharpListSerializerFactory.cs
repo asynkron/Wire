@@ -98,7 +98,7 @@
 //                 return res;
 //             }
 //
-//             public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+//             public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
 //                 SerializerSession session)
 //             {
 //                 var typed = (IEnumerable<T>) value;

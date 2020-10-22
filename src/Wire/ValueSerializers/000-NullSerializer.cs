@@ -21,7 +21,7 @@ namespace Wire.ValueSerializers
             writer.Write(Manifest);
         }
 
-        public static void WriteManifestImpl<TBufferWriter>(Writer<TBufferWriter> writer)
+        public static void WriteManifestImpl<TBufferWriter>(ref Writer<TBufferWriter> writer)
             where TBufferWriter : IBufferWriter<byte>
         {
             writer.Write(Manifest);

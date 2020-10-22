@@ -22,13 +22,13 @@ namespace Wire.ValueSerializers
             writer.Write(Manifest);
         }
 
-        public static void WriteManifestImpl<TBufferWriter>(Writer<TBufferWriter> writer)
+        public static void WriteManifestImpl<TBufferWriter>(ref Writer<TBufferWriter> writer)
             where TBufferWriter : IBufferWriter<byte>
         {
             writer.Write(Manifest);
         }
 
-        public static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, int value)
+        public static void WriteValueImpl<TBufferWriter>(ref Writer<TBufferWriter> writer, int value)
             where TBufferWriter : IBufferWriter<byte>
         {
             writer.Write(value);
@@ -44,7 +44,7 @@ namespace Wire.ValueSerializers
         public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
             SerializerSession session)
         {
-            WriteValueImpl(writer, (int) value);
+            WriteValueImpl(ref writer, (int) value);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
