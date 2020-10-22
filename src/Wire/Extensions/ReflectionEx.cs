@@ -16,7 +16,33 @@ namespace Wire.Extensions
         public const BindingFlags All = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
         public const BindingFlags Static = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static;
     }
+    
+    public static class GenericCaller 
+    {
+        public static TResult RunGeneric<TResult>(Type genericType, Action body)
+        {
+            var (method, target) = Capture(body);
+            var genericMethod = method.MakeGenericMethod(genericType);
+            var res = genericMethod.Invoke(target, Array.Empty<object>());
 
+            return (TResult) res;
+        }
+
+        private static (MethodInfo methodInfo, object target) Capture(Action body)
+        {
+            var target = body.Target;
+            var methods = target.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic);
+            var method = methods
+                .First(m =>
+                    m.Name != "MemberwiseClone" &&
+                    m.Name != "Finalize" &&
+                    m != body.Method);
+
+            return (method, target);
+        }
+    }
+
+    
     public static class ReflectionEx
     {
         public static readonly Assembly CoreAssembly = typeof(int).Assembly;

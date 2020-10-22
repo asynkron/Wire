@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Wire.Tests
@@ -43,6 +44,7 @@ namespace Wire.Tests
             {
                 Else = null
             };
+
             Serialize(expected);
             Reset();
             var actual = Deserialize<Something>();

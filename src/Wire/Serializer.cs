@@ -22,12 +22,18 @@ namespace Wire
     {
         private readonly ValueSerializer[] _deserializerLookup = new ValueSerializer[256];
 
-        private readonly ConcurrentDictionary<Type, ValueSerializer> _deserializers =
-            new ConcurrentDictionary<Type, ValueSerializer>();
+
 
         private readonly ValueSerializer[] _knownValueSerializers;
 
         private readonly ConcurrentDictionary<Type, ValueSerializer> _serializers =
+            new ConcurrentDictionary<Type, ValueSerializer>();
+        
+        
+        //NOTE: the reason why _serializers and _deserializers are not the same is due to surrogates.
+        //for a given type, there can be one surrogate serializer and one surrogate deserializer
+        //maybe these two could be merged, but currently they are not.
+        private readonly ConcurrentDictionary<Type, ValueSerializer> _deserializers =
             new ConcurrentDictionary<Type, ValueSerializer>();
         
         public readonly SerializerOptions Options;
