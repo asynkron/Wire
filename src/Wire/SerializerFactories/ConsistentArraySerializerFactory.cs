@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.IO;
+using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -26,3 +28,4 @@ namespace Wire.SerializerFactories
         }
     }
 }
+ 

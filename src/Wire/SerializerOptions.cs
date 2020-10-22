@@ -35,8 +35,8 @@ namespace Wire
             new DictionarySerializerFactory(),
             new LinkedListSerializerFactory(),
         //    new GenericIDictionarySerializerFactory(),
-        //    new HashSetSerializerFactory(),
-        //    new ArraySerializerFactory(),
+            new HashSetSerializerFactory(),
+            new ArraySerializerFactory(),
             new ISerializableSerializerFactory(), 
         //   new EnumerableSerializerFactory(),
             new EnumSerializerFactory()

@@ -244,7 +244,7 @@ namespace Wire.Tests
         }
 
         [Fact]
-        public void CanSerializeSet()
+        public void CanSerializeHashSet()
         {
             var expected = new HashSet<Something>
             {

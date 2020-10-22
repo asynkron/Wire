@@ -16,6 +16,18 @@ namespace Wire.ValueSerializers
         public const byte Manifest = 252;
         public static readonly ConsistentArraySerializer Instance = new ConsistentArraySerializer();
 
+        
+
+        public override Type GetElementType()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void WriteManifest<TBufferWriter>(ref Writer<TBufferWriter> writer, SerializerSession session)
+        {
+            writer.Write(Manifest);
+        }
+        
         public override object ReadValue(Stream stream, DeserializerSession session)
         {
             var elementSerializer = session.Serializer.GetDeserializerByManifest(stream, session);
@@ -35,16 +47,6 @@ namespace Wire.ValueSerializers
             return array;
         }
 
-        public override Type GetElementType()
-        {
-            throw new NotSupportedException();
-        }
-
-        public override void WriteManifest<TBufferWriter>(ref Writer<TBufferWriter> writer, SerializerSession session)
-        {
-            writer.Write(Manifest);
-        }
-
         public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
             SerializerSession session)
         {
@@ -53,7 +55,7 @@ namespace Wire.ValueSerializers
             var elementType = value.GetType().GetElementType();
             var elementSerializer = session.Serializer.GetSerializerByType(elementType);
             elementSerializer.WriteManifest(ref writer, session); //write array element type
-
+            Int32Serializer.WriteValue(ref writer, array.Length);
             foreach (var element in array) elementSerializer.WriteValue(ref writer, element, session);
         }
     }

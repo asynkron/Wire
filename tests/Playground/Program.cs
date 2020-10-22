@@ -63,7 +63,7 @@ namespace Playground
 
 
             var sw = Stopwatch.StartNew();
-            var session = new SerializerSession(s.Options);
+            var session = new SerializerSession(s);
             for (var i = 0; i < 50_000_000; i++)
             {
                 var bufferWriter = new SingleSegmentBuffer(bytes);

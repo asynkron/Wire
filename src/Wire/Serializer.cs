@@ -159,7 +159,7 @@ namespace Wire
         }
 
         public SerializerSession GetSerializerSession() => 
-            new SerializerSession(Options);
+            new SerializerSession(this);
 
         public T Deserialize<T>(Stream stream)
         {
@@ -284,7 +284,7 @@ namespace Wire
 
         public void Serialize(object obj, Stream stream)
         {
-            var writer = Writer.Create(stream, new SerializerSession(Options));
+            var writer = Writer.Create(stream, new SerializerSession(this));
             Serialize(obj,writer);
             writer.Commit();
         }
@@ -299,7 +299,7 @@ namespace Wire
 
         public void Serialize(object obj, MemoryStream stream)
         {
-            var writer = Writer.Create(stream,new SerializerSession(Options));
+            var writer = Writer.Create(stream,new SerializerSession(this));
             Serialize(obj,writer);
             writer.Commit();
         }
