@@ -138,8 +138,8 @@ namespace Wire
 
             var type = obj.GetType();
             var s = GetSerializerByType(type);
-            s.WriteManifest(writer, session);
-            s.WriteValue(writer, obj, session);
+            s.WriteManifest(ref writer, session);
+            s.WriteValue(ref writer, obj, session);
         }
 
         public void Serialize<TBufferWriter>(object obj, Writer<TBufferWriter> writer) where TBufferWriter : IBufferWriter<byte>
@@ -148,8 +148,8 @@ namespace Wire
             using var session = GetSerializerSession();
             var type = obj.GetType();
             var s = GetSerializerByType(type);
-            s.WriteManifest(writer, session);
-            s.WriteValue(writer, obj, session);
+            s.WriteManifest(ref writer, session);
+            s.WriteValue(ref writer, obj, session);
         }
 
         public SerializerSession GetSerializerSession() => 

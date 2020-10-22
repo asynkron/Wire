@@ -40,21 +40,21 @@ namespace Wire.ValueSerializers
             throw new NotSupportedException();
         }
 
-        public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
+        public override void WriteManifest<TBufferWriter>(ref Writer<TBufferWriter> writer, SerializerSession session)
         {
             writer.Write(Manifest);
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+        public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
             SerializerSession session)
         {
             var array = (Array) value;
             if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(value);
             var elementType = value.GetType().GetElementType();
             var elementSerializer = session.Serializer.GetSerializerByType(elementType);
-            elementSerializer.WriteManifest(writer, session); //write array element type
+            elementSerializer.WriteManifest(ref writer, session); //write array element type
 
-            foreach (var element in array) elementSerializer.WriteValue(writer, element, session);
+            foreach (var element in array) elementSerializer.WriteValue(ref writer, element, session);
         }
     }
 }

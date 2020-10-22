@@ -31,8 +31,8 @@ namespace Wire.Extensions
             //TODO. check is vType is same as expected serializer, if so, use that
             var vType = value.GetType();
             var s2 = session.Serializer.GetSerializerByType(vType);
-            s2.WriteManifest(writer, session);
-            s2.WriteValue(writer, value, session);
+            s2.WriteManifest(ref writer, session);
+            s2.WriteValue(ref writer, value, session);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -61,8 +61,8 @@ namespace Wire.Extensions
                 //value is of subtype, lookup the serializer for that type
                 s2 = session.Serializer.GetSerializerByType(vType);
             //lookup serializer for subtype
-            s2.WriteManifest(writer, session);
-            s2.WriteValue(writer, value, session);
+            s2.WriteManifest(ref writer, session);
+            s2.WriteValue(ref writer, value, session);
         }
     }
 }

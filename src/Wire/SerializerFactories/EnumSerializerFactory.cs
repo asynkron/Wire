@@ -32,7 +32,8 @@ namespace Wire.SerializerFactories
                 return Enum.ToObject(Type, intValue);
             }
 
-            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+            public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
+                SerializerSession session)
             {
                 Int32Serializer.WriteValue(writer,(int)value);
             }

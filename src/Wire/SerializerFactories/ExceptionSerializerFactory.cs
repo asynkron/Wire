@@ -55,7 +55,8 @@ namespace Wire.SerializerFactories
                 return exception;
             }
 
-            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+            public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
+                SerializerSession session)
             {
                 var exception = (Exception)value;
                 var message = (string) _message.GetValue(exception)!;

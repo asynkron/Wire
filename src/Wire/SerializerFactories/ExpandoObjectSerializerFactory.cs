@@ -58,7 +58,8 @@ namespace Wire.SerializerFactories
                 return instance;
             }
 
-            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+            public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
+                SerializerSession session)
             {
                 if (_preserveObjectReferences) session.TrackSerializedObject(value);
                 var dict = (IDictionary<string, object>) value;

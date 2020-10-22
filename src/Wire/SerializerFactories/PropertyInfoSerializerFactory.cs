@@ -51,7 +51,8 @@ namespace Wire.SerializerFactories
                 return property;
             }
 
-            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+            public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
+                SerializerSession session)
             {
                 var property = (PropertyInfo) value;
                 var name = property.Name;

@@ -50,7 +50,7 @@ namespace Wire.ValueSerializers
 
         public override int PreallocatedByteBufferSize => _preallocatedBufferSize;
 
-        public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
+        public override void WriteManifest<TBufferWriter>(ref Writer<TBufferWriter> writer, SerializerSession session)
         {
             if (session.ShouldWriteTypeManifest(Type, out var typeIdentifier))
             {
@@ -63,7 +63,7 @@ namespace Wire.ValueSerializers
             }
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+        public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
             SerializerSession session)
         {
             if (!_isInitialized)

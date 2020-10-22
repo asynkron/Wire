@@ -50,7 +50,8 @@ namespace Wire.SerializerFactories
                 return @delegate;
             }
 
-            public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value, SerializerSession session)
+            public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
+                SerializerSession session)
             {
                 var d = (Delegate) value;
                 var method = d.GetMethodInfo();

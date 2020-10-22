@@ -44,12 +44,12 @@ namespace Wire.ValueSerializers
             throw _exception;
         }
 
-        public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
+        public override void WriteManifest<TBufferWriter>(ref Writer<TBufferWriter> writer, SerializerSession session)
         {
             throw _exception;
         }
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+        public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
             SerializerSession session)
         {
             throw _exception;

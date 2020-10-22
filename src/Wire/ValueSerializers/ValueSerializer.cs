@@ -29,10 +29,10 @@ namespace Wire.ValueSerializers
         /// </summary>
         public virtual int PreallocatedByteBufferSize => 0;
 
-        public abstract void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
+        public abstract void WriteManifest<TBufferWriter>(ref Writer<TBufferWriter> writer, SerializerSession session)
             where TBufferWriter : IBufferWriter<byte>;
 
-        public abstract void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+        public abstract void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
             SerializerSession session) where TBufferWriter : IBufferWriter<byte>;
 
         public abstract object ReadValue(Stream stream, DeserializerSession session);
@@ -60,19 +60,6 @@ namespace Wire.ValueSerializers
             return read;
         }
 
-        protected static MethodInfo GetStatic(LambdaExpression expression, Type expectedReturnType)
-        {
-            var unaryExpression = (UnaryExpression) expression.Body;
-            var methodCallExpression = (MethodCallExpression) unaryExpression.Operand;
-            var methodCallObject = (ConstantExpression) methodCallExpression.Object!;
-            var method = (MethodInfo) methodCallObject.Value!;
-
-            if (method.IsStatic == false) throw new ArgumentException($"Method {method.Name} should be static.");
-
-            if (method.ReturnType != expectedReturnType)
-                throw new ArgumentException($"Method {method.Name} should return {expectedReturnType.Name}.");
-
-            return method;
-        }
+        
     }
 }

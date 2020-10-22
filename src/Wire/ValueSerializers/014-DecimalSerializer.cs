@@ -28,14 +28,14 @@ namespace Wire.ValueSerializers
 
         public override int PreallocatedByteBufferSize => Size;
 
-        public override void WriteManifest<TBufferWriter>(Writer<TBufferWriter> writer, SerializerSession session)
+        public override void WriteManifest<TBufferWriter>(ref Writer<TBufferWriter> writer, SerializerSession session)
         {
             writer.Write(Manifest);
         }
 
         //used by the serializer, going from virtual calls to static calls
 
-        public override void WriteValue<TBufferWriter>(Writer<TBufferWriter> writer, object value,
+        public override void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
             SerializerSession session)
         {
             WriteValueImpl(writer, (decimal) value);
