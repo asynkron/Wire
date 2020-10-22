@@ -18,23 +18,5 @@ namespace Wire.Internal
     internal static class BitConverterEx
     {
         internal static readonly UTF8Encoding Utf8 = (UTF8Encoding) Encoding.UTF8;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void TryWriteBytes(Span<byte> span, DateTime dateTime)
-        {
-            BitConverter.TryWriteBytes(span, dateTime.Ticks);
-            BitConverter.TryWriteBytes(span[8..],  (byte) dateTime.Kind);
-        }
-
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void TryWriteBytes(Span<byte> span, DateTimeOffset dateTimeOffset)
-        {
-            var minutes = (short) (dateTimeOffset.Offset.Ticks / TimeSpan.TicksPerMinute);
-            
-            BitConverter.TryWriteBytes(span, dateTimeOffset.Ticks);
-            BitConverter.TryWriteBytes(span[8..], minutes);
-            BitConverter.TryWriteBytes(span[10..],  (byte) dateTimeOffset.DateTime.Kind);
-        }
     }
 }

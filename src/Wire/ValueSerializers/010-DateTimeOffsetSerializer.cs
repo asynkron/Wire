@@ -57,7 +57,11 @@ namespace Wire.ValueSerializers
             where TBufferWriter : IBufferWriter<byte>
         {
             writer.Allocate(Size);
-            BitConverterEx.TryWriteBytes(writer.WritableSpan, value);
+            var minutes = (short) (value.Offset.Ticks / TimeSpan.TicksPerMinute);
+            
+            BitConverter.TryWriteBytes(writer.WritableSpan, value.Ticks);
+            BitConverter.TryWriteBytes(writer.WritableSpan[8..], minutes);
+            BitConverter.TryWriteBytes(writer.WritableSpan[10..],  (byte) value.DateTime.Kind);
             writer.AdvanceSpan(Size);
         }
 

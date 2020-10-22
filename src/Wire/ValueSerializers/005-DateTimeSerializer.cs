@@ -57,15 +57,17 @@ namespace Wire.ValueSerializers
             where TBufferWriter : IBufferWriter<byte>
         {
             writer.Allocate(Size);
-            BitConverterEx.TryWriteBytes(writer.WritableSpan, value);
+            BitConverter.TryWriteBytes(writer.WritableSpan, value.Ticks);
+            writer.WritableSpan[8] =  (byte) value.Kind;
             writer.AdvanceSpan(Size);
         }
 
         public static T ReadValueImpl(Stream stream, byte[] bytes)
         {
             stream.Read(bytes, 0, Size);
+
             var ticks = BitConverter.ToInt64(bytes, 0);
-            var kind = (DateTimeKind) bytes[4]; //
+            var kind = (DateTimeKind) bytes[8]; 
             var dateTime = new DateTime(ticks, kind);
             return dateTime;
         }
