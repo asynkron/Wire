@@ -19,7 +19,7 @@ namespace Wire.ValueSerializers
     public class SByteSerializer : ValueSerializer
     {
         public const byte Manifest = 20;
-        public const int Size = sizeof(sbyte);
+        private const int Size = sizeof(sbyte);
         public static readonly SByteSerializer Instance = new SByteSerializer();
 
         private SByteSerializer()
@@ -52,17 +52,18 @@ namespace Wire.ValueSerializers
         }
 
         //the actual impls
-        private static void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, sbyte value)
+        private static unsafe void WriteValueImpl<TBufferWriter>(Writer<TBufferWriter> writer, sbyte value)
             where TBufferWriter : IBufferWriter<byte>
         {
-            writer.Write(value);
+            var @byte = *(byte*) &value;
+            writer.Write(@byte);
         }
 
         public static unsafe sbyte ReadValueImpl(Stream stream, byte[] bytes)
         {
             stream.Read(bytes, 0, Size);
-            var @byte = (byte) stream.ReadByte();
-            return *(sbyte*) &@byte;
+            var b = bytes[0];
+            return *(sbyte*) &b;
         }
 
         //core generation

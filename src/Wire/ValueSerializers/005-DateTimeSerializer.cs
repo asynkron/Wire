@@ -20,7 +20,7 @@ namespace Wire.ValueSerializers
     public class DateTimeSerializer : ValueSerializer
     {
         public const byte Manifest = 5;
-        public const int Size = sizeof(long) + sizeof(byte);
+        private const int Size = sizeof(long) + sizeof(byte);
         public static readonly DateTimeSerializer Instance = new DateTimeSerializer();
 
         private DateTimeSerializer()

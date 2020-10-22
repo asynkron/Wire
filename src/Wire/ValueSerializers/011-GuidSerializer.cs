@@ -63,7 +63,8 @@ namespace Wire.ValueSerializers
         public static T ReadValueImpl(Stream stream, byte[] bytes)
         {
             stream.Read(bytes, 0, Size);
-            return new Guid(bytes);
+            var span = bytes.AsSpan()[..Size];
+            return new Guid(span);
         }
 
         //core generation
