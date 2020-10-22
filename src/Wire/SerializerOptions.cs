@@ -26,19 +26,19 @@ namespace Wire
             new DelegateSerializerFactory(),
             new ToSurrogateSerializerFactory(),
             new FromSurrogateSerializerFactory(),
-            new FSharpMapSerializerFactory(),
-            new FSharpListSerializerFactory(),
+        //    new FSharpMapSerializerFactory(),
+        //    new FSharpListSerializerFactory(),
             //order is important, try dictionaries before enumerables as dicts are also enumerable
             new ExceptionSerializerFactory(),
-            new ImmutableCollectionsSerializerFactory(),
+        //    new ImmutableCollectionsSerializerFactory(),
             new ExpandoObjectSerializerFactory(),
             new DictionarySerializerFactory(),
-            new LinkedListSerializerFactory(),
+        //    new LinkedListSerializerFactory(),
         //    new GenericIDictionarySerializerFactory(),
-            new HashSetSerializerFactory(),
-            new ArraySerializerFactory(),
+        //    new HashSetSerializerFactory(),
+        //    new ArraySerializerFactory(),
             new ISerializableSerializerFactory(), 
-            new EnumerableSerializerFactory(),
+        //   new EnumerableSerializerFactory(),
             new EnumSerializerFactory()
         };
 
