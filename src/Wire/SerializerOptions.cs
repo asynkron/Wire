@@ -30,7 +30,7 @@ namespace Wire
         //    new FSharpListSerializerFactory(),
             //order is important, try dictionaries before enumerables as dicts are also enumerable
             new ExceptionSerializerFactory(),
-        //    new ImmutableCollectionsSerializerFactory(),
+            new ImmutableCollectionsSerializerFactory(),
             new ExpandoObjectSerializerFactory(),
             new DictionarySerializerFactory(),
             new LinkedListSerializerFactory(),

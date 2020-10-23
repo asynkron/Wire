@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using FastExpressionCompiler.LightExpression;
+using Wire.Buffers;
 using Wire.Extensions;
 using Wire.ValueSerializers;
 
@@ -24,16 +25,17 @@ namespace Wire.Compilation
         {
             var type = objectSerializer.Type;
             var fields = type.GetFieldInfosForType();
+            
             var writer = GetFieldsWriter(serializer, fields,type, out var bufferSize);
             var reader = GetFieldsReader(serializer, fields, type);
 
             objectSerializer.Initialize(reader, writer, bufferSize);
         }
 
-        private static Reader GetFieldsReader(Serializer serializer, FieldInfo[] fields,
+        private static ObjectReader GetFieldsReader(Serializer serializer, FieldInfo[] fields,
             Type type)
         {
-            var c = new Compiler();
+            var c = new Compiler(typeof(ObjectReader).GetMethod(nameof(ObjectReader.Read)));
             var stream = c.Parameter<Stream>("stream");
             var session = c.Parameter<DeserializerSession>("session");
             var newExpression = c.NewObject(type);
@@ -84,8 +86,9 @@ namespace Wire.Compilation
 
             c.Emit(c.Convert(target, typeof(object)));
 
-            Reader del = c.Compile<Reader>();
-            return del;
+            Type t = c.Compile();
+            var instance = Activator.CreateInstance(t);
+            return (ObjectReader)instance;
         }
 
         private static void EmitBuffer(Compiler c, int bufferSize, Expression session,
@@ -100,13 +103,13 @@ namespace Wire.Compilation
 
         //this generates a FieldWriter that writes all fields by unrolling all fields and calling them individually
         //no loops involved
-        private static Writer GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields,
+        private static ObjectWriter GetFieldsWriter(Serializer serializer, IEnumerable<FieldInfo> fields,
             Type type,
             out int bufferSize)
         {
-            var c = new Compiler();
+            var c = new Compiler(typeof(ObjectWriter).GetMethod(nameof(ObjectWriter.Write))!);
 
-            var stream = c.Parameter<IBufferWriter<byte>>("stream");
+            var stream = c.Parameter("writer",typeof(Writer<>).MakeByRefType());
             var target = c.Parameter<object>("target");
             var session = c.Parameter<SerializerSession>("session");
             var preserveReferences = c.Constant(serializer.Options.PreserveObjectReferences);
@@ -166,8 +169,9 @@ namespace Wire.Compilation
             }
             
 
-            var del = c.Compile<Writer>();
-            return del;
+            Type t = c.Compile();
+            var instance = Activator.CreateInstance(t);
+            return (ObjectWriter)instance;
         }
     }
 }

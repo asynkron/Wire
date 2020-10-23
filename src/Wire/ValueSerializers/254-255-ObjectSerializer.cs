@@ -11,7 +11,6 @@ using System.Threading;
 using Wire.Buffers;
 using Wire.Compilation;
 using Wire.Extensions;
-using Writer = Wire.Compilation.Writer;
 
 namespace Wire.ValueSerializers
 {
@@ -24,8 +23,8 @@ namespace Wire.ValueSerializers
 
         private volatile bool _isInitialized;
         private int _preallocatedBufferSize;
-        private Reader _reader;
-        private Writer _writer;
+        private ObjectReader _objectReader;
+        private ObjectWriter _objectWriter;
 
         public ObjectSerializer(Type type)
         {
@@ -71,7 +70,7 @@ namespace Wire.ValueSerializers
                 SpinWait.SpinUntil(() => _isInitialized);
             }
             
-            _writer.ObjectWriter(ref writer, value, session);
+            _objectWriter.Write(ref writer, value, session);
         }
 
         public override object ReadValue(Stream stream, DeserializerSession session)
@@ -81,7 +80,7 @@ namespace Wire.ValueSerializers
                 SpinWait.SpinUntil(() => _isInitialized);
             }
             
-            return _reader.Read(stream, session);
+            return _objectReader.Read(stream, session);
         }
 
         public override Type GetElementType()
@@ -89,11 +88,11 @@ namespace Wire.ValueSerializers
             return Type;
         }
 
-        public void Initialize(Reader reader, Writer writer, int preallocatedBufferSize = 0)
+        public void Initialize(ObjectReader objectReader, ObjectWriter objectWriter, int preallocatedBufferSize = 0)
         {
             _preallocatedBufferSize = preallocatedBufferSize;
-            _reader = reader;
-            _writer = writer;
+            _objectReader = objectReader;
+            _objectWriter = objectWriter;
             _isInitialized = true;
         }
     }

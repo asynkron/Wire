@@ -5,9 +5,9 @@ using Wire.Buffers;
 namespace Wire.Compilation
 {
     [PublicAPI]
-    public abstract class Writer
+    public abstract class ObjectWriter
     {
-        public abstract void ObjectWriter<TBufferWriter>(ref Writer<TBufferWriter> writer, object obj,
+        public abstract void Write<TBufferWriter>(ref Writer<TBufferWriter> writer, object obj,
             SerializerSession session) where TBufferWriter : IBufferWriter<byte>;
     }
 }

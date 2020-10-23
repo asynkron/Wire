@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using FastExpressionCompiler.LightExpression;
 using Wire.Extensions;
 
@@ -19,6 +20,21 @@ namespace Wire.Compilation
         private readonly List<Expression> _content = new List<Expression>();
         private readonly List<ParameterExpression> _parameters = new List<ParameterExpression>();
         private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
+        private readonly AssemblyBuilder _asm;
+        private readonly ModuleBuilder _mod;
+        private readonly TypeBuilder _tb;
+        private Type _baseType;
+        private MethodInfo _baseMethod;
+
+        public Compiler(MethodInfo baseMethod)
+        {
+            _baseType = baseMethod.DeclaringType!;
+            _asm = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("myasm"), AssemblyBuilderAccess.Run);
+            _mod = _asm.DefineDynamicModule("mymod");
+            _tb = _mod.DefineType("mytype", TypeAttributes.Class,_baseType);
+            _baseMethod = baseMethod;
+
+        }
 
         public Expression NewObject(Type type)
         {
@@ -27,7 +43,7 @@ namespace Wire.Compilation
                 return Expression.Default(type);
             }
 
-            var defaultCtor = type.GetConstructor(new Type[] { });
+            var defaultCtor = type.GetConstructor(Array.Empty<Type>());
             var il = defaultCtor?.GetMethodBody()?.GetILAsByteArray();
             var sideEffectFreeCtor = il != null && il.Length <= 8; //this is the size of an empty ctor
             if (sideEffectFreeCtor)
@@ -43,6 +59,13 @@ namespace Wire.Compilation
         public Expression Parameter<T>(string name)
         {
             var exp = Expression.Parameter(typeof(T), name);
+            _parameters.Add(exp);
+            return exp;
+        }
+        
+        public Expression Parameter(string name,Type type)
+        {
+            var exp = Expression.Parameter(type, name);
             _parameters.Add(exp);
             return exp;
         }
@@ -120,12 +143,27 @@ namespace Wire.Compilation
             return writeExp;
         }
 
-        public T Compile<T>()
+        public Type Compile()
         {
             var lambda = GetLambdaExpression();
             try
             {
-                return default;
+                var parameterTypes = _baseMethod
+                    .GetParameters()
+                    .Select(p => p.ParameterType)
+                    .ToArray();
+                
+                var method = _tb.DefineMethod("mymethod",
+                    MethodAttributes.Public | MethodAttributes.Static,
+                    CallingConventions.Standard,
+                    _baseMethod.ReturnType,
+                    parameterTypes
+                    );
+             //   _tb.DefineMethodOverride(method,_baseMethod);
+
+                var il = method.GetILGenerator();
+                var res =lambda.CompileFastToIL(il);
+                return _tb.CreateType()!;
                 //return lambda.CompileFast<TDel>();
             }
             catch
@@ -136,7 +174,7 @@ namespace Wire.Compilation
             }
         }
 
-        public LambdaExpression GetLambdaExpression()
+        private LambdaExpression GetLambdaExpression()
         {
             var body = ToBlock();
             var parameters = _parameters.ToArray();
@@ -164,7 +202,7 @@ namespace Wire.Compilation
             return Expression.Convert(value, type);
         }
 
-        public Expression ToBlock()
+        private Expression ToBlock()
         {
             if (!_content.Any()) _content.Add(Expression.Empty());
 

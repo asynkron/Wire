@@ -37,6 +37,20 @@ namespace Wire.Tests
             var actual = Deserialize<ImmutableStack<Something>>();
             Assert.Equal(expected.ToList(), actual.ToList());
         }
+        
+        [Fact]
+        public void CanSerializeImmutablePrimitiveArray()
+        {
+            var expected = ImmutableArray.CreateRange(new[]
+            {
+                1,2,3,4,5
+            });
+
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<ImmutableArray<int>>();
+            Assert.Equal(expected.ToList(), actual.ToList());
+        }
 
         [Fact]
         public void CanSerializeImmutableArray()
@@ -61,6 +75,23 @@ namespace Wire.Tests
             Serialize(expected);
             Reset();
             var actual = Deserialize<ImmutableArray<Something>>();
+            Assert.Equal(expected.ToList(), actual.ToList());
+        }
+        
+        [Fact]
+        public void CanSerializeImmutablePrimitiveDictionary()
+        {
+            var expected = ImmutableDictionary.CreateRange(new Dictionary<string, int>
+            {
+                ["a1"] = 1,
+                ["a2"] = 2,
+                ["a3"] = 3,
+                ["a4"] = 4
+            });
+
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<ImmutableDictionary<string, int>>();
             Assert.Equal(expected.ToList(), actual.ToList());
         }
 
@@ -116,6 +147,20 @@ namespace Wire.Tests
         }
 
         [Fact]
+        public void CanSerializeImmutablePrimitiveList()
+        {
+            var expected = ImmutableList.CreateRange(new[]
+            {
+                1,2,3,4,5
+            });
+
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<ImmutableList<int>>();
+            Assert.Equal(expected.ToList(), actual.ToList());
+        }
+        
+        [Fact]
         public void CanSerializeImmutableList()
         {
             var expected = ImmutableList.CreateRange(new[]
@@ -138,6 +183,21 @@ namespace Wire.Tests
             Serialize(expected);
             Reset();
             var actual = Deserialize<ImmutableList<Something>>();
+            Assert.Equal(expected.ToList(), actual.ToList());
+        }
+        
+        
+        [Fact]
+        public void CanSerializeImmutablePrimitiveQueue()
+        {
+            var expected = ImmutableQueue.CreateRange(new[]
+            {
+                1,2,3,4,5,6
+            });
+
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<ImmutableQueue<int>>();
             Assert.Equal(expected.ToList(), actual.ToList());
         }
 

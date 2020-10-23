@@ -244,6 +244,20 @@ namespace Wire.Tests
         }
 
         [Fact]
+        public void CanSerializePrimitiveHashSet()
+        {
+            var expected = new HashSet<int>
+            {
+                1,2,3,4
+            };
+
+            Serialize(expected);
+            Reset();
+            var actual = Deserialize<HashSet<int>>();
+            Assert.Equal(expected.ToList(), actual.ToList());
+        }
+        
+        [Fact]
         public void CanSerializeHashSet()
         {
             var expected = new HashSet<Something>
