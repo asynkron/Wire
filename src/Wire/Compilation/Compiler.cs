@@ -145,42 +145,58 @@ namespace Wire.Compilation
 
         public Type Compile()
         {
-            var lambda = GetLambdaExpression();
-            try
-            {
+            var body = ToBlock();
+            var parameters = _parameters.ToArray();
+            
+
                 var parameterTypes = _baseMethod
                     .GetParameters()
                     .Select(p => p.ParameterType)
                     .ToArray();
                 
                 var method = _tb.DefineMethod("mymethod",
-                    MethodAttributes.Public | MethodAttributes.Static,
+                    MethodAttributes.Public | MethodAttributes.NewSlot | MethodAttributes.Virtual,
                     CallingConventions.Standard,
                     _baseMethod.ReturnType,
                     parameterTypes
                     );
-             //   _tb.DefineMethodOverride(method,_baseMethod);
+
+                var genericArguments = _baseMethod.GetGenericArguments();
+                var genericArgNames = genericArguments
+                    .Select(ga => ga.Name)
+                    .ToArray();
+                
+                var constraintBuilders = method.DefineGenericParameters(genericArgNames);
+
+                for (var i = 0; i < genericArguments.Length; i++)
+                {
+                    var constraint = genericArguments[i];
+                    var constraintBuilder = constraintBuilders[i];
+                    constraintBuilder.SetBaseTypeConstraint(constraint.BaseType);
+                    constraintBuilder.SetInterfaceConstraints(constraint.GetInterfaces());
+                    constraintBuilder.SetGenericParameterAttributes(constraint.GenericParameterAttributes);
+                    if (constraint.BaseType != null)
+                    {
+                        constraintBuilder.SetBaseTypeConstraint(constraint.BaseType);
+                    }
+                    else
+                    {
+                        constraintBuilder.SetInterfaceConstraints(constraint.GetInterfaces());
+                    }
+                }
+ 
+                _tb.DefineMethodOverride(method,_baseMethod);
 
                 var il = method.GetILGenerator();
-                var res =lambda.CompileFastToIL(il);
+                var res = method.CompileFastToIL(il, body, parameters);
+                
+                
+                
                 return _tb.CreateType()!;
                 //return lambda.CompileFast<TDel>();
-            }
-            catch
-            {
-                var cs = lambda.ToExpressionString();
-                
-                throw;
-            }
         }
 
-        private LambdaExpression GetLambdaExpression()
-        {
-            var body = ToBlock();
-            var parameters = _parameters.ToArray();
-            var lambda = Expression.Lambda(body, parameters);
-            return lambda;
-        }
+
 
         public Expression Convert<T>(Expression value)
         {

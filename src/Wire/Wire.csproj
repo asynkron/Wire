@@ -49,12 +49,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="FastExpressionCompiler, Version=3.0.0.0, Culture=neutral, PublicKeyToken=dfbf2bd50fcf7768">
-      <HintPath>..\..\..\FastExpressionCompiler\src\FastExpressionCompiler\bin\Release\netstandard2.0\FastExpressionCompiler.dll</HintPath>
-    </Reference>
-    <Reference Include="FastExpressionCompiler.LightExpression, Version=3.0.0.0, Culture=neutral, PublicKeyToken=dfbf2bd50fcf7768">
-      <HintPath>..\..\..\FastExpressionCompiler\src\FastExpressionCompiler.LightExpression\bin\Release\netstandard2.0\FastExpressionCompiler.LightExpression.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\..\FastExpressionCompiler\src\FastExpressionCompiler.LightExpression\FastExpressionCompiler.LightExpression.csproj" />
+    <ProjectReference Include="..\..\..\FastExpressionCompiler\src\FastExpressionCompiler\FastExpressionCompiler.csproj" />
   </ItemGroup>
+
 
 </Project>

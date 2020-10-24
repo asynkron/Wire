@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wire.CompareToMarket", "ben
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground", "tests\Playground\Playground.csproj", "{5DCD9C56-0C02-43C3-9856-2B830CA9016C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastExpressionCompiler", "..\FastExpressionCompiler\src\FastExpressionCompiler\FastExpressionCompiler.csproj", "{BDD38016-0EBF-433E-BE44-934398645C4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastExpressionCompiler.LightExpression", "..\FastExpressionCompiler\src\FastExpressionCompiler.LightExpression\FastExpressionCompiler.LightExpression.csproj", "{5404AAF1-E359-4C6E-83FF-51B49A736C31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{5DCD9C56-0C02-43C3-9856-2B830CA9016C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DCD9C56-0C02-43C3-9856-2B830CA9016C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DCD9C56-0C02-43C3-9856-2B830CA9016C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDD38016-0EBF-433E-BE44-934398645C4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDD38016-0EBF-433E-BE44-934398645C4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDD38016-0EBF-433E-BE44-934398645C4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDD38016-0EBF-433E-BE44-934398645C4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5404AAF1-E359-4C6E-83FF-51B49A736C31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5404AAF1-E359-4C6E-83FF-51B49A736C31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5404AAF1-E359-4C6E-83FF-51B49A736C31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5404AAF1-E359-4C6E-83FF-51B49A736C31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,5 +60,7 @@ Global
 		{1BBE5B8A-41E5-4A9E-A41E-46236EEF56E2} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
 		{BBD1D864-4EB1-4B5C-9E31-B8253F997F9A} = {CC15E48C-2BA5-4584-AADC-3EBC46EE0739}
 		{5DCD9C56-0C02-43C3-9856-2B830CA9016C} = {04F7E5CA-8978-48CF-A40D-084FB5B84B17}
+		{BDD38016-0EBF-433E-BE44-934398645C4F} = {C75E620D-91F2-4AC3-8115-055E470A83E1}
+		{5404AAF1-E359-4C6E-83FF-51B49A736C31} = {C75E620D-91F2-4AC3-8115-055E470A83E1}
 	EndGlobalSection
 EndGlobal
