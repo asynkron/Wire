@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using Apex.Serialization;
 using Hagar;
 using Hagar.Buffers.Adaptors;
 using Hagar.Serializers;
@@ -30,8 +31,8 @@ namespace Wire.PerfTest.Tests
     internal abstract class TestBase<T>
     {
         private readonly List<TestResult> _results = new List<TestResult>();
-        protected int Repeat;
-        protected T Value;
+        private int Repeat;
+        private T Value;
 
         protected abstract T GetValue();
 
@@ -95,6 +96,7 @@ namespace Wire.PerfTest.Tests
             // SerializeSSText();
             //  SerializeNetSerializer();
             SerializeProtoBufNet();
+            SerializeApex();
             // SerializeJsonNet();
             // SerializeBinaryFormatter();
         }
@@ -138,6 +140,8 @@ namespace Wire.PerfTest.Tests
             RunTest("Json.NET", () => { JsonConvert.SerializeObject(Value, settings); },
                 () => { JsonConvert.DeserializeObject(data, settings); }, Encoding.UTF8.GetBytes(data).Length);
         }
+        
+       
 
         protected void RunTest(string testName, Action serialize, Action deserialize, int size)
         {
@@ -219,6 +223,36 @@ namespace Wire.PerfTest.Tests
                 ProtoBuf.Serializer.Deserialize<T>(s);
             }, bytes.Length);
         }
+        
+        private void SerializeApex()
+        {
+            
+            var s = new MemoryStream();
+            var settings = new Settings
+            {
+                AllowFunctionSerialization = false,
+                SerializationMode = Mode.Tree,
+                SupportSerializationHooks = false,
+            };
+            settings.MarkSerializable(typeof(T));
+            
+            var binary = Binary.Create(settings);
+           
+            binary.Write(Value,s);
+            var size = s.Position;
+            
+            RunTest("Apex + MemoryStream", () =>
+            {
+                s.Position = 0;
+                binary.Write(Value,s);
+            }, () =>
+            {
+                s.Position = 0;
+                binary.Read<T>(s);
+            },  (int)size);
+        }
+        
+
 
         private void SerializeNFXSlimPreregister()
         {

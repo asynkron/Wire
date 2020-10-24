@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Apex.Serialization" Version="2.0.1" />
     <PackageReference Include="Hagar" Version="0.3.9-beta1" />
     <PackageReference Include="NetSerializer" Version="4.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
