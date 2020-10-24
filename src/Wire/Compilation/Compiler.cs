@@ -23,8 +23,8 @@ namespace Wire.Compilation
         private readonly AssemblyBuilder _asm;
         private readonly ModuleBuilder _mod;
         private readonly TypeBuilder _tb;
-        private Type _baseType;
-        private MethodInfo _baseMethod;
+        private readonly Type _baseType;
+        private readonly MethodInfo _baseMethod;
 
         public Compiler(MethodInfo baseMethod)
         {
@@ -145,55 +145,64 @@ namespace Wire.Compilation
 
         public Type Compile()
         {
-            var body = ToBlock();
-            var parameters = _parameters.ToArray();
-            
+            try
+            {
+                var body = ToBlock();
+                var parameters = _parameters.ToArray();
+
 
                 var parameterTypes = _baseMethod
                     .GetParameters()
                     .Select(p => p.ParameterType)
                     .ToArray();
-                
+
                 var method = _tb.DefineMethod("mymethod",
                     MethodAttributes.Public | MethodAttributes.NewSlot | MethodAttributes.Virtual,
                     CallingConventions.Standard,
                     _baseMethod.ReturnType,
                     parameterTypes
-                    );
+                );
 
                 var genericArguments = _baseMethod.GetGenericArguments();
-                var genericArgNames = genericArguments
-                    .Select(ga => ga.Name)
-                    .ToArray();
-                
-                var constraintBuilders = method.DefineGenericParameters(genericArgNames);
-
-                for (var i = 0; i < genericArguments.Length; i++)
+                if (genericArguments.Any())
                 {
-                    var constraint = genericArguments[i];
-                    var constraintBuilder = constraintBuilders[i];
-                    constraintBuilder.SetBaseTypeConstraint(constraint.BaseType);
-                    constraintBuilder.SetInterfaceConstraints(constraint.GetInterfaces());
-                    constraintBuilder.SetGenericParameterAttributes(constraint.GenericParameterAttributes);
-                    if (constraint.BaseType != null)
+                    var genericArgNames = genericArguments
+                        .Select(ga => ga.Name)
+                        .ToArray();
+
+                    var constraintBuilders = method.DefineGenericParameters(genericArgNames);
+
+                    for (var i = 0; i < genericArguments.Length; i++)
                     {
+                        var constraint = genericArguments[i];
+                        var constraintBuilder = constraintBuilders[i];
                         constraintBuilder.SetBaseTypeConstraint(constraint.BaseType);
-                    }
-                    else
-                    {
                         constraintBuilder.SetInterfaceConstraints(constraint.GetInterfaces());
+                        constraintBuilder.SetGenericParameterAttributes(constraint.GenericParameterAttributes);
+                        if (constraint.BaseType != null)
+                        {
+                            constraintBuilder.SetBaseTypeConstraint(constraint.BaseType);
+                        }
+                        else
+                        {
+                            constraintBuilder.SetInterfaceConstraints(constraint.GetInterfaces());
+                        }
                     }
                 }
- 
-                _tb.DefineMethodOverride(method,_baseMethod);
+
+                _tb.DefineMethodOverride(method, _baseMethod);
 
                 var il = method.GetILGenerator();
-                var res = method.CompileFastToIL(il, body, parameters);
-                
-                
-                
+                method.CompileFastToIL(il, body, parameters);
+
                 return _tb.CreateType()!;
                 //return lambda.CompileFast<TDel>();
+            }
+            catch(Exception x)
+            {
+                Console.WriteLine(x);
+                throw;
+            }
         }
 
 

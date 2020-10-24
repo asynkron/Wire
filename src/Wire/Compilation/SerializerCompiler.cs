@@ -85,7 +85,7 @@ namespace Wire.Compilation
             }
 
             c.Emit(c.Convert(target, typeof(object)));
-
+            
             Type t = c.Compile();
             var instance = Activator.CreateInstance(t);
             return (ObjectReader)instance;
