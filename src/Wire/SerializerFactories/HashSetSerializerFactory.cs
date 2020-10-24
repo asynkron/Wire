@@ -66,7 +66,7 @@ namespace Wire.SerializerFactories
                 _elementSerializer = elementSerializer;
             }
 
-            public override object ReadValue(Stream stream, DeserializerSession session)
+            public override object? ReadValue(Stream stream, DeserializerSession session)
             {
                 var set = new HashSet<T>();
                 if (_preserveObjectReferences) session.TrackDeserializedObject(set);

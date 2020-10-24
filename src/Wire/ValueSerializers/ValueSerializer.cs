@@ -35,7 +35,7 @@ namespace Wire.ValueSerializers
         public abstract void WriteValue<TBufferWriter>(ref Writer<TBufferWriter> writer, object value,
             SerializerSession session) where TBufferWriter : IBufferWriter<byte>;
 
-        public abstract object ReadValue(Stream stream, DeserializerSession session);
+        public abstract object? ReadValue(Stream stream, DeserializerSession session);
         public abstract Type GetElementType();
 
         public virtual void EmitWriteValue(Compiler c, Expression writer,

@@ -47,7 +47,7 @@ namespace Wire.ValueSerializers
             WriteValueImpl(ref writer, (int) value);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public override object? ReadValue(Stream stream, DeserializerSession session)
         {
             var id = stream.ReadInt32(session);
             var obj = session.GetDeserializedObject(id);

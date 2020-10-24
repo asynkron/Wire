@@ -41,7 +41,7 @@ namespace Wire.SerializerFactories
                     new[] {typeof(SerializationInfo), typeof(StreamingContext)}, null)!;
             }
 
-            public override object ReadValue(Stream stream, DeserializerSession session)
+            public override object? ReadValue(Stream stream, DeserializerSession session)
             {
                 var dict = stream.ReadObject(session) as Dictionary<string, object>;
                 var info = new SerializationInfo(Type, new FormatterConverter());

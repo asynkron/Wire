@@ -34,7 +34,7 @@ namespace Wire.ValueSerializers
             _serializer.WriteValue(ref writer, value, session);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public override object? ReadValue(Stream stream, DeserializerSession session)
         {
             return _serializer.ReadValue(stream, session);
         }

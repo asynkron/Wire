@@ -46,6 +46,7 @@
     <PackageReference Include="JetBrains.Annotations" Version="2020.2.0-eap" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0-4.final" />
     <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="5.0.0-rc.2.20475.17" />
+    <PackageReference Include="System.Security.Permissions" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>

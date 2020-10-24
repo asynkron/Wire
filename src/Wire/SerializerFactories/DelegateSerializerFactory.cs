@@ -42,7 +42,7 @@ namespace Wire.SerializerFactories
                 _methodInfoSerializer = methodInfoSerializer;
             }
 
-            public override object ReadValue(Stream stream, DeserializerSession session)
+            public override object? ReadValue(Stream stream, DeserializerSession session)
             {
                 var target = stream.ReadObject(session);
                 var method = (MethodInfo) stream.ReadObject(session);

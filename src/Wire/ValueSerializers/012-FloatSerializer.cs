@@ -41,7 +41,7 @@ namespace Wire.ValueSerializers
             WriteValueImpl(ref writer, (float) value);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public override object? ReadValue(Stream stream, DeserializerSession session)
         {
             return ReadValueImpl(stream, session.GetBuffer(Size));
         }

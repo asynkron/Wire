@@ -99,7 +99,7 @@ namespace Wire.SerializerFactories
                 _createRange = createRange;
             }
 
-            public override object ReadValue(Stream stream, DeserializerSession session)
+            public override object? ReadValue(Stream stream, DeserializerSession session)
             {
                 var count = stream.ReadInt32(session);
                 var items = Array.CreateInstance(_elementType, count);

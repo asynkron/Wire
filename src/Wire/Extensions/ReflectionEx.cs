@@ -25,7 +25,7 @@ namespace Wire.Extensions
             var genericMethod = method.MakeGenericMethod(genericType);
             var res = genericMethod.Invoke(target, Array.Empty<object>());
 
-            return (TResult) res;
+            return (TResult) res!;
         }
 
         private static (MethodInfo methodInfo, object target) Capture(Action body)

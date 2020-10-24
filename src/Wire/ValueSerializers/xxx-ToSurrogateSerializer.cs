@@ -32,7 +32,7 @@ namespace Wire.ValueSerializers
             writer.WriteObjectWithManifest(surrogateValue, session);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public override object? ReadValue(Stream stream, DeserializerSession session)
         {
             throw new NotSupportedException();
         }

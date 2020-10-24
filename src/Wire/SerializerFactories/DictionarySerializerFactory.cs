@@ -47,7 +47,7 @@ namespace Wire.SerializerFactories
                 _elementSerializer = elementSerializer;
             }
 
-            public override object ReadValue(Stream stream, DeserializerSession session)
+            public override object? ReadValue(Stream stream, DeserializerSession session)
             {
                 var count = stream.ReadInt32(session);
                 var instance = (IDictionary) Activator.CreateInstance(Type, count)!;

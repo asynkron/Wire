@@ -73,7 +73,7 @@ namespace Wire.ValueSerializers
             _objectWriter.Write(ref writer, value, session);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public override object? ReadValue(Stream stream, DeserializerSession session)
         {
             if (!_isInitialized)
             {

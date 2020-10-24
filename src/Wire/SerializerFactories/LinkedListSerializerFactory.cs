@@ -61,7 +61,7 @@ namespace Wire.SerializerFactories
                 _elementSerializer = elementSerializer;
             }
 
-            public override object ReadValue(Stream stream, DeserializerSession session)
+            public override object? ReadValue(Stream stream, DeserializerSession session)
             {
                 var length = stream.ReadInt32(session);
                 var linkedList = new LinkedList<T>();

@@ -33,7 +33,7 @@ namespace Wire.ValueSerializers
             if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(bytes);
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public override object? ReadValue(Stream stream, DeserializerSession session)
         {
             var res = stream.ReadLengthEncodedByteArray(session);
             if (session.Serializer.Options.PreserveObjectReferences) session.TrackDeserializedObject(res);

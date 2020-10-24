@@ -55,7 +55,7 @@ namespace Wire.ValueSerializers
             }
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public override object? ReadValue(Stream stream, DeserializerSession session)
         {
             var shortname = stream.ReadString(session);
             if (shortname == null) return null;

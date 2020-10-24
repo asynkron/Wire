@@ -10,8 +10,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Security.Permissions;
 using FastExpressionCompiler.LightExpression;
 using Wire.Extensions;
+// ReSharper disable MemberCanBeMadeStatic.Global
 
 namespace Wire.Compilation
 {
@@ -28,12 +30,18 @@ namespace Wire.Compilation
 
         public Compiler(MethodInfo baseMethod)
         {
+            
+            //public enum ReflectionPermissionFlag
+            ReflectionPermission restrictedMemberAccessPerm =
+                new ReflectionPermission(ReflectionPermissionFlag.RestrictedMemberAccess);
+            restrictedMemberAccessPerm.Assert();
+
             _baseType = baseMethod.DeclaringType!;
             _asm = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("myasm"), AssemblyBuilderAccess.Run);
-            _mod = _asm.DefineDynamicModule("mymod");
-            _tb = _mod.DefineType("mytype", TypeAttributes.Class,_baseType);
-            _baseMethod = baseMethod;
 
+            _mod = _asm.DefineDynamicModule("mymod");
+            _tb = _mod.DefineType("mytype", TypeAttributes.Class, _baseType);
+            _baseMethod = baseMethod;
         }
 
         public Expression NewObject(Type type)

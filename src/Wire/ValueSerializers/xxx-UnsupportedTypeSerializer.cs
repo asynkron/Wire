@@ -39,7 +39,7 @@ namespace Wire.ValueSerializers
             throw _exception;
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public override object? ReadValue(Stream stream, DeserializerSession session)
         {
             throw _exception;
         }

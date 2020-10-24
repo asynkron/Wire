@@ -28,7 +28,7 @@ namespace Wire.ValueSerializers
             writer.Write(Manifest);
         }
         
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public override object? ReadValue(Stream stream, DeserializerSession session)
         {
             var elementSerializer = session.Serializer.GetDeserializerByManifest(stream, session);
             //read the element type
@@ -53,7 +53,7 @@ namespace Wire.ValueSerializers
             var array = (Array) value;
             if (session.Serializer.Options.PreserveObjectReferences) session.TrackSerializedObject(value);
             var elementType = value.GetType().GetElementType();
-            var elementSerializer = session.Serializer.GetSerializerByType(elementType);
+            var elementSerializer = session.Serializer.GetSerializerByType<TBufferWriter>(elementType);
             elementSerializer.WriteManifest(ref writer, session); //write array element type
             Int32Serializer.WriteValue(ref writer, array.Length);
             foreach (var element in array) elementSerializer.WriteValue(ref writer, element, session);

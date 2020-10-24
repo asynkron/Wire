@@ -41,7 +41,7 @@ namespace Wire.SerializerFactories
             {
             }
 
-            public override object ReadValue(Stream stream, DeserializerSession session)
+            public override object? ReadValue(Stream stream, DeserializerSession session)
             {
                 var exception = Activator.CreateInstance(Type);
                 var message = stream.ReadString(session);

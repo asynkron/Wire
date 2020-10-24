@@ -32,7 +32,7 @@ namespace Wire.ValueSerializers
             throw new NotSupportedException();
         }
 
-        public override object ReadValue(Stream stream, DeserializerSession session)
+        public override object? ReadValue(Stream stream, DeserializerSession session)
         {
             var surrogateValue = _surrogateSerializer.ReadValue(stream, session);
             var value = _translator(surrogateValue);

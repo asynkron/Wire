@@ -36,7 +36,7 @@ namespace Wire.SerializerFactories
             {
             }
 
-            public override object ReadValue(Stream stream, DeserializerSession session)
+            public override object? ReadValue(Stream stream, DeserializerSession session)
             {
                 var owner = stream.ReadObject(session) as Type;
                 var arguments = stream.ReadObject(session) as Type[];

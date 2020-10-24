@@ -35,7 +35,7 @@ namespace Wire.Compilation
         private static ObjectReader GetFieldsReader(Serializer serializer, FieldInfo[] fields,
             Type type)
         {
-            var c = new Compiler(typeof(ObjectReader).GetMethod(nameof(ObjectReader.Read)));
+            var c = new Compiler(typeof(ObjectReader)!.GetMethod(nameof(ObjectReader.Read))!);
             var stream = c.Parameter<Stream>("stream");
             var session = c.Parameter<DeserializerSession>("session");
             var newExpression = c.NewObject(type);
@@ -88,7 +88,7 @@ namespace Wire.Compilation
             
             Type t = c.Compile();
             var instance = Activator.CreateInstance(t);
-            return (ObjectReader)instance;
+            return (ObjectReader)instance!;
         }
 
         private static void EmitBuffer(Compiler c, int bufferSize, Expression session,

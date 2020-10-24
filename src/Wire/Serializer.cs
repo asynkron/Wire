@@ -143,7 +143,7 @@ namespace Wire
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 
             var type = obj.GetType();
-            var s = GetSerializerByType(type);
+            var s = GetSerializerByType<TBufferWriter>(type);
             s.WriteManifest(ref writer, session);
             s.WriteValue(ref writer, obj, session);
         }
@@ -153,7 +153,7 @@ namespace Wire
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             using var session = GetSerializerSession();
             var type = obj.GetType();
-            var s = GetSerializerByType(type);
+            var s = GetSerializerByType<TBufferWriter>(type);
             s.WriteManifest(ref writer, session);
             s.WriteValue(ref writer, obj, session);
         }
@@ -165,7 +165,7 @@ namespace Wire
         {
             using var session = GetDeserializerSession();
             var s = GetDeserializerByManifest(stream, session);
-            return (T) s.ReadValue(stream, session);
+            return (T) s.ReadValue(stream, session)!;
         }
 
         public DeserializerSession GetDeserializerSession()
@@ -176,23 +176,23 @@ namespace Wire
         public T Deserialize<T>(Stream stream, DeserializerSession session)
         {
             var s = GetDeserializerByManifest(stream, session);
-            return (T) s.ReadValue(stream, session);
+            return (T) s.ReadValue(stream, session)!;
         }
 
-        public object Deserialize(Stream stream)
+        public object? Deserialize(Stream stream)
         {
             var session = new DeserializerSession(this);
             var s = GetDeserializerByManifest(stream, session);
             return s.ReadValue(stream, session);
         }
 
-        public object Deserialize(Stream stream, DeserializerSession session)
+        public object? Deserialize(Stream stream, DeserializerSession session)
         {
             var s = GetDeserializerByManifest(stream, session);
             return s.ReadValue(stream, session);
         }
 
-        public ValueSerializer GetSerializerByType(Type type)
+        public ValueSerializer GetSerializerByType<TBuffer>(Type type)
         {
             //do we already have a serializer for this type?
             if (_serializers.TryGetValue(type, out var existingSerializer)) return existingSerializer;

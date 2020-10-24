@@ -25,7 +25,7 @@ namespace Wire.SerializerFactories
             {
             }
 
-            public override object ReadValue(Stream stream, DeserializerSession session)
+            public override object? ReadValue(Stream stream, DeserializerSession session)
             {
                 var bytes = session.GetBuffer(4);
                 var intValue = Int32Serializer.ReadValueImpl(stream,bytes);
