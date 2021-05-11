@@ -9,6 +9,8 @@ https://docs.microsoft.com/en-us/visualstudio/code-quality/ca2300?view=vs-2019
 
 Any future forks or derivates of Wire will have to account for this.
 
+Security advisory: https://github.com/AsynkronIT/Wire/security/advisories/GHSA-hpw7-3vq3-mmv6
+
 
 # Wire
 
